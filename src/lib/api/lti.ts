@@ -6,6 +6,7 @@ import type {
   LtiLaunchResult,
   OfficeHoursCourse,
 } from "@/interfaces/office-hours";
+import type { Locale } from "@/lib/i18n";
 import { backendRequest } from "@/lib/server/backend-client";
 
 /**
@@ -137,4 +138,55 @@ export function officeHoursCourseUrl(
   path: string,
 ) {
   return `/api/office-hours/users/${encodeURIComponent(userId)}/courses/${encodeURIComponent(courseId)}/${path}`;
+}
+
+/** The secret part of a calendar link Moodle subscribes to (FR-OH-23). */
+export type OfficeHoursCalendarFeedToken = { token: string };
+
+function personalCalendarFeedUrl(userId: string) {
+  return `/api/office-hours/users/${encodeURIComponent(userId)}/calendar-feed`;
+}
+
+function courseCalendarFeedUrl(userId: string, courseId: string) {
+  return `/api/office-hours/users/${encodeURIComponent(userId)}/courses/${encodeURIComponent(courseId)}/calendar-feed`;
+}
+
+export function fetchPersonalCalendarFeed(userId: string) {
+  return backendRequest<OfficeHoursCalendarFeedToken>({
+    method: "GET",
+    url: personalCalendarFeedUrl(userId),
+  });
+}
+
+export function resetPersonalCalendarFeed(userId: string) {
+  return backendRequest<OfficeHoursCalendarFeedToken>({
+    method: "POST",
+    url: `${personalCalendarFeedUrl(userId)}/reset`,
+  });
+}
+
+export function fetchCourseCalendarFeed(userId: string, courseId: string) {
+  return backendRequest<OfficeHoursCalendarFeedToken>({
+    method: "GET",
+    url: courseCalendarFeedUrl(userId, courseId),
+  });
+}
+
+/** 403 for a student: the whole course shares the link. */
+export function resetCourseCalendarFeed(userId: string, courseId: string) {
+  return backendRequest<OfficeHoursCalendarFeedToken>({
+    method: "POST",
+    url: `${courseCalendarFeedUrl(userId, courseId)}/reset`,
+  });
+}
+
+/** The iCalendar text behind a link, as it is; 404 for an unknown or reset one. */
+export function fetchCalendarFeed(token: string, locale: Locale) {
+  return backendRequest<string>({
+    method: "GET",
+    url: `/api/office-hours/calendar-feeds/${encodeURIComponent(token)}`,
+    params: { lang: locale },
+    responseType: "text",
+    headers: { Accept: "text/calendar" },
+  });
 }

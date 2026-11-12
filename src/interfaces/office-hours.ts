@@ -131,3 +131,14 @@ export type OfficeHoursDecisionPayload =
       proposedSlots: string[];
       message?: string | undefined;
     };
+
+/** A calendar link to paste into Moodle's calendar (FR-OH-23). */
+export interface OfficeHoursCalendarLink {
+  url: string;
+}
+
+/** Whose feed a link opens: the person's own meetings, or the course's office hours with no student in it. */
+export enum OfficeHoursCalendarFeed {
+  Personal = "personal",
+  Course = "course",
+}
