@@ -6456,7 +6456,8 @@
         "DECLINED": "Not available",
         "MORE_INFO_REQUESTED": "More info requested",
         "COUNTER_PROPOSED": "Other times offered",
-        "WITHDRAWN": "Withdrawn"
+        "WITHDRAWN": "Withdrawn",
+        "CANCELLED": "Cancelled"
       },
       "with": "With {name}",
       "asked": "Requested times",
@@ -6506,7 +6507,15 @@
         "send": "Send request",
         "sending": "Sending…",
         "sent": "Your request was sent."
-      }
+      },
+      "cancelMeeting": "Cancel the meeting",
+      "confirmCancel": "Cancel it",
+      "cancelReason": "Reason for cancelling (optional)",
+      "cancelReasonLate": "Reason for cancelling: the meeting is less than 24 hours away, so write one for the student",
+      "cancelReasonRequired": "The meeting is less than 24 hours away; write a reason for the student.",
+      "cancelledBy": "{name} cancelled the meeting",
+      "cancelledByYou": "You cancelled the meeting",
+      "lateCancel": "Cancelled within 24 hours"
     }
   },
   "academicianWorkspace": {

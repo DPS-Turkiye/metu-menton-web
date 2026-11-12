@@ -23,7 +23,13 @@ import {
   isValidPreferredSlot,
   preferredSlotMachineValue,
 } from "@/lib/mentor-availability-days";
-import { asAvailabilitySlots, counterpartOf } from "@/lib/office-hours-booking";
+import {
+  asAvailabilitySlots,
+  canCancelMeeting,
+  cancelNeedsReason,
+  counterpartOf,
+  ownSideOf,
+} from "@/lib/office-hours-booking";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
@@ -41,6 +47,9 @@ export function useOfficeHoursRequestCard(
   const [acceptSlot, setAcceptSlot] = useState(request.preferredSlots[0] ?? "");
   const [proposed, setProposed] = useState(emptyPreferredSlots);
   const [error, setError] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  // Read once: whether the meeting is still ahead only decides what the card offers; the backend checks again.
+  const [openedAt] = useState(() => Date.now());
   const instructor = viewer === OfficeHoursRole.Instructor;
   // Only the academic proposing other times needs their free slots, so nothing is fetched until then.
   const ownSlots = useInstructorSlots(
@@ -63,11 +72,25 @@ export function useOfficeHoursRequestCard(
       !instructor &&
       request.status === OfficeHoursRequestStatus.MoreInfoRequested &&
       question !== undefined,
+    cancel: canCancelMeeting(request, openedAt),
   };
+  const cancelReasonRequired =
+    request.meeting !== null &&
+    cancelNeedsReason(viewer, request.meeting.startsAt, openedAt);
 
   function close() {
     setMode(null);
+    setCancelling(false);
     setError("");
+  }
+
+  function confirmCancel() {
+    const reason = text.trim();
+    if (cancelReasonRequired && !reason) {
+      setError(t("cancelReasonRequired"));
+      return;
+    }
+    void run({ kind: "cancel", payload: { reason: reason || undefined } });
   }
 
   async function run(action: OfficeHoursRequestAction) {
@@ -75,6 +98,7 @@ export function useOfficeHoursRequestCard(
     try {
       await act.mutateAsync({ requestId: request.id, action });
       setMode(null);
+      setCancelling(false);
       setText("");
       showToast({ message: t("done"), tone: ToastTone.Success });
     } catch (actionError) {
@@ -137,6 +161,8 @@ export function useOfficeHoursRequestCard(
 
   return {
     other: counterpartOf(viewer, request),
+    cancelledByViewer:
+      request.cancellation?.cancelledById === ownSideOf(viewer, request).id,
     question,
     can,
     mode,
@@ -156,6 +182,10 @@ export function useOfficeHoursRequestCard(
     takeProposed: (slot: string) =>
       run({ kind: "accept-proposed", payload: { slot } }),
     reply: () => run({ kind: "reply", payload: { message: text.trim() } }),
+    cancelling,
+    cancelReasonRequired,
+    openCancel: () => setCancelling(true),
+    confirmCancel,
   };
 }
 

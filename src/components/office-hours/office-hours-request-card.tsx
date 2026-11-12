@@ -11,6 +11,7 @@ import {
 import {
   OfficeHoursMessageType,
   OfficeHoursRequestStatus,
+  type OfficeHoursCancellation,
   type OfficeHoursRequest,
   type OfficeHoursRole,
 } from "@/interfaces/office-hours";
@@ -23,6 +24,7 @@ const STATUS_TONE: Record<OfficeHoursRequestStatus, string> = {
   [OfficeHoursRequestStatus.MoreInfoRequested]: "bg-[#f2f8fc] text-[#1592ea]",
   [OfficeHoursRequestStatus.CounterProposed]: "bg-[#f2f8fc] text-[#1592ea]",
   [OfficeHoursRequestStatus.Withdrawn]: "bg-[#f4f5f7] text-[#676e78]",
+  [OfficeHoursRequestStatus.Cancelled]: "bg-[#f4f5f7] text-[#676e78]",
 };
 
 const DECISION_PLACEHOLDER: Record<
@@ -67,8 +69,12 @@ function RequestTimes({ request }: { request: OfficeHoursRequest }) {
   const t = useTranslations("officeHours.booking");
   const locale = useLocale();
   if (request.meeting) {
+    // A cancelled meeting keeps its time on the card, struck through, so both sides see what was called off.
+    const tone = request.cancellation
+      ? "text-[#858c96] line-through"
+      : "text-[#3f7d5a]";
     return (
-      <p className="mt-3 text-[13px] font-medium text-[#3f7d5a]">
+      <p className={`mt-3 text-[13px] font-medium ${tone}`}>
         {t("meetingAt", {
           time: meetingTimeLabel(request.meeting.startsAt, locale),
           minutes: request.meeting.durationMinutes,
@@ -113,6 +119,63 @@ function RequestNotes({ request }: { request: OfficeHoursRequest }) {
         </ul>
       )}
     </>
+  );
+}
+
+function CancellationNote({
+  cancellation,
+  card,
+}: {
+  cancellation: OfficeHoursCancellation;
+  card: OfficeHoursRequestCardState;
+}) {
+  const t = useTranslations("officeHours.booking");
+  return (
+    <p className="mt-2 text-[12.5px] text-[#4a5059]">
+      {card.cancelledByViewer
+        ? t("cancelledByYou")
+        : t("cancelledBy", { name: card.other.fullName })}
+      {cancellation.reason
+        ? ` · ${t("rejection", { reason: cancellation.reason })}`
+        : null}
+      {cancellation.late ? (
+        <span className="ml-2 rounded-full bg-[#fff4ec] px-2 py-0.5 text-[11px] font-medium text-[#c2561a]">
+          {t("lateCancel")}
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
+function CancelPanel({ card }: { card: OfficeHoursRequestCardState }) {
+  const t = useTranslations("officeHours.booking");
+  const label = card.cancelReasonRequired
+    ? t("cancelReasonLate")
+    : t("cancelReason");
+  return (
+    <div className="mt-3 rounded-lg border border-[#eceef0] p-3">
+      <textarea
+        value={card.text}
+        onChange={(event) => card.setText(event.target.value)}
+        placeholder={label}
+        aria-label={label}
+        aria-required={card.cancelReasonRequired}
+        className={fieldClass}
+      />
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          disabled={card.isPending}
+          onClick={card.confirmCancel}
+          className={primaryClass}
+        >
+          {t("confirmCancel")}
+        </button>
+        <button type="button" onClick={card.close} className={buttonClass}>
+          {t("cancel")}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -294,6 +357,9 @@ export function OfficeHoursRequestCard({
         </p>
       ) : null}
       <RequestTimes request={request} />
+      {request.cancellation ? (
+        <CancellationNote cancellation={request.cancellation} card={card} />
+      ) : null}
       <RequestNotes request={request} />
 
       {card.can.takeProposed ? (
@@ -310,6 +376,16 @@ export function OfficeHoursRequestCard({
           {t("withdraw")}
         </button>
       ) : null}
+      {card.can.cancel && !card.cancelling ? (
+        <button
+          type="button"
+          onClick={card.openCancel}
+          className={`${buttonClass} mt-3`}
+        >
+          {t("cancelMeeting")}
+        </button>
+      ) : null}
+      {card.can.cancel && card.cancelling ? <CancelPanel card={card} /> : null}
       {card.can.decide && card.mode === null ? (
         <DecisionButtons card={card} />
       ) : null}

@@ -6458,7 +6458,8 @@
         "DECLINED": "Uygun değil",
         "MORE_INFO_REQUESTED": "Ek bilgi istendi",
         "COUNTER_PROPOSED": "Başka saat önerildi",
-        "WITHDRAWN": "Geri çekildi"
+        "WITHDRAWN": "Geri çekildi",
+        "CANCELLED": "İptal edildi"
       },
       "with": "{name} ile",
       "asked": "İstenen saatler",
@@ -6508,7 +6509,15 @@
         "send": "Talep gönder",
         "sending": "Gönderiliyor…",
         "sent": "Talebin gönderildi."
-      }
+      },
+      "cancelMeeting": "Görüşmeyi iptal et",
+      "confirmCancel": "İptal et",
+      "cancelReason": "İptal sebebi (isteğe bağlı)",
+      "cancelReasonLate": "İptal sebebi: görüşmeye 24 saatten az kaldı, öğrenci için yazman gerekiyor",
+      "cancelReasonRequired": "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
+      "cancelledBy": "{name} görüşmeyi iptal etti",
+      "cancelledByYou": "Görüşmeyi iptal ettin",
+      "lateCancel": "Son 24 saatte iptal"
     }
   },
   "academicianWorkspace": {

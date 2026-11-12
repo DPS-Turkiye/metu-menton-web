@@ -44,6 +44,8 @@ export enum OfficeHoursRequestStatus {
   MoreInfoRequested = "MORE_INFO_REQUESTED",
   CounterProposed = "COUNTER_PROPOSED",
   Withdrawn = "WITHDRAWN",
+  /** Accepted, then either side called the meeting off (FR-OH-14). */
+  Cancelled = "CANCELLED",
 }
 
 /** Still waiting on someone: the student may withdraw these, and they count toward the academic's student limit. */
@@ -98,7 +100,16 @@ export interface OfficeHoursRequest {
     createdAt: string;
   }[];
   meeting: OfficeHoursSlot | null;
+  cancellation: OfficeHoursCancellation | null;
   createdAt: string;
+}
+
+/** Who called an accepted meeting off and why; `late` when it was less than 24 hours before the start. */
+export interface OfficeHoursCancellation {
+  cancelledById: string | null;
+  reason: string | null;
+  cancelledAt: string;
+  late: boolean;
 }
 
 export interface OfficeHoursMeeting {
