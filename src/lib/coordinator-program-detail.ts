@@ -262,14 +262,18 @@ export function misplacedTabHref(
   }
 }
 
-/** Girişim has screens behind its tabs; a peer program its two Katılımcılar lists; the rest an empty state. */
+/**
+ * Girişim has screens behind its tabs; a peer program its two Katılımcılar lists; Office Hours its academicians and
+ * Randevular; the rest an empty state.
+ */
 export function hasTabContent(type: ProgramType, tab: ProgramTab) {
   return (
     type === ProgramType.StartupMentoring ||
     tab === ProgramTab.Settings ||
     (type === ProgramType.PeerMentoring &&
       (tab === ProgramTab.Students || tab === ProgramTab.PeerMentors)) ||
-    (type === ProgramType.OfficeHours && tab === ProgramTab.Academics)
+    (type === ProgramType.OfficeHours &&
+      (tab === ProgramTab.Academics || tab === ProgramTab.Appointments))
   );
 }
 

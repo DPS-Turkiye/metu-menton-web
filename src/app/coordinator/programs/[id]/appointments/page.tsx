@@ -1,5 +1,4 @@
-import { ProgramTypeTabView } from "@/components/coordinator/program-type-tab-view";
-import { ProgramTab } from "@/lib/coordinator-program-detail";
+import { ProgramAppointmentsView } from "@/components/coordinator/program-appointments-view";
 
 export default async function CoordinatorProgramAppointmentsPage({
   params,
@@ -7,5 +6,5 @@ export default async function CoordinatorProgramAppointmentsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <ProgramTypeTabView programId={id} tab={ProgramTab.Appointments} />;
+  return <ProgramAppointmentsView programId={id} />;
 }

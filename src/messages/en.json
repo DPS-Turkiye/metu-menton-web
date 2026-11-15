@@ -6147,7 +6147,8 @@
     "sessionRefreshFailed": "Couldn't update your session.",
     "personSummaryLoadFailed": "Could not load the profile.",
     "personIdInvalid": "Choose a valid person.",
-    "aiFeaturesLoadFailed": "Could not load the AI settings."
+    "aiFeaturesLoadFailed": "Could not load the AI settings.",
+    "officeHoursAppointmentsLoadFailed": "Could not load the appointments."
   },
   "startupStart": {
     "title": "My startup",
@@ -6923,5 +6924,41 @@
     },
     "footer": "menton · METU",
     "metaTitle": "menton · METU"
+  },
+  "programAppointments": {
+    "status": {
+      "PENDING": "Awaiting approval",
+      "MORE_INFO_REQUESTED": "Information requested",
+      "COUNTER_PROPOSED": "Another time proposed",
+      "ACCEPTED": "Approved",
+      "DECLINED": "Declined",
+      "WITHDRAWN": "Withdrawn",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "cards": {
+      "awaitingDecision": "Awaiting approval",
+      "alternativeProposed": "Another time proposed",
+      "acceptedThisWeek": "Approved · this week",
+      "declinedThisWeek": "Declined · this week"
+    },
+    "searchLabel": "Search students or academics",
+    "searchPlaceholder": "Search students or academics",
+    "statusLabel": "Status",
+    "statusAll": "Status: All",
+    "statusFilter": "Status: {status}",
+    "facultyLabel": "Faculty",
+    "faculty": "Faculty",
+    "thisWeek": "This week",
+    "caption": "Appointments",
+    "columns": {
+      "student": "Student",
+      "academic": "Academic",
+      "time": "Date · time",
+      "status": "Status",
+      "topic": "Title"
+    },
+    "empty": "No appointments match these filters.",
+    "footnote": "Office Hours has no Approvals tab: the academic approves each appointment. The coordinator sees an appointment's title, time and participants; the description stays between the student and the academic."
   }
 }
