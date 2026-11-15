@@ -8,7 +8,6 @@ import { AppointmentsCalendarCard } from "@/components/academician/appointments-
 import { Drawers } from "@/components/academician/appointments-view";
 import { AvailabilityItemDialog } from "@/components/academician/availability-item-dialog";
 import { AvailabilityRowMenu } from "@/components/academician/availability-row-menu";
-import { SampleDataNotice } from "@/components/academician/sample-data-notice";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
@@ -68,7 +67,6 @@ export function AcademicianAvailabilityEditView() {
       >
         <p className="type-body text-text-secondary">{t("subtitle")}</p>
       </PageHeader>
-      <SampleDataNotice />
       {ready ? (
         <>
           <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -105,11 +103,13 @@ function EditorLists({ editor }: { editor: AcademicianAvailabilityEditor }) {
           rows={editor.recurring}
         />
       </div>
-      <ListCard
-        editor={editor}
-        kind={AvailabilityItemKind.OneOff}
-        rows={editor.oneOff}
-      />
+      {editor.offersOneOffs ? (
+        <ListCard
+          editor={editor}
+          kind={AvailabilityItemKind.OneOff}
+          rows={editor.oneOff}
+        />
+      ) : null}
       <ListCard
         editor={editor}
         kind={AvailabilityItemKind.Unavailable}

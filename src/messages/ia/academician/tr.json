@@ -1,6 +1,5 @@
 {
   "common": {
-    "sampleNotice": "Örnek veriler gösteriliyor: Office Hours henüz ODTÜ hesabına bağlı değil, burada yaptığın değişiklikler yalnızca bu oturumda kalır.",
     "loading": "Yükleniyor…",
     "loadFailed": "Bilgiler yüklenemedi.",
     "retry": "Tekrar dene",

@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useId } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
-import { SampleDataNotice } from "@/components/academician/sample-data-notice";
 import { StudentAvatar } from "@/components/academician/student-avatar";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
@@ -46,7 +45,6 @@ export function StudentProfileView({
         title={profile.student?.name ?? t("record")}
         back={profile.back}
       />
-      <SampleDataNotice />
       <StudentProfileBody profile={profile} withActions />
     </div>
   );

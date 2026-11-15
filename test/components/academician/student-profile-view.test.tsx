@@ -4,10 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StudentProfileView } from "@/components/academician/student-profile-view";
 import { StudyLevel } from "@/interfaces/institution";
-import { resetAcademicianSample } from "@/lib/client/fixtures/academician-office-hours-store";
 import { fetchInstitutionAdvisees } from "@/lib/client/institution";
 import { StudentProfileOrigin } from "@/types/academician-office-hours";
+import { resetAcademicianSample } from "@test/fixtures/academician-office-hours-sample-store";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
+
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock(
+  "@/lib/client/academician-office-hours",
+  () => import("@test/mocks/academician-office-hours-client"),
+);
 
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionAdvisees: vi.fn(),
