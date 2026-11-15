@@ -150,6 +150,14 @@
   line-height: 40px;
   letter-spacing: -0.015em;
 }
+/* v1.1/Metric/M: the big number on a stat card. */
+@utility type-metric {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 32px;
+  letter-spacing: -0.015em;
+}
 @utility type-h2 {
   font-family: var(--font-display);
   font-size: 24px;

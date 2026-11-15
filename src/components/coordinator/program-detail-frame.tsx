@@ -6,19 +6,23 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { QueryNotice, StatusChip } from "@/components/admin/admin-ui";
+import { OdtuProgramHeader } from "@/components/coordinator/odtu-program-header";
 import { ProgramGlyph } from "@/components/coordinator/program-glyph";
 import { ProgramTabRedirect } from "@/components/coordinator/program-tab-redirect";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
+import { SegmentedTabs } from "@/components/ia/segmented-tabs";
 import {
   useCoordinatorProgram,
   useLaunchProgram,
 } from "@/hooks/use-coordinator-program";
+import { useEdition } from "@/hooks/use-edition";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
 import { useProgramWaitingCounts } from "@/hooks/use-program-waiting-counts";
 import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
+import { Edition } from "@/interfaces/edition";
 import { ProgramType } from "@/interfaces/program";
 import {
   hasTabContent,
@@ -44,13 +48,17 @@ const LIFECYCLE_TONES: Record<ProgramLifecycle, "green" | "blue" | "neutral"> =
 export function ProgramDetailFrame({
   programId,
   tab,
+  tabCounts,
   children,
 }: {
   programId: string;
   tab: ProgramTab;
+  /** Counts a tab page knows better than the program detail (Randevular's open requests). */
+  tabCounts?: Partial<Record<ProgramTab, number | null>> | undefined;
   children: (detail: CoordinatorProgramDetail) => ReactNode;
 }) {
   const t = useTranslations("coordinatorPrograms");
+  const edition = useEdition();
   const tNav = useTranslations("roleFrame.nav");
   const locale = useLocale();
   const navigation = useProgramNavigation(programId);
@@ -70,6 +78,38 @@ export function ProgramDetailFrame({
     return <ProgramTabRedirect href={navigation.resolveHref(misplaced)} />;
   }
   const program = detail.program;
+
+  if (edition === Edition.Odtu) {
+    return (
+      <div className="space-y-7">
+        <OdtuProgramHeader
+          detail={detail}
+          programId={programId}
+          tab={tab}
+          tabCounts={tabCounts}
+        />
+        {program.lifecycle === ProgramLifecycle.Draft ? (
+          <DraftBanner
+            programId={programId}
+            admin={navigation.admin}
+            hasCoordinator={detail.coordinators.length > 0}
+          />
+        ) : null}
+        {isParticipantsTab(tab) ? (
+          <OdtuParticipantTabs
+            detail={detail}
+            programId={programId}
+            tab={tab}
+          />
+        ) : null}
+        {hasTabContent(program.type, tab) ? (
+          children(detail)
+        ) : (
+          <TypeTabEmptyState type={program.type} admin={navigation.admin} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -333,6 +373,39 @@ function ParticipantTabs({
         );
       })}
     </nav>
+  );
+}
+
+/** Katılımcılar's sub-tabs in the ODTÜ frames: a segmented control, "Öğrenciler · 312". */
+function OdtuParticipantTabs({
+  detail,
+  programId,
+  tab,
+}: {
+  detail: CoordinatorProgramDetail;
+  programId: string;
+  tab: ProgramTab;
+}) {
+  const t = useTranslations("coordinatorPrograms");
+  const navigation = useProgramNavigation(programId);
+  const tabs = participantTabs(detail, programId).map((item) => {
+    const label = t(`participantTabs.${item.id}`);
+    return {
+      id: item.id,
+      label:
+        item.count != null
+          ? t("segmentWithCount", { label, count: item.count })
+          : label,
+      href: item.href ? navigation.resolveHref(item.href) : null,
+      active: item.id === tab,
+    };
+  });
+  return (
+    <SegmentedTabs
+      label={t("tabs.PARTICIPANTS")}
+      tabs={tabs}
+      disabledTitle={t("soon")}
+    />
   );
 }
 
