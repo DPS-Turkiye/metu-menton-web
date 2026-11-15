@@ -10,7 +10,7 @@ import { SearchInput } from "@/components/ia/search-input";
 import { SegmentedTabs } from "@/components/ia/segmented-tabs";
 import { StatCard } from "@/components/ia/stat-card";
 import { StatusTone } from "@/components/ia/status-badge";
-import { StatusPill } from "@/components/ia/status-pill";
+import { STATUS_DOT_ICON, StatusPill } from "@/components/ia/status-pill";
 import { UnderlineTabs } from "@/components/ia/underline-tabs";
 
 enum Fruit {
@@ -38,6 +38,23 @@ describe("IA kit: lists and filters", () => {
     );
     expect(screen.getByText("Alternatif Saat Önerildi")).toBeInTheDocument();
     expect(screen.getByText("12")).toHaveClass("type-metric");
+  });
+
+  it("draws a running status's dot at its own 8 px and a line icon at 16 px", () => {
+    const { container } = render(
+      <>
+        <StatusPill tone={StatusTone.Success} icon={STATUS_DOT_ICON}>
+          Aktif
+        </StatusPill>
+        <StatusPill tone={StatusTone.Info} icon="/ia/icons/time.svg">
+          Alternatif Saat Önerildi
+        </StatusPill>
+      </>,
+    );
+
+    const [dot, line] = container.querySelectorAll("img");
+    expect(dot).toHaveAttribute("width", "8");
+    expect(line).toHaveAttribute("width", "16");
   });
 
   it("reports what is typed into the search field, which keeps its label for screen readers", async () => {
