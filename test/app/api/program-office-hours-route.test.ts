@@ -15,7 +15,8 @@ vi.mock("@/lib/api/program-office-hours", () => ({
   fetchProgramOfficeHoursAppointments: vi.fn(),
 }));
 
-const program = { params: Promise.resolve({ id: "p1" }) };
+const PROGRAM_ID = "0a0a0a0a-0000-4000-8000-000000000001";
+const program = { params: Promise.resolve({ id: PROGRAM_ID }) };
 
 function as(role: UserRole): AppSession {
   return {
@@ -65,7 +66,7 @@ describe("program office hours appointments route", () => {
     expect(response.status).toBe(200);
     expect(fetchProgramOfficeHoursAppointments).toHaveBeenCalledWith(
       "COORDINATOR-1",
-      "p1",
+      PROGRAM_ID,
       {
         status: OfficeHoursRequestStatus.Pending,
         faculty: "Fen",
@@ -82,7 +83,7 @@ describe("program office hours appointments route", () => {
     expect((await get("")).status).toBe(200);
     expect(fetchProgramOfficeHoursAppointments).toHaveBeenCalledWith(
       "COORDINATOR-1",
-      "p1",
+      PROGRAM_ID,
       {},
     );
   });
@@ -96,15 +97,45 @@ describe("program office hours appointments route", () => {
     ["an empty page", "?page="],
     ["a page size over the limit", "?size=500"],
     ["a page size of zero", "?size=0"],
+    ["a page past any real list", "?page=99999999999"],
+    [
+      "a date range that ends before it starts",
+      "?from=2026-11-15&to=2026-11-09",
+    ],
+    ["a date range longer than 62 days", "?from=2026-01-01&to=2026-03-04"],
   ])("refuses %s before the backend is called", async (_name, search) => {
     expect((await get(search)).status).toBe(400);
     expect(fetchProgramOfficeHoursAppointments).not.toHaveBeenCalled();
   });
 
-  it("keeps students and signed-out visitors out", async () => {
+  it("accepts a 62-day range, both ends included", async () => {
+    expect((await get("?from=2026-01-01&to=2026-03-03")).status).toBe(200);
+  });
+
+  it("refuses a program id that is not a uuid before the backend is called", async () => {
+    const response = await GET(new NextRequest("http://localhost/x"), {
+      params: Promise.resolve({ id: ".." }),
+    });
+    expect(response.status).toBe(400);
+    expect(fetchProgramOfficeHoursAppointments).not.toHaveBeenCalled();
+  });
+
+  it("lets the admin look, as the admin", async () => {
+    vi.mocked(getSessionUser).mockResolvedValue(as(UserRole.Admin));
+    expect((await get("")).status).toBe(200);
+    expect(fetchProgramOfficeHoursAppointments).toHaveBeenCalledWith(
+      "ADMIN-1",
+      PROGRAM_ID,
+      {},
+    );
+  });
+
+  it("keeps students, mentors and signed-out visitors out", async () => {
     vi.mocked(getSessionUser).mockResolvedValue(null);
     expect((await get("")).status).toBe(401);
     vi.mocked(getSessionUser).mockResolvedValue(as(UserRole.Mentee));
+    expect((await get("")).status).toBe(403);
+    vi.mocked(getSessionUser).mockResolvedValue(as(UserRole.Mentor));
     expect((await get("")).status).toBe(403);
     expect(fetchProgramOfficeHoursAppointments).not.toHaveBeenCalled();
   });

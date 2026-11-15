@@ -16,12 +16,8 @@ import { StatusTone } from "@/components/ia/status-badge";
 import { useProgramOfficeHoursAppointments } from "@/hooks/use-program-office-hours-appointments";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
 import { formatMeetingShort } from "@/lib/format";
-import {
-  ALL_APPOINTMENTS,
-  APPOINTMENT_STATUS_FILTERS,
-  personName,
-  type AppointmentFilters,
-} from "@/lib/program-office-hours";
+import { personName } from "@/lib/program-office-hours";
+import { errorMessage } from "@/lib/utils";
 
 /**
  * An Office Hours program's Randevular (Figma 152:7848): the status cards, the filters and every appointment at
@@ -51,24 +47,6 @@ function AppointmentsBody({
   const t = useTranslations("programAppointments");
   const locale = useLocale();
   const { data, filters } = appointments;
-  const statusOptions: {
-    value: AppointmentFilters["status"];
-    label: string;
-  }[] = [
-    { value: ALL_APPOINTMENTS, label: t("statusAll") },
-    ...APPOINTMENT_STATUS_FILTERS.map((status) => ({
-      value: status,
-      label: t("statusFilter", { status: t(`status.${status}`) }),
-    })),
-  ];
-  const facultyOptions = [
-    { value: ALL_APPOINTMENTS, label: t("faculty") },
-    ...(data?.faculties ?? []).map((faculty) => ({
-      value: faculty,
-      label: faculty,
-    })),
-  ];
-
   return (
     <div className="space-y-7">
       {data ? (
@@ -107,13 +85,13 @@ function AppointmentsBody({
         <ChipSelect
           label={t("statusLabel")}
           value={filters.status}
-          options={statusOptions}
+          options={appointments.statusOptions}
           onChange={appointments.setStatus}
         />
         <ChipSelect
           label={t("facultyLabel")}
           value={filters.faculty}
-          options={facultyOptions}
+          options={appointments.facultyOptions}
           onChange={appointments.setFaculty}
         />
         <ToggleChip
@@ -123,13 +101,22 @@ function AppointmentsBody({
         />
       </div>
 
+      {data && appointments.error ? (
+        <p role="alert" className="type-body-sm text-status-error-text">
+          {errorMessage(appointments.error, t("loadFailed"))}
+        </p>
+      ) : null}
+
       {data ? (
         data.appointments.content.length === 0 ? (
           <p className="rounded-card border border-dashed border-border-default px-6 py-10 text-center type-body-sm text-text-secondary">
             {t("empty")}
           </p>
         ) : (
-          <>
+          <div
+            aria-busy={appointments.isUpdating}
+            className={appointments.isUpdating ? "opacity-60" : ""}
+          >
             <DataTable
               caption={t("caption")}
               columns={[
@@ -168,7 +155,7 @@ function AppointmentsBody({
                   <DataCell>
                     {row.startsAt
                       ? formatMeetingShort(row.startsAt, locale)
-                      : "—"}
+                      : t("noTime")}
                   </DataCell>
                   <DataCell>
                     <AppointmentStatusPill status={row.status} />
@@ -182,7 +169,7 @@ function AppointmentsBody({
               totalPages={data.appointments.totalPages}
               onPageChange={appointments.setPage}
             />
-          </>
+          </div>
         )
       ) : (
         <QueryNotice

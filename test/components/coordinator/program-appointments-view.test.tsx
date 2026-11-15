@@ -84,7 +84,7 @@ describe("Office Hours Randevular", () => {
 
     expect(screen.getByText("Onaylandı · bu hafta")).toBeInTheDocument();
     expect(screen.getByText("214")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /^Randevular/ })).toHaveTextContent(
+    expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveTextContent(
       "86",
     );
     expect(
@@ -119,6 +119,20 @@ describe("Office Hours Randevular", () => {
         to: null,
       }),
     );
+  });
+
+  it("says so when a later load fails", async () => {
+    renderWithQueryClient(<ProgramAppointmentsView programId="oh-1" />);
+    await screen.findByRole("table", { name: "Randevular" });
+    vi.mocked(getProgramOfficeHoursAppointments).mockRejectedValue(
+      new Error("Randevular yüklenemedi."),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Bu hafta" }));
+
+    expect(
+      await screen.findByText("Randevular yüklenemedi."),
+    ).toBeInTheDocument();
   });
 
   it("says so when nothing matches", async () => {

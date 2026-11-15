@@ -21,6 +21,14 @@ describe("program office hours", () => {
     });
   });
 
+  it("reads the week in Turkey time, wherever the browser is", () => {
+    // Sunday 22:30 UTC is already Monday 01:30 in Turkey.
+    expect(weekRange(new Date(Date.UTC(2026, 10, 15, 22, 30)))).toEqual({
+      from: "2026-11-16",
+      to: "2026-11-22",
+    });
+  });
+
   it("asks for this week and leaves Tümü and an empty search out", () => {
     expect(
       appointmentsQuery(

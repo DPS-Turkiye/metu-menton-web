@@ -6,6 +6,7 @@ import {
   apiText,
   backendResponse,
 } from "@/lib/server/api-response";
+import { readUuidParam } from "@/lib/server/path-params";
 import { programOfficeHoursQuerySchema } from "@/lib/server/program-office-hours-schemas";
 import { readSearchParams } from "@/lib/server/request-body";
 import { requireCoordinatorOrAdminSession } from "@/lib/server/require-coordinator";
@@ -17,7 +18,11 @@ export async function GET(
   try {
     const auth = await requireCoordinatorOrAdminSession();
     if (!auth.ok) return auth.response;
-    const { id } = await params;
+    const program = await readUuidParam(
+      (await params).id,
+      "invalidRequestFields",
+    );
+    if (!program.ok) return program.response;
     const query = await readSearchParams(
       request.nextUrl.searchParams,
       programOfficeHoursQuerySchema,
@@ -26,7 +31,7 @@ export async function GET(
     return backendResponse(
       await fetchProgramOfficeHoursAppointments(
         auth.session.userId,
-        id,
+        program.id,
         query.data,
       ),
     );

@@ -6961,6 +6961,8 @@
       "topic": "Başlık"
     },
     "empty": "Bu filtrelere uyan randevu yok.",
-    "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır."
+    "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır.",
+    "noTime": "—",
+    "loadFailed": "Randevular yüklenemedi."
   }
 }
