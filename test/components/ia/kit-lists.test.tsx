@@ -181,14 +181,20 @@ describe("IA kit: lists and filters", () => {
       </>,
     );
 
-    const current = screen.getByRole("tab", { name: /^Randevular/ });
-    expect(current).toHaveAttribute("aria-selected", "true");
+    const current = screen.getByRole("link", { name: /^Randevular/ });
+    expect(current).toHaveAttribute("aria-current", "page");
     expect(current).toHaveAttribute("href", "/a");
     expect(current).toHaveTextContent("86");
-    expect(screen.getByRole("tab", { name: "Raporlar" })).toHaveAttribute(
+    expect(
+      screen.queryByRole("link", { name: /Raporlar/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Raporlar").parentElement).toHaveAttribute(
       "aria-disabled",
       "true",
     );
+    expect(
+      screen.getByRole("navigation", { name: "Bölümler" }),
+    ).toHaveTextContent("RaporlarYakında");
     expect(
       screen.getByRole("link", { name: "Akran Mentorları" }),
     ).toHaveAttribute("aria-current", "page");

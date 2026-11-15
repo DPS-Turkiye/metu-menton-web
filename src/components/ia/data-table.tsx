@@ -21,7 +21,13 @@ export function DataTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto rounded-card border border-border-subtle bg-background-surface p-2">
+    // A region that takes focus, so a keyboard can scroll the table sideways on a narrow screen.
+    <div
+      role="region"
+      aria-label={caption}
+      tabIndex={0}
+      className="overflow-x-auto rounded-card border border-border-subtle bg-background-surface p-2 focus-visible:ring-[3px] focus-visible:ring-border-default focus-visible:outline-none"
+    >
       <table className="w-full min-w-[720px] border-collapse text-left">
         <caption className="sr-only">{caption}</caption>
         <thead>

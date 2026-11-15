@@ -9,8 +9,9 @@ export type UnderlineTab = {
 };
 
 /**
- * The Figma "Tab" row: 44 px underline tabs with an optional count. A tab without a page yet stays visible but
- * disabled, with `disabledTitle` as its hint.
+ * The Figma "Tab" row: 44 px underline tabs with an optional count. They are page links, so the row is a
+ * navigation landmark and the current page is marked with aria-current. A tab without a page yet stays visible but
+ * disabled, and says why to screen readers as well as on hover.
  */
 export function UnderlineTabs({
   label,
@@ -22,8 +23,7 @@ export function UnderlineTabs({
   disabledTitle: string;
 }) {
   return (
-    <div
-      role="tablist"
+    <nav
       aria-label={label}
       className="flex gap-1 overflow-x-auto border-b border-border-subtle"
     >
@@ -44,15 +44,14 @@ export function UnderlineTabs({
             />
           </>
         );
-        const className = `flex shrink-0 flex-col items-center type-label ${
+        const className = `flex shrink-0 flex-col items-center rounded-t-lg type-label focus-visible:ring-[3px] focus-visible:ring-border-default focus-visible:outline-none ${
           tab.active ? "text-text-accent" : "text-text-secondary"
         }`;
         return tab.href ? (
           <Link
             key={tab.id}
             href={tab.href}
-            role="tab"
-            aria-selected={tab.active}
+            aria-current={tab.active ? "page" : undefined}
             className={className}
           >
             {content}
@@ -60,16 +59,15 @@ export function UnderlineTabs({
         ) : (
           <span
             key={tab.id}
-            role="tab"
-            aria-selected={false}
             aria-disabled="true"
             title={disabledTitle}
             className={`${className} cursor-not-allowed opacity-60`}
           >
             {content}
+            <span className="sr-only">{disabledTitle}</span>
           </span>
         );
       })}
-    </div>
+    </nav>
   );
 }

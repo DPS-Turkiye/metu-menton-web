@@ -70,7 +70,7 @@ describe("program detail frame, ODTÜ edition", () => {
     ]);
   });
 
-  it("shows the name with its type and status, the line under it and Raporlar as a tab", async () => {
+  it("shows the breadcrumb, the name with its type and status, the line under it and Raporlar as a tab", async () => {
     renderFrame(ProgramTab.Academics, { [ProgramTab.Appointments]: 86 });
 
     expect(
@@ -84,23 +84,27 @@ describe("program detail frame, ODTÜ edition", () => {
     expect(
       screen.getByText("Üniversite geneli · Koordinatör: Elif Demir"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Programlarım / ODTÜ Office Hours"),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /^Randevular/ })).toHaveAttribute(
+    expect(screen.getByRole("navigation", { name: "Konum" })).toHaveTextContent(
+      "Programlarım / ODTÜ Office Hours",
+    );
+    expect(screen.getByRole("link", { name: "Programlarım" })).toHaveAttribute(
+      "href",
+      "/coordinator/programs",
+    );
+    expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveAttribute(
       "href",
       "/coordinator/programs/oh-1/appointments",
     );
-    expect(screen.getByRole("tab", { name: /^Randevular/ })).toHaveTextContent(
+    expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveTextContent(
       "86",
     );
-    expect(screen.getByRole("tab", { name: "Raporlar" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
       "href",
       "/coordinator/programs/oh-1/report",
     );
-    expect(screen.getByRole("tab", { name: "Katılımcılar" })).toHaveAttribute(
-      "aria-selected",
-      "true",
+    expect(screen.getByRole("link", { name: "Katılımcılar" })).toHaveAttribute(
+      "aria-current",
+      "page",
     );
     expect(screen.getByText("Sekme içeriği")).toBeInTheDocument();
   });
@@ -133,12 +137,12 @@ describe("program detail frame, ODTÜ edition", () => {
     renderFrame(ProgramTab.Overview);
 
     expect(
-      await screen.findByText("Programlar / ODTÜ Office Hours"),
-    ).toBeInTheDocument();
+      await screen.findByRole("navigation", { name: "Konum" }),
+    ).toHaveTextContent("Programlar / ODTÜ Office Hours");
     expect(
       screen.queryByRole("combobox", { name: "Program seç" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Raporlar" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
       "href",
       "/admin/programs/oh-1/report",
     );
@@ -152,7 +156,7 @@ describe("program detail frame, ODTÜ edition", () => {
       await screen.findByRole("link", { name: "Program raporu" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("tab", { name: "Raporlar" }),
+      screen.queryByRole("link", { name: "Raporlar" }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("combobox", { name: "Program seç" }),
