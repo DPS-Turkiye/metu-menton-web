@@ -107,4 +107,42 @@ describe("Randevu detayı drawer", () => {
     await userEvent.click(screen.getByRole("button", { name: "Kapat" }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it("says it is loading until the appointment arrives", async () => {
+    vi.mocked(getProgramOfficeHoursAppointment).mockReturnValue(
+      new Promise(() => {}),
+    );
+    renderWithQueryClient(
+      <AppointmentDetailDrawer
+        programId="oh-1"
+        requestId="req-1"
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Randevu yükleniyor…",
+    );
+  });
+
+  it("closes on Escape and on a click outside the panel", async () => {
+    const onClose = vi.fn();
+    renderWithQueryClient(
+      <AppointmentDetailDrawer
+        programId="oh-1"
+        requestId="req-1"
+        onClose={onClose}
+      />,
+    );
+    const drawer = await screen.findByRole("dialog", {
+      name: "Randevu detayı",
+    });
+
+    await userEvent.keyboard("{Escape}");
+    expect(onClose).toHaveBeenCalledTimes(1);
+    const backdrop = drawer.parentElement;
+    expect(backdrop).not.toBeNull();
+    if (backdrop) await userEvent.click(backdrop);
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
 });

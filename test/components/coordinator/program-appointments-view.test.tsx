@@ -164,6 +164,11 @@ describe("Office Hours Randevular", () => {
     expect(
       screen.queryByRole("dialog", { name: "Randevu detayı" }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Ayşe Yılmaz: CV ve yüksek lisans seçenekleri randevusunun ayrıntıları",
+      }),
+    ).toHaveFocus();
   });
 
   it("says so when nothing matches", async () => {

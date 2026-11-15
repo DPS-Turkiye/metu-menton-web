@@ -84,7 +84,7 @@ export function useProgramOfficeHoursAppointments(
     setPage: (page: number) => setFilters((current) => ({ ...current, page })),
     /** The appointment shown in the Randevu detayı drawer, or null. */
     openId,
-    openAppointment: setOpenId,
+    openAppointment: (requestId: string) => setOpenId(requestId),
     closeAppointment: () => setOpenId(null),
     data: result.data,
     isLoading: result.isLoading,
