@@ -1,3 +1,5 @@
+import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
+
 /** Menton's badge catalogue; names and descriptions are in the messages under `badges`. */
 export enum BadgeCode {
   PeerMentor = "PEER_MENTOR",
@@ -95,6 +97,21 @@ export type GateBadgeRow = {
     attempts: number;
     bestScore: number | null;
   };
+  /** Katılımcılar's columns on a program roster; null on the admin's student list. */
+  profile: GateBadgeProfile | null;
+};
+
+/**
+ * Bölüm · sınıf from the institution's records and, for a peer mentor, the profile's categories and mentee load.
+ * `mentorProfile` is false (and `categories` empty) until the person sets up a peer mentor profile.
+ */
+export type GateBadgeProfile = {
+  department: string | null;
+  classYear: number | null;
+  mentorProfile: boolean;
+  categories: PeerTopicCategory[];
+  activeMentees: number;
+  menteeCapacity: number | null;
 };
 
 /** Started the training but holds no badge yet ("Eğitimde"). */

@@ -5803,7 +5803,48 @@
     "cancel": "Vazgeç",
     "confirmRevoke": "Geri al",
     "trainingWatched": "Video izlendi, sınav bekleniyor",
-    "trainingAttempts": "{count} deneme · en iyi {best}/10"
+    "trainingAttempts": "{count} deneme · en iyi {best}/10",
+    "capacityLabel": "Kapasite",
+    "badgeFilterLabel": "Rozet durumu",
+    "badgeFilter": {
+      "ALL": "Rozet durumu: Tümü",
+      "NONE": "Rozet yok",
+      "IN_TRAINING": "Eğitimde",
+      "ACTIVE": "Rozet Doğrulandı",
+      "REVOKED": "Geri alındı"
+    },
+    "capacityFilter": {
+      "ALL": "Kapasite: Tümü",
+      "OPEN": "Yeri var",
+      "FULL": "Dolu",
+      "NO_PROFILE": "Profil oluşturulmadı"
+    },
+    "mentorsCaption": "Akran Mentorları",
+    "studentsCaption": "Öğrenciler",
+    "columns": {
+      "mentor": "Akran mentoru",
+      "student": "Öğrenci",
+      "department": "Bölüm · sınıf",
+      "categories": "Kategoriler",
+      "badge": "Rozet",
+      "capacity": "Kapasite"
+    },
+    "noProfile": "Profil oluşturulmadı",
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "badgeStates": {
+      "NONE": "Rozet Yok",
+      "ACTIVE": "Rozet Doğrulandı",
+      "EXPIRED": "Süresi doldu",
+      "REVOKED": "Geri alındı",
+      "IN_TRAINING": "Eğitimde"
+    },
+    "capacityUnlimited": "{active} mentee",
+    "capacityOpen": "{active} / {capacity} mentee",
+    "capacityFull": "{active} / {capacity} · dolu",
+    "rowActions": "{name} için işlemler",
+    "footnote": "Mentorluk konuşmaları, gizli görüşme notları ve kişisel belgeler koordinatöre görünmez.",
+    "noMatch": "Bu filtreye uyan kimse yok."
   },
   "adminStudents": {
     "filterLabel": "Rozet durumu",
