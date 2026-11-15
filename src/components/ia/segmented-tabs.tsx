@@ -45,6 +45,7 @@ export function SegmentedTabs({
             className={`${className} cursor-not-allowed opacity-60`}
           >
             {tab.label}
+            <span className="sr-only">{disabledTitle}</span>
           </span>
         );
       })}

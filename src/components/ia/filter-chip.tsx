@@ -61,7 +61,7 @@ export function ToggleChip({
       type="button"
       aria-pressed={pressed}
       onClick={onToggle}
-      className={`${CHIP} ${
+      className={`${CHIP} focus-visible:ring-[3px] focus-visible:ring-border-default focus-visible:outline-none ${
         pressed
           ? "border-border-selected bg-background-selected text-text-accent"
           : "border-border-default bg-background-surface"

@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 
 import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
 import { StatusTone } from "@/components/ia/status-badge";
@@ -89,10 +90,18 @@ export function OdtuProgramHeader({
     <div className="space-y-7">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 space-y-2.5">
-          <p className="type-caption text-text-muted">
-            {navigation.admin ? tNav("programs") : t("myPrograms")} /{" "}
-            {program.name}
-          </p>
+          <nav
+            aria-label={t("breadcrumb")}
+            className="type-caption text-text-muted"
+          >
+            <Link
+              href={navigation.listHref}
+              className="hover:text-text-primary"
+            >
+              {navigation.admin ? tNav("programs") : t("myPrograms")}
+            </Link>{" "}
+            / <span aria-current="page">{program.name}</span>
+          </nav>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="type-h1 text-text-primary">{program.name}</h1>
             <ProgramTypeBadge type={program.type} />
@@ -125,7 +134,7 @@ function ProgramSwitcher({
   const t = useTranslations("coordinatorPrograms");
   const switcher = useProgramSwitcher(programId, programName);
   return (
-    <span className="relative inline-flex items-center gap-2 rounded-full border border-border-default px-4 py-2.5">
+    <span className="relative inline-flex items-center gap-2 rounded-full border border-border-default px-4 py-2.5 focus-within:ring-[3px] focus-within:ring-border-default">
       <span
         aria-hidden
         className="size-1.5 rounded-full bg-status-success-icon"
