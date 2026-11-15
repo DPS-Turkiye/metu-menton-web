@@ -10,12 +10,16 @@ import {
   getCoordinatorProgram,
   getCoordinatorPrograms,
 } from "@/lib/client/coordinator-programs";
-import { getProgramOfficeHoursAppointments } from "@/lib/client/program-office-hours";
+import {
+  getProgramOfficeHoursAppointment,
+  getProgramOfficeHoursAppointments,
+} from "@/lib/client/program-office-hours";
 import {
   coordinatorProgram,
   coordinatorProgramDetail,
 } from "@test/fixtures/coordinator-programs";
 import {
+  appointmentDetail,
   appointmentRow,
   programAppointments,
 } from "@test/fixtures/program-office-hours";
@@ -37,6 +41,7 @@ vi.mock("@/lib/client/coordinator-programs", () => ({
 }));
 vi.mock("@/lib/client/program-office-hours", () => ({
   getProgramOfficeHoursAppointments: vi.fn(),
+  getProgramOfficeHoursAppointment: vi.fn(),
 }));
 
 describe("Office Hours Randevular", () => {
@@ -133,6 +138,32 @@ describe("Office Hours Randevular", () => {
     expect(
       await screen.findByText("Randevular yüklenemedi."),
     ).toBeInTheDocument();
+  });
+
+  it("opens a row's details in the drawer and closes it again", async () => {
+    vi.mocked(getProgramOfficeHoursAppointment).mockResolvedValue(
+      appointmentDetail(),
+    );
+    renderWithQueryClient(<ProgramAppointmentsView programId="oh-1" />);
+    await screen.findByRole("table", { name: "Randevular" });
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Ayşe Yılmaz: CV ve yüksek lisans seçenekleri randevusunun ayrıntıları",
+      }),
+    );
+
+    expect(
+      await screen.findByRole("dialog", { name: "Randevu detayı" }),
+    ).toBeInTheDocument();
+    expect(getProgramOfficeHoursAppointment).toHaveBeenCalledWith(
+      "oh-1",
+      "req-1",
+    );
+    await userEvent.keyboard("{Escape}");
+    expect(
+      screen.queryByRole("dialog", { name: "Randevu detayı" }),
+    ).not.toBeInTheDocument();
   });
 
   it("says so when nothing matches", async () => {

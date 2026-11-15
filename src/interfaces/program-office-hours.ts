@@ -46,3 +46,32 @@ export type ProgramOfficeHoursQuery = {
   page: number;
   size: number;
 };
+
+/** A step of an appointment's history, read from the times the request keeps. */
+export enum OfficeHoursHistoryStep {
+  Submitted = "SUBMITTED",
+  InfoRequested = "INFO_REQUESTED",
+  StudentReplied = "STUDENT_REPLIED",
+  AlternativeProposed = "ALTERNATIVE_PROPOSED",
+  Accepted = "ACCEPTED",
+  Declined = "DECLINED",
+  Withdrawn = "WITHDRAWN",
+}
+
+export type ProgramOfficeHoursHistoryEntry = {
+  step: OfficeHoursHistoryStep;
+  /** Null when the step happened but its time was not kept (an alternative later accepted). */
+  at: string | null;
+};
+
+/** The Randevu detayı drawer: the row's fields, the end time and the history. Still no description or messages. */
+export type ProgramOfficeHoursAppointment = {
+  id: string;
+  status: OfficeHoursRequestStatus;
+  topic: string;
+  startsAt: string | null;
+  endsAt: string | null;
+  student: ProgramOfficeHoursPerson;
+  academic: ProgramOfficeHoursPerson;
+  history: ProgramOfficeHoursHistoryEntry[];
+};

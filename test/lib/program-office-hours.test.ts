@@ -3,8 +3,11 @@ import { describe, expect, it } from "vitest";
 import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 import {
   ALL_APPOINTMENTS,
+  appointmentDay,
+  appointmentHours,
   APPOINTMENTS_PAGE_SIZE,
   appointmentsQuery,
+  historyTime,
   personName,
   weekRange,
 } from "@/lib/program-office-hours";
@@ -82,5 +85,16 @@ describe("program office hours", () => {
     expect(
       personName({ name: "Ayşe Yılmaz", title: null, department: null }),
     ).toBe("Ayşe Yılmaz");
+  });
+
+  it("writes an appointment's day, hours and history times in Turkey", () => {
+    expect(appointmentDay("2026-11-13T07:30:00Z", "tr")).toBe(
+      "13 Kasım 2026 Cuma",
+    );
+    expect(
+      appointmentHours("2026-11-13T07:30:00Z", "2026-11-13T08:00:00Z", "tr"),
+    ).toBe("10:30 – 11:00");
+    expect(appointmentHours("2026-11-13T07:30:00Z", null, "tr")).toBe("10:30");
+    expect(historyTime("2026-11-10T13:20:00Z", "tr")).toBe("10 Kas · 16:20");
   });
 });

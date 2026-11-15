@@ -40,6 +40,7 @@ export function useProgramOfficeHoursAppointments(
   const t = useTranslations("programAppointments");
   const [today] = useState(now);
   const [filters, setFilters] = useState(FIRST_VIEW);
+  const [openId, setOpenId] = useState<string | null>(null);
   const search = useDebouncedValue(filters.search, APPOINTMENT_SEARCH_DELAY_MS);
   const program = useCoordinatorProgram(programId);
   const query = appointmentsQuery({ ...filters, search }, today);
@@ -81,6 +82,10 @@ export function useProgramOfficeHoursAppointments(
         page: 1,
       })),
     setPage: (page: number) => setFilters((current) => ({ ...current, page })),
+    /** The appointment shown in the Randevu detayı drawer, or null. */
+    openId,
+    openAppointment: setOpenId,
+    closeAppointment: () => setOpenId(null),
     data: result.data,
     isLoading: result.isLoading,
     /** Older rows are on screen while a new filter or page loads. */

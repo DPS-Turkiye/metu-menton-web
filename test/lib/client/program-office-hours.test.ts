@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  getProgramOfficeHoursAppointment,
   getProgramOfficeHoursAppointments,
   programOfficeHoursSearch,
 } from "@/lib/client/program-office-hours";
 import { httpClient } from "@/lib/http-client";
-import { programAppointments } from "@test/fixtures/program-office-hours";
+import {
+  appointmentDetail,
+  programAppointments,
+} from "@test/fixtures/program-office-hours";
 
 vi.mock("@/lib/http-client", () => ({
   httpClient: { get: vi.fn() },
@@ -50,6 +54,20 @@ describe("program office hours browser client", () => {
     });
     await expect(getProgramOfficeHoursAppointments("p", query)).rejects.toThrow(
       "Randevular yüklenemedi.",
+    );
+  });
+
+  it("loads one appointment for the drawer", async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce({
+      status: 200,
+      data: appointmentDetail(),
+    });
+
+    await expect(
+      getProgramOfficeHoursAppointment("p 1", "r 1"),
+    ).resolves.toEqual(appointmentDetail());
+    expect(httpClient.get).toHaveBeenCalledWith(
+      "/api/coordinator/programs/p%201/office-hours/appointments/r%201",
     );
   });
 });

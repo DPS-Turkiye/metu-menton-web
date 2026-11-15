@@ -1,7 +1,9 @@
 import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
-import type {
-  ProgramOfficeHoursAppointments,
-  ProgramOfficeHoursRow,
+import {
+  OfficeHoursHistoryStep,
+  type ProgramOfficeHoursAppointment,
+  type ProgramOfficeHoursAppointments,
+  type ProgramOfficeHoursRow,
 } from "@/interfaces/program-office-hours";
 
 export function appointmentRow(
@@ -45,5 +47,28 @@ export function programAppointments(
       totalElements: rows.length,
       totalPages,
     },
+  };
+}
+
+export function appointmentDetail(
+  overrides: Partial<ProgramOfficeHoursAppointment> = {},
+): ProgramOfficeHoursAppointment {
+  const row = appointmentRow();
+  return {
+    id: row.id,
+    status: row.status,
+    topic: row.topic,
+    startsAt: "2026-11-13T10:30:00+03:00",
+    endsAt: "2026-11-13T11:00:00+03:00",
+    student: row.student,
+    academic: row.academic,
+    history: [
+      { step: OfficeHoursHistoryStep.Submitted, at: "2026-11-10T13:20:00Z" },
+      {
+        step: OfficeHoursHistoryStep.AlternativeProposed,
+        at: "2026-11-11T06:05:00Z",
+      },
+    ],
+    ...overrides,
   };
 }

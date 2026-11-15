@@ -1,4 +1,5 @@
 import type {
+  ProgramOfficeHoursAppointment,
   ProgramOfficeHoursAppointments,
   ProgramOfficeHoursQuery,
 } from "@/interfaces/program-office-hours";
@@ -21,6 +22,17 @@ export async function getProgramOfficeHoursAppointments(
   return requireSuccess(
     await httpClient.get<ProgramOfficeHoursAppointments>(
       `/api/coordinator/programs/${encodeURIComponent(programId)}/office-hours/appointments?${programOfficeHoursSearch(query)}`,
+    ),
+  );
+}
+
+export async function getProgramOfficeHoursAppointment(
+  programId: string,
+  requestId: string,
+) {
+  return requireSuccess(
+    await httpClient.get<ProgramOfficeHoursAppointment>(
+      `/api/coordinator/programs/${encodeURIComponent(programId)}/office-hours/appointments/${encodeURIComponent(requestId)}`,
     ),
   );
 }
