@@ -41,10 +41,12 @@ export function getAcademicianAppointments(): Promise<
 }
 
 export function cancelAcademicianAppointment(
-  id: string,
+  appointment: AcademicianAppointment,
   reason: string | null,
-): Promise<AcademicianAppointment> {
-  return sample(() => cancelSampleAppointment(id, reason));
+): Promise<void> {
+  return sample(() => {
+    cancelSampleAppointment(appointment.id, reason);
+  });
 }
 
 export function getAcademicianAvailability(): Promise<AcademicianAvailability> {

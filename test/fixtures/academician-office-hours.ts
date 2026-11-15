@@ -60,7 +60,7 @@ export function academicianAppointment(
 ): AcademicianAppointment {
   return {
     id: "appointment-1",
-    requestId: null,
+    requestId: "request-1",
     kind: AppointmentKind.OfficeHours,
     side: AppointmentSide.Mentor,
     status: AppointmentStatus.Confirmed,

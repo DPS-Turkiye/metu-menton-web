@@ -5,7 +5,10 @@ import {
   AppointmentSide,
   AppointmentStatus,
 } from "@/interfaces/appointment";
-import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
+import {
+  OfficeHoursRequestStatus,
+  OfficeHoursRole,
+} from "@/interfaces/office-hours";
 import {
   OfficeHoursStudentAction,
   type OfficeHoursListedAcademician,
@@ -75,6 +78,7 @@ function request(
     onlineLink: null,
     requestedAt: "2026-11-20T10:00:00Z",
     allowedActions: [],
+    cancellation: null,
     ...overrides,
   };
 }
@@ -300,7 +304,7 @@ describe("student Office Hours client", () => {
       request({
         status: OfficeHoursRequestStatus.Cancelled,
         cancellation: {
-          cancelledById: "oh-1",
+          cancelledBy: OfficeHoursRole.Instructor,
           reason: "Fakülte kurulu",
           cancelledAt: "2026-11-23T09:00:00Z",
           late: false,

@@ -165,7 +165,7 @@ function appointment(
 ): AcademicianAppointment {
   return {
     id,
-    requestId: null,
+    requestId: `request-of-${id}`,
     category: null,
     kind: AppointmentKind.OfficeHours,
     side: AppointmentSide.Mentor,

@@ -82,6 +82,8 @@ export type OfficeHoursAnswer =
 
 /** A row of the academician's Randevularım; `side` is always the host (Mentor) side. */
 export type AcademicianAppointment = Appointment & {
+  /** Every office-hours meeting comes from a request; cancelling goes through it. */
+  requestId: string;
   courseName: string | null;
   /** True when it was cancelled close to its start. */
   lateCancel: boolean;

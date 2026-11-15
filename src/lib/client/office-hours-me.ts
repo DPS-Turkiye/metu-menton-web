@@ -66,6 +66,18 @@ export async function answerOfficeHoursRequest(
   );
 }
 
+export async function cancelOfficeHoursMeeting(
+  requestId: string,
+  reason: string | null,
+) {
+  requireSuccess(
+    await httpClient.post<void>(
+      `${BASE}/requests/${encodeURIComponent(requestId)}/cancel`,
+      { reason },
+    ),
+  );
+}
+
 export async function getAcademicianOfficeHoursMeetings() {
   return requireSuccess(
     await httpClient.get<OfficeHoursAcademicianMeeting[]>(`${BASE}/meetings`),

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  OfficeHoursAppointmentAction,
   OfficeHoursMessageAuthor,
   OfficeHoursRequestAction,
 } from "@/interfaces/academician-office-hours";
@@ -106,11 +107,12 @@ describe("toOfficeHoursRequest", () => {
 });
 
 describe("toAcademicianAppointment", () => {
-  it("turns a meeting into a confirmed Randevularım row on the academician's side, offering no cancel yet", () => {
+  it("turns a meeting into a confirmed Randevularım row on the academician's side that they may cancel", () => {
     expect(
       toAcademicianAppointment(academicianMeeting({ courseName: "CENG 101" })),
     ).toMatchObject({
       id: "meeting-1",
+      requestId: "request-1",
       status: AppointmentStatus.Confirmed,
       topic: "Staj",
       startsAt: TIME.startsAt,
@@ -119,7 +121,7 @@ describe("toAcademicianAppointment", () => {
       onlineUrl: null,
       courseName: "CENG 101",
       counterpart: { userId: "account-student-1", fullName: "Ayşe Yılmaz" },
-      allowedActions: [],
+      allowedActions: [OfficeHoursAppointmentAction.Cancel],
     });
   });
 

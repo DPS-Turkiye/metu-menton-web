@@ -14,6 +14,7 @@ import {
 } from "@/lib/academician-office-hours-me";
 import {
   answerOfficeHoursRequest,
+  cancelOfficeHoursMeeting,
   getAcademicianOfficeHoursMeetings,
   getMyOfficeHoursAvailability,
   getMyOfficeHoursProfile,
@@ -25,7 +26,7 @@ import {
 // The academician's Office Hours through /api/office-hours/me (ODTÜ-signed-in accounts, Moodle course requests
 // included once their person is linked). The screens keep their own shapes; lib/academician-office-hours-me maps.
 
-/** Cancelling (G2) and one-off hours (G5) have no backend yet; the screens keep those controls unavailable. */
+/** One-off hours (G5) have no backend yet; the screens keep that control unavailable. */
 export class OfficeHoursFeatureUnavailableError extends Error {}
 
 export async function getAcademicianRequests(): Promise<OfficeHoursRequest[]> {
@@ -52,16 +53,12 @@ export async function getAcademicianAppointments(): Promise<
   );
 }
 
-/** Unreachable from the screens: no appointment offers CANCEL until G2 connects the backend's cancel route. */
-export function cancelAcademicianAppointment(
-  _id: string,
-  _reason: string | null,
-): Promise<AcademicianAppointment> {
-  return Promise.reject(
-    new OfficeHoursFeatureUnavailableError(
-      "Cancelling an Office Hours meeting is not available yet.",
-    ),
-  );
+/** Calls off a booked meeting; the student is e-mailed and the meeting leaves Randevularım. */
+export async function cancelAcademicianAppointment(
+  appointment: AcademicianAppointment,
+  reason: string | null,
+): Promise<void> {
+  await cancelOfficeHoursMeeting(appointment.requestId, reason);
 }
 
 export async function getAcademicianAvailability(): Promise<AcademicianAvailability> {
