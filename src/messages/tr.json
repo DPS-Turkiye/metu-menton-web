@@ -4028,7 +4028,8 @@
       "APPOINTMENTS": "Randevular",
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
-      "ACADEMICS": "Akademisyenler"
+      "ACADEMICS": "Akademisyenler",
+      "REPORTS": "Raporlar"
     },
     "phaseWeek": "{phase}, hafta {current}/{total}",
     "coordinators": "{count, plural, =1 {Koordinatör} other {Koordinatörler}}: {names}",
@@ -4117,7 +4118,11 @@
       "ACADEMICS": "Akademisyenler"
     },
     "typeTabEmptyAdmin": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını koordinatörleri Program Ayarları’nda yapılandırır.",
-    "typeTabEmpty": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını Program Ayarları’nda yapılandırabilirsin."
+    "typeTabEmpty": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını Program Ayarları’nda yapılandırabilirsin.",
+    "universityWide": "Üniversite geneli",
+    "switcherLabel": "Program:",
+    "switcherAria": "Program seç",
+    "segmentWithCount": "{label} · {count}"
   },
   "programRules": {
     "days": "gün",

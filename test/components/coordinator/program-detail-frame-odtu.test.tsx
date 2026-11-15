@@ -1,0 +1,165 @@
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { usePathname } from "next/navigation";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
+import { useEdition } from "@/hooks/use-edition";
+import { ProgramLifecycle } from "@/interfaces/coordinator-program";
+import { Edition } from "@/interfaces/edition";
+import { ProgramType } from "@/interfaces/program";
+import {
+  getCoordinatorProgram,
+  getCoordinatorPrograms,
+} from "@/lib/client/coordinator-programs";
+import { ProgramTab } from "@/lib/coordinator-program-detail";
+import {
+  coordinatorProgram,
+  coordinatorProgramDetail,
+} from "@test/fixtures/coordinator-programs";
+import { renderWithQueryClient } from "@test/test-utils";
+
+const { push } = vi.hoisted(() => ({ push: vi.fn<(href: string) => void>() }));
+
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(() => "/coordinator/programs/oh-1"),
+  useRouter: () => ({ push }),
+}));
+
+vi.mock("@/hooks/use-edition", () => ({ useEdition: vi.fn() }));
+
+vi.mock("@/lib/client/coordinator-programs", () => ({
+  getCoordinatorProgram: vi.fn(),
+  getCoordinatorPrograms: vi.fn(),
+  getProgramTeams: vi.fn(async () => []),
+  launchCoordinatorProgram: vi.fn(),
+}));
+
+function officeHours() {
+  return coordinatorProgramDetail({
+    program: coordinatorProgram({
+      id: "oh-1",
+      name: "ODTÜ Office Hours",
+      type: ProgramType.OfficeHours,
+      lifecycle: ProgramLifecycle.Active,
+    }),
+    coordinators: [{ id: "c-1", fullName: "Elif Demir", owner: true }],
+  });
+}
+
+function renderFrame(
+  tab: ProgramTab,
+  counts?: Partial<Record<ProgramTab, number | null>>,
+) {
+  return renderWithQueryClient(
+    <ProgramDetailFrame programId="oh-1" tab={tab} tabCounts={counts}>
+      {() => <p>Sekme içeriği</p>}
+    </ProgramDetailFrame>,
+  );
+}
+
+describe("program detail frame, ODTÜ edition", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useEdition).mockReturnValue(Edition.Odtu);
+    vi.mocked(usePathname).mockReturnValue("/coordinator/programs/oh-1");
+    vi.mocked(getCoordinatorProgram).mockResolvedValue(officeHours());
+    vi.mocked(getCoordinatorPrograms).mockResolvedValue([
+      coordinatorProgram({ id: "oh-1", name: "ODTÜ Office Hours" }),
+      coordinatorProgram({ id: "peer-1", name: "Akran Mentörlüğü 2026 Güz" }),
+    ]);
+  });
+
+  it("shows the breadcrumb, the name with its type and status, the line under it and Raporlar as a tab", async () => {
+    renderFrame(ProgramTab.Academics, { [ProgramTab.Appointments]: 86 });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "ODTÜ Office Hours",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Office Hours")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(
+      screen.getByText("Üniversite geneli · Koordinatör: Elif Demir"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Konum" })).toHaveTextContent(
+      "Programlarım / ODTÜ Office Hours",
+    );
+    expect(screen.getByRole("link", { name: "Programlarım" })).toHaveAttribute(
+      "href",
+      "/coordinator/programs",
+    );
+    expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveAttribute(
+      "href",
+      "/coordinator/programs/oh-1/appointments",
+    );
+    expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveTextContent(
+      "86",
+    );
+    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
+      "href",
+      "/coordinator/programs/oh-1/report",
+    );
+    expect(screen.getByRole("link", { name: "Katılımcılar" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByText("Sekme içeriği")).toBeInTheDocument();
+  });
+
+  it("shows Katılımcılar's sub-tabs as a segmented control, a missing one disabled", async () => {
+    renderFrame(ProgramTab.Academics);
+
+    expect(
+      await screen.findByRole("link", { name: "Akademisyenler" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(screen.getByText("Öğrenciler")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  it("jumps to another of the coordinator's programs from the picker", async () => {
+    renderFrame(ProgramTab.Overview);
+
+    const picker = await screen.findByRole("combobox", { name: "Program seç" });
+    expect(
+      await screen.findByRole("option", { name: "Akran Mentörlüğü 2026 Güz" }),
+    ).toBeInTheDocument();
+    await userEvent.selectOptions(picker, "peer-1");
+    expect(push).toHaveBeenCalledWith("/coordinator/programs/peer-1");
+  });
+
+  it("leaves the picker out for the admin, who reaches programs from their own list", async () => {
+    vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+    renderFrame(ProgramTab.Overview);
+
+    expect(
+      await screen.findByRole("navigation", { name: "Konum" }),
+    ).toHaveTextContent("Programlar / ODTÜ Office Hours");
+    expect(
+      screen.queryByRole("combobox", { name: "Program seç" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
+      "href",
+      "/admin/programs/oh-1/report",
+    );
+  });
+
+  it("keeps the Teknokent header for the Teknokent edition", async () => {
+    vi.mocked(useEdition).mockReturnValue(Edition.Teknokent);
+    renderFrame(ProgramTab.Academics);
+
+    expect(
+      await screen.findByRole("link", { name: "Program raporu" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Raporlar" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: "Program seç" }),
+    ).not.toBeInTheDocument();
+  });
+});

@@ -24,6 +24,12 @@ import { coordinatorProgramDetail } from "@test/fixtures/coordinator-programs";
 import { meetingProposal } from "@test/fixtures/meeting-proposals";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
 
+// The program header is edition-aware; these screens are checked in the Teknokent edition.
+vi.mock("@/hooks/use-edition", async () => {
+  const { Edition } = await import("@/interfaces/edition");
+  return { useEdition: () => Edition.Teknokent };
+});
+
 // Rendered outside the App Router, the real usePathname returns null.
 vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/navigation")>()),
