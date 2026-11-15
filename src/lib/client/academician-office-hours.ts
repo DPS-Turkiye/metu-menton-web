@@ -8,9 +8,9 @@ import type {
 } from "@/interfaces/academician-office-hours";
 import {
   toAcademicianAppointment,
+  toAcademicianAvailability,
   toAnswerInput,
   toOfficeHoursRequest,
-  withNoOneOffs,
 } from "@/lib/academician-office-hours-me";
 import {
   answerOfficeHoursRequest,
@@ -65,7 +65,7 @@ export function cancelAcademicianAppointment(
 }
 
 export async function getAcademicianAvailability(): Promise<AcademicianAvailability> {
-  return withNoOneOffs(await getMyOfficeHoursAvailability());
+  return toAcademicianAvailability(await getMyOfficeHoursAvailability());
 }
 
 /** Weekly ranges, days off and the numbers; one-off hours wait for their backend (G5) and are refused here. */
@@ -78,7 +78,9 @@ export async function saveAcademicianAvailability(
       "One-off Office Hours are not available yet.",
     );
   }
-  return withNoOneOffs(await saveMyOfficeHoursAvailability(settings));
+  return toAcademicianAvailability(
+    await saveMyOfficeHoursAvailability(settings),
+  );
 }
 
 export async function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {

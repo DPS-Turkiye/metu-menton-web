@@ -25,6 +25,7 @@ import type {
   OfficeHoursInboxRequest,
   OfficeHoursRequestStudent,
 } from "@/interfaces/office-hours-me";
+import { toTimeInput } from "@/lib/mentor-availability";
 
 // How the academician's screens read the backend's /api/office-hours/me shapes, and how their answers go back.
 
@@ -137,8 +138,20 @@ export function toAnswerInput(
   }
 }
 
-export function withNoOneOffs(
+/**
+ * The weekly settings as the editor reads them: times as "HH:mm" (the backend sends "HH:mm:ss"), and no one-off
+ * hours until they have a backend (G5).
+ */
+export function toAcademicianAvailability(
   settings: MentorAvailabilitySettings,
 ): AcademicianAvailability {
-  return { ...settings, oneOffs: [] };
+  return {
+    ...settings,
+    rules: settings.rules.map((rule) => ({
+      ...rule,
+      startTime: toTimeInput(rule.startTime),
+      endTime: toTimeInput(rule.endTime),
+    })),
+    oneOffs: [],
+  };
 }

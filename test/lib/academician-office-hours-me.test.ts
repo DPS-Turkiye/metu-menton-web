@@ -8,9 +8,9 @@ import { AppointmentStatus } from "@/interfaces/appointment";
 import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 import {
   toAcademicianAppointment,
+  toAcademicianAvailability,
   toAnswerInput,
   toOfficeHoursRequest,
-  withNoOneOffs,
 } from "@/lib/academician-office-hours-me";
 import { academicianAvailability } from "@test/fixtures/academician-office-hours";
 import {
@@ -170,13 +170,21 @@ describe("toAnswerInput", () => {
   });
 });
 
-describe("withNoOneOffs", () => {
-  it("adds an empty one-off list to the weekly settings and keeps the rest", () => {
+describe("toAcademicianAvailability", () => {
+  it("reads the backend's HH:mm:ss times as HH:mm and adds an empty one-off list", () => {
     const { oneOffs: _ignored, ...settings } = academicianAvailability();
+    const fromBackend = {
+      ...settings,
+      rules: settings.rules.map((rule) => ({
+        ...rule,
+        startTime: `${rule.startTime}:00`,
+        endTime: `${rule.endTime}:00`,
+      })),
+    };
 
-    const availability = withNoOneOffs(settings);
+    const availability = toAcademicianAvailability(fromBackend);
 
-    expect(availability.oneOffs).toEqual([]);
     expect(availability.rules).toEqual(settings.rules);
+    expect(availability.oneOffs).toEqual([]);
   });
 });
