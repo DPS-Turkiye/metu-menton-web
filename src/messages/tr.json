@@ -6651,7 +6651,8 @@
       "cancelReasonRequired": "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
       "cancelledBy": "{name} görüşmeyi iptal etti",
       "cancelledByYou": "Görüşmeyi iptal ettin",
-      "lateCancel": "Son 24 saatte iptal"
+      "lateCancel": "Son 24 saatte iptal",
+      "cancelledReason": "Neden: {reason}"
     }
   },
   "academicianWorkspace": {

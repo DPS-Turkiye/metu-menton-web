@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useId } from "react";
 
 import { PreferredTimesPicker } from "@/components/office-hours/preferred-times-picker";
 import {
@@ -15,7 +16,11 @@ import {
   type OfficeHoursRequest,
   type OfficeHoursRole,
 } from "@/interfaces/office-hours";
-import { meetingTimeLabel, slotLabel } from "@/lib/office-hours-booking";
+import {
+  CANCEL_REASON_MAX_LENGTH,
+  meetingTimeLabel,
+  slotLabel,
+} from "@/lib/office-hours-booking";
 
 const STATUS_TONE: Record<OfficeHoursRequestStatus, string> = {
   [OfficeHoursRequestStatus.Pending]: "bg-[#fff4ec] text-[#c2561a]",
@@ -133,11 +138,9 @@ function CancellationNote({
   const t = useTranslations("officeHours.booking");
   return (
     <p className="mt-2 text-[12.5px] text-[#4a5059]">
-      {card.cancelledByViewer
-        ? t("cancelledByYou")
-        : t("cancelledBy", { name: card.other.fullName })}
+      {card.cancelledBy}
       {cancellation.reason
-        ? ` · ${t("rejection", { reason: cancellation.reason })}`
+        ? ` · ${t("cancelledReason", { reason: cancellation.reason })}`
         : null}
       {cancellation.late ? (
         <span className="ml-2 rounded-full bg-[#fff4ec] px-2 py-0.5 text-[11px] font-medium text-[#c2561a]">
@@ -148,19 +151,32 @@ function CancellationNote({
   );
 }
 
-function CancelPanel({ card }: { card: OfficeHoursRequestCardState }) {
+/** Stable, so the field is focused once when the panel opens, not on every keystroke. */
+function focusOnOpen(field: HTMLTextAreaElement | null) {
+  field?.focus();
+}
+
+function CancelPanel({
+  card,
+  errorId,
+}: {
+  card: OfficeHoursRequestCardState;
+  errorId: string;
+}) {
   const t = useTranslations("officeHours.booking");
-  const label = card.cancelReasonRequired
-    ? t("cancelReasonLate")
-    : t("cancelReason");
+  const hasError = card.error !== "";
   return (
     <div className="mt-3 rounded-lg border border-[#eceef0] p-3">
       <textarea
+        ref={focusOnOpen}
         value={card.text}
-        onChange={(event) => card.setText(event.target.value)}
-        placeholder={label}
-        aria-label={label}
+        onChange={(event) => card.setCancelReason(event.target.value)}
+        placeholder={card.cancelReasonLabel}
+        aria-label={card.cancelReasonLabel}
         aria-required={card.cancelReasonRequired}
+        aria-invalid={hasError}
+        aria-describedby={hasError ? errorId : undefined}
+        maxLength={CANCEL_REASON_MAX_LENGTH}
         className={fieldClass}
       />
       <div className="mt-2 flex gap-2">
@@ -333,6 +349,7 @@ export function OfficeHoursRequestCard({
 }) {
   const t = useTranslations("officeHours.booking");
   const card = useOfficeHoursRequestCard(request, viewer);
+  const errorId = useId();
 
   return (
     <li className="rounded-2xl border border-[#e4e7ea] bg-white p-5">
@@ -386,7 +403,9 @@ export function OfficeHoursRequestCard({
           {t("cancelMeeting")}
         </button>
       ) : null}
-      {card.can.cancel && card.cancelling ? <CancelPanel card={card} /> : null}
+      {card.can.cancel && card.cancelling ? (
+        <CancelPanel card={card} errorId={errorId} />
+      ) : null}
       {card.can.decide && card.mode === null ? (
         <DecisionButtons card={card} />
       ) : null}
@@ -395,7 +414,11 @@ export function OfficeHoursRequestCard({
       ) : null}
 
       {card.error ? (
-        <p role="alert" className="mt-2 text-[12.5px] text-[#b42318]">
+        <p
+          id={errorId}
+          role="alert"
+          className="mt-2 text-[12.5px] text-[#b42318]"
+        >
           {card.error}
         </p>
       ) : null}

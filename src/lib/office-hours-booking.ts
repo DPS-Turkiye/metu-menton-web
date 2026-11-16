@@ -72,6 +72,9 @@ export function meetingTimeLabel(startsAt: string, locale: string) {
   }).format(new Date(startsAt));
 }
 
+/** The backend's limit on a cancel reason (`@Size(max = 2000)`); the field stops there instead of a 400. */
+export const CANCEL_REASON_MAX_LENGTH = 2000;
+
 /**
  * The backend offers CANCEL while the meeting is ahead. The list is as of the last load, so a meeting that has
  * started since stops offering it here too; the backend refuses it with 409 either way.

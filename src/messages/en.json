@@ -6649,7 +6649,8 @@
       "cancelReasonRequired": "The meeting is less than 24 hours away; write a reason for the student.",
       "cancelledBy": "{name} cancelled the meeting",
       "cancelledByYou": "You cancelled the meeting",
-      "lateCancel": "Cancelled within 24 hours"
+      "lateCancel": "Cancelled within 24 hours",
+      "cancelledReason": "Reason: {reason}"
     }
   },
   "academicianWorkspace": {

@@ -265,6 +265,53 @@ describe("OfficeHoursRequestCard", () => {
       );
     });
 
+    it("focuses the reason and drops the missing-reason error once something is typed", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-12T15:00:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+      const reason = screen.getByRole("textbox", {
+        name: /24 saatten az kaldı/,
+      });
+      expect(reason).toHaveFocus();
+
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+      expect(await screen.findByRole("alert")).toBeInTheDocument();
+      expect(reason).toHaveAttribute("aria-invalid", "true");
+
+      await user.type(reason, "F");
+
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(reason).toHaveAttribute("aria-invalid", "false");
+    });
+
+    it("asks for a reason when a card opened a day ahead is cancelled inside 24 hours", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-13T09:30:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+      // The card was opened 24.5 hours ahead; the academic comes back to it an hour later.
+      vi.setSystemTime(new Date("2026-11-12T10:00:00Z"));
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+
+      expect(
+        screen.getByRole("textbox", { name: /24 saatten az kaldı/ }),
+      ).toBeRequired();
+    });
+
     it("lets the academic cancel without a reason more than 24 hours ahead", async () => {
       const user = userEvent.setup();
       renderWithQueryClient(
