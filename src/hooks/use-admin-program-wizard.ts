@@ -87,6 +87,8 @@ export function useAdminProgramWizard() {
     update,
     setCoordinators: (coordinators: CoordinatorChoice[]) =>
       update({ coordinators }),
+    /** What stopped the last "next", so a field can point at it. */
+    problem,
     error: problem
       ? t(`problems.${problem}`)
       : create.error

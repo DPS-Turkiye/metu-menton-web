@@ -68,6 +68,27 @@ export function formatLongDate(value: string, locale = "tr") {
   }).format(new Date(value));
 }
 
+/**
+ * "1 Şubat – 30 Haziran 2027" for two "YYYY-MM-DD" days (the year once when they share it), one day alone when the
+ * other is empty, and "" when both are.
+ */
+export function formatLongDateRange(start: string, end: string, locale = "tr") {
+  const format = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const day = calendarDay;
+  // An out-of-range year typed into a date field is no date at all.
+  if ([start, end].some((value) => value && Number.isNaN(day(value).getTime())))
+    return "";
+  // ICU puts thin spaces around the dash, and which ones varies by version; plain spaces read the same everywhere.
+  if (start && end)
+    return format.formatRange(day(start), day(end)).replace(/\s/g, " ");
+  if (start || end) return format.format(day(start || end));
+  return "";
+}
+
 /** "30 Ağu" */
 export function formatDayMonth(date: Date, locale = "tr") {
   return new Intl.DateTimeFormat(locale, {
