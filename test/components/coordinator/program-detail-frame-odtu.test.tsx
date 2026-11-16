@@ -148,6 +148,37 @@ describe("program detail frame, ODTÜ edition", () => {
     );
   });
 
+  it("puts the counts a page knows on Katılımcılar's sub-tabs, with its filters beside them", async () => {
+    vi.mocked(getCoordinatorProgram).mockResolvedValue(
+      coordinatorProgramDetail({
+        program: coordinatorProgram({
+          id: "oh-1",
+          name: "Akran Mentörlüğü 2026 Güz",
+          type: ProgramType.PeerMentoring,
+          lifecycle: ProgramLifecycle.Active,
+        }),
+      }),
+    );
+    renderWithQueryClient(
+      <ProgramDetailFrame
+        programId="oh-1"
+        tab={ProgramTab.PeerMentors}
+        tabCounts={{ [ProgramTab.Students]: 312, [ProgramTab.PeerMentors]: 38 }}
+        participantFilters={<span>Kapasite filtresi</span>}
+      >
+        {() => <p>Sekme içeriği</p>}
+      </ProgramDetailFrame>,
+    );
+
+    expect(
+      await screen.findByRole("link", { name: "Öğrenciler · 312" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Akran Mentorları · 38" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(screen.getByText("Kapasite filtresi")).toBeInTheDocument();
+  });
+
   it("keeps the Teknokent header for the Teknokent edition", async () => {
     vi.mocked(useEdition).mockReturnValue(Edition.Teknokent);
     renderFrame(ProgramTab.Academics);
