@@ -7,15 +7,21 @@ import type { InstitutionRecord } from "@/interfaces/institution";
 import { IdentityKind } from "@/interfaces/session";
 import { ClientApiError } from "@/lib/client/api";
 import {
-  resetAcademicianSample,
-  sampleState,
-  saveSampleAvailability,
-} from "@/lib/client/fixtures/academician-office-hours-store";
-import {
   fetchInstitutionAdvisees,
   fetchInstitutionRecord,
 } from "@/lib/client/institution";
+import {
+  resetAcademicianSample,
+  sampleState,
+  saveSampleAvailability,
+} from "@test/fixtures/academician-office-hours-sample-store";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
+
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock(
+  "@/lib/client/academician-office-hours",
+  () => import("@test/mocks/academician-office-hours-client"),
+);
 
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
@@ -101,7 +107,8 @@ describe("AcademicianHomeView", () => {
       "4Salı ve Perşembe",
     );
     expect(statCard("Danışan öğrencilerim")).toHaveTextContent("2");
-    expect(screen.getByText(/Örnek veriler gösteriliyor/)).toBeVisible();
+    // Real data now: the sample-data notice is gone.
+    expect(screen.queryByText(/Örnek veriler gösteriliyor/)).toBeNull();
     expect(
       screen.getByRole("link", { name: "Müsaitliği Düzenle" }),
     ).toHaveAttribute("href", "/academician/appointments/availability");

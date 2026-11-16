@@ -22,6 +22,15 @@ import {
   AvailabilityItemKind,
 } from "@/types/academician-office-hours";
 
+/**
+ * The kinds an academician can add today. One-off hours wait for their backend (G5): the editor still reads them, but
+ * offers no way to add one, since saving it would be refused.
+ */
+export const EDITABLE_AVAILABILITY_KINDS: readonly AvailabilityItemKind[] = [
+  AvailabilityItemKind.Recurring,
+  AvailabilityItemKind.Unavailable,
+];
+
 export type AvailabilityItem =
   | { kind: AvailabilityItemKind.Recurring; rule: MentorAvailabilityRule }
   | { kind: AvailabilityItemKind.OneOff; oneOff: OfficeHoursOneOff }

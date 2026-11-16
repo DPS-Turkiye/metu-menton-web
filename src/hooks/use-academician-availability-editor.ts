@@ -13,6 +13,7 @@ import { ToastTone } from "@/interfaces/toast";
 import {
   availabilitySummary,
   dayOffError,
+  EDITABLE_AVAILABILITY_KINDS,
   oneOffError,
   ruleError,
   withDayOff,
@@ -260,6 +261,11 @@ export function useAcademicianAvailabilityEditor() {
   return {
     ...shared,
     editor: {
+      /** What the add dialog offers; one-off hours stay out until they can be saved (G5). */
+      kinds: EDITABLE_AVAILABILITY_KINDS,
+      offersOneOffs: EDITABLE_AVAILABILITY_KINDS.includes(
+        AvailabilityItemKind.OneOff,
+      ),
       recurring: rowsOf(AvailabilityItemKind.Recurring),
       oneOff: rowsOf(AvailabilityItemKind.OneOff),
       unavailable: rowsOf(AvailabilityItemKind.Unavailable),
