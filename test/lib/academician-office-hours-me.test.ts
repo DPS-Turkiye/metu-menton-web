@@ -173,8 +173,14 @@ describe("toAnswerInput", () => {
 });
 
 describe("toAcademicianAvailability", () => {
-  it("reads the backend's HH:mm:ss times as HH:mm and adds an empty one-off list", () => {
-    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+  it("reads the backend's HH:mm:ss times as HH:mm and keeps the one-off hours", () => {
+    const oneOff = {
+      id: "one-off-1",
+      startsAt: "2026-11-24T14:00:00+03:00",
+      endsAt: "2026-11-24T15:00:00+03:00",
+      place: null,
+    };
+    const settings = academicianAvailability({ oneOffs: [oneOff] });
     const fromBackend = {
       ...settings,
       rules: settings.rules.map((rule) => ({
@@ -187,6 +193,6 @@ describe("toAcademicianAvailability", () => {
     const availability = toAcademicianAvailability(fromBackend);
 
     expect(availability.rules).toEqual(settings.rules);
-    expect(availability.oneOffs).toEqual([]);
+    expect(availability.oneOffs).toEqual([oneOff]);
   });
 });

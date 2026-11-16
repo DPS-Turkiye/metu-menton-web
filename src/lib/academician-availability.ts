@@ -22,14 +22,15 @@ import {
   AvailabilityItemKind,
 } from "@/types/academician-office-hours";
 
-/**
- * The kinds an academician can add today. One-off hours wait for their backend (G5): the editor still reads them, but
- * offers no way to add one, since saving it would be refused.
- */
+/** The kinds the add dialog offers, in its order. */
 export const EDITABLE_AVAILABILITY_KINDS: readonly AvailabilityItemKind[] = [
   AvailabilityItemKind.Recurring,
+  AvailabilityItemKind.OneOff,
   AvailabilityItemKind.Unavailable,
 ];
+
+/** The backend's shortest one-off (FR-OH-19); the form says so instead of letting the save fail. */
+export const SHORTEST_ONE_OFF_MINUTES = 15;
 
 export type AvailabilityItem =
   | { kind: AvailabilityItemKind.Recurring; rule: MentorAvailabilityRule }
@@ -332,6 +333,12 @@ export function oneOffError(
   }
   if (minutesOfDay(input.endTime) <= minutesOfDay(input.startTime)) {
     return AvailabilityFormError.EndAfterStart;
+  }
+  if (
+    minutesOfDay(input.endTime) - minutesOfDay(input.startTime) <
+    SHORTEST_ONE_OFF_MINUTES
+  ) {
+    return AvailabilityFormError.TooShort;
   }
   const time = oneOffTime(input);
   if (Date.parse(time.startsAt) <= now.getTime()) {

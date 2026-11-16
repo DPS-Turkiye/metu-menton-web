@@ -33,6 +33,7 @@ const backendSettings = {
   studentCapacity: 4,
   defaultMeetingDurationMinutes: 45,
   meetingBufferMinutes: 15,
+  oneOffs: [],
 };
 
 describe("office-hours availability route", () => {

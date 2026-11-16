@@ -82,6 +82,14 @@ const backendHours = {
   studentCapacity: 4,
   defaultMeetingDurationMinutes: 30,
   meetingBufferMinutes: 0,
+  oneOffs: [
+    {
+      id: "one-off-1",
+      startsAt: "2026-11-24T14:00:00+03:00",
+      endsAt: "2026-11-24T15:00:00+03:00",
+      place: "B-204",
+    },
+  ],
 };
 const editorHours = {
   rules: [
@@ -197,6 +205,7 @@ describe("office hours (Menton account) proxy routes", () => {
       menteeCapacity: 4,
       defaultMeetingDurationMinutes: 30,
       meetingBufferMinutes: 0,
+      oneOffs: backendHours.oneOffs,
     });
 
     await putAvailability(request("/x", "PUT", editorHours));

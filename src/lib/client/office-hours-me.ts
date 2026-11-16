@@ -1,7 +1,7 @@
 import type {
-  MentorAvailabilitySettings,
-  UpdateMentorAvailabilitySettingsPayload,
-} from "@/interfaces/mentor";
+  AcademicianAvailability,
+  UpdateAcademicianAvailabilityPayload,
+} from "@/interfaces/academician-office-hours";
 import type {
   OfficeHoursAcademicianMeeting,
   OfficeHoursAlternativeInput,
@@ -21,15 +21,15 @@ const BASE = "/api/office-hours/me";
 
 export async function getMyOfficeHoursAvailability() {
   return requireSuccess(
-    await httpClient.get<MentorAvailabilitySettings>(`${BASE}/availability`),
+    await httpClient.get<AcademicianAvailability>(`${BASE}/availability`),
   );
 }
 
 export async function saveMyOfficeHoursAvailability(
-  payload: UpdateMentorAvailabilitySettingsPayload,
+  payload: UpdateAcademicianAvailabilityPayload,
 ) {
   return requireSuccess(
-    await httpClient.put<MentorAvailabilitySettings>(
+    await httpClient.put<AcademicianAvailability>(
       `${BASE}/availability`,
       payload,
     ),

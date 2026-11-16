@@ -68,6 +68,3 @@ export function saveOfficeHoursProfileSettings(
 ): Promise<OfficeHoursProfileSettings> {
   return sample(() => saveSampleProfile(settings));
 }
-
-/** Matches the real client's export, so the mocked module keeps its shape. */
-export class OfficeHoursFeatureUnavailableError extends Error {}

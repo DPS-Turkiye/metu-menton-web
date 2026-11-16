@@ -44,6 +44,7 @@ const hours = {
     },
   ],
   exceptions: [],
+  oneOffs: [],
   menteeCapacity: 4,
   defaultMeetingDurationMinutes: 30,
   meetingBufferMinutes: 0,

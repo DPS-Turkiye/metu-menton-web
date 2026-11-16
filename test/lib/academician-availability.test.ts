@@ -331,7 +331,7 @@ describe("availability validation", () => {
     ).toBeNull();
   });
 
-  it("checks one-off hours for the past, a day off and a clash", () => {
+  it("checks one-off hours for the length, the past, a day off and a clash", () => {
     const oneOff = (date: string, startTime: string, endTime: string) => ({
       date,
       startTime,
@@ -349,6 +349,22 @@ describe("availability validation", () => {
         NOW,
       ),
     ).toBe(AvailabilityFormError.EndAfterStart);
+    expect(
+      oneOffError(
+        oneOff("2026-11-17", "10:00", "10:10"),
+        availability,
+        null,
+        NOW,
+      ),
+    ).toBe(AvailabilityFormError.TooShort);
+    expect(
+      oneOffError(
+        oneOff("2026-11-17", "10:00", "10:15"),
+        availability,
+        null,
+        NOW,
+      ),
+    ).toBeNull();
     expect(
       oneOffError(
         oneOff("2026-11-10", "09:00", "09:30"),

@@ -12,7 +12,6 @@ import {
   getAcademicianAvailability,
   getAcademicianRequests,
   getOfficeHoursProfileSettings,
-  OfficeHoursFeatureUnavailableError,
   saveAcademicianAvailability,
   saveOfficeHoursProfileSettings,
 } from "@/lib/client/academician-office-hours";
@@ -166,34 +165,24 @@ describe("academician Office Hours client", () => {
     ).rejects.toBeInstanceOf(ClientApiError);
   });
 
-  it("reads and saves the weekly availability without one-offs", async () => {
-    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+  it("reads and saves the availability with its one-off hours", async () => {
+    const settings = academicianAvailability({
+      oneOffs: [{ id: "one-off-1", ...TIME, place: "B-204" }],
+    });
     vi.mocked(httpClient.get).mockResolvedValue(createMentorResponse(settings));
     vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
 
-    expect((await getAcademicianAvailability()).oneOffs).toEqual([]);
-    const saved = await saveAcademicianAvailability({
-      ...settings,
-      oneOffs: [],
-    });
+    expect((await getAcademicianAvailability()).oneOffs).toEqual(
+      settings.oneOffs,
+    );
+    const payload = { ...settings, oneOffs: [{ ...TIME, place: "B-204" }] };
+    const saved = await saveAcademicianAvailability(payload);
 
     expect(httpClient.put).toHaveBeenCalledWith(
       `${BASE}/availability`,
-      settings,
+      payload,
     );
-    expect(saved.rules).toEqual(settings.rules);
-  });
-
-  it("refuses to save one-off hours instead of dropping them silently", async () => {
-    const { oneOffs: _ignored, ...settings } = academicianAvailability();
-
-    await expect(
-      saveAcademicianAvailability({
-        ...settings,
-        oneOffs: [{ ...TIME, place: null }],
-      }),
-    ).rejects.toBeInstanceOf(OfficeHoursFeatureUnavailableError);
-    expect(httpClient.put).not.toHaveBeenCalled();
+    expect(saved.oneOffs).toEqual(settings.oneOffs);
   });
 
   it("reads where and how students meet them", async () => {
