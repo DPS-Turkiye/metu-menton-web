@@ -5,11 +5,13 @@ import { e2eEnv } from "./support/env";
 // The stack runs APP_EDITION=ODTU: Teknokent's screens and endpoints must look missing, ODTÜ's must be there.
 
 test.describe("ODTU edition: pages", () => {
+  // The server's own answer: in a browser, the signed-out session check on the 404 page then moves the visitor on
+  // to /login, so the page's final status says nothing about the gate.
   for (const path of ["/m/login", "/assistant", "/invite", "/auth/otg/start"]) {
-    test(`Teknokent page ${path} answers 404`, async ({ page }) => {
-      const response = await page.goto(path);
+    test(`Teknokent page ${path} answers 404`, async ({ request }) => {
+      const response = await request.get(path, { maxRedirects: 0 });
 
-      expect(response?.status()).toBe(404);
+      expect(response.status()).toBe(404);
     });
   }
 
