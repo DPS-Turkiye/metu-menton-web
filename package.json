@@ -44,7 +44,7 @@
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@playwright/test": "1.64.1",
+    "@playwright/test": "1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@tanstack/eslint-plugin-query": "^5.107.1",
     "@testing-library/dom": "^10.4.2",
