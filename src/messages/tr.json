@@ -5803,7 +5803,48 @@
     "cancel": "Vazgeç",
     "confirmRevoke": "Geri al",
     "trainingWatched": "Video izlendi, sınav bekleniyor",
-    "trainingAttempts": "{count} deneme · en iyi {best}/10"
+    "trainingAttempts": "{count} deneme · en iyi {best}/10",
+    "capacityLabel": "Kapasite",
+    "badgeFilterLabel": "Rozet durumu",
+    "badgeFilter": {
+      "ALL": "Rozet durumu: Tümü",
+      "NONE": "Rozet yok",
+      "IN_TRAINING": "Eğitimde",
+      "ACTIVE": "Rozet Doğrulandı",
+      "REVOKED": "Geri alındı"
+    },
+    "capacityFilter": {
+      "ALL": "Kapasite: Tümü",
+      "OPEN": "Yeri var",
+      "FULL": "Dolu",
+      "NO_PROFILE": "Profil oluşturulmadı"
+    },
+    "mentorsCaption": "Akran Mentorları",
+    "studentsCaption": "Öğrenciler",
+    "columns": {
+      "mentor": "Akran mentoru",
+      "student": "Öğrenci",
+      "department": "Bölüm · sınıf",
+      "categories": "Kategoriler",
+      "badge": "Rozet",
+      "capacity": "Kapasite"
+    },
+    "noProfile": "Profil oluşturulmadı",
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "badgeStates": {
+      "NONE": "Rozet Yok",
+      "ACTIVE": "Rozet Doğrulandı",
+      "EXPIRED": "Süresi doldu",
+      "REVOKED": "Geri alındı",
+      "IN_TRAINING": "Eğitimde"
+    },
+    "capacityUnlimited": "{active} mentee",
+    "capacityOpen": "{active} / {capacity} mentee",
+    "capacityFull": "{active} / {capacity} · dolu",
+    "rowActions": "{name} için işlemler",
+    "footnote": "Mentorluk konuşmaları, gizli görüşme notları ve kişisel belgeler koordinatöre görünmez.",
+    "noMatch": "Bu filtreye uyan kimse yok."
   },
   "adminStudents": {
     "filterLabel": "Rozet durumu",
@@ -6149,7 +6190,9 @@
     "sessionRefreshFailed": "Oturum bilgilerin güncellenemedi.",
     "personSummaryLoadFailed": "Profil yüklenemedi.",
     "personIdInvalid": "Geçerli bir kişi seçin.",
-    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi."
+    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi.",
+    "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi.",
+    "officeHoursAppointmentLoadFailed": "Randevu yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6925,5 +6968,68 @@
     },
     "footer": "menton · ODTÜ",
     "metaTitle": "menton · ODTÜ"
+  },
+  "programAppointments": {
+    "status": {
+      "PENDING": "Onay Bekliyor",
+      "MORE_INFO_REQUESTED": "Bilgi İstendi",
+      "COUNTER_PROPOSED": "Alternatif Saat Önerildi",
+      "ACCEPTED": "Onaylandı",
+      "DECLINED": "Reddedildi",
+      "WITHDRAWN": "Geri Çekildi",
+      "CANCELLED": "İptal Edildi",
+      "EXPIRED": "Süresi Doldu"
+    },
+    "cards": {
+      "awaitingDecision": "Onay Bekliyor",
+      "alternativeProposed": "Alternatif Saat Önerildi",
+      "acceptedThisWeek": "Onaylandı · bu hafta",
+      "declinedThisWeek": "Reddedildi · bu hafta"
+    },
+    "searchLabel": "Öğrenci veya akademisyen ara",
+    "searchPlaceholder": "Öğrenci veya akademisyen ara",
+    "statusLabel": "Durum",
+    "statusAll": "Durum: Tümü",
+    "statusFilter": "Durum: {status}",
+    "facultyLabel": "Fakülte",
+    "faculty": "Fakülte",
+    "thisWeek": "Bu hafta",
+    "caption": "Randevular",
+    "columns": {
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "time": "Tarih · saat",
+      "status": "Durum",
+      "topic": "Başlık"
+    },
+    "empty": "Bu filtrelere uyan randevu yok.",
+    "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır.",
+    "noTime": "—",
+    "loadFailed": "Randevular yüklenemedi.",
+    "openDetail": "{name}: {topic} randevusunun ayrıntıları",
+    "detail": {
+      "title": "Randevu detayı",
+      "close": "Kapat",
+      "date": "Tarih",
+      "time": "Saat",
+      "participants": "Katılımcılar",
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "roleWithDepartment": "{role} · {department}",
+      "history": "Durum geçmişi",
+      "steps": {
+        "SUBMITTED": "Talep gönderildi",
+        "INFO_REQUESTED": "Bilgi istendi",
+        "STUDENT_REPLIED": "Öğrenci yanıtladı",
+        "ALTERNATIVE_PROPOSED": "Alternatif saat önerildi",
+        "ACCEPTED": "Onaylandı",
+        "DECLINED": "Reddedildi",
+        "WITHDRAWN": "Öğrenci geri çekti"
+      },
+      "privateTitle": "Açıklama gizli",
+      "privateBody": "Görüşme açıklaması ve notlar yalnızca öğrenci ile akademisyene görünür.",
+      "loading": "Randevu yükleniyor…",
+      "loadFailed": "Randevu yüklenemedi."
+    }
   }
 }
