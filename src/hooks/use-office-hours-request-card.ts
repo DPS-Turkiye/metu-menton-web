@@ -26,8 +26,8 @@ import {
 import {
   asAvailabilitySlots,
   canCancelMeeting,
-  cancelNeedsReason,
   counterpartOf,
+  courseCancelNeedsReason,
   ownSideOf,
 } from "@/lib/office-hours-booking";
 import { errorMessage } from "@/lib/utils";
@@ -49,7 +49,7 @@ export function useOfficeHoursRequestCard(
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState(false);
   // Read once: whether the meeting is still ahead only decides what the card offers; the backend checks again.
-  const [openedAt] = useState(() => Date.now());
+  const [openedAt] = useState(() => new Date());
   const instructor = viewer === OfficeHoursRole.Instructor;
   // Only the academic proposing other times needs their free slots, so nothing is fetched until then.
   const ownSlots = useInstructorSlots(
@@ -76,7 +76,7 @@ export function useOfficeHoursRequestCard(
   };
   const cancelReasonRequired =
     request.meeting !== null &&
-    cancelNeedsReason(viewer, request.meeting.startsAt, openedAt);
+    courseCancelNeedsReason(viewer, request.meeting, openedAt);
 
   function close() {
     setMode(null);

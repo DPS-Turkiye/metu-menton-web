@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OfficeHoursRequestCard } from "@/components/office-hours/office-hours-request-card";
+import { OfficeHoursAppointmentAction } from "@/interfaces/academician-office-hours";
 import {
   OfficeHoursMessageType,
   OfficeHoursRequestStatus,
@@ -198,6 +199,7 @@ describe("OfficeHoursRequestCard", () => {
       return officeHoursRequest({
         status: OfficeHoursRequestStatus.Accepted,
         meeting: { startsAt, durationMinutes: 45 },
+        allowedActions: [OfficeHoursAppointmentAction.Cancel],
       });
     }
 
@@ -287,6 +289,20 @@ describe("OfficeHoursRequestCard", () => {
       );
     });
 
+    it("offers no cancel when the backend doesn't allow it", () => {
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={{ ...booked("2026-11-14T09:00:00Z"), allowedActions: [] }}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Görüşmeyi iptal et" }),
+      ).not.toBeInTheDocument();
+    });
+
+    // The list is as of the last load; a meeting that has started since stops offering it.
     it("offers no cancel once the meeting has started", () => {
       renderWithQueryClient(
         <OfficeHoursRequestCard

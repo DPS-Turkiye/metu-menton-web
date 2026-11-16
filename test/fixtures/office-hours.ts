@@ -23,6 +23,7 @@ export function officeHoursRequest(
     meeting: null,
     cancellation: null,
     createdAt: "2026-11-07T10:00:00Z",
+    allowedActions: [],
     ...overrides,
   };
 }

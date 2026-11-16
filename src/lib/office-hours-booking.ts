@@ -1,11 +1,12 @@
+import { OfficeHoursAppointmentAction } from "@/interfaces/academician-office-hours";
 import type { MentorAvailabilitySlot } from "@/interfaces/mentor";
 import {
-  OfficeHoursRequestStatus,
   OfficeHoursRole,
   type OfficeHoursPerson,
   type OfficeHoursRequest,
   type OfficeHoursSlot,
 } from "@/interfaces/office-hours";
+import { cancelNeedsReason } from "@/lib/academician-calendar";
 import {
   formatPreferredSlot,
   parsePreferredSlotMachineValue,
@@ -71,15 +72,15 @@ export function meetingTimeLabel(startsAt: string, locale: string) {
   }).format(new Date(startsAt));
 }
 
-/** FR-OH-14: closer to the start than this, an academic has to say why they cancel, and the cancel counts as late. */
-export const LATE_CANCEL_MS = 24 * 60 * 60 * 1000;
-
-/** An accepted meeting can be called off until it starts; the backend checks the same. */
-export function canCancelMeeting(request: OfficeHoursRequest, now: number) {
+/**
+ * The backend offers CANCEL while the meeting is ahead. The list is as of the last load, so a meeting that has
+ * started since stops offering it here too; the backend refuses it with 409 either way.
+ */
+export function canCancelMeeting(request: OfficeHoursRequest, now: Date) {
   return (
-    request.status === OfficeHoursRequestStatus.Accepted &&
+    request.allowedActions.includes(OfficeHoursAppointmentAction.Cancel) &&
     request.meeting !== null &&
-    Date.parse(request.meeting.startsAt) > now
+    Date.parse(request.meeting.startsAt) > now.getTime()
   );
 }
 
@@ -87,13 +88,12 @@ export function canCancelMeeting(request: OfficeHoursRequest, now: number) {
  * Only the academic owes a reason, and only within 24 hours: the student was planning around the meeting. A student
  * may always cancel without one.
  */
-export function cancelNeedsReason(
+export function courseCancelNeedsReason(
   viewer: OfficeHoursRole,
-  startsAt: string,
-  now: number,
+  meeting: OfficeHoursSlot,
+  now: Date,
 ) {
   return (
-    viewer === OfficeHoursRole.Instructor &&
-    Date.parse(startsAt) - now < LATE_CANCEL_MS
+    viewer === OfficeHoursRole.Instructor && cancelNeedsReason(meeting, now)
   );
 }

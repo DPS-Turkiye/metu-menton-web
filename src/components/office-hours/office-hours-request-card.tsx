@@ -11,7 +11,7 @@ import {
 import {
   OfficeHoursMessageType,
   OfficeHoursRequestStatus,
-  type OfficeHoursCancellation,
+  type OfficeHoursCourseCancellation,
   type OfficeHoursRequest,
   type OfficeHoursRole,
 } from "@/interfaces/office-hours";
@@ -127,7 +127,7 @@ function CancellationNote({
   cancellation,
   card,
 }: {
-  cancellation: OfficeHoursCancellation;
+  cancellation: OfficeHoursCourseCancellation;
   card: OfficeHoursRequestCardState;
 }) {
   const t = useTranslations("officeHours.booking");
