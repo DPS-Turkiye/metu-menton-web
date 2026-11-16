@@ -4769,6 +4769,51 @@
     "phaseMentoring": "{date} · Mentorluk",
     "phaseSetup": "{date} · Kurulum"
   },
+  "odtuAdminPrograms": {
+    "statusLabel": "Program durumu",
+    "filters": {
+      "ALL": "Tümü {count}",
+      "ACTIVE": "Aktif {count}",
+      "DRAFT": "Taslak {count}",
+      "COMPLETED": "Tamamlanan {count}"
+    },
+    "searchLabel": "Program ara",
+    "typeLabel": "Program türü",
+    "typeAll": "Program türü: Tümü",
+    "coordinatorLabel": "Koordinatör",
+    "coordinatorAll": "Koordinatör: Tümü",
+    "newProgram": "Yeni Program Oluştur",
+    "caption": "Programlar",
+    "columns": {
+      "program": "Program",
+      "type": "Program türü",
+      "status": "Durum",
+      "coordinator": "Koordinatör",
+      "date": "Tarih",
+      "participants": "Katılımcı",
+      "actions": "İşlemler"
+    },
+    "status": {
+      "DRAFT": "Taslak",
+      "ACTIVE": "Aktif",
+      "COMPLETED": "Tamamlandı"
+    },
+    "coordinatorMore": "{name} +{count}",
+    "noCoordinator": "Koordinatör yok",
+    "assignCoordinator": "Koordinatör ata",
+    "addCoordinator": "Koordinatör ekle",
+    "universityWide": "Üniversite geneli",
+    "draftDate": "{date} · taslak",
+    "participantsAll": "Tümü",
+    "open": "Aç",
+    "openLabel": "{name} programını aç",
+    "rowActions": "{name} için diğer işlemler",
+    "loading": "Programlar yükleniyor…",
+    "loadFailed": "Programlar yüklenemedi.",
+    "empty": "Henüz program yok. İlk programı Yeni Program Oluştur ile başlatın.",
+    "noMatch": "Bu filtrelere uyan program yok.",
+    "footnote": "Programları yalnızca Admin oluşturur ve başlatır. Koordinatörler atandıkları programların koşullarını yapılandırır."
+  },
   "adminCoordinators": {
     "roles": {
       "ADMIN": "yönetici",

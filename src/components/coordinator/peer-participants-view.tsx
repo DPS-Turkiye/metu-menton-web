@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId } from "react";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
@@ -9,6 +9,7 @@ import { DataCell, DataTable } from "@/components/ia/data-table";
 import { ChipSelect } from "@/components/ia/filter-chip";
 import { Footnote } from "@/components/ia/footnote";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
+import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { StatusTone } from "@/components/ia/status-badge";
 import { Tag } from "@/components/ia/tag";
 import { usePeerParticipants } from "@/hooks/use-peer-participants";
@@ -186,7 +187,17 @@ function MentorsTable({ participants }: { participants: Participants }) {
             <CapacityText profile={row.profile} />
           </DataCell>
           <DataCell className="text-right">
-            <RowMenu row={row} participants={participants} />
+            <RowActionsMenu
+              label={t("rowActions", { name: row.fullName })}
+              actions={[
+                {
+                  id: "revoke",
+                  label: t("revoke"),
+                  destructive: true,
+                  onSelect: () => participants.startRevoke(row),
+                },
+              ]}
+            />
           </DataCell>
         </tr>
       ))}
@@ -318,97 +329,6 @@ function CapacityText({ profile }: { profile: GateBadgeProfile | null }) {
     case CapacityKind.Full:
       return <>{t("capacityFull", capacity)}</>;
   }
-}
-
-/**
- * The ⋯ menu of an Akran Mentorları row, a disclosure with one action. It sits fixed under its button so the table's
- * scroll box cannot clip it; Escape or a click elsewhere closes it, and focus goes back to the button, which the
- * revoke dialog then returns to as well.
- */
-function RowMenu({
-  row,
-  participants,
-}: {
-  row: GateBadgeRow;
-  participants: Participants;
-}) {
-  const t = useTranslations("peerParticipants");
-  const menuId = useId();
-  const trigger = useRef<HTMLButtonElement>(null);
-  const menu = useRef<HTMLUListElement>(null);
-  const [place, setPlace] = useState<{ top: number; right: number } | null>(
-    null,
-  );
-  const open = participants.menuFor === row.userId;
-  const { closeMenu } = participants;
-
-  useEffect(() => {
-    if (!open) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      closeMenu();
-      trigger.current?.focus();
-    }
-    function onPointer(event: MouseEvent) {
-      const target = event.target as Node;
-      if (!menu.current?.contains(target) && !trigger.current?.contains(target))
-        closeMenu();
-    }
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onPointer);
-    window.addEventListener("scroll", closeMenu, true);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onPointer);
-      window.removeEventListener("scroll", closeMenu, true);
-    };
-  }, [open, closeMenu]);
-
-  return (
-    <>
-      <button
-        ref={trigger}
-        type="button"
-        aria-label={t("rowActions", { name: row.fullName })}
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        onClick={() => {
-          const box = trigger.current?.getBoundingClientRect();
-          if (box)
-            setPlace({
-              top: box.bottom + 4,
-              right: window.innerWidth - box.right,
-            });
-          participants.toggleMenu(row.userId);
-        }}
-        className="rounded-full px-2 py-1 type-label text-text-secondary hover:bg-background-subtle"
-      >
-        <span aria-hidden>⋯</span>
-      </button>
-      {open ? (
-        <ul
-          ref={menu}
-          id={menuId}
-          style={place ?? undefined}
-          className="fixed z-30 w-48 rounded-2xl border border-border-subtle bg-background-surface p-1 text-left shadow-hover"
-        >
-          <li>
-            <button
-              type="button"
-              onClick={() => {
-                trigger.current?.focus();
-                participants.closeMenu();
-                participants.startRevoke(row);
-              }}
-              className="w-full rounded-xl px-3 py-2 text-left type-body-sm text-status-error-text hover:bg-background-subtle"
-            >
-              {t("revoke")}
-            </button>
-          </li>
-        </ul>
-      ) : null}
-    </>
-  );
 }
 
 function RevokeDialog({

@@ -1,0 +1,17 @@
+# Only what `next build` needs goes into the image. Env files stay out: server values come from the container's
+# environment at run time and the NEXT_PUBLIC_* ones from build arguments (see Dockerfile).
+.git
+.github
+.husky
+.vscode
+.next
+node_modules
+coverage
+test
+docs
+.env*
+!.env.example
+*.pem
+Dockerfile
+.dockerignore
+npm-debug.log*
