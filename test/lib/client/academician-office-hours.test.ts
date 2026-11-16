@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   OfficeHoursAppointmentAction,
@@ -46,6 +46,9 @@ const TIME = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("academician Office Hours client", () => {
@@ -166,6 +169,8 @@ describe("academician Office Hours client", () => {
   });
 
   it("reads and saves the availability with its one-off hours", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-16T09:00:00+03:00"));
     const settings = academicianAvailability({
       oneOffs: [{ id: "one-off-1", ...TIME, place: "B-204" }],
     });
@@ -183,6 +188,28 @@ describe("academician Office Hours client", () => {
       payload,
     );
     expect(saved.oneOffs).toEqual(settings.oneOffs);
+  });
+
+  it("leaves ended one-off hours out of a save", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-17T16:00:00+03:00"));
+    const settings = academicianAvailability();
+    vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
+    const ahead = {
+      startsAt: "2026-11-18T14:00:00+03:00",
+      endsAt: "2026-11-18T15:00:00+03:00",
+      place: null,
+    };
+
+    await saveAcademicianAvailability({
+      ...settings,
+      oneOffs: [{ ...TIME, place: null }, ahead],
+    });
+
+    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/availability`, {
+      ...settings,
+      oneOffs: [ahead],
+    });
   });
 
   it("reads where and how students meet them", async () => {

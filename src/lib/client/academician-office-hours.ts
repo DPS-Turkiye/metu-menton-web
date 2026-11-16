@@ -6,6 +6,7 @@ import type {
   OfficeHoursRequest,
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
+import { upcomingOneOffs } from "@/lib/academician-availability";
 import {
   toAcademicianAppointment,
   toAcademicianAvailability,
@@ -62,12 +63,15 @@ export async function getAcademicianAvailability(): Promise<AcademicianAvailabil
   return toAcademicianAvailability(await getMyOfficeHoursAvailability());
 }
 
-/** Weekly ranges, one-off hours, days off and the numbers, saved as a whole. */
+/** Weekly ranges, one-off hours still ahead, days off and the numbers, saved as a whole. */
 export async function saveAcademicianAvailability(
   payload: UpdateAcademicianAvailabilityPayload,
 ): Promise<AcademicianAvailability> {
   return toAcademicianAvailability(
-    await saveMyOfficeHoursAvailability(payload),
+    await saveMyOfficeHoursAvailability({
+      ...payload,
+      oneOffs: upcomingOneOffs(payload.oneOffs, new Date()),
+    }),
   );
 }
 

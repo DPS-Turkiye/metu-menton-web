@@ -177,6 +177,17 @@ export function toAvailabilityPayload(
   };
 }
 
+/**
+ * The one-off hours still worth saving: an ended one offers nothing, and the backend keeps at most 30, so a save,
+ * which replaces the whole list, leaves the ended ones out instead of carrying them forever.
+ */
+export function upcomingOneOffs<OneOff extends { endsAt: string }>(
+  oneOffs: readonly OneOff[],
+  now: Date,
+): OneOff[] {
+  return oneOffs.filter((oneOff) => Date.parse(oneOff.endsAt) > now.getTime());
+}
+
 /** The one-off as a time range typed in Turkey time. */
 export function oneOffTime(input: OneOffInput) {
   return turkeyTimeRange(

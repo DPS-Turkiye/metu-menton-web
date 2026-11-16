@@ -9,6 +9,7 @@ import {
   oneOffError,
   ruleError,
   toAvailabilityPayload,
+  upcomingOneOffs,
   weekAvailability,
   withDayOff,
   withOneOff,
@@ -452,5 +453,28 @@ describe("availability validation", () => {
         NOW,
       ),
     ).toBeNull();
+  });
+});
+
+describe("upcomingOneOffs", () => {
+  it("keeps the one-off hours that have not ended yet", () => {
+    const now = new Date("2026-11-17T12:00:00+03:00");
+    const ended = {
+      startsAt: "2026-11-17T10:00:00+03:00",
+      endsAt: "2026-11-17T11:00:00+03:00",
+    };
+    const running = {
+      startsAt: "2026-11-17T11:30:00+03:00",
+      endsAt: "2026-11-17T12:30:00+03:00",
+    };
+    const ahead = {
+      startsAt: "2026-11-18T10:00:00+03:00",
+      endsAt: "2026-11-18T11:00:00+03:00",
+    };
+
+    expect(upcomingOneOffs([ended, running, ahead], now)).toEqual([
+      running,
+      ahead,
+    ]);
   });
 });
