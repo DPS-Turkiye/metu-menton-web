@@ -74,19 +74,37 @@ export function parseDay(value: string) {
   return new Date(`${value}T00:00:00`);
 }
 
-/** "Şub 2026 – Ara 2026"; empty when the program has no dates yet. */
+/** "Şub 2026" for a "YYYY-MM-DD" day. */
+export function formatMonthYear(day: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    year: "numeric",
+  }).format(parseDay(day));
+}
+
+/**
+ * "Şub 2026 – Ara 2026"; empty when the program has no dates yet. With `shareYear`, a range inside one year names
+ * the year once ("Şub – Ara 2026"), and one inside a single month is just that month ("Şub 2026").
+ */
 export function formatMonthRange(
   start: string | null,
   end: string | null,
   locale: string,
+  { shareYear = false }: { shareYear?: boolean } = {},
 ) {
   if (!start && !end) return "";
-  const monthYear = new Intl.DateTimeFormat(locale, {
-    month: "short",
-    year: "numeric",
-  });
-  const from = start ? monthYear.format(parseDay(start)) : "";
-  const to = end ? monthYear.format(parseDay(end)) : "";
+  if (shareYear && start && end) {
+    const from = parseDay(start);
+    const to = parseDay(end);
+    if (from.getFullYear() === to.getFullYear()) {
+      if (from.getMonth() === to.getMonth())
+        return formatMonthYear(end, locale);
+      const month = new Intl.DateTimeFormat(locale, { month: "short" });
+      return `${month.format(from)} – ${formatMonthYear(end, locale)}`;
+    }
+  }
+  const from = start ? formatMonthYear(start, locale) : "";
+  const to = end ? formatMonthYear(end, locale) : "";
   return `${from} – ${to}`.trim();
 }
 

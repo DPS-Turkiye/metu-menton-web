@@ -1,6 +1,7 @@
 import type { NewCoordinatorInput } from "@/interfaces/admin-coordinator";
 import type { CoordinatorMentorship } from "@/interfaces/coordinator-mentorship";
 import type { ProgramStatus, ProgramType } from "@/interfaces/program";
+import type { ProgramCounts } from "@/interfaces/program-counts";
 import type { DocumentKind } from "@/interfaces/startup-document";
 
 export enum ProgramLifecycle {
@@ -52,6 +53,8 @@ export type CoordinatorProgram = {
   phases: ProgramPhase[];
   currentWeek: number | null;
   totalWeeks: number | null;
+  /** A peer or Office Hours program's participants; absent from an older backend. */
+  counts?: ProgramCounts;
 };
 
 export enum ProgramEventKind {
