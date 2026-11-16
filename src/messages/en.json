@@ -6190,7 +6190,8 @@
     "personIdInvalid": "Choose a valid person.",
     "aiFeaturesLoadFailed": "Could not load the AI settings.",
     "officeHoursAppointmentsLoadFailed": "Could not load the appointments.",
-    "officeHoursAppointmentLoadFailed": "Could not load the appointment."
+    "officeHoursAppointmentLoadFailed": "Could not load the appointment.",
+    "officeHoursStudentsLoadFailed": "Could not load the students."
   },
   "startupStart": {
     "title": "My startup",
@@ -7029,5 +7030,31 @@
       "loading": "Loading the appointment…",
       "loadFailed": "Could not load the appointment."
     }
+  },
+  "programOhStudents": {
+    "faculty": "Faculty",
+    "facultyLabel": "Faculty",
+    "searchLabel": "Search students",
+    "awaitingOnly": "Has a request awaiting approval",
+    "caption": "Students",
+    "columns": {
+      "student": "Student",
+      "department": "Department · year",
+      "requests": "Requests",
+      "academicians": "Academics",
+      "lastRequest": "Last request"
+    },
+    "requests": {
+      "awaitingDecision": "{count} awaiting approval",
+      "alternativeProposed": "{count} another time",
+      "accepted": "{count} approved",
+      "declined": "{count} declined",
+      "withdrawn": "{count} withdrawn"
+    },
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "empty": "No students in the last six months match these filters.",
+    "loadFailed": "Could not load the students.",
+    "footnote": "Students who sent an Office Hours request in the last six months. Request titles and descriptions are not shown here; see Appointments for details."
   }
 }

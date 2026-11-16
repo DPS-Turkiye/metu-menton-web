@@ -6192,7 +6192,8 @@
     "personIdInvalid": "Geçerli bir kişi seçin.",
     "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi.",
     "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi.",
-    "officeHoursAppointmentLoadFailed": "Randevu yüklenemedi."
+    "officeHoursAppointmentLoadFailed": "Randevu yüklenemedi.",
+    "officeHoursStudentsLoadFailed": "Öğrenciler yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -7031,5 +7032,31 @@
       "loading": "Randevu yükleniyor…",
       "loadFailed": "Randevu yüklenemedi."
     }
+  },
+  "programOhStudents": {
+    "faculty": "Fakülte",
+    "facultyLabel": "Fakülte",
+    "searchLabel": "Öğrenci ara",
+    "awaitingOnly": "Onay bekleyen talebi var",
+    "caption": "Öğrenciler",
+    "columns": {
+      "student": "Öğrenci",
+      "department": "Bölüm · sınıf",
+      "requests": "Talepler",
+      "academicians": "Akademisyen",
+      "lastRequest": "Son talep"
+    },
+    "requests": {
+      "awaitingDecision": "{count} onay bekliyor",
+      "alternativeProposed": "{count} alternatif saat",
+      "accepted": "{count} onaylandı",
+      "declined": "{count} reddedildi",
+      "withdrawn": "{count} geri çekildi"
+    },
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "empty": "Son altı ayda bu filtrelere uyan öğrenci yok.",
+    "loadFailed": "Öğrenciler yüklenemedi.",
+    "footnote": "Son altı ayda Office Hours talebi gönderen öğrenciler. Talep başlıkları ve açıklamaları burada görünmez; ayrıntılar Randevular'da."
   }
 }
