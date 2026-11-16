@@ -1,17 +1,76 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIRequestContext } from "@playwright/test";
+import { sealData } from "iron-session";
+
+import { UserRole, type SessionData } from "@/interfaces/session";
+import { SESSION_COOKIE } from "@/lib/public-paths";
 
 import { e2eEnv } from "./support/env";
+
+const CLOSED_PAGES = ["/m/login", "/assistant", "/invite", "/auth/otg/start"];
+const MISSING_PAGE = "/no-such-page";
+
+/**
+ * A signed-in visitor's cookie, sealed with the stack's own SESSION_PASSWORD exactly as the app seals one. The
+ * account is fake and the backend never sees it: these requests only go through the proxy's routing.
+ */
+async function signedInCookie(): Promise<string> {
+  const password = process.env.SESSION_PASSWORD;
+  if (!password)
+    throw new Error(
+      "SESSION_PASSWORD is not set: source e2e/.stack/web.env first.",
+    );
+  const data: SessionData = {
+    user: {
+      userId: "00000000-0000-4000-8000-0000000000e2",
+      email: "e2e.student@example.invalid",
+      fullName: "E2E Öğrenci",
+      jobTitle: "",
+      role: UserRole.Mentee,
+    },
+    issuedAt: Date.now(),
+  };
+  return `${SESSION_COOKIE}=${await sealData(data, { password })}`;
+}
+
+async function answer(
+  request: APIRequestContext,
+  path: string,
+  cookie?: string,
+) {
+  const response = await request.get(path, {
+    maxRedirects: 0,
+    headers: cookie ? { Cookie: cookie } : {},
+  });
+  return {
+    status: response.status(),
+    location: response.headers().location ?? null,
+  };
+}
 
 // The stack runs APP_EDITION=ODTU: Teknokent's screens and endpoints must look missing, ODTÜ's must be there.
 
 test.describe("ODTU edition: pages", () => {
-  // The server's own answer: in a browser, the signed-out session check on the 404 page then moves the visitor on
-  // to /login, so the page's final status says nothing about the gate.
-  for (const path of ["/m/login", "/assistant", "/invite", "/auth/otg/start"]) {
-    test(`Teknokent page ${path} answers 404`, async ({ request }) => {
-      const response = await request.get(path, { maxRedirects: 0 });
+  // A closed page must look exactly like a page that doesn't exist. Signed out, both send the visitor to sign in
+  // (the proxy runs again on its rewrite, which isn't public) without naming the closed page; signed in, both are 404.
+  for (const path of CLOSED_PAGES) {
+    test(`Teknokent page ${path} looks missing to a signed-out visitor`, async ({
+      request,
+    }) => {
+      const closed = await answer(request, path);
+      const missing = await answer(request, MISSING_PAGE);
 
-      expect(response.status()).toBe(404);
+      expect(closed.status).toBe(missing.status);
+      expect(closed.location).toMatch(/^\/login\?next=/);
+      expect(closed.location).not.toContain(encodeURIComponent(path));
+    });
+
+    test(`Teknokent page ${path} answers 404 to a signed-in visitor`, async ({
+      request,
+    }) => {
+      const cookie = await signedInCookie();
+
+      expect((await answer(request, path, cookie)).status).toBe(404);
+      expect((await answer(request, MISSING_PAGE, cookie)).status).toBe(404);
     });
   }
 
