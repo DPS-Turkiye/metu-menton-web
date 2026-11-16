@@ -5,15 +5,24 @@ import { BadgeCode, BadgeStatus } from "@/interfaces/badges";
 import { Weekday } from "@/interfaces/mentor";
 import { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import {
+  PeerExperienceKind,
   PeerMentorGateState,
   PeerTopicCategory,
+  PeerTopicLevel,
 } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
 import {
   chosenSubtopics,
+  EMPTY_EXPERIENCE_FORM,
+  experienceCardProblem,
+  experienceProblemField,
+  formatYearMonth,
   iskurHomeMode,
   latestGateAward,
+  levelsFor,
+  mentorshipSince,
   nextSessionsByRequest,
+  offeredSubTopics,
   PEER_REQUEST_STATUS_TONE,
   peerMentorCapacity,
   peerMentorGateState,
@@ -23,9 +32,15 @@ import {
   splitPeerRequests,
   splitRecommended,
   subtopicGroupsWithCounts,
+  subTopicOptions,
+  toExperienceCard,
+  toExperienceForm,
   weeklyHours,
 } from "@/lib/peer-mentoring";
+import enIskur from "@/messages/ia/iskur/en.json";
+import trIskur from "@/messages/ia/iskur/tr.json";
 import {
+  ExperienceCardProblem,
   IskurHomeMode,
   PeerCapacityNote,
   PeerRequestAvailability,
@@ -324,6 +339,165 @@ describe("peerMentorProfileHref", () => {
   });
 });
 
+describe("sub-topic helpers", () => {
+  const catalogue: ProfileCompletionCategory[] = [
+    {
+      id: PeerTopicCategory.CareerInternship,
+      subtopics: [
+        { id: "cv", labelKey: "cv" },
+        { id: "shared", labelKey: "time" },
+      ],
+    },
+    {
+      id: PeerTopicCategory.International,
+      subtopics: [
+        { id: "exchange", labelKey: "exchange" },
+        { id: "shared", labelKey: "time" },
+      ],
+    },
+  ];
+
+  it("offers the chosen category's sub-topics, or every category's once", () => {
+    expect(
+      subTopicOptions(catalogue, PeerTopicCategory.International).map(
+        (sub) => sub.id,
+      ),
+    ).toEqual(["exchange", "shared"]);
+    expect(subTopicOptions(catalogue, null).map((sub) => sub.id)).toEqual([
+      "cv",
+      "shared",
+      "exchange",
+    ]);
+    expect(subTopicOptions(catalogue, PeerTopicCategory.CampusLife)).toEqual(
+      [],
+    );
+  });
+
+  it("pairs a mentor's sub-topics with their catalogue entry, keeping unknown ones", () => {
+    expect(offeredSubTopics(catalogue, ["exchange", "Serbest"])).toEqual([
+      { id: "exchange", entry: { id: "exchange", labelKey: "exchange" } },
+      { id: "Serbest", entry: null },
+    ]);
+  });
+});
+
+describe("mentorshipSince", () => {
+  it("gives the day and a month key, so each language can word it", () => {
+    expect(mentorshipSince("2026-11-03T12:00:00+03:00")).toEqual({
+      day: 3,
+      month: "nov",
+    });
+    expect(mentorshipSince("2026-10-15T12:00:00+03:00")?.month).toBe("oct");
+    expect(mentorshipSince("not a date")).toBeNull();
+  });
+
+  it("has every month's form in both languages", () => {
+    for (let month = 1; month <= 12; month += 1) {
+      const key = mentorshipSince(
+        `2026-${String(month).padStart(2, "0")}-15T12:00:00+03:00`,
+      )?.month;
+      expect(key).toBeDefined();
+      if (!key) continue;
+      expect(trIskur.take.mine.sinceMonth[key]).toBeTruthy();
+      expect(enIskur.take.mine.sinceMonth[key]).toBeTruthy();
+    }
+  });
+});
+
+describe("experience cards", () => {
+  const filled = {
+    title: " Yaz stajyeri ",
+    organization: " ABC Lojistik ",
+    startedOn: "2025-07",
+    endedOn: "",
+    summary: "  ",
+  };
+
+  it("asks for a title, an organisation and a start, and an end no earlier than the start", () => {
+    expect(experienceCardProblem(EMPTY_EXPERIENCE_FORM)).toBe(
+      ExperienceCardProblem.Title,
+    );
+    expect(experienceCardProblem({ ...filled, organization: " " })).toBe(
+      ExperienceCardProblem.Organization,
+    );
+    expect(experienceCardProblem({ ...filled, startedOn: "" })).toBe(
+      ExperienceCardProblem.Start,
+    );
+    expect(experienceCardProblem({ ...filled, endedOn: "2025-06" })).toBe(
+      ExperienceCardProblem.EndBeforeStart,
+    );
+    expect(experienceCardProblem({ ...filled, endedOn: "2025-07" })).toBeNull();
+    // A browser without a month picker lets anything be typed.
+    expect(experienceCardProblem({ ...filled, startedOn: "Temmuz 2025" })).toBe(
+      ExperienceCardProblem.Month,
+    );
+    expect(experienceCardProblem({ ...filled, endedOn: "2025-13" })).toBe(
+      ExperienceCardProblem.Month,
+    );
+  });
+
+  it("points each problem at its field", () => {
+    expect(
+      experienceProblemField(ExperienceCardProblem.Organization, filled),
+    ).toBe("organization");
+    expect(
+      experienceProblemField(ExperienceCardProblem.Month, {
+        ...filled,
+        startedOn: "Temmuz",
+      }),
+    ).toBe("startedOn");
+    expect(
+      experienceProblemField(ExperienceCardProblem.Month, {
+        ...filled,
+        endedOn: "Ağustos",
+      }),
+    ).toBe("endedOn");
+    expect(
+      experienceProblemField(ExperienceCardProblem.EndBeforeStart, filled),
+    ).toBe("endedOn");
+    expect(experienceCardProblem(filled)).toBeNull();
+  });
+
+  it("turns the form into a trimmed card and back", () => {
+    const card = toExperienceCard(filled);
+    expect(card).toEqual({
+      kind: PeerExperienceKind.Other,
+      title: "Yaz stajyeri",
+      organization: "ABC Lojistik",
+      startedOn: "2025-07",
+      endedOn: null,
+      summary: null,
+    });
+    expect(toExperienceForm(card)).toEqual({
+      title: "Yaz stajyeri",
+      organization: "ABC Lojistik",
+      startedOn: "2025-07",
+      endedOn: "",
+      summary: "",
+    });
+  });
+
+  it("names a month the same way in every time zone", () => {
+    expect(formatYearMonth("2025-07", "tr")).toBe("Temmuz 2025");
+    expect(formatYearMonth("2024-09", "en")).toBe("September 2024");
+    expect(formatYearMonth("not-a-month", "tr")).toBe("not-a-month");
+  });
+
+  it("keeps levels only for the chosen categories", () => {
+    expect(
+      levelsFor(
+        {
+          [PeerTopicCategory.CareerInternship]: PeerTopicLevel.Advanced,
+          [PeerTopicCategory.International]: PeerTopicLevel.Basic,
+        },
+        [PeerTopicCategory.CareerInternship, PeerTopicCategory.CampusLife],
+      ),
+    ).toEqual({
+      [PeerTopicCategory.CareerInternship]: PeerTopicLevel.Advanced,
+    });
+  });
+});
+
 describe("nextSessionsByRequest", () => {
   const now = new Date("2026-11-09T09:00:00.000Z");
   const session = (
@@ -356,6 +530,42 @@ describe("nextSessionsByRequest", () => {
       now,
     );
     expect(next.size).toBe(0);
+  });
+
+  it("keeps a request whose asked-for time passed while the proposed time is still ahead", () => {
+    const moved = {
+      ...session(
+        "r4",
+        "2026-11-08T09:00:00.000Z",
+        AppointmentStatus.AlternativeProposed,
+      ),
+      alternative: {
+        startsAt: "2026-11-13T09:00:00.000Z",
+        endsAt: "2026-11-13T09:30:00.000Z",
+      },
+    };
+    expect(nextSessionsByRequest([moved], now).get("r4")).toBe(moved);
+  });
+
+  it("ranks a meeting with another time proposed by that time, not the asked-for one", () => {
+    const moved = {
+      ...session(
+        "r5",
+        "2026-11-10T09:00:00.000Z",
+        AppointmentStatus.AlternativeProposed,
+      ),
+      alternative: {
+        startsAt: "2026-11-14T09:00:00.000Z",
+        endsAt: "2026-11-14T09:30:00.000Z",
+      },
+    };
+    const confirmed = session("r5", "2026-11-12T09:00:00.000Z");
+    expect(nextSessionsByRequest([moved, confirmed], now).get("r5")).toBe(
+      confirmed,
+    );
+    expect(nextSessionsByRequest([confirmed, moved], now).get("r5")).toBe(
+      confirmed,
+    );
   });
 });
 

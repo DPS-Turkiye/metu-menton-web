@@ -4,20 +4,29 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PeerMentorPublicProfile } from "@/components/student/peer-mentor-public-profile";
 import { BadgeCode, BadgeKind } from "@/interfaces/badges";
-import { getPeerMentors } from "@/lib/client/peer-mentoring";
+import { PeerEvidenceType } from "@/interfaces/peer-mentor-documents";
+import { getPeerMentorDocuments } from "@/lib/client/peer-mentor-documents";
+import { getPeerMentor } from "@/lib/client/peer-mentoring";
+import {
+  peerFileFixture,
+  peerLinkFixture,
+} from "@test/fixtures/peer-mentor-documents";
 import {
   addPeerMentoringRequestFixture,
-  PEER_MENTORS_FIXTURE,
+  peerMentorDetailFixture,
   peerMentoringRequestsFixture,
-  peerMentorsFixture,
   resetPeerMentoringFixtures,
 } from "@test/fixtures/peer-mentoring";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/peer-mentoring", () => ({
-  getPeerCategories: vi.fn(async () => []),
-  getPeerMentors: vi.fn(async (filter) =>
-    structuredClone(peerMentorsFixture(filter)),
+  getPeerCategories: vi.fn(async () => {
+    const { PEER_TOPIC_CATEGORIES } =
+      await import("@/interfaces/peer-mentoring");
+    return [...PEER_TOPIC_CATEGORIES];
+  }),
+  getPeerMentor: vi.fn(async (id: string) =>
+    structuredClone(peerMentorDetailFixture(id)),
   ),
   getPeerMentoringRequests: vi.fn(async () =>
     structuredClone(peerMentoringRequestsFixture()),
@@ -25,6 +34,12 @@ vi.mock("@/lib/client/peer-mentoring", () => ({
   createPeerMentoringRequest: vi.fn(async (input) =>
     structuredClone(addPeerMentoringRequestFixture(input)),
   ),
+}));
+vi.mock("@/lib/client/peer-mentor-documents", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("@/lib/client/peer-mentor-documents")
+  >()),
+  getPeerMentorDocuments: vi.fn(async () => []),
 }));
 vi.mock("@/lib/client/student-profile-completion", async (importOriginal) => ({
   ...(await importOriginal<
@@ -79,27 +94,130 @@ describe("PeerMentorPublicProfile", () => {
   });
 
   it("marks a mentor holding the Akran Mentoru badge as verified", async () => {
-    const deniz = PEER_MENTORS_FIXTURE.find(
-      (mentor) => mentor.mentorId === "fixture-peer-1",
-    );
+    const deniz = peerMentorDetailFixture("fixture-peer-1");
     if (!deniz) throw new Error("fixture mentor missing");
-    vi.mocked(getPeerMentors).mockResolvedValueOnce([
-      {
-        ...deniz,
-        badges: [
-          {
-            code: BadgeCode.PeerMentor,
-            kind: BadgeKind.Gate,
-            programId: "fixture-program",
-            awardedAt: "2026-10-01T10:00:00+03:00",
-          },
-        ],
-      },
-    ]);
+    vi.mocked(getPeerMentor).mockResolvedValueOnce({
+      ...deniz,
+      badges: [
+        {
+          code: BadgeCode.PeerMentor,
+          kind: BadgeKind.Gate,
+          programId: "fixture-program",
+          awardedAt: "2026-10-01T10:00:00+03:00",
+        },
+      ],
+    });
     renderWithQueryClient(
       <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
     );
     expect(await screen.findByText("Rozet doğrulandı")).toBeVisible();
+  });
+
+  it("asks for the one mentor rather than the whole directory", async () => {
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+    await screen.findByRole("heading", { level: 1, name: "Deniz Kaya" });
+
+    expect(getPeerMentor).toHaveBeenCalledWith("fixture-peer-1");
+  });
+
+  it("shows the sub-topics, experience, LinkedIn and weekly hours the wizard published", async () => {
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+
+    const topics = await screen.findByRole("region", {
+      name: "Yardımcı olabileceği konular",
+    });
+    expect(within(topics).getByText("Örnek: CV hazırlama")).toBeVisible();
+    // A sub-topic the catalogue doesn't know shows as written.
+    expect(within(topics).getByText("Serbest konu")).toBeVisible();
+
+    const experience = screen.getByRole("region", { name: "İlgili deneyim" });
+    expect(
+      within(experience).getByText("Yaz stajyeri — ABC Lojistik"),
+    ).toBeVisible();
+    expect(
+      within(experience).getByText(
+        "Temmuz 2025 – Ağustos 2025 · Haftalık operasyon raporları hazırladım.",
+      ),
+    ).toBeVisible();
+    expect(
+      within(experience).getByText("Eylül 2024 – Devam ediyor"),
+    ).toBeVisible();
+    expect(within(experience).getByText("CENG 242 · CENG 315")).toBeVisible();
+    expect(
+      within(experience).getByText("Kampüs etkinlik uygulaması"),
+    ).toBeVisible();
+    expect(within(experience).getByText("TU Delft, 2025 bahar")).toBeVisible();
+
+    const linkedin = screen.getByRole("link", {
+      name: "LinkedIn profili (yeni sekmede açılır)",
+    });
+    expect(linkedin).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/deniz-kaya",
+    );
+    expect(linkedin).toHaveAttribute("rel", "noopener noreferrer nofollow");
+
+    const hours = screen.getByRole("region", { name: "Müsaitlik" });
+    const days = within(hours).getAllByRole("term");
+    expect(days.map((day) => day.textContent)).toEqual(["Salı", "Cumartesi"]);
+    expect(within(hours).getByText("18:00 – 20:00")).toBeVisible();
+    expect(within(hours).getByText("Boş saat var")).toBeVisible();
+  });
+
+  it("leaves out empty sections and says when there are no hours or free slots", async () => {
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-2" />,
+    );
+    await screen.findByRole("heading", { level: 1, name: "Elif Şahin" });
+
+    expect(screen.queryByRole("region", { name: "İlgili deneyim" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /LinkedIn profili/ })).toBeNull();
+    const hours = screen.getByRole("region", { name: "Müsaitlik" });
+    expect(within(hours).getByText("Haftalık saat eklenmemiş.")).toBeVisible();
+    expect(within(hours).getByText("Boş saat yok")).toBeVisible();
+  });
+
+  it("never turns a LinkedIn value that isn't a web link into a link", async () => {
+    const deniz = peerMentorDetailFixture("fixture-peer-1");
+    if (!deniz) throw new Error("fixture mentor missing");
+    vi.mocked(getPeerMentor).mockResolvedValueOnce({
+      ...deniz,
+      linkedinUrl: "javascript:alert(1)",
+    });
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+    await screen.findByRole("heading", { level: 1, name: "Deniz Kaya" });
+
+    expect(screen.queryByRole("link", { name: /LinkedIn profili/ })).toBeNull();
+  });
+
+  it("reloads the mentor after a request is sent, since their places may have changed", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Mentorluk Talebi Gönder, Deniz Kaya",
+      }),
+    );
+    const dialog = screen.getByRole("dialog", {
+      name: "Mentorluk talebi gönder",
+    });
+    await user.type(
+      within(dialog).getByLabelText("Kısa mesaj"),
+      "Staj başvurusunda CV'mi birlikte gözden geçirebilir miyiz?",
+    );
+    await user.click(
+      within(dialog).getByRole("button", { name: "Mentorluk Talebi Gönder" }),
+    );
+
+    await waitFor(() => expect(getPeerMentor).toHaveBeenCalledTimes(2));
   });
 
   it("says why a request can't be sent to a mentor already asked", async () => {
@@ -120,5 +238,38 @@ describe("PeerMentorPublicProfile", () => {
         "Bu akran mentoru bulunamadı ya da artık listelenmiyor.",
       ),
     ).toBeVisible();
+  });
+
+  it("shows the files and portfolio links the mentor shares on their profile", async () => {
+    vi.mocked(getPeerMentorDocuments).mockResolvedValueOnce([
+      peerFileFixture({
+        id: "8a0e2f4c-0000-4000-8000-000000000003",
+        evidenceType: PeerEvidenceType.Cv,
+        originalFilename: "CV_DenizKaya.pdf",
+      }),
+      peerLinkFixture(),
+    ]);
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+
+    const shared = await screen.findByRole("region", {
+      name: "Paylaşılan belgeler",
+    });
+    expect(within(shared).getByText("CV_DenizKaya.pdf")).toBeVisible();
+    expect(within(shared).getByText("CV")).toBeVisible();
+    expect(
+      within(shared).getByRole("link", {
+        name: "CV_DenizKaya.pdf dosyasını görüntüle",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/api/peer-mentoring/documents/8a0e2f4c-0000-4000-8000-000000000003/content",
+    );
+    const links = screen.getByRole("region", { name: "Bağlantılar" });
+    expect(
+      within(links).getByRole("link", { name: /Portfolyo/ }),
+    ).toHaveAttribute("href", "https://github.com/mertdemir");
+    expect(getPeerMentorDocuments).toHaveBeenCalledWith("fixture-peer-1");
   });
 });

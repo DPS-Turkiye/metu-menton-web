@@ -26,6 +26,7 @@ describe("AdminStudentsTable", () => {
         revokedAt: null,
         reason: null,
         training: { videoWatched: false, attempts: 0, bestScore: null },
+        profile: null,
       },
       {
         userId: "u2",
@@ -40,6 +41,7 @@ describe("AdminStudentsTable", () => {
         revokedAt: null,
         reason: null,
         training: { videoWatched: true, attempts: 1, bestScore: 5 },
+        profile: null,
       },
     ]);
   });

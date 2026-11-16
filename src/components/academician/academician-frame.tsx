@@ -7,13 +7,6 @@ import { RoleFrame, type RoleNavItem } from "@/components/common/role-frame";
 import { Workspace } from "@/interfaces/workspace";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
 
-/** Randevularım covers the old Talepler and Takvim pages too, until their redirects land. */
-const APPOINTMENT_PATHS = [
-  ACADEMICIAN_ROUTES.appointments,
-  ACADEMICIAN_ROUTES.requests,
-  ACADEMICIAN_ROUTES.calendar,
-];
-
 const NAV: RoleNavItem[] = [
   {
     href: ACADEMICIAN_ROUTES.home,
@@ -25,8 +18,10 @@ const NAV: RoleNavItem[] = [
     href: ACADEMICIAN_ROUTES.appointments,
     label: "myAppointments",
     icon: "/admin/nav-calendar.svg",
+    // A student's profile is opened from a request, so it stays under Randevularım as in the design.
     match: (path) =>
-      APPOINTMENT_PATHS.some((prefix) => path.startsWith(prefix)),
+      path.startsWith(ACADEMICIAN_ROUTES.appointments) ||
+      path.startsWith(ACADEMICIAN_ROUTES.students),
   },
   {
     href: ACADEMICIAN_ROUTES.advisees,

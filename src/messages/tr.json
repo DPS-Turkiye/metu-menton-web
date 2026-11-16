@@ -2275,6 +2275,9 @@
     "reading": "CV okunuyor, alanların dolduruluyor…",
     "manual": "Bu sistemde CV otomatik okunmuyor; dosyan yalnızca kaydedilir. Profil bilgilerini kendin gir."
   },
+  "cvConsent": {
+    "label": "CV'min okunmasını onaylıyorum: e-posta, telefon ve TC kimlik numaram önce sistemimizde maskelenir; adım, okulum, işyerlerim gibi diğer bilgiler maskelenmez. Ardından metin, profil alanlarımı doldurmak için yurt dışındaki (ABD) bir yapay zekâ hizmetiyle ayrıştırılır. Onay vermezsem CV'm yalnızca saklanır, alanları kendim doldururum."
+  },
   "editableChips": {
     "add": "Ekle…",
     "addLabel": "{label} ekle",
@@ -2595,7 +2598,8 @@
     "status": {
       "PENDING": "Koordinatör incelemesinde",
       "APPROVED": "Onaylandı",
-      "REJECTED": "Onaylanmadı"
+      "REJECTED": "Onaylanmadı",
+      "DELETED": "Silindi"
     },
     "loading": "Yükleniyor...",
     "signedOutTitle": "Başvuru durumunu görmek için giriş yap",
@@ -3428,17 +3432,6 @@
       "CANCELLED": "İptal Edildi",
       "EXPIRED": "Süresi Doldu",
       "WITHDRAWN": "Geri Çekildi"
-    },
-    "role": {
-      "MENTOR": "Mentor olarak",
-      "MENTEE": "Mentee olarak",
-      "OFFICE_HOURS": "Office Hours"
-    },
-    "card": {
-      "place": "Yer: {place}",
-      "alternative": "Önerilen alternatif (henüz onaylanmadı)",
-      "rejectReason": "Gerekçe: {reason}",
-      "join": "Görüşmeye katıl"
     }
   },
   "odtuWorkspaces": {
@@ -4035,7 +4028,8 @@
       "APPOINTMENTS": "Randevular",
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
-      "ACADEMICS": "Akademisyenler"
+      "ACADEMICS": "Akademisyenler",
+      "REPORTS": "Raporlar"
     },
     "phaseWeek": "{phase}, hafta {current}/{total}",
     "coordinators": "{count, plural, =1 {Koordinatör} other {Koordinatörler}}: {names}",
@@ -4115,6 +4109,7 @@
     "launched": "{name} başlatıldı.",
     "launchFailed": "Program başlatılamadı.",
     "launchNeedsCoordinator": "Başlatmadan önce bir koordinatör ata.",
+    "waitingSuffix": "· +{count} bekleyen",
     "participantTabs": {
       "TEAMS": "Takımlar",
       "MENTOR_POOL": "Mentor Havuzu",
@@ -4123,7 +4118,11 @@
       "ACADEMICS": "Akademisyenler"
     },
     "typeTabEmptyAdmin": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını koordinatörleri Program Ayarları’nda yapılandırır.",
-    "typeTabEmpty": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını Program Ayarları’nda yapılandırabilirsin."
+    "typeTabEmpty": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını Program Ayarları’nda yapılandırabilirsin.",
+    "universityWide": "Üniversite geneli",
+    "switcherLabel": "Program:",
+    "switcherAria": "Program seç",
+    "segmentWithCount": "{label} · {count}"
   },
   "programRules": {
     "days": "gün",
@@ -4872,6 +4871,90 @@
     "rejected": "{name} reddedildi.",
     "approved": "{name} onaylandı.",
     "decideFailed": "Karar kaydedilemedi.",
+    "deleteUser": {
+      "title": "Kullanıcıyı sil",
+      "body": "Hesap, giriş bilgisi ve kişisel veriler kalıcı olarak silinir. Bu işlem geri alınamaz.",
+      "button": "Kullanıcıyı sil",
+      "dialogTitle": "Kullanıcı kalıcı olarak silinsin mi?",
+      "dialogBody": "{name} adlı kullanıcının hesabı silinecek. Bu işlem geri alınamaz.",
+      "deletedHeading": "Silinecekler",
+      "deleted": {
+        "account": "Hesap ve giriş bilgisi (aynı e-postayla yeniden kayıt olunabilir)",
+        "profile": "Profil, bildirimler ve diğer kişisel veriler",
+        "documents": "Kişinin yüklediği özgeçmiş, fotoğraf ve kişisel dosyalar"
+      },
+      "keptHeading": "Kalacaklar",
+      "kept": {
+        "history": "Başkalarıyla ortak geçmiş (görüşmeler, talepler, mesajlar); kişi “Silinmiş kullanıcı” olarak görünür",
+        "teams": "Başka üyesi olan takımlar ve dosyaları; tek üyesi bu kişi olan startup arşivlenir"
+      },
+      "emailLabel": "Onaylamak için kullanıcının e-postasını yaz",
+      "confirm": "Kalıcı olarak sil",
+      "deleting": "Siliniyor…",
+      "cancel": "Vazgeç",
+      "done": "Kullanıcı silindi.",
+      "donePending": "Kullanıcı silindi; giriş bilgisi ve dosyaların kaldırılması arka planda tamamlanacak.",
+      "failed": "Kullanıcı silinemedi.",
+      "signInAgain": "Bu işlem için yeniden giriş yapman gerekiyor."
+    },
+    "moveProgram": {
+      "action": "Programı değiştir",
+      "target": "Taşınacak program",
+      "chooseTarget": "Yeni programı seç",
+      "noTarget": "Takımın taşınabileceği başka açık program yok.",
+      "dialogTitle": "Takımın programı değiştirilsin mi?",
+      "dialogBody": "{team} takımı {from} programından {to} programına taşınacak.",
+      "movedHeading": "Yeni programa taşınacaklar",
+      "movedItems": {
+        "team": "Startup bilgileri, üyeler ve profilleri; takımın hiçbir bilgiyi yeniden girmesi gerekmez",
+        "approval": "Takımın onayı ve üye davet kodu",
+        "pendingChanges": "Koordinatör onayı bekleyen üye ayrılma ve çıkarma talepleri"
+      },
+      "keptHeading": "Eski programda kalacaklar",
+      "keptItems": {
+        "activity": "Mentorluklar, görüşmeler ve yanıtlanmış talepler; süren mentorluklar ve planlı görüşmeler eski programın adıyla devam eder",
+        "records": "Katılım kayıtları, raporlar, takımın yüklediği belgeler ve koordinatör yazışmaları"
+      },
+      "closedHeading": "Kapatılacaklar",
+      "closedItems": {
+        "openRequests": "Eski programın mentorlarına gönderilmiş, yanıt bekleyen mentorluk talepleri; mentorlarına bildirilir",
+        "openDocuments": "Eski programın istediği, takımın henüz yüklemediği belgeler"
+      },
+      "notice": "İki programın koordinatörlerine ve takımın üyelerine bildirim gider.",
+      "confirm": "Takımı taşı",
+      "moving": "Taşınıyor…",
+      "cancel": "Vazgeç",
+      "moved": "{team} takımı {program} programına taşındı.",
+      "movedClosingRequests": "{team} takımı {program} programına taşındı; yanıt bekleyen {count} talep kapatıldı.",
+      "failed": "Takımın programı değiştirilemedi."
+    },
+    "removeFromProgram": {
+      "action": "Programdan çıkar",
+      "actionFor": "Programdan çıkar: {program}",
+      "dialogTitle": "Mentor programdan çıkarılsın mı?",
+      "dialogBody": "{mentor}, {program} programının mentorları arasından çıkarılacak. Diğer programları etkilenmez.",
+      "stoppedHeading": "Sona erecekler",
+      "stoppedItems": {
+        "pool": "Mentor bu programın mentor havuzunda görünmez; programın takımlarına önerilmez ve onlardan yeni talep alamaz",
+        "programPages": "Mentor, programın haftalık planını ve duyurularını artık görmez"
+      },
+      "keptHeading": "Devam edecekler",
+      "keptItems": {
+        "activity": "Bu programda süren mentorluklar ve planlı görüşmeler; program adıyla devam eder",
+        "records": "Geçmiş görüşmeler, notlar ve raporlardaki kayıtlar programda kalır"
+      },
+      "withdrawnHeading": "Geri çekilecekler",
+      "withdrawnItems": {
+        "openRequests": "Bu programın takımlarının mentora gönderdiği, yanıt bekleyen mentorluk talepleri; talebi gönderenlere nedeni bildirilir"
+      },
+      "notice": "Mentora ve programın koordinatörlerine bildirim gider. Mentoru daha sonra “Programa ata” ile yeniden ekleyebilirsin.",
+      "confirm": "Mentoru çıkar",
+      "removing": "Çıkarılıyor…",
+      "cancel": "Vazgeç",
+      "removed": "{mentor}, {program} programından çıkarıldı.",
+      "removedClosingRequests": "{mentor}, {program} programından çıkarıldı; yanıt bekleyen {count} talep geri çekildi.",
+      "failed": "Mentor programdan çıkarılamadı."
+    },
     "revokeSignIns": {
       "button": "Tüm oturumlarını kapat",
       "confirm": "{name} tüm cihazlarda çıkış yapacak ve yeniden giriş yapması gerekecek. Emin misin?",
@@ -5720,7 +5803,48 @@
     "cancel": "Vazgeç",
     "confirmRevoke": "Geri al",
     "trainingWatched": "Video izlendi, sınav bekleniyor",
-    "trainingAttempts": "{count} deneme · en iyi {best}/10"
+    "trainingAttempts": "{count} deneme · en iyi {best}/10",
+    "capacityLabel": "Kapasite",
+    "badgeFilterLabel": "Rozet durumu",
+    "badgeFilter": {
+      "ALL": "Rozet durumu: Tümü",
+      "NONE": "Rozet yok",
+      "IN_TRAINING": "Eğitimde",
+      "ACTIVE": "Rozet Doğrulandı",
+      "REVOKED": "Geri alındı"
+    },
+    "capacityFilter": {
+      "ALL": "Kapasite: Tümü",
+      "OPEN": "Yeri var",
+      "FULL": "Dolu",
+      "NO_PROFILE": "Profil oluşturulmadı"
+    },
+    "mentorsCaption": "Akran Mentorları",
+    "studentsCaption": "Öğrenciler",
+    "columns": {
+      "mentor": "Akran mentoru",
+      "student": "Öğrenci",
+      "department": "Bölüm · sınıf",
+      "categories": "Kategoriler",
+      "badge": "Rozet",
+      "capacity": "Kapasite"
+    },
+    "noProfile": "Profil oluşturulmadı",
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "badgeStates": {
+      "NONE": "Rozet Yok",
+      "ACTIVE": "Rozet Doğrulandı",
+      "EXPIRED": "Süresi doldu",
+      "REVOKED": "Geri alındı",
+      "IN_TRAINING": "Eğitimde"
+    },
+    "capacityUnlimited": "{active} mentee",
+    "capacityOpen": "{active} / {capacity} mentee",
+    "capacityFull": "{active} / {capacity} · dolu",
+    "rowActions": "{name} için işlemler",
+    "footnote": "Mentorluk konuşmaları, gizli görüşme notları ve kişisel belgeler koordinatöre görünmez.",
+    "noMatch": "Bu filtreye uyan kimse yok."
   },
   "adminStudents": {
     "filterLabel": "Rozet durumu",
@@ -5793,6 +5917,7 @@
     "institutionLoginFailed": "Kurum girişi tamamlanamadı. Lütfen yeniden dene.",
     "institutionLoginExpired": "Giriş bağlantısının süresi doldu ya da başka bir tarayıcıda başlatıldı. Lütfen yeniden giriş yap.",
     "institutionRecordLoadFailed": "Kurumsal bilgiler yüklenemedi.",
+    "adviseeProfileLoadFailed": "Öğrencinin ilgi alanları ve hedefi yüklenemedi.",
     "eligibleEmailsLoadFailed": "İzinli liste yüklenemedi.",
     "eligibleEmailsSaveFailed": "İzinli liste güncellenemedi.",
     "platformFeedbackInvalid": "Geri bildirim bilgilerini kontrol edip tekrar dene.",
@@ -5989,6 +6114,7 @@
     "statusMustBeDecision": "Durum APPROVED veya REJECTED olmalıdır.",
     "accountStatusUpdateFailed": "Hesap durumu güncellenemedi.",
     "signInRevokeFailed": "Oturumlar kapatılamadı.",
+    "userDeleteFailed": "Kullanıcı silinemedi.",
     "noActiveMentorship": "Bu startup ile aktif bir mentorlüğünüz yok.",
     "meetingStartupRequired": "Toplantı için bir startup seçilmelidir.",
     "notInProgram": "Bu programa katılmadınız.",
@@ -6013,6 +6139,8 @@
     "mentorInviteFailed": "Mentor davet edilemedi.",
     "decisionSaveFailed": "Karar kaydedilemedi.",
     "programAssignFailed": "Programa eklenemedi.",
+    "programMoveFailed": "Takımın programı değiştirilemedi.",
+    "programMentorRemoveFailed": "Mentor programdan çıkarılamadı.",
     "eventAddFailed": "Etkinlik eklenemedi.",
     "phasesSaveFailed": "Fazlar kaydedilemedi.",
     "inviteRenewFailed": "Davet yenilenemedi.",
@@ -6041,12 +6169,15 @@
     "peerMentoringLoadFailed": "Akran mentörlüğü bilgileri yüklenemedi.",
     "peerMentoringRequestFailed": "Talep gönderilemedi.",
     "officeHoursFailed": "Ofis saatleri işlemi tamamlanamadı.",
+    "officeHoursLoadFailed": "Ofis saatleri yüklenemedi.",
     "invalidRequestBody": "İstek gövdesi okunamadı.",
     "invalidRequestFields": "İstekteki bazı bilgiler eksik ya da geçersiz.",
     "peerMentorProfileSaveFailed": "Mentor profilin kaydedilemedi.",
     "peerCategoriesLoadFailed": "Kategoriler yüklenemedi.",
     "peerCategoriesSaveFailed": "Kategoriler kaydedilemedi.",
     "peerCategoriesInvalid": "Kategori listesi geçersiz.",
+    "peerReportsLoadFailed": "Raporlar yüklenemedi.",
+    "peerReportSaveFailed": "Rapor kaydedilemedi.",
     "studentProfileCompletionLoadFailed": "İlgi alanların yüklenemedi.",
     "studentProfileCompletionSaveFailed": "İlgi alanların kaydedilemedi.",
     "studentAppointmentsLoadFailed": "Randevuların yüklenemedi.",
@@ -6059,7 +6190,9 @@
     "sessionRefreshFailed": "Oturum bilgilerin güncellenemedi.",
     "personSummaryLoadFailed": "Profil yüklenemedi.",
     "personIdInvalid": "Geçerli bir kişi seçin.",
-    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi."
+    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi.",
+    "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi.",
+    "officeHoursAppointmentLoadFailed": "Randevu yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6458,7 +6591,9 @@
         "DECLINED": "Uygun değil",
         "MORE_INFO_REQUESTED": "Ek bilgi istendi",
         "COUNTER_PROPOSED": "Başka saat önerildi",
-        "WITHDRAWN": "Geri çekildi"
+        "WITHDRAWN": "Geri çekildi",
+        "CANCELLED": "İptal edildi",
+        "EXPIRED": "Süresi doldu"
       },
       "with": "{name} ile",
       "asked": "İstenen saatler",
@@ -6508,7 +6643,16 @@
         "send": "Talep gönder",
         "sending": "Gönderiliyor…",
         "sent": "Talebin gönderildi."
-      }
+      },
+      "cancelMeeting": "Görüşmeyi iptal et",
+      "confirmCancel": "İptal et",
+      "cancelReason": "İptal sebebi (isteğe bağlı)",
+      "cancelReasonLate": "İptal sebebi: görüşmeye 24 saatten az kaldı, öğrenci için yazman gerekiyor",
+      "cancelReasonRequired": "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
+      "cancelledBy": "{name} görüşmeyi iptal etti",
+      "cancelledByYou": "Görüşmeyi iptal ettin",
+      "lateCancel": "Son 24 saatte iptal",
+      "cancelledReason": "Neden: {reason}"
     },
     "calendar": {
       "title": "Moodle takvimine ekle",
@@ -6537,21 +6681,6 @@
     }
   },
   "academicianWorkspace": {
-    "studyLevel": {
-      "BACHELOR": "Lisans",
-      "MASTER": "Yüksek lisans",
-      "DOCTORATE": "Doktora"
-    },
-    "advisees": {
-      "title": "Danışan Öğrencilerim",
-      "subtitle": "ODTÜ kayıtlarındaki danışmanlığındaki öğrenciler. Bu bilgiler salt okunurdur.",
-      "search": "Öğrenci ara",
-      "count": "{count} öğrenci",
-      "classYear": "{year}. sınıf",
-      "notSignedIn": "Menton'a henüz giriş yapmadı",
-      "empty": "ODTÜ kayıtlarında danışmanlığında öğrenci görünmüyor.",
-      "noMatch": "Aramana uyan öğrenci yok."
-    },
     "institution": {
       "title": "Kurumsal Bilgiler",
       "readOnly": "ODTÜ'den, salt okunur",
@@ -6579,87 +6708,6 @@
       "saveFailed": "Kaydedilemedi.",
       "invalidLink": "Bağlantı https:// ile başlayan bir web adresi olmalı.",
       "invalidEmail": "Geçerli bir e-posta adresi yaz."
-    },
-    "requests": {
-      "title": "Randevu Talepleri",
-      "subtitle": "Öğrencilerin ofis saati talepleri. Bir talep, sen kabul edene kadar randevu sayılmaz.",
-      "waitingForYou": "Yanıtını bekleyenler",
-      "waitingForStudent": "Öğrencinin yanıtı bekleniyor",
-      "emptyForYou": "Yanıt bekleyen talep yok.",
-      "emptyAll": "Henüz talep yok.",
-      "requestedTimes": "İstenen saat",
-      "requestedTimesMany": "İstenen saatler",
-      "proposedTimes": "Önerdiğin saatler",
-      "requestedAt": "Talep: {date}",
-      "questionAsked": "Soru sordun, öğrencinin cevabı bekleniyor.",
-      "accept": "Kabul Et",
-      "decline": "Reddet",
-      "propose": "Alternatif Saat Öner",
-      "ask": "Soru Sor",
-      "cancel": "Vazgeç",
-      "send": "Gönder",
-      "pickTime": "Hangi saatte görüşeceksiniz?",
-      "reason": "Neden (isteğe bağlı)",
-      "proposeHint": "En fazla {max} saat öner. Öğrenci birini seçtiğinde randevu onaylanır.",
-      "proposedTime": "{number}. saat",
-      "addTime": "Saat ekle",
-      "question": "Öğrenciye sorun",
-      "needTime": "En az bir saat seç.",
-      "needQuestion": "Sorunu yaz.",
-      "noteLabel": "Öğrencinin notu",
-      "proposedPast": "Geçmiş bir saat önerilemez.",
-      "pickOne": "Bir saat seç."
-    },
-    "appointments": {
-      "title": "Randevularım",
-      "subtitle": "Onaylanmış ofis saati randevuların. Talepler Randevu Talepleri'nde.",
-      "upcoming": "Yaklaşan",
-      "past": "Geçmiş",
-      "cancelled": "İptal edilenler",
-      "empty": "Henüz randevun yok.",
-      "course": "Ders: {course}",
-      "place": "Yer: {place}",
-      "online": "Çevrim içi bağlantı",
-      "lateCancel": "Son 24 saatte iptal edildi",
-      "reason": "Neden: {reason}",
-      "cancel": "Randevuyu iptal et",
-      "cancelReason": "Öğrenciye iptal nedeni",
-      "cancelReasonHint": "Başlangıca 24 saatten az kaldığı için neden yazman gerekiyor.",
-      "confirmCancel": "İptal et",
-      "keep": "Vazgeç",
-      "needReason": "Son 24 saatteki iptal için neden yaz.",
-      "cancelledToast": "Randevu iptal edildi; öğrenciye bildirilecek.",
-      "cancelFailed": "Randevu iptal edilemedi; liste yenilendi.",
-      "emptyView": {
-        "upcoming": "Yaklaşan randevun yok.",
-        "past": "Geçmiş randevun yok.",
-        "cancelled": "İptal edilen randevu yok."
-      }
-    },
-    "calendar": {
-      "title": "Takvim",
-      "subtitle": "Ofis saatlerin: her hafta tekrarlayan saatler, tek seferlik saatler ve uygun olmadığın tarihler. Değişiklikler mevcut randevuları etkilemez.",
-      "weeklyTitle": "Haftalık ofis saatleri",
-      "weeklyHint": "Öğrenciler bu aralıklardaki boş saatleri talep edebilir.",
-      "save": "Kaydet",
-      "saving": "Kaydediliyor…",
-      "oneOffTitle": "Tek seferlik saatler",
-      "oneOffHint": "Haftalık düzenin dışında bir güne özel ofis saati ekle.",
-      "oneOffEmpty": "Tek seferlik saat yok.",
-      "date": "Tarih",
-      "start": "Başlangıç",
-      "end": "Bitiş",
-      "place": "Yer (isteğe bağlı)",
-      "placeDefault": "Varsayılan yer",
-      "add": "Ekle",
-      "remove": "{when} kaldır",
-      "needDate": "Tarih, başlangıç ve bitiş saatini seç.",
-      "endAfterStart": "Bitiş saati başlangıçtan sonra olmalı.",
-      "notPast": "Geçmiş bir zamana saat eklenemez.",
-      "oneOffSaved": "Tek seferlik saatler kaydedildi.",
-      "oneOffFailed": "Tek seferlik saatler kaydedilemedi.",
-      "insideDayOff": "Bu tarih uygun olmadığın tarihler arasında. Önce o tarihleri kaldır.",
-      "insideDayOffReason": "Bu tarih uygun olmadığın tarihler arasında ({reason}). Önce o tarihleri kaldır."
     }
   },
   "programPeerCategories": {
@@ -6841,7 +6889,8 @@
     "statuses": {
       "APPROVED": "Onaylı",
       "PENDING": "Onay bekliyor",
-      "REJECTED": "Reddedildi"
+      "REJECTED": "Reddedildi",
+      "DELETED": "Silindi"
     },
     "linkedin": "LinkedIn profili",
     "about": "Hakkında",
@@ -6953,5 +7002,68 @@
     },
     "footer": "menton · ODTÜ",
     "metaTitle": "menton · ODTÜ"
+  },
+  "programAppointments": {
+    "status": {
+      "PENDING": "Onay Bekliyor",
+      "MORE_INFO_REQUESTED": "Bilgi İstendi",
+      "COUNTER_PROPOSED": "Alternatif Saat Önerildi",
+      "ACCEPTED": "Onaylandı",
+      "DECLINED": "Reddedildi",
+      "WITHDRAWN": "Geri Çekildi",
+      "CANCELLED": "İptal Edildi",
+      "EXPIRED": "Süresi Doldu"
+    },
+    "cards": {
+      "awaitingDecision": "Onay Bekliyor",
+      "alternativeProposed": "Alternatif Saat Önerildi",
+      "acceptedThisWeek": "Onaylandı · bu hafta",
+      "declinedThisWeek": "Reddedildi · bu hafta"
+    },
+    "searchLabel": "Öğrenci veya akademisyen ara",
+    "searchPlaceholder": "Öğrenci veya akademisyen ara",
+    "statusLabel": "Durum",
+    "statusAll": "Durum: Tümü",
+    "statusFilter": "Durum: {status}",
+    "facultyLabel": "Fakülte",
+    "faculty": "Fakülte",
+    "thisWeek": "Bu hafta",
+    "caption": "Randevular",
+    "columns": {
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "time": "Tarih · saat",
+      "status": "Durum",
+      "topic": "Başlık"
+    },
+    "empty": "Bu filtrelere uyan randevu yok.",
+    "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır.",
+    "noTime": "—",
+    "loadFailed": "Randevular yüklenemedi.",
+    "openDetail": "{name}: {topic} randevusunun ayrıntıları",
+    "detail": {
+      "title": "Randevu detayı",
+      "close": "Kapat",
+      "date": "Tarih",
+      "time": "Saat",
+      "participants": "Katılımcılar",
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "roleWithDepartment": "{role} · {department}",
+      "history": "Durum geçmişi",
+      "steps": {
+        "SUBMITTED": "Talep gönderildi",
+        "INFO_REQUESTED": "Bilgi istendi",
+        "STUDENT_REPLIED": "Öğrenci yanıtladı",
+        "ALTERNATIVE_PROPOSED": "Alternatif saat önerildi",
+        "ACCEPTED": "Onaylandı",
+        "DECLINED": "Reddedildi",
+        "WITHDRAWN": "Öğrenci geri çekti"
+      },
+      "privateTitle": "Açıklama gizli",
+      "privateBody": "Görüşme açıklaması ve notlar yalnızca öğrenci ile akademisyene görünür.",
+      "loading": "Randevu yükleniyor…",
+      "loadFailed": "Randevu yüklenemedi."
+    }
   }
 }

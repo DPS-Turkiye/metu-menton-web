@@ -67,9 +67,7 @@
     },
     "tabs": {
       "label": "Give mentoring",
-      "requests": "Mentoring requests",
       "mentees": "My mentees",
-      "availability": "Availability and capacity",
       "profile": "My mentor profile"
     },
     "requests": {
@@ -87,7 +85,7 @@
       "ofCapacity": "/ {capacity} mentees",
       "noLimit": "mentees",
       "note": {
-        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the Availability and capacity tab.",
+        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the Mentor profile tab.",
         "open": "You can accept new requests.",
         "lastPlace": "Accepting one more request fills your capacity. New requests won't reach you until a place opens.",
         "full": "Your capacity is full. New requests won't reach you until a place opens."
@@ -142,7 +140,7 @@
       },
       "documents": {
         "title": "Back your experience with documents",
-        "subtitle": "For now you can add your links; document upload is coming soon."
+        "subtitle": "Some documents are requested for the categories you chose. You decide what shows on your profile."
       },
       "availability": {
         "title": "When are you available?",
@@ -175,7 +173,34 @@
       "projects": "Your projects",
       "erasmus": "Abroad / exchange experience (optional)",
       "onePerLine": "One per line.",
-      "cardsSoon": "Adding internships, clubs and jobs as cards with their documents is coming soon."
+      "cardsTitle": "Your experience cards",
+      "cardsHint": "Add internships, projects, clubs or jobs.",
+      "newCard": "New experience",
+      "editCard": "Edit experience",
+      "cardTitle": "Experience title",
+      "organization": "Organisation",
+      "startedOn": "Start",
+      "endedOn": "End",
+      "endedOnHint": "Leave empty if it's still going on.",
+      "summary": "Short description",
+      "cancel": "Cancel",
+      "save": "Save experience",
+      "add": "Add experience",
+      "addAnother": "Add another experience",
+      "edit": "Edit",
+      "remove": "Remove",
+      "range": "{start} – {end}",
+      "ongoing": "Ongoing",
+      "evidenceSoon": "Backing an experience with a document is coming soon.",
+      "problems": {
+        "title": "Write the experience title.",
+        "organization": "Write the organisation.",
+        "start": "Pick the start month.",
+        "endBeforeStart": "The end can't be before the start.",
+        "month": "Write the month as 2025-07."
+      },
+      "monthPlaceholder": "YYYY-MM",
+      "missingStart": "Start month missing: edit to add it."
     },
     "helpWith": {
       "tipsTitle": "For a good description",
@@ -189,17 +214,65 @@
       "counter": "At least {min} characters · {length} / {max}"
     },
     "documents": {
-      "linksTitle": "Portfolio and links",
       "linkedin": "LinkedIn",
       "linkedinPlaceholder": "https://www.linkedin.com/in/…",
-      "soonTitle": "Document upload coming soon",
-      "soonBody": "You'll be able to upload a transcript, CV, certificates and other documents and choose what shows on your profile.",
+      "portfolio": "Portfolio or project link",
+      "portfolioPlaceholder": "https://github.com/…, behance.net or a personal site",
+      "addLink": "Add link",
+      "addingLink": "Adding…",
+      "removeLink": "Remove the link {url}",
       "kinds": {
         "transcript": "Student certificate or transcript",
         "cv": "CV",
         "certificate": "Licence or certificate",
+        "portfolio": "Portfolio and links",
         "other": "Other materials"
-      }
+      },
+      "hints": {
+        "requiredFor": "Requested for the {category} category",
+        "requiredIn": "Required in the {category} category",
+        "certificate": "Professional licences, certificates or documents of courses you completed",
+        "other": "Other documents that back your experience"
+      },
+      "required": "Required",
+      "optional": "Optional",
+      "uploaded": "Uploaded",
+      "progress": "{done} / {total} required documents uploaded",
+      "progressItem": "{document} for {category}",
+      "noRequired": "Your categories need no required documents; you can still add some.",
+      "drop": "Drag and drop your file or",
+      "choose": "choose a file",
+      "formats": "PDF · up to {max}",
+      "uploading": "Uploading…",
+      "fileMeta": "{size} · Uploaded",
+      "removeFile": "Remove {name}",
+      "viewFile": "View {name}",
+      "addMaterial": "Add material",
+      "otherKindsLabel": "Material type",
+      "visibilityLabel": "{card}: who sees it?",
+      "visibility": {
+        "VERIFICATION_ONLY": "For verification only",
+        "PROFILE": "Show on my profile"
+      },
+      "types": {
+        "TRANSCRIPT": "Transcript",
+        "CV": "CV",
+        "CERTIFICATE": "Certificate",
+        "PORTFOLIO": "Portfolio",
+        "REFERENCE_LETTER": "Reference letter",
+        "AWARD": "Award / competition certificate",
+        "VOLUNTEERING": "Volunteering certificate",
+        "PROJECT_REPORT": "Project report"
+      },
+      "safeTitle": "Your documents are safe",
+      "safeBody": "Documents you mark \"For verification only\" are seen only by the program coordinator, to verify them. Those you mark \"Show on my profile\" are visible to students.",
+      "notPdf": "You can only upload PDF files.",
+      "tooLarge": "The file can be at most {max}.",
+      "linkInvalid": "Enter a link that starts with https://.",
+      "uploadFailed": "The file couldn't be uploaded.",
+      "linkFailed": "The link couldn't be added.",
+      "visibilityFailed": "The visibility couldn't be changed.",
+      "removeFailed": "It couldn't be removed."
     },
     "availability": {
       "title": "Weekly availability"
@@ -218,21 +291,28 @@
       "noCapacity": "Not set",
       "links": "Your links",
       "linkShown": "Shown on my profile",
-      "noLinks": "No links added"
+      "noLinks": "No links added",
+      "experience": "Relevant experience"
     },
     "back": "Back",
     "next": "Continue",
     "publish": "Publish profile",
     "publishing": "Publishing…",
     "saveDraft": "Save as draft",
-    "draftSoon": "Saving a draft is coming soon.",
     "published": "Your mentor profile is live.",
     "publishFailed": "Your profile couldn't be published.",
     "errors": {
       "categories": "Pick at least one category.",
       "helpWith": "This text must be at least {min} characters.",
-      "link": "The link must start with http:// or https://."
-    }
+      "link": "The link must start with http:// or https://.",
+      "experienceOpen": "Save or cancel the open experience first.",
+      "experienceStart": "Edit the experiences that have no start month."
+    },
+    "draftSaved": "Draft saved.",
+    "draftSaveFailed": "The draft couldn't be saved.",
+    "draftSavedAt": "Draft saved · {time}",
+    "savingDraft": "Saving…",
+    "discardDraft": "Delete draft"
   },
   "take": {
     "title": "Peer mentoring",
@@ -268,6 +348,10 @@
       "requested": "Your request is awaiting an answer",
       "full": "No places left",
       "nameSuffix": ", {name}",
+      "mentorCount": "{count, plural, one {# mentor} other {# mentors}}",
+      "subTopicFilter": "Sub-topic",
+      "allSubTopics": "All sub-topics",
+      "availableThisWeek": "Available this week",
       "mentoring": "Already your mentor"
     },
     "profile": {
@@ -277,7 +361,26 @@
       "badgeVerified": "Badge verified",
       "topics": "Topics they can help with",
       "helpWith": "How can I help students?",
-      "requestNote": "Once {name} accepts your request, the mentorship starts and you can plan meetings."
+      "requestNote": "Once {name} accepts your request, the mentorship starts and you can plan meetings.",
+      "experience": "Relevant experience",
+      "strongCourses": "Strong courses",
+      "projects": "Projects",
+      "erasmus": "Abroad / exchange experience",
+      "links": "Links",
+      "linkedin": "LinkedIn profile",
+      "availability": "Availability",
+      "noHours": "No weekly hours yet.",
+      "hoursRange": "{start} – {end}",
+      "thisWeek": "This week",
+      "thisWeekOpen": "Free slots",
+      "thisWeekFull": "No free slots",
+      "newTab": "(opens in a new tab)",
+      "experienceRange": "{start} – {end}",
+      "ongoing": "Ongoing",
+      "sharedDocuments": "Shared documents",
+      "view": "View",
+      "viewFile": "View {name}",
+      "portfolioLink": "Portfolio ({host})"
     },
     "dialog": {
       "title": "Send a mentoring request",
@@ -306,7 +409,22 @@
       "book": "Plan a meeting",
       "seeAppointment": "Go to appointment",
       "findAnother": "Find another mentor",
-      "note": "A mentorship is the relationship between you and your mentor. Your meetings are listed under \"My appointments\"."
+      "note": "A mentorship is the relationship between you and your mentor. Your meetings are listed under \"My appointments\".",
+      "since": "since {month} {day}",
+      "sinceMonth": {
+        "jan": "January",
+        "feb": "February",
+        "mar": "March",
+        "apr": "April",
+        "may": "May",
+        "jun": "June",
+        "jul": "July",
+        "aug": "August",
+        "sep": "September",
+        "oct": "October",
+        "nov": "November",
+        "dec": "December"
+      }
     }
   },
   "home": {
@@ -340,6 +458,18 @@
       "title": "Your badge is verified",
       "body": "Create your mentor profile; once it's published, students can discover you.",
       "action": "Create your mentor profile"
+    }
+  },
+  "appointments": {
+    "filterLabel": "Your role in meetings",
+    "roles": {
+      "all": "All",
+      "asMentor": "As mentor",
+      "asMentee": "As mentee"
+    },
+    "legend": {
+      "asMentor": "Meetings where you give mentoring",
+      "asMentee": "Meetings where you get mentoring or an Office Hours slot"
     }
   }
 }

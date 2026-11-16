@@ -7,15 +7,21 @@ import type { InstitutionRecord } from "@/interfaces/institution";
 import { IdentityKind } from "@/interfaces/session";
 import { ClientApiError } from "@/lib/client/api";
 import {
-  resetAcademicianSample,
-  sampleState,
-  saveSampleAvailability,
-} from "@/lib/client/fixtures/academician-office-hours-store";
-import {
   fetchInstitutionAdvisees,
   fetchInstitutionRecord,
 } from "@/lib/client/institution";
+import {
+  resetAcademicianSample,
+  sampleState,
+  saveSampleAvailability,
+} from "@test/fixtures/academician-office-hours-sample-store";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
+
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock(
+  "@/lib/client/academician-office-hours",
+  () => import("@test/mocks/academician-office-hours-client"),
+);
 
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
@@ -101,10 +107,11 @@ describe("AcademicianHomeView", () => {
       "4Salı ve Perşembe",
     );
     expect(statCard("Danışan öğrencilerim")).toHaveTextContent("2");
-    expect(screen.getByText(/Örnek veriler gösteriliyor/)).toBeVisible();
+    // Real data now: the sample-data notice is gone.
+    expect(screen.queryByText(/Örnek veriler gösteriliyor/)).toBeNull();
     expect(
       screen.getByRole("link", { name: "Müsaitliği Düzenle" }),
-    ).toHaveAttribute("href", "/academician/calendar");
+    ).toHaveAttribute("href", "/academician/appointments/availability");
     expect(screen.getByRole("link", { name: "Randevularım" })).toHaveAttribute(
       "href",
       "/academician/appointments",
@@ -122,18 +129,25 @@ describe("AcademicianHomeView", () => {
     expect(within(deniz).getByText("Onay Bekliyor")).toBeVisible();
     expect(screen.getByRole("link", { name: /Tümü \(2\)/ })).toHaveAttribute(
       "href",
-      "/academician/requests",
+      "/academician/appointments?filter=requests",
     );
-    // Ece offered three times, so choosing one happens on the requests page.
+    // Ece offered three times, so choosing one happens in the request's drawer.
     const ece = await requestCard("Ece Aksoy");
     expect(within(ece).queryByText("Danışanın")).not.toBeInTheDocument();
     expect(within(ece).getByRole("link", { name: "Kabul Et" })).toHaveAttribute(
       "href",
-      "/academician/requests",
+      "/academician/appointments?request=sample-request-2",
+    );
+    expect(within(ece).getByRole("link", { name: "Reddet" })).toHaveAttribute(
+      "href",
+      "/academician/appointments?request=sample-request-2",
     );
     expect(
       within(ece).getByRole("link", { name: "Alternatif Saat Öner" }),
-    ).toHaveAttribute("href", "/academician/requests");
+    ).toHaveAttribute(
+      "href",
+      "/academician/appointments?request=sample-request-2&step=propose",
+    );
   });
 
   it("books a request with one time right from its card", async () => {
@@ -164,14 +178,14 @@ describe("AcademicianHomeView", () => {
     expect(today).toHaveTextContent(
       "15:30Zeynep ArslanBitirme projesi danışmanlığıOnaylandı",
     );
+    expect(within(today).getByRole("link")).toHaveAttribute(
+      "href",
+      "/academician/appointments?appointment=sample-appointment-1",
+    );
     const availability = screen.getByRole("region", { name: "Müsaitliğim" });
     expect(availability).toHaveTextContent("Salı14:00 – 16:00");
     expect(availability).toHaveTextContent("Perşembe10:00 – 12:00");
     expect(availability).toHaveTextContent("Müsait değilim (Konferans)");
-    expect(availability.closest("[data-tour]")).toHaveAttribute(
-      "data-tour",
-      "availability-weekly",
-    );
   });
 
   it("asks for availability first when the academician has no open hours", async () => {
@@ -189,7 +203,10 @@ describe("AcademicianHomeView", () => {
       screen.queryByRole("link", { name: "Randevularım" }),
     ).not.toBeInTheDocument();
     const add = screen.getByRole("link", { name: "Müsaitlik Ekle" });
-    expect(add).toHaveAttribute("href", "/academician/calendar");
+    expect(add).toHaveAttribute(
+      "href",
+      "/academician/appointments/availability",
+    );
     expect(add.closest("[data-tour]")).toHaveAttribute(
       "data-tour",
       "availability-add",

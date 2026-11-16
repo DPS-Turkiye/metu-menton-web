@@ -15,6 +15,9 @@ import {
   ApproveCoordinatorDialog,
   CoordinatorApplicationDialog,
 } from "@/components/admin/coordinator-approval";
+import { DeleteUserButton } from "@/components/admin/delete-user-section";
+import { MoveTeamProgram } from "@/components/admin/move-team-program";
+import { RemoveMentorFromProgram } from "@/components/admin/remove-mentor-from-program";
 import { RevokeSignInsButton } from "@/components/admin/revoke-sign-ins-button";
 import { TeamHistory } from "@/components/common/team-history";
 import { ProfileLink } from "@/components/people/profile-link";
@@ -38,9 +41,10 @@ import { MentorshipStatus } from "@/interfaces/coordinator-mentorship";
 import { UserAccountStatus } from "@/interfaces/session";
 import {
   activeMentorshipFor,
-  assignableProgramsForStartup,
+  canRemoveMentorFromProgram,
   coordinatorsOf,
   mentorsOf,
+  moveTargetsForStartup,
   programsForCoordinator,
   startupsOf,
 } from "@/lib/admin-model";
@@ -393,7 +397,7 @@ function MentorsTable({
           <EmptyNote>{t("noMentors")}</EmptyNote>
         ) : (
           table.visible.map(
-            ({ user, programs, mentorships, stale, pendingInvite }) => (
+            ({ user, acceptedPrograms, mentorships, stale, pendingInvite }) => (
               <div
                 key={user.id}
                 className={`${mentorCols} border-b border-[#f0f2f4] px-5 py-3.5 last:border-0`}
@@ -431,7 +435,10 @@ function MentorsTable({
                     ))
                   )}
                 </span>
-                <ProgramChips programs={programs} empty={t("unassigned")} />
+                <ProgramChips
+                  programs={acceptedPrograms}
+                  empty={t("unassigned")}
+                />
                 <LoadBar count={mentorships.length} warning={stale} />
                 <span className="flex items-center justify-end gap-1">
                   {user.status === UserAccountStatus.Pending ? (
@@ -753,8 +760,9 @@ function CoordinatorDrawer({
             </p>
           ) : null}
         </div>
-        <div className="border-t border-[#e9ecef] px-6 py-4">
+        <div className="flex flex-wrap items-start gap-2 border-t border-[#e9ecef] px-6 py-4">
           <RevokeSignInsButton user={user} />
+          <DeleteUserButton user={user} onDeleted={onClose} />
         </div>
       </aside>
     </div>
@@ -901,14 +909,19 @@ function MentorDrawer({
                 {programs.map((item) => (
                   <li
                     key={item.id}
-                    className="rounded-[20px] border border-[#e9ecef] px-4 py-3"
+                    className="flex items-center justify-between gap-3 rounded-[20px] border border-[#e9ecef] px-4 py-3"
                   >
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-[12.5px] text-[#858c96]">
-                      {isInvitePending(item, user.id)
-                        ? t("invitePending")
-                        : t("accepted")}
-                    </p>
+                    <div className="min-w-0">
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-[12.5px] text-[#858c96]">
+                        {isInvitePending(item, user.id)
+                          ? t("invitePending")
+                          : t("accepted")}
+                      </p>
+                    </div>
+                    {canRemoveMentorFromProgram(item, user.id) ? (
+                      <RemoveMentorFromProgram mentor={user} program={item} />
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -946,8 +959,9 @@ function MentorDrawer({
             </p>
           ) : null}
         </div>
-        <div className="border-t border-[#e9ecef] px-6 py-4">
+        <div className="flex flex-wrap items-start gap-2 border-t border-[#e9ecef] px-6 py-4">
           <RevokeSignInsButton user={user} />
+          <DeleteUserButton user={user} onDeleted={onClose} />
         </div>
       </aside>
     </div>
@@ -1062,10 +1076,10 @@ function TeamDrawer({
                 <span className="text-[#858c96]">{t("programField")}</span>
                 {startup.programName}
               </p>
-              <AssignToProgram
-                kind={ProgramMemberKind.Startups}
-                targetId={startup.id}
-                programs={assignableProgramsForStartup(data, startup.id)}
+              <MoveTeamProgram
+                team={startup}
+                programs={moveTargetsForStartup(data, startup)}
+                onMoved={requestClose}
               />
               <p>
                 <span className="text-[#858c96]">{t("sectorField")}</span>

@@ -49,7 +49,7 @@ beforeEach(() => {
 });
 
 describe("AcademicianProfileView", () => {
-  it("shows ODTÜ's record read-only and the Office Hours details as sample data", async () => {
+  it("shows ODTÜ's record read-only and the saved Office Hours details", async () => {
     renderWithQueryClient(<AcademicianProfileView />);
     const card = await screen.findByRole("region", {
       name: "Kurumsal Bilgiler",
@@ -62,7 +62,7 @@ describe("AcademicianProfileView", () => {
     const settings = screen.getByRole("region", {
       name: "Ofis saati bilgileri",
     });
-    expect(within(settings).getByText(/Örnek veriler/)).toBeVisible();
+    expect(within(settings).queryByText(/Örnek veriler/)).toBeNull();
     expect(await within(settings).findByDisplayValue("A-204")).toBeVisible();
     expect(
       within(settings).getByRole("button", { name: "Kaydet" }),

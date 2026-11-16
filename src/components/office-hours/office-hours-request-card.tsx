@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useId } from "react";
 
 import { PreferredTimesPicker } from "@/components/office-hours/preferred-times-picker";
 import {
@@ -11,10 +12,15 @@ import {
 import {
   OfficeHoursMessageType,
   OfficeHoursRequestStatus,
+  type OfficeHoursCourseCancellation,
   type OfficeHoursRequest,
   type OfficeHoursRole,
 } from "@/interfaces/office-hours";
-import { meetingTimeLabel, slotLabel } from "@/lib/office-hours-booking";
+import {
+  CANCEL_REASON_MAX_LENGTH,
+  meetingTimeLabel,
+  slotLabel,
+} from "@/lib/office-hours-booking";
 
 const STATUS_TONE: Record<OfficeHoursRequestStatus, string> = {
   [OfficeHoursRequestStatus.Pending]: "bg-[#fff4ec] text-[#c2561a]",
@@ -23,6 +29,8 @@ const STATUS_TONE: Record<OfficeHoursRequestStatus, string> = {
   [OfficeHoursRequestStatus.MoreInfoRequested]: "bg-[#f2f8fc] text-[#1592ea]",
   [OfficeHoursRequestStatus.CounterProposed]: "bg-[#f2f8fc] text-[#1592ea]",
   [OfficeHoursRequestStatus.Withdrawn]: "bg-[#f4f5f7] text-[#676e78]",
+  [OfficeHoursRequestStatus.Cancelled]: "bg-[#fdf1f1] text-[#c0392b]",
+  [OfficeHoursRequestStatus.Expired]: "bg-[#f4f5f7] text-[#676e78]",
 };
 
 const DECISION_PLACEHOLDER: Record<
@@ -67,8 +75,12 @@ function RequestTimes({ request }: { request: OfficeHoursRequest }) {
   const t = useTranslations("officeHours.booking");
   const locale = useLocale();
   if (request.meeting) {
+    // A cancelled meeting keeps its time on the card, struck through, so both sides see what was called off.
+    const tone = request.cancellation
+      ? "text-[#858c96] line-through"
+      : "text-[#3f7d5a]";
     return (
-      <p className="mt-3 text-[13px] font-medium text-[#3f7d5a]">
+      <p className={`mt-3 text-[13px] font-medium ${tone}`}>
         {t("meetingAt", {
           time: meetingTimeLabel(request.meeting.startsAt, locale),
           minutes: request.meeting.durationMinutes,
@@ -113,6 +125,74 @@ function RequestNotes({ request }: { request: OfficeHoursRequest }) {
         </ul>
       )}
     </>
+  );
+}
+
+function CancellationNote({
+  cancellation,
+  card,
+}: {
+  cancellation: OfficeHoursCourseCancellation;
+  card: OfficeHoursRequestCardState;
+}) {
+  const t = useTranslations("officeHours.booking");
+  return (
+    <p className="mt-2 text-[12.5px] text-[#4a5059]">
+      {card.cancelledBy}
+      {cancellation.reason
+        ? ` · ${t("cancelledReason", { reason: cancellation.reason })}`
+        : null}
+      {cancellation.late ? (
+        <span className="ml-2 rounded-full bg-[#fff4ec] px-2 py-0.5 text-[11px] font-medium text-[#c2561a]">
+          {t("lateCancel")}
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
+/** Stable, so the field is focused once when the panel opens, not on every keystroke. */
+function focusOnOpen(field: HTMLTextAreaElement | null) {
+  field?.focus();
+}
+
+function CancelPanel({
+  card,
+  errorId,
+}: {
+  card: OfficeHoursRequestCardState;
+  errorId: string;
+}) {
+  const t = useTranslations("officeHours.booking");
+  const hasError = card.error !== "";
+  return (
+    <div className="mt-3 rounded-lg border border-[#eceef0] p-3">
+      <textarea
+        ref={focusOnOpen}
+        value={card.text}
+        onChange={(event) => card.setCancelReason(event.target.value)}
+        placeholder={card.cancelReasonLabel}
+        aria-label={card.cancelReasonLabel}
+        aria-required={card.cancelReasonRequired}
+        aria-invalid={hasError}
+        aria-describedby={hasError ? errorId : undefined}
+        maxLength={CANCEL_REASON_MAX_LENGTH}
+        className={fieldClass}
+      />
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          disabled={card.isPending}
+          onClick={card.confirmCancel}
+          className={primaryClass}
+        >
+          {t("confirmCancel")}
+        </button>
+        <button type="button" onClick={card.close} className={buttonClass}>
+          {t("cancel")}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -269,6 +349,7 @@ export function OfficeHoursRequestCard({
 }) {
   const t = useTranslations("officeHours.booking");
   const card = useOfficeHoursRequestCard(request, viewer);
+  const errorId = useId();
 
   return (
     <li className="rounded-2xl border border-[#e4e7ea] bg-white p-5">
@@ -294,6 +375,9 @@ export function OfficeHoursRequestCard({
         </p>
       ) : null}
       <RequestTimes request={request} />
+      {request.cancellation ? (
+        <CancellationNote cancellation={request.cancellation} card={card} />
+      ) : null}
       <RequestNotes request={request} />
 
       {card.can.takeProposed ? (
@@ -310,6 +394,18 @@ export function OfficeHoursRequestCard({
           {t("withdraw")}
         </button>
       ) : null}
+      {card.can.cancel && !card.cancelling ? (
+        <button
+          type="button"
+          onClick={card.openCancel}
+          className={`${buttonClass} mt-3`}
+        >
+          {t("cancelMeeting")}
+        </button>
+      ) : null}
+      {card.can.cancel && card.cancelling ? (
+        <CancelPanel card={card} errorId={errorId} />
+      ) : null}
       {card.can.decide && card.mode === null ? (
         <DecisionButtons card={card} />
       ) : null}
@@ -318,7 +414,11 @@ export function OfficeHoursRequestCard({
       ) : null}
 
       {card.error ? (
-        <p role="alert" className="mt-2 text-[12.5px] text-[#b42318]">
+        <p
+          id={errorId}
+          role="alert"
+          className="mt-2 text-[12.5px] text-[#b42318]"
+        >
           {card.error}
         </p>
       ) : null}

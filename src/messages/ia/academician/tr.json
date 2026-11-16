@@ -1,6 +1,5 @@
 {
   "common": {
-    "sampleNotice": "Örnek veriler gösteriliyor: Office Hours henüz ODTÜ hesabına bağlı değil, burada yaptığın değişiklikler yalnızca bu oturumda kalır.",
     "loading": "Yükleniyor…",
     "loadFailed": "Bilgiler yüklenemedi.",
     "retry": "Tekrar dene",
@@ -16,7 +15,10 @@
     },
     "oneOff": "{date} · tek seferlik",
     "unavailable": "{days} · Müsait değilim",
-    "unavailableBecause": "{days} · Müsait değilim ({reason})"
+    "unavailableBecause": "{days} · Müsait değilim ({reason})",
+    "everyWeekday": "Her {weekday}",
+    "classYear": "{year}. sınıf",
+    "close": "Kapat"
   },
   "answer": {
     "done": {
@@ -75,6 +77,253 @@
       "oneOffHint": "Tek seferlik müsaitlik",
       "unavailableTitle": "Belirli bir gün · Tüm gün",
       "unavailableHint": "Müsait değilim (istisna)"
+    }
+  },
+  "appointments": {
+    "title": "Randevularım",
+    "subtitle": "Onaylı randevuların, yanıt bekleyen talepler ve müsaitliğin tek takvimde.",
+    "editAvailability": "Müsaitliği Düzenle",
+    "filtersLabel": "Takvimde göster",
+    "filters": {
+      "all": "Tümü",
+      "appointments": "Randevular",
+      "requests": "Talepler · {count}",
+      "availability": "Müsaitlik"
+    },
+    "viewsLabel": "Takvim görünümü",
+    "views": {
+      "day": "Gün",
+      "week": "Hafta",
+      "month": "Ay"
+    },
+    "today": "Bugün",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "legendLabel": "Renklerin anlamı",
+    "legend": {
+      "recurring": "Tekrarlanan",
+      "oneOff": "Tek seferlik",
+      "confirmed": "Onaylı randevu",
+      "pendingRequest": "Onay bekliyor (soluk)",
+      "awaitingStudent": "Öğrenci yanıtı bekleniyor",
+      "unavailable": "Müsait değil"
+    },
+    "entry": {
+      "confirmed": "Onaylandı",
+      "pendingRequest": "Onay Bekliyor",
+      "awaitingStudent": "Öneri · öğrenci yanıtı",
+      "recurring": "Müsait",
+      "oneOff": "Müsait",
+      "unavailable": "Müsait değilim"
+    },
+    "entryDetail": {
+      "recurring": "Her {weekday} · tekrarlanan müsaitlik",
+      "oneOff": "Tek seferlik müsaitlik"
+    },
+    "available": "Müsait {hours}",
+    "blockLabel": "{name}, {hours}, {status}",
+    "more": "+{count} daha",
+    "openDay": "{day} gününü aç",
+    "rail": {
+      "pendingTitle": "Yanıt bekleyen talepler",
+      "all": "Tümü",
+      "hint": "Talepler takvimde kesikli çerçeveyle görünür. Detayı açmak için talebe tıkla.",
+      "pendingEmpty": "Yanıt bekleyen talep yok.",
+      "awaitingTitle": "Öğrenci yanıtı bekleniyor",
+      "proposed": "Önerdiğin saat: {when}",
+      "asked": "Sorunu yanıtlaması bekleniyor",
+      "proposedBadge": "Alternatif Saat Önerildi",
+      "askedBadge": "Soru soruldu",
+      "availabilityTitle": "Müsaitliğim",
+      "availabilityEmpty": "Henüz müsait saat yok."
+    }
+  },
+  "requestDrawer": {
+    "title": "Randevu talebi",
+    "openProfile": "Öğrenci profilini gör",
+    "date": "Tarih",
+    "time": "Saat",
+    "course": "Ders",
+    "pickTime": "Hangi saati kabul ediyorsun?",
+    "note": "Açıklama · yalnızca sen görürsün",
+    "messages": "Mesajlar",
+    "fit": {
+      "fits": "Bu saat {weekday} müsaitliğinle uyumlu; çakışma yok.",
+      "outside": "Bu saat {weekday} müsaitliğinin dışında.",
+      "clash": "Bu saatte onaylı bir randevun var.",
+      "dayOff": "Bu gün müsait değilsin olarak işaretli.",
+      "past": "Bu saat geçti."
+    },
+    "decline": "Reddet",
+    "propose": "Alternatif Saat Öner",
+    "accept": "Kabul Et",
+    "declineTitle": "Talebi reddet",
+    "declineReason": "Öğrenciye not (opsiyonel)",
+    "confirmDecline": "Talebi Reddet",
+    "back": "Vazgeç",
+    "gone": "Bu talep artık yanıtını beklemiyor; liste güncellendi."
+  },
+  "appointmentDrawer": {
+    "title": "Randevu",
+    "date": "Tarih",
+    "time": "Saat",
+    "place": "Yer",
+    "online": "Çevrim içi bağlantı",
+    "course": "Ders",
+    "cancel": "Randevuyu iptal et",
+    "cancelTitle": "Randevuyu iptal et",
+    "reason": "Öğrenciye gerekçe",
+    "reasonOptional": "Öğrenciye gerekçe (opsiyonel)",
+    "reasonRequired": "Başlamasına 24 saatten az kaldı; öğrenciye bir gerekçe yazmalısın.",
+    "confirmCancel": "İptal et",
+    "back": "Vazgeç",
+    "cannotCancel": "Bu randevu buradan iptal edilemiyor.",
+    "cancelled": "Randevu iptal edildi.",
+    "failed": "Randevu iptal edilemedi; liste yenilendi.",
+    "gone": "Bu randevu artık takviminde yok."
+  },
+  "propose": {
+    "title": "Alternatif saat öner",
+    "requested": "{name} · talep edilen: {when}",
+    "daysLabel": "Gün seç",
+    "dayHeading": "{day} · müsait saatlerin",
+    "picked": "Seçtiğin saatler ({count}/{max})",
+    "remove": "{time} saatini çıkar",
+    "limit": "En fazla {max} saat önerebilirsin.",
+    "note": "Öğrenciye not (opsiyonel)",
+    "infoTitle": "Öğrenci onayı gerekir",
+    "infoBody": "Önerdiğin saat, öğrenci kabul edene kadar onaylanmaz. Durum \"Alternatif Saat Önerildi\" olarak görünür.",
+    "cancel": "Vazgeç",
+    "send": "Öneriyi Gönder"
+  },
+  "availability": {
+    "title": "Müsaitliği düzenle",
+    "subtitle": "Öğrenciler yalnızca burada açık olan saatlerden randevu talep edebilir.",
+    "back": "Randevularım",
+    "add": "Müsaitlik Ekle",
+    "cards": {
+      "recurring": {
+        "title": "Tekrarlanan haftalık müsaitlik",
+        "hint": "Her hafta aynı gün ve saat",
+        "rowHint": "Tekrarlanan haftalık müsaitlik",
+        "empty": "Henüz haftalık saat eklemedin."
+      },
+      "oneOff": {
+        "title": "Tek seferlik müsaitlik",
+        "hint": "Belirli tarih ve saat",
+        "rowHint": "Tek seferlik müsaitlik",
+        "rowHintPlace": "Tek seferlik müsaitlik · {place}",
+        "empty": "Tek seferlik saat yok."
+      },
+      "unavailable": {
+        "title": "Müsait olmadığım günler",
+        "hint": "Tekrarlanan saatleri o gün için kapatır",
+        "rowHint": "Müsait değilim (istisna)",
+        "rowHintReason": "Müsait değilim ({reason})",
+        "empty": "Müsait olmadığın gün yok."
+      }
+    },
+    "addTo": "Ekle",
+    "addToLabel": "{list} listesine ekle",
+    "recurringRow": "Her {weekday} · {hours}",
+    "dateRow": "{date} · {hours}",
+    "allDay": "Tüm gün",
+    "howTitle": "Nasıl hesaplanır?",
+    "howBody": "Öğrencilerin gördüğü saatler: tekrarlanan + tek seferlik − müsait olmadığın günler. İstisna her zaman önceliklidir.",
+    "menu": {
+      "label": "{item} için seçenekler",
+      "edit": "Düzenle",
+      "remove": "Sil",
+      "confirm": "Silinsin mi?",
+      "confirmYes": "Evet, sil",
+      "confirmNo": "Vazgeç"
+    },
+    "dialog": {
+      "addTitle": "Müsaitlik ekle",
+      "editTitle": "Müsaitliği düzenle",
+      "kind": "Ne eklemek istiyorsun?",
+      "weekday": "Gün",
+      "start": "Başlangıç",
+      "end": "Bitiş",
+      "date": "Tarih",
+      "place": "Yer (opsiyonel)",
+      "startsOn": "İlk gün",
+      "endsOn": "Son gün (opsiyonel)",
+      "reason": "Neden (opsiyonel)",
+      "save": "Kaydet",
+      "cancel": "Vazgeç"
+    },
+    "errors": {
+      "needFields": "Tarih ve saatleri doldur.",
+      "endAfterStart": "Bitiş, başlangıçtan sonra olmalı.",
+      "overlap": "Bu saatler mevcut bir kayıtla çakışıyor.",
+      "past": "Geçmiş bir saate müsaitlik eklenemez.",
+      "insideDayOff": "Bu gün müsait değil olarak işaretli; önce o günü kaldır.",
+      "hidesOneOff": "Bu günlerde tek seferlik saatlerin var; önce onları sil."
+    },
+    "saved": "Müsaitlik kaydedildi.",
+    "removed": "Silindi.",
+    "failed": "Kaydedilemedi; tekrar dene."
+  },
+  "advisees": {
+    "title": "Danışan Öğrencilerim",
+    "search": "Öğrenci ara",
+    "readOnly": "Kurumsal kayıttan · salt okunur",
+    "meetingsFailed": "Randevu bilgileri yüklenemedi; son ve yaklaşan randevu sütunları şu an eksik.",
+    "count": "{count} öğrenci",
+    "columns": {
+      "student": "Öğrenci",
+      "program": "Bölüm · sınıf",
+      "last": "Son randevu",
+      "next": "Yaklaşan randevu",
+      "actions": "İşlemler"
+    },
+    "appointments": "Randevular",
+    "appointmentsLabel": "{name} ile randevular",
+    "today": "Bugün {time}",
+    "pending": "Onay bekliyor",
+    "none": "—",
+    "notSignedIn": "Menton'a henüz giriş yapmadı",
+    "empty": "ODTÜ kayıtlarında danışmanlığında öğrenci görünmüyor.",
+    "noMatch": "Aramana uyan öğrenci yok.",
+    "footnote": "Bu liste mentorluk eşleşmesi veya randevu değildir. Danışmanlık ilişkileri ODTÜ kayıtlarından gelir ve Menton'da değiştirilemez."
+  },
+  "student": {
+    "back": {
+      "appointments": "Randevularım",
+      "advisees": "Danışan Öğrencilerim"
+    },
+    "classYear": "{year}. sınıf",
+    "record": "Kurumsal bilgiler",
+    "department": "Bölüm",
+    "classYearLabel": "Sınıf",
+    "advisor": "Akademik danışman",
+    "advisorYou": "Sen",
+    "privacy": "Öğrencinin mentorluk bilgileri, belgeleri ve diğer akademisyenlerle randevuları sana görünmez.",
+    "pendingTitle": "Yanıt bekleyen talep",
+    "history": "Seninle randevuları",
+    "historyEmpty": "Seninle henüz randevusu yok.",
+    "historyWhen": "{when} · Office Hours",
+    "badges": {
+      "pending": "Onay Bekliyor",
+      "proposed": "Alternatif Saat Önerildi",
+      "confirmed": "Onaylandı",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal edildi"
+    },
+    "decline": "Reddet",
+    "propose": "Alternatif Saat Öner",
+    "accept": "Kabul Et",
+    "notFound": "Bu öğrenci hakkında gösterilecek bilgi yok.",
+    "openProfile": "Öğrenci profilini gör",
+    "close": "Kapat",
+    "fullProfile": "Tam Profili Gör",
+    "interests": {
+      "title": "İlgi alanları ve hedefi",
+      "topics": "İlgi alanları",
+      "goal": "Hedefi",
+      "noGoal": "Henüz bir hedef yazmadı.",
+      "empty": "Öğrenci henüz ilgi alanlarını ve hedefini doldurmadı."
     }
   }
 }

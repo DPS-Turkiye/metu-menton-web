@@ -4,11 +4,16 @@ import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { UserRole } from "@/interfaces/session";
 import {
   createPeerMentoringRequest,
+  deletePeerMentorDraft,
   getPeerCategories,
+  getPeerMentor,
+  getPeerMentorCounts,
+  getPeerMentorDraft,
   getPeerMentoringRequests,
   getPeerMentorProfile,
   getPeerMentors,
   getReceivedPeerRequests,
+  savePeerMentorDraft,
   savePeerMentorProfile,
 } from "@/lib/client/peer-mentoring";
 import { httpClient } from "@/lib/http-client";
@@ -41,6 +46,21 @@ const profile = {
   erasmus: "",
   helpWith: "Frontend",
   linkedinUrl: "",
+  levels: {},
+  experiences: [],
+};
+
+const draftBody = {
+  step: "topics",
+  categories: [PeerTopicCategory.CareerInternship],
+  subTopics: null,
+  strongCourses: null,
+  projects: null,
+  erasmus: null,
+  helpWith: null,
+  linkedinUrl: null,
+  levels: null,
+  experiences: null,
 };
 
 const calls: ClientCall[] = [
@@ -71,6 +91,54 @@ const calls: ClientCall[] = [
       "/api/peer-mentoring/mentors",
       { params: { category: undefined, q: undefined } },
     ],
+  },
+  {
+    title:
+      "getPeerMentors sends a sub-topic and asks for this week only when set",
+    call: () =>
+      getPeerMentors({
+        category: null,
+        query: "",
+        subTopic: "fixture-cv",
+        availableThisWeek: true,
+      }),
+    method: "get",
+    args: [
+      "/api/peer-mentoring/mentors",
+      {
+        params: {
+          category: undefined,
+          q: undefined,
+          subTopic: "fixture-cv",
+          availableThisWeek: true,
+        },
+      },
+    ],
+  },
+  {
+    title: "getPeerMentor reads one mentor by id",
+    call: () => getPeerMentor("8c5f0f0e-6a3e-4c55-9d2d-2a7c7b1f0a11"),
+    method: "get",
+    args: ["/api/peer-mentoring/mentors/8c5f0f0e-6a3e-4c55-9d2d-2a7c7b1f0a11"],
+  },
+  {
+    title: "getPeerMentorCounts reads the mentors per category",
+    call: () => getPeerMentorCounts(),
+    method: "get",
+    args: ["/api/peer-mentoring/mentor-counts"],
+  },
+  {
+    title: "savePeerMentorDraft puts the draft under its own key",
+    call: () => savePeerMentorDraft(draftBody),
+    method: "put",
+    args: ["/api/peer-mentoring/profile/draft", { draft: draftBody }],
+  },
+  {
+    title: "deletePeerMentorDraft deletes the draft",
+    call: () => deletePeerMentorDraft(),
+    method: "delete",
+    args: ["/api/peer-mentoring/profile/draft"],
+    returnsNothing: true,
   },
   {
     title: "getPeerCategories reads a student's categories with no side param",
@@ -125,6 +193,32 @@ describe("peer mentoring client", () => {
   });
 
   itSendsEachClientCall(calls);
+
+  it("getPeerMentor answers null for a mentor the directory doesn't list or a malformed id", async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "Bulunamadı." }, 404),
+    );
+    await expect(getPeerMentor("someone")).resolves.toBeNull();
+
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "Geçersiz." }, 400),
+    );
+    await expect(getPeerMentor("not-a-uuid")).resolves.toBeNull();
+  });
+
+  it("getPeerMentor still fails on a server error", async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "Hata" }, 500),
+    );
+    await expect(getPeerMentor("someone")).rejects.toThrow();
+  });
+
+  it("getPeerMentorDraft answers null when there is no draft", async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "Taslak yok." }, 404),
+    );
+    await expect(getPeerMentorDraft()).resolves.toBeNull();
+  });
 
   it("getPeerMentorProfile answers null before the wizard has published a profile", async () => {
     vi.mocked(httpClient.get).mockResolvedValue(
