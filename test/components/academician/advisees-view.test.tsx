@@ -8,18 +8,16 @@ import {
   type InstitutionPersonSummary,
 } from "@/interfaces/institution";
 import { getAcademicianRequests } from "@/lib/client/academician-office-hours";
-import { resetAcademicianSample } from "@/lib/client/fixtures/academician-office-hours-store";
 import { fetchInstitutionAdvisees } from "@/lib/client/institution";
+import { resetAcademicianSample } from "@test/fixtures/academician-office-hours-sample-store";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
 
-vi.mock("@/lib/client/academician-office-hours", async (importOriginal) => {
-  const actual =
-    await importOriginal<
-      typeof import("@/lib/client/academician-office-hours")
-    >();
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock("@/lib/client/academician-office-hours", async () => {
+  const sample = await import("@test/mocks/academician-office-hours-client");
   return {
-    ...actual,
-    getAcademicianRequests: vi.fn(actual.getAcademicianRequests),
+    ...sample,
+    getAcademicianRequests: vi.fn(sample.getAcademicianRequests),
   };
 });
 

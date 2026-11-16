@@ -1,6 +1,5 @@
 {
   "common": {
-    "sampleNotice": "Showing sample data: Office Hours isn't linked to ODTÜ accounts yet, so your changes here last only for this session.",
     "loading": "Loading…",
     "loadFailed": "Couldn't load this.",
     "retry": "Try again",

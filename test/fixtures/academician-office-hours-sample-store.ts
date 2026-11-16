@@ -16,7 +16,7 @@ import {
   ACADEMICIAN_REQUESTS_SAMPLE,
   asCounterpart,
   OFFICE_HOURS_PROFILE_SAMPLE,
-} from "@/lib/client/fixtures/academician-office-hours";
+} from "@test/fixtures/academician-office-hours-sample";
 
 // Keeps the sample answers and edits for the session, so the screens behave as they will with a
 // real source. Replaced, not extended, when an Office Hours backend is connected.

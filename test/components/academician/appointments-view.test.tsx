@@ -8,17 +8,23 @@ import {
   appointmentsHref,
   type AppointmentsSearch,
 } from "@/lib/academician-calendar";
-import {
-  resetAcademicianSample,
-  sampleState,
-} from "@/lib/client/fixtures/academician-office-hours-store";
 import { fetchInstitutionAdvisees } from "@/lib/client/institution";
 import {
   AppointmentsCalendarView,
   RequestStep,
 } from "@/types/academician-calendar";
+import {
+  resetAcademicianSample,
+  sampleState,
+} from "@test/fixtures/academician-office-hours-sample-store";
 import { APP_ROUTER_ENTRY } from "@test/mocks/search-params";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
+
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock(
+  "@/lib/client/academician-office-hours",
+  () => import("@test/mocks/academician-office-hours-client"),
+);
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { useLocationSearchParams } = await import("@test/mocks/search-params");

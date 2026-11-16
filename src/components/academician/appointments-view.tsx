@@ -11,7 +11,6 @@ import {
   GoneDrawer,
   RequestDrawer,
 } from "@/components/academician/request-drawer";
-import { SampleDataNotice } from "@/components/academician/sample-data-notice";
 import { StudentProfileDialog } from "@/components/academician/student-profile-dialog";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
@@ -41,7 +40,6 @@ export function AcademicianAppointmentsView() {
       >
         <p className="type-body text-text-secondary">{t("subtitle")}</p>
       </PageHeader>
-      <SampleDataNotice />
       {calendar ? (
         <AppointmentsContent calendar={calendar} />
       ) : (

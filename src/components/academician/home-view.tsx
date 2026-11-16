@@ -14,7 +14,6 @@ import { useId, type ReactNode } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { AppointmentStatusBadge } from "@/components/academician/appointment-status-badge";
-import { SampleDataNotice } from "@/components/academician/sample-data-notice";
 import { StudentAvatar } from "@/components/academician/student-avatar";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
@@ -45,7 +44,6 @@ export function AcademicianHomeView() {
   if (!home.hasAvailability) {
     return (
       <div className="space-y-8">
-        <SampleDataNotice />
         <HomeWithoutAvailability home={home} />
       </div>
     );
@@ -53,7 +51,6 @@ export function AcademicianHomeView() {
   return (
     <div className="space-y-8">
       <HomeHeader home={home} />
-      <SampleDataNotice />
       <HomeWithAvailability home={home} />
     </div>
   );
