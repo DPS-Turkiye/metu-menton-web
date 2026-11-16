@@ -229,6 +229,18 @@
       "accepted": "Önerilen saati kabul ettin; randevun onaylandı.",
       "declined": "Önerilen saati reddettin; talebin geri çekildi.",
       "failed": "Yanıt gönderilemedi. Tekrar dene."
+    },
+    "cancel": {
+      "button": "Randevuyu İptal Et",
+      "title": "Randevuyu iptal etmek istiyor musun?",
+      "body": "{name} bildirim alır. Bu işlem geri alınamaz.",
+      "reasonLabel": "İptal nedeni (opsiyonel)",
+      "reasonPlaceholder": "Kısaca yazabilirsin…",
+      "keep": "Vazgeç",
+      "confirm": "Randevuyu İptal Et",
+      "done": "Randevu iptal edildi.",
+      "failed": "Randevu iptal edilemedi. Tekrar dene.",
+      "started": "Görüşme başladı; artık iptal edilemez."
     }
   },
   "profile": {
