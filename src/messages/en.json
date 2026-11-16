@@ -4767,6 +4767,51 @@
     "phaseMentoring": "{date} · Mentoring",
     "phaseSetup": "{date} · Setup"
   },
+  "odtuAdminPrograms": {
+    "statusLabel": "Program status",
+    "filters": {
+      "ALL": "All {count}",
+      "ACTIVE": "Active {count}",
+      "DRAFT": "Draft {count}",
+      "COMPLETED": "Completed {count}"
+    },
+    "searchLabel": "Search programs",
+    "typeLabel": "Program type",
+    "typeAll": "Program type: All",
+    "coordinatorLabel": "Coordinator",
+    "coordinatorAll": "Coordinator: All",
+    "newProgram": "Create new program",
+    "caption": "Programs",
+    "columns": {
+      "program": "Program",
+      "type": "Program type",
+      "status": "Status",
+      "coordinator": "Coordinator",
+      "date": "Dates",
+      "participants": "Participants",
+      "actions": "Actions"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed"
+    },
+    "coordinatorMore": "{name} +{count}",
+    "noCoordinator": "No coordinator",
+    "assignCoordinator": "Assign coordinator",
+    "addCoordinator": "Add coordinator",
+    "universityWide": "University-wide",
+    "draftDate": "{date} · draft",
+    "participantsAll": "Everyone",
+    "open": "Open",
+    "openLabel": "Open {name}",
+    "rowActions": "More actions for {name}",
+    "loading": "Loading programs…",
+    "loadFailed": "Programs could not be loaded.",
+    "empty": "No programs yet. Start the first one with Create new program.",
+    "noMatch": "No program matches these filters.",
+    "footnote": "Only the admin creates and starts programs. Coordinators set the terms of the programs they are assigned to."
+  },
   "adminCoordinators": {
     "roles": {
       "ADMIN": "an admin",
