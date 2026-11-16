@@ -17,7 +17,7 @@ import {
 import {
   programStudents,
   studentRow,
-} from "@test/fixtures/program-office-hours";
+} from "@test/fixtures/program-office-hours-students";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("next/navigation", () => ({
