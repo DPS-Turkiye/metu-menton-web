@@ -1,10 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  OfficeHoursAppointmentAction,
-  OfficeHoursRequestAction,
-} from "@/interfaces/academician-office-hours";
-import { AppointmentStatus } from "@/interfaces/appointment";
+import { OfficeHoursRequestAction } from "@/interfaces/academician-office-hours";
+import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 import {
   answerAcademicianRequest,
   cancelAcademicianAppointment,
@@ -12,137 +9,200 @@ import {
   getAcademicianAvailability,
   getAcademicianRequests,
   getOfficeHoursProfileSettings,
+  OfficeHoursFeatureUnavailableError,
   saveAcademicianAvailability,
   saveOfficeHoursProfileSettings,
 } from "@/lib/client/academician-office-hours";
-import { sampleTime } from "@/lib/client/fixtures/academician-office-hours";
-import { resetAcademicianSample } from "@/lib/client/fixtures/academician-office-hours-store";
-import { itemAt } from "@test/fixtures/list-assertions";
+import { ClientApiError } from "@/lib/client/api";
+import { httpClient } from "@/lib/http-client";
+import { academicianAvailability } from "@test/fixtures/academician-office-hours";
+import { createMentorResponse } from "@test/fixtures/mentors";
+import {
+  academicianMeeting,
+  inboxRequest,
+  officeHoursProfile,
+} from "@test/fixtures/office-hours-me";
 
-beforeEach(() => resetAcademicianSample());
+vi.mock("@/lib/http-client", () => ({
+  httpClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
 
-describe("academician Office Hours sample source", () => {
-  it("hands out copies, so a screen cannot change the sample", async () => {
-    const first = itemAt(await getAcademicianRequests(), 0);
-    first.topic = "değişti";
-    expect(itemAt(await getAcademicianRequests(), 0).topic).not.toBe("değişti");
-  });
+const BASE = "/api/office-hours/me";
+const TIME = {
+  startsAt: "2026-11-17T14:00:00+03:00",
+  endsAt: "2026-11-17T14:30:00+03:00",
+};
 
-  it("turns an accepted request into a confirmed appointment at the chosen time", async () => {
-    const request = itemAt(await getAcademicianRequests(), 0);
-    const time = itemAt(request.requestedTimes, 0);
-    await answerAcademicianRequest(request.id, {
-      action: OfficeHoursRequestAction.Accept,
-      time,
-    });
-    expect(
-      (await getAcademicianRequests()).map((item) => item.id),
-    ).not.toContain(request.id);
-    const booked = (await getAcademicianAppointments()).find(
-      (item) => item.topic === request.topic,
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("academician Office Hours client", () => {
+  it("lists only the inbox's open requests", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(
+      createMentorResponse([
+        inboxRequest({ id: "waiting" }),
+        inboxRequest({ id: "done", status: OfficeHoursRequestStatus.Accepted }),
+      ]),
     );
-    expect(booked).toMatchObject({
-      status: AppointmentStatus.Confirmed,
-      startsAt: time.startsAt,
-      allowedActions: [OfficeHoursAppointmentAction.Cancel],
-    });
+
+    const requests = await getAcademicianRequests();
+
+    expect(httpClient.get).toHaveBeenCalledWith(`${BASE}/inbox`);
+    expect(requests.map((request) => request.id)).toEqual(["waiting"]);
   });
 
-  it("keeps a request open with the offered times, and refuses a second answer", async () => {
-    const request = itemAt(await getAcademicianRequests(), 0);
-    const offered = {
-      startsAt: sampleTime(5, 9),
-      endsAt: sampleTime(5, 9, 30),
-    };
-    const updated = await answerAcademicianRequest(request.id, {
+  it("says nothing is waiting when the inbox is empty", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(createMentorResponse([]));
+
+    expect(await getAcademicianRequests()).toEqual([]);
+  });
+
+  it("sends the answer in the backend's words and reports the request settled once accepted", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(
+        inboxRequest({
+          status: OfficeHoursRequestStatus.Accepted,
+          allowedActions: [],
+        }),
+      ),
+    );
+
+    const answered = await answerAcademicianRequest("request-1", {
+      action: OfficeHoursRequestAction.Accept,
+      time: TIME,
+    });
+
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${BASE}/requests/request-1/decision`,
+      { action: OfficeHoursRequestAction.Accept, time: TIME.startsAt },
+    );
+    expect(answered).toBeNull();
+  });
+
+  it("hands back a request that is still open after other times were offered", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(
+        inboxRequest({
+          status: OfficeHoursRequestStatus.CounterProposed,
+          proposedTimes: [TIME],
+        }),
+      ),
+    );
+
+    const answered = await answerAcademicianRequest("request-1", {
       action: OfficeHoursRequestAction.ProposeTimes,
-      times: [offered],
-      note: null,
+      times: [TIME],
+      note: "Şunlar uygun",
     });
-    expect(updated).toMatchObject({
-      status: AppointmentStatus.AlternativeProposed,
-      proposedTimes: [offered],
-      allowedActions: [],
-    });
+
+    expect(answered?.proposedTimes).toEqual([TIME]);
+  });
+
+  it("passes on the backend's refusal when the request moved on before the answer arrived", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(
+        { message: "This request can no longer be answered" },
+        400,
+      ),
+    );
+
     await expect(
-      answerAcademicianRequest(request.id, {
+      answerAcademicianRequest("request-1", {
         action: OfficeHoursRequestAction.Decline,
         reason: null,
       }),
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(ClientApiError);
   });
 
-  it("asks a question only where the source offers that step", async () => {
-    const requests = await getAcademicianRequests();
-    const withoutQuestion = requests.find(
-      (item) =>
-        !item.allowedActions.includes(OfficeHoursRequestAction.AskQuestion),
-    )!;
-    const withQuestion = requests.find((item) =>
-      item.allowedActions.includes(OfficeHoursRequestAction.AskQuestion),
-    )!;
-    await expect(
-      answerAcademicianRequest(withoutQuestion.id, {
-        action: OfficeHoursRequestAction.AskQuestion,
-        question: "?",
-      }),
-    ).rejects.toThrow();
-    const asked = await answerAcademicianRequest(withQuestion.id, {
-      action: OfficeHoursRequestAction.AskQuestion,
-      question: "Hangi bölüm?",
-    });
-    expect(asked?.awaitingStudentReply).toBe(true);
-    expect(asked?.messages.at(-1)?.body).toBe("Hangi bölüm?");
-  });
-
-  it("cancels only appointments the source can cancel", async () => {
-    const appointments = await getAcademicianAppointments();
-    const cancellable = appointments.find((item) =>
-      item.allowedActions.includes(OfficeHoursAppointmentAction.Cancel),
-    )!;
-    const fixed = appointments.find(
-      (item) =>
-        item.status === AppointmentStatus.Confirmed &&
-        !item.allowedActions.length,
-    )!;
-    const cancelled = await cancelAcademicianAppointment(
-      cancellable.id,
-      "Toplantı",
+  it("lists booked meetings as appointments that offer no cancel yet", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(
+      createMentorResponse([academicianMeeting()]),
     );
-    expect(cancelled).toMatchObject({
-      status: AppointmentStatus.Cancelled,
-      rejectReason: "Toplantı",
-      allowedActions: [],
-    });
-    await expect(
-      cancelAcademicianAppointment(fixed.id, null),
-    ).rejects.toThrow();
+
+    const [appointment] = await getAcademicianAppointments();
+
+    expect(httpClient.get).toHaveBeenCalledWith(`${BASE}/meetings`);
+    expect(appointment?.allowedActions).toEqual([]);
   });
 
-  it("saves availability and profile settings for the session", async () => {
-    const availability = await getAcademicianAvailability();
+  it("refuses to cancel until cancelling has its backend", async () => {
+    await expect(
+      cancelAcademicianAppointment("meeting-1", null),
+    ).rejects.toBeInstanceOf(OfficeHoursFeatureUnavailableError);
+    expect(httpClient.post).not.toHaveBeenCalled();
+  });
+
+  it("reads and saves the weekly availability without one-offs", async () => {
+    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+    vi.mocked(httpClient.get).mockResolvedValue(createMentorResponse(settings));
+    vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
+
+    expect((await getAcademicianAvailability()).oneOffs).toEqual([]);
     const saved = await saveAcademicianAvailability({
-      ...availability,
-      rules: availability.rules.slice(0, 1).map((rule) => ({
-        dayOfWeek: rule.dayOfWeek,
-        startTime: rule.startTime,
-        endTime: rule.endTime,
-        slotMinutes: rule.slotMinutes,
-      })),
+      ...settings,
       oneOffs: [],
     });
-    expect(saved.rules).toHaveLength(1);
-    expect(saved.oneOffs).toEqual([]);
-    expect(await getAcademicianAvailability()).toEqual(saved);
 
-    await saveOfficeHoursProfileSettings({
-      defaultPlace: "B-110",
+    expect(httpClient.put).toHaveBeenCalledWith(
+      `${BASE}/availability`,
+      settings,
+    );
+    expect(saved.rules).toEqual(settings.rules);
+  });
+
+  it("refuses to save one-off hours instead of dropping them silently", async () => {
+    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+
+    await expect(
+      saveAcademicianAvailability({
+        ...settings,
+        oneOffs: [{ ...TIME, place: null }],
+      }),
+    ).rejects.toBeInstanceOf(OfficeHoursFeatureUnavailableError);
+    expect(httpClient.put).not.toHaveBeenCalled();
+  });
+
+  it("reads where and how students meet them", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(
+      createMentorResponse(officeHoursProfile()),
+    );
+
+    expect(await getOfficeHoursProfileSettings()).toEqual({
+      defaultPlace: "A-204",
+      onlineLink: "https://meet.example.com/abc",
+      contactEmail: null,
+    });
+  });
+
+  it("keeps whether students see them as saved, since this screen does not set it", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(
+      createMentorResponse(officeHoursProfile({ listed: false })),
+    );
+    vi.mocked(httpClient.put).mockResolvedValue(
+      createMentorResponse(
+        officeHoursProfile({ listed: false, defaultPlace: "B-101" }),
+      ),
+    );
+
+    const saved = await saveOfficeHoursProfileSettings({
+      defaultPlace: "B-101",
       onlineLink: null,
-      contactEmail: "hoca@metu.edu.tr",
+      contactEmail: null,
     });
-    expect(await getOfficeHoursProfileSettings()).toMatchObject({
-      defaultPlace: "B-110",
-      contactEmail: "hoca@metu.edu.tr",
+
+    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/profile`, {
+      defaultPlace: "B-101",
+      onlineLink: null,
+      contactEmail: null,
+      listed: false,
     });
+    expect(saved.defaultPlace).toBe("B-101");
   });
 });

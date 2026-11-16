@@ -3,12 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AcademicianAvailabilityEditView } from "@/components/academician/availability-edit-view";
+import { fetchInstitutionAdvisees } from "@/lib/client/institution";
 import {
   resetAcademicianSample,
   sampleState,
-} from "@/lib/client/fixtures/academician-office-hours-store";
-import { fetchInstitutionAdvisees } from "@/lib/client/institution";
+} from "@test/fixtures/academician-office-hours-sample-store";
 import { renderWithQueryClient } from "@test/test-utils";
+
+// The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
+vi.mock(
+  "@/lib/client/academician-office-hours",
+  () => import("@test/mocks/academician-office-hours-client"),
+);
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { useLocationSearchParams } = await import("@test/mocks/search-params");
@@ -62,7 +68,7 @@ function setField(dialog: HTMLElement, label: string, value: string) {
 }
 
 describe("AcademicianAvailabilityEditView", () => {
-  it("shows the calendar and the three lists that make the hours", async () => {
+  it("shows the calendar and the lists that make the hours", async () => {
     renderView();
 
     const weekly = await list("Tekrarlanan haftalık müsaitlik");
@@ -72,9 +78,10 @@ describe("AcademicianAvailabilityEditView", () => {
       "data-tour",
       "availability-weekly",
     );
-    expect(await list("Tek seferlik müsaitlik")).toHaveTextContent(
-      "16 Kasım 2026 · 13:00–15:00",
-    );
+    // One-off hours wait for their backend (G5): no list, so none can be added.
+    expect(
+      screen.queryByRole("region", { name: /Tek seferlik müsaitlik/ }),
+    ).toBeNull();
     expect(await list("Müsait olmadığım günler")).toHaveTextContent(
       "20–22 Kasım 2026 · Tüm günMüsait değilim (Konferans)",
     );
@@ -182,22 +189,21 @@ describe("AcademicianAvailabilityEditView", () => {
     );
   });
 
-  it("refuses one-off hours on a day off", async () => {
+  it("offers only weekly hours and days off in the add dialog until one-offs can be saved", async () => {
     const user = userEvent.setup();
     renderView();
     await user.click(
-      await screen.findByRole("button", {
-        name: "Tek seferlik müsaitlik listesine ekle",
-      }),
+      await screen.findByRole("button", { name: "Müsaitlik Ekle" }),
     );
-    const dialog = screen.getByRole("dialog", { name: "Müsaitlik ekle" });
-    setField(dialog, "Tarih", "2026-11-21");
-    setField(dialog, "Başlangıç", "10:00");
-    setField(dialog, "Bitiş", "11:00");
-    await user.click(within(dialog).getByRole("button", { name: "Kaydet" }));
 
-    expect(within(dialog).getByRole("alert")).toHaveTextContent(
-      "Bu gün müsait değil olarak işaretli; önce o günü kaldır.",
-    );
+    const dialog = screen.getByRole("dialog", { name: "Müsaitlik ekle" });
+    expect(
+      within(dialog)
+        .getAllByRole("radio")
+        .map((radio) => radio.closest("label")?.textContent ?? ""),
+    ).toEqual([
+      expect.stringContaining("Tekrarlanan haftalık müsaitlik"),
+      expect.stringContaining("Müsait olmadığım günler"),
+    ]);
   });
 });

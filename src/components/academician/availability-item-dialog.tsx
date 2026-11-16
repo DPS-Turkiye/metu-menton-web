@@ -13,8 +13,6 @@ import { AvailabilityItemKind } from "@/types/academician-office-hours";
 const FIELD =
   "h-11 w-full rounded-input border border-border-control bg-background-surface px-3 type-body-sm text-text-primary focus-visible:outline-2 focus-visible:outline-border-selected";
 
-const KINDS = Object.values(AvailabilityItemKind);
-
 /** Adds or edits one availability item; the fields follow its kind. */
 export function AvailabilityItemDialog({
   editor,
@@ -44,7 +42,7 @@ export function AvailabilityItemDialog({
             <legend className="mb-2 type-label text-text-primary">
               {t("dialog.kind")}
             </legend>
-            {KINDS.map((kind) => (
+            {editor.kinds.map((kind) => (
               <label
                 key={kind}
                 className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 ${
