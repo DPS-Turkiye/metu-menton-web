@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { ListPagination } from "@/components/common/list-pagination";
+import { AppointmentDetailDrawer } from "@/components/coordinator/appointment-detail-drawer";
 import { AppointmentStatusPill } from "@/components/coordinator/appointment-status-pill";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { DataCell, DataTable } from "@/components/ia/data-table";
@@ -34,14 +35,18 @@ export function ProgramAppointmentsView({ programId }: { programId: string }) {
           appointments.data?.counts.awaitingDecision ?? null,
       }}
     >
-      {() => <AppointmentsBody appointments={appointments} />}
+      {() => (
+        <AppointmentsBody programId={programId} appointments={appointments} />
+      )}
     </ProgramDetailFrame>
   );
 }
 
 function AppointmentsBody({
+  programId,
   appointments,
 }: {
+  programId: string;
   appointments: ReturnType<typeof useProgramOfficeHoursAppointments>;
 }) {
   const t = useTranslations("programAppointments");
@@ -146,10 +151,18 @@ function AppointmentsBody({
               {data.appointments.content.map((row) => (
                 <tr key={row.id}>
                   <DataCell>
-                    <span className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => appointments.openAppointment(row.id)}
+                      aria-label={t("openDetail", {
+                        name: row.student.name,
+                        topic: row.topic,
+                      })}
+                      className="flex items-center gap-1.5 rounded-lg text-left hover:underline"
+                    >
                       <InitialsAvatar name={row.student.name} />
                       {row.student.name}
-                    </span>
+                    </button>
                   </DataCell>
                   <DataCell>{personName(row.academic)}</DataCell>
                   <DataCell>
@@ -179,6 +192,14 @@ function AppointmentsBody({
       )}
 
       <Footnote>{t("footnote")}</Footnote>
+
+      {appointments.openId ? (
+        <AppointmentDetailDrawer
+          programId={programId}
+          requestId={appointments.openId}
+          onClose={appointments.closeAppointment}
+        />
+      ) : null}
     </div>
   );
 }

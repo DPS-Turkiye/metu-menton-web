@@ -1,6 +1,7 @@
 import "server-only";
 
 import type {
+  ProgramOfficeHoursAppointment,
   ProgramOfficeHoursAppointments,
   ProgramOfficeHoursQuery,
 } from "@/interfaces/program-office-hours";
@@ -30,5 +31,17 @@ export function fetchProgramOfficeHoursAppointments(
     method: HttpMethod.Get,
     url: base(programId),
     params,
+  });
+}
+
+export function fetchProgramOfficeHoursAppointment(
+  actorId: string,
+  programId: string,
+  requestId: string,
+) {
+  return backendRequest<ProgramOfficeHoursAppointment>({
+    method: HttpMethod.Get,
+    url: `${base(programId)}/${encodeURIComponent(requestId)}`,
+    params: { actorId },
   });
 }

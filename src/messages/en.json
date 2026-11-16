@@ -6148,7 +6148,8 @@
     "personSummaryLoadFailed": "Could not load the profile.",
     "personIdInvalid": "Choose a valid person.",
     "aiFeaturesLoadFailed": "Could not load the AI settings.",
-    "officeHoursAppointmentsLoadFailed": "Could not load the appointments."
+    "officeHoursAppointmentsLoadFailed": "Could not load the appointments.",
+    "officeHoursAppointmentLoadFailed": "Could not load the appointment."
   },
   "startupStart": {
     "title": "My startup",
@@ -6961,6 +6962,31 @@
     "empty": "No appointments match these filters.",
     "footnote": "Office Hours has no Approvals tab: the academic approves each appointment. The coordinator sees an appointment's title, time and participants; the description stays between the student and the academic.",
     "noTime": "—",
-    "loadFailed": "Could not load the appointments."
+    "loadFailed": "Could not load the appointments.",
+    "openDetail": "Details of {name}'s appointment: {topic}",
+    "detail": {
+      "title": "Appointment details",
+      "close": "Close",
+      "date": "Date",
+      "time": "Time",
+      "participants": "Participants",
+      "student": "Student",
+      "academic": "Academic",
+      "roleWithDepartment": "{role} · {department}",
+      "history": "Status history",
+      "steps": {
+        "SUBMITTED": "Request sent",
+        "INFO_REQUESTED": "Information requested",
+        "STUDENT_REPLIED": "Student replied",
+        "ALTERNATIVE_PROPOSED": "Another time proposed",
+        "ACCEPTED": "Approved",
+        "DECLINED": "Declined",
+        "WITHDRAWN": "Withdrawn by the student"
+      },
+      "privateTitle": "Description is private",
+      "privateBody": "The meeting description and notes are visible only to the student and the academic.",
+      "loading": "Loading the appointment…",
+      "loadFailed": "Could not load the appointment."
+    }
   }
 }

@@ -3,7 +3,7 @@ import type {
   ProgramOfficeHoursPerson,
   ProgramOfficeHoursQuery,
 } from "@/interfaces/program-office-hours";
-import { TURKEY_TIME_ZONE } from "@/lib/academician-office-hours";
+import { TURKEY_TIME_ZONE, turkeyTime } from "@/lib/academician-office-hours";
 
 /** The statuses Randevular can filter by; the backend has no others yet (İptal Edildi arrives with the cancel PR). */
 export const APPOINTMENT_STATUS_FILTERS = [
@@ -76,4 +76,35 @@ export function appointmentsQuery(
 /** "Prof. Dr. Ahmet Kaya": the academic title, when the records have one, before the name. */
 export function personName(person: ProgramOfficeHoursPerson) {
   return person.title ? `${person.title} ${person.name}` : person.name;
+}
+
+/** "13 Kasım 2026 Cuma": an appointment's day in Turkey. */
+export function appointmentDay(startsAt: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    weekday: "long",
+    timeZone: TURKEY_TIME_ZONE,
+  }).format(new Date(startsAt));
+}
+
+/** "10:30 – 11:00" in Turkey; just the start when the end is not known. */
+export function appointmentHours(
+  startsAt: string,
+  endsAt: string | null,
+  locale: string,
+) {
+  const start = turkeyTime(startsAt, locale);
+  return endsAt ? `${start} – ${turkeyTime(endsAt, locale)}` : start;
+}
+
+/** "10 Kas · 16:20": when a history step happened, in Turkey. */
+export function historyTime(at: string, locale: string) {
+  const day = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    timeZone: TURKEY_TIME_ZONE,
+  }).format(new Date(at));
+  return `${day} · ${turkeyTime(at, locale)}`;
 }

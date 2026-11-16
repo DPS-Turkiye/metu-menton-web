@@ -6150,7 +6150,8 @@
     "personSummaryLoadFailed": "Profil yüklenemedi.",
     "personIdInvalid": "Geçerli bir kişi seçin.",
     "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi.",
-    "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi."
+    "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi.",
+    "officeHoursAppointmentLoadFailed": "Randevu yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6963,6 +6964,31 @@
     "empty": "Bu filtrelere uyan randevu yok.",
     "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır.",
     "noTime": "—",
-    "loadFailed": "Randevular yüklenemedi."
+    "loadFailed": "Randevular yüklenemedi.",
+    "openDetail": "{name}: {topic} randevusunun ayrıntıları",
+    "detail": {
+      "title": "Randevu detayı",
+      "close": "Kapat",
+      "date": "Tarih",
+      "time": "Saat",
+      "participants": "Katılımcılar",
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "roleWithDepartment": "{role} · {department}",
+      "history": "Durum geçmişi",
+      "steps": {
+        "SUBMITTED": "Talep gönderildi",
+        "INFO_REQUESTED": "Bilgi istendi",
+        "STUDENT_REPLIED": "Öğrenci yanıtladı",
+        "ALTERNATIVE_PROPOSED": "Alternatif saat önerildi",
+        "ACCEPTED": "Onaylandı",
+        "DECLINED": "Reddedildi",
+        "WITHDRAWN": "Öğrenci geri çekti"
+      },
+      "privateTitle": "Açıklama gizli",
+      "privateBody": "Görüşme açıklaması ve notlar yalnızca öğrenci ile akademisyene görünür.",
+      "loading": "Randevu yükleniyor…",
+      "loadFailed": "Randevu yüklenemedi."
+    }
   }
 }
