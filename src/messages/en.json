@@ -5801,7 +5801,48 @@
     "cancel": "Cancel",
     "confirmRevoke": "Take back",
     "trainingWatched": "Video watched, quiz not taken yet",
-    "trainingAttempts": "{count} attempts · best {best}/10"
+    "trainingAttempts": "{count} attempts · best {best}/10",
+    "capacityLabel": "Capacity",
+    "badgeFilterLabel": "Badge status",
+    "badgeFilter": {
+      "ALL": "Badge status: All",
+      "NONE": "No badge",
+      "IN_TRAINING": "In training",
+      "ACTIVE": "Badge verified",
+      "REVOKED": "Revoked"
+    },
+    "capacityFilter": {
+      "ALL": "Capacity: All",
+      "OPEN": "Has room",
+      "FULL": "Full",
+      "NO_PROFILE": "No profile yet"
+    },
+    "mentorsCaption": "Peer mentors",
+    "studentsCaption": "Students",
+    "columns": {
+      "mentor": "Peer mentor",
+      "student": "Student",
+      "department": "Department · year",
+      "categories": "Categories",
+      "badge": "Badge",
+      "capacity": "Capacity"
+    },
+    "noProfile": "No profile yet",
+    "none": "—",
+    "departmentYear": "{department} · {year}",
+    "badgeStates": {
+      "NONE": "No badge",
+      "ACTIVE": "Badge verified",
+      "EXPIRED": "Expired",
+      "REVOKED": "Revoked",
+      "IN_TRAINING": "In training"
+    },
+    "capacityUnlimited": "{active} mentees",
+    "capacityOpen": "{active} / {capacity} mentees",
+    "capacityFull": "{active} / {capacity} · full",
+    "rowActions": "Actions for {name}",
+    "footnote": "Mentoring conversations, private meeting notes and personal documents are not visible to the coordinator.",
+    "noMatch": "Nobody matches this filter."
   },
   "adminStudents": {
     "filterLabel": "Badge state",

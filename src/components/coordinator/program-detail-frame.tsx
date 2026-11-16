@@ -49,12 +49,15 @@ export function ProgramDetailFrame({
   programId,
   tab,
   tabCounts,
+  participantFilters,
   children,
 }: {
   programId: string;
   tab: ProgramTab;
   /** Counts a tab page knows better than the program detail (Randevular's open requests). */
   tabCounts?: Partial<Record<ProgramTab, number | null>> | undefined;
+  /** ODTÜ: filter chips shown at the right of Katılımcılar's sub-tabs. */
+  participantFilters?: ReactNode;
   children: (detail: CoordinatorProgramDetail) => ReactNode;
 }) {
   const t = useTranslations("coordinatorPrograms");
@@ -96,11 +99,19 @@ export function ProgramDetailFrame({
           />
         ) : null}
         {isParticipantsTab(tab) ? (
-          <OdtuParticipantTabs
-            detail={detail}
-            programId={programId}
-            tab={tab}
-          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <OdtuParticipantTabs
+              detail={detail}
+              programId={programId}
+              tab={tab}
+              tabCounts={tabCounts}
+            />
+            {participantFilters ? (
+              <div className="flex flex-wrap items-center gap-3">
+                {participantFilters}
+              </div>
+            ) : null}
+          </div>
         ) : null}
         {hasTabContent(program.type, tab) ? (
           children(detail)
@@ -381,21 +392,21 @@ function OdtuParticipantTabs({
   detail,
   programId,
   tab,
+  tabCounts,
 }: {
   detail: CoordinatorProgramDetail;
   programId: string;
   tab: ProgramTab;
+  tabCounts?: Partial<Record<ProgramTab, number | null>> | undefined;
 }) {
   const t = useTranslations("coordinatorPrograms");
   const navigation = useProgramNavigation(programId);
   const tabs = participantTabs(detail, programId).map((item) => {
     const label = t(`participantTabs.${item.id}`);
+    const count = tabCounts?.[item.id] ?? item.count;
     return {
       id: item.id,
-      label:
-        item.count != null
-          ? t("segmentWithCount", { label, count: item.count })
-          : label,
+      label: count != null ? t("segmentWithCount", { label, count }) : label,
       href: item.href ? navigation.resolveHref(item.href) : null,
       active: item.id === tab,
     };
