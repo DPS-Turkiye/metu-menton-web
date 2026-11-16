@@ -12,6 +12,8 @@ import { e2eEnv } from "./e2e/support/env";
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
+  // The journeys share one database and the same personas, so a flows run takes them one at a time.
+  ...(process.env.E2E_MODE === "flows" ? { workers: 1 } : {}),
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
@@ -21,7 +23,22 @@ export default defineConfig({
     trace: "off",
     video: "off",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      // Built like a server (E2E_MODE=gates): what the edition closes and that the persona login is off.
+      name: "gates",
+      testMatch: ["edition-gates.spec.ts", "dev-login-off.spec.ts"],
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      // Built with the persona login and a Firebase test project (E2E_MODE=flows): whole journeys, one at a time,
+      // because they share one database and the same personas.
+      name: "flows",
+      testMatch: "**/*.flow.spec.ts",
+      fullyParallel: false,
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
   webServer: {
     command: `npx next start --hostname 127.0.0.1 --port ${new URL(e2eEnv.webUrl).port}`,
     url: `${e2eEnv.webUrl}/login`,

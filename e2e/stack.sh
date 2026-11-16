@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 # The backend half of the end-to-end stack: metu-menton-backend's own compose file, run as the project
-# "metu-e2e" on ports no local stack uses, built like a server (ODTU edition, no dev profile, no persona login,
-# AI off). Every run gets fresh random secrets; nothing here is a real credential.
+# "metu-e2e" on ports no local stack uses, with AI off and fresh random secrets on every run.
 #
 #   E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh up     # writes e2e/.stack/{backend,web}.env, waits for health
-#   e2e/stack.sh down                                            # removes the containers, volumes and the app image
+#   E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh down   # removes the containers, volumes and the app image
 #
-# Optional: E2E_FIREBASE_WEB_ENV points at a file with the NEXT_PUBLIC_FIREBASE_* lines of a test project.
+# E2E_MODE picks how it is built:
+#   gates (default)  like a server: no dev profile, no persona login, no Firebase. The edition-gate specs.
+#   flows            the persona login on, signed in through a Firebase *test* project. The *.flow.spec.ts specs.
+#                    Needs the test project's service account, as E2E_FIREBASE_CREDENTIALS_FILE (a path) or
+#                    E2E_FIREBASE_CREDENTIALS_JSON (the JSON), and its web config, as E2E_FIREBASE_WEB_ENV (a file
+#                    of NEXT_PUBLIC_FIREBASE_* lines) or E2E_FIREBASE_API_KEY, _AUTH_DOMAIN, _PROJECT_ID, _APP_ID.
+#                    The key only ever goes into e2e/.stack/backend.env (owner-only, git-ignored, removed by down).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 STATE="$PWD/e2e/.stack"
 PROJECT=metu-e2e
 IMAGE=metu-e2e-app:local
+MODE="${E2E_MODE:-gates}"
 API_PORT="${E2E_API_PORT:-8097}"
 WEB_PORT="${E2E_WEB_PORT:-3300}"
 
@@ -22,6 +28,31 @@ compose() {
 }
 
 random() { openssl rand -hex 24; }
+
+# One line of JSON, written straight to the env file: the key is never echoed.
+service_account_json() {
+  if [ -n "${E2E_FIREBASE_CREDENTIALS_FILE:-}" ]; then
+    python3 -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1])), separators=(",", ":")))' \
+      "$E2E_FIREBASE_CREDENTIALS_FILE"
+  elif [ -n "${E2E_FIREBASE_CREDENTIALS_JSON:-}" ]; then
+    python3 -c 'import json,os; print(json.dumps(json.loads(os.environ["E2E_FIREBASE_CREDENTIALS_JSON"]), separators=(",", ":")))'
+  else
+    echo "E2E_MODE=flows needs E2E_FIREBASE_CREDENTIALS_FILE or E2E_FIREBASE_CREDENTIALS_JSON" >&2
+    return 1
+  fi
+}
+
+firebase_web_config() {
+  if [ -n "${E2E_FIREBASE_WEB_ENV:-}" ]; then
+    grep -E '^NEXT_PUBLIC_FIREBASE_[A-Z_]+=' "$E2E_FIREBASE_WEB_ENV"
+  elif [ -n "${E2E_FIREBASE_API_KEY:-}" ]; then
+    printf 'NEXT_PUBLIC_FIREBASE_API_KEY=%s\nNEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=%s\nNEXT_PUBLIC_FIREBASE_PROJECT_ID=%s\nNEXT_PUBLIC_FIREBASE_APP_ID=%s\n' \
+      "$E2E_FIREBASE_API_KEY" "${E2E_FIREBASE_AUTH_DOMAIN:?}" "${E2E_FIREBASE_PROJECT_ID:?}" "${E2E_FIREBASE_APP_ID:?}"
+  else
+    echo "E2E_MODE=flows needs E2E_FIREBASE_WEB_ENV or E2E_FIREBASE_API_KEY and the rest of the web config" >&2
+    return 1
+  fi
+}
 
 write_env() {
   mkdir -p "$STATE"
@@ -60,6 +91,19 @@ APP_PUBLIC_URL=http://127.0.0.1:$WEB_PORT
 REALTIME_ALLOWED_ORIGINS=http://127.0.0.1:$WEB_PORT
 DOCUMENTS_ALLOWED_ORIGINS=http://127.0.0.1:$WEB_PORT
 ENV
+  if [ "$MODE" = flows ]; then
+    local account
+    account="$(service_account_json)"
+    {
+      echo "SPRING_PROFILES_ACTIVE=dev"
+      echo "INSTITUTION_LOGIN_DEV_STUB=true"
+      # Office hours expire within seconds of becoming due, so the expiry spec does not wait five minutes.
+      echo "APP_OFFICEHOURS_EXPIRY_INTERVALMS=3000"
+      echo "FIREBASE_PROJECT_ID=$(printf '%s' "$account" | python3 -c 'import json,sys; print(json.load(sys.stdin)["project_id"])')"
+      echo "FIREBASE_CREDENTIALS_JSON=$account"
+    } >>"$STATE/backend.env"
+    sed -i.bak '/^INSTITUTION_LOGIN_DEV_STUB=false$/d' "$STATE/backend.env" && rm -f "$STATE/backend.env.bak"
+  fi
   cat >"$STATE/web.env" <<ENV
 APP_EDITION=ODTU
 APP_URL=http://127.0.0.1:$WEB_PORT
@@ -69,13 +113,19 @@ NEXT_PUBLIC_REALTIME_URL=ws://127.0.0.1:$API_PORT/ws
 BACKEND_USERNAME=e2e
 BACKEND_PASSWORD=$service_password
 SESSION_PASSWORD=$session_password
-NEXT_PUBLIC_ODTU_DEV_LOGIN=false
+NEXT_PUBLIC_ODTU_DEV_LOGIN=$([ "$MODE" = flows ] && echo true || echo false)
 NEXT_PUBLIC_OTG_LOGIN_ENABLED=false
 NEXT_TELEMETRY_DISABLED=1
 E2E_WEB_URL=http://127.0.0.1:$WEB_PORT
 E2E_API_URL=http://127.0.0.1:$API_PORT
+E2E_MODE=$MODE
+E2E_PG_CONTAINER=$PROJECT-postgres-1
+E2E_DB_USER=menton
+E2E_DB_NAME=menton
 ENV
-  if [ -n "${E2E_FIREBASE_WEB_ENV:-}" ]; then
+  if [ "$MODE" = flows ]; then
+    firebase_web_config >>"$STATE/web.env"
+  elif [ -n "${E2E_FIREBASE_WEB_ENV:-}" ]; then
     grep -E '^NEXT_PUBLIC_FIREBASE_[A-Z_]+=' "$E2E_FIREBASE_WEB_ENV" >>"$STATE/web.env"
   fi
 }
