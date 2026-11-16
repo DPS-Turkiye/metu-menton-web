@@ -31,11 +31,13 @@ export function OdtuProgramsView() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-3">
-        <SegmentedControl
-          label={t("statusLabel")}
-          segments={programs.segments}
-          onSelect={programs.setStatus}
-        />
+        {programs.segments.length > 0 ? (
+          <SegmentedControl
+            label={t("statusLabel")}
+            segments={programs.segments}
+            onSelect={programs.setStatus}
+          />
+        ) : null}
         <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
           <SearchInput
             label={t("searchLabel")}

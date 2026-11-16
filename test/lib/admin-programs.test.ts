@@ -152,6 +152,9 @@ describe("admin Programlar (ODTÜ)", () => {
     expect(programDateLabel(draft, t, "tr")).toBe("Şub 2027 · taslak");
     expect(programDateLabel(officeHours, t, "tr")).toBe("Üniversite geneli");
     expect(
+      programDateLabel(adminProgram({ startDate: "2026-02-01" }), t, "tr"),
+    ).toBe("Şub 2026");
+    expect(
       programDateLabel(
         adminProgram({ status: ProgramStatus.Draft, startDate: null }),
         t,

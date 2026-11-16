@@ -89,11 +89,14 @@ export function useOdtuAdminPrograms() {
 
   const stopAssigning = useCallback(() => setAssigning(null), []);
   const counts = useMemo(() => statusCounts(programs), [programs]);
-  const segments = Object.values(ProgramStatusFilter).map((id) => ({
-    id,
-    label: t(`filters.${id}`, { count: counts[id] }),
-    active: id === status,
-  }));
+  // No counts before the list has loaded, so "Tümü 0" never reads as real.
+  const segments = data
+    ? Object.values(ProgramStatusFilter).map((id) => ({
+        id,
+        label: t(`filters.${id}`, { count: counts[id] }),
+        active: id === status,
+      }))
+    : [];
   const typeOptions: { value: ProgramTypeFilter; label: string }[] = [
     { value: ALL_PROGRAM_TYPES, label: t("typeAll") },
     ...programTypesOf(edition).map((value) => ({

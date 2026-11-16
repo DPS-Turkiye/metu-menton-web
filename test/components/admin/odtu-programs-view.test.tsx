@@ -273,6 +273,9 @@ describe("admin Programlar (ODTÜ)", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "Programlar yükleniyor…",
     );
+    expect(
+      screen.queryByRole("group", { name: "Program durumu" }),
+    ).not.toBeInTheDocument();
     unmount();
 
     showing(undefined, { error: new Error("boom") });

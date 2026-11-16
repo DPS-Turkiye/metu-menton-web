@@ -139,6 +139,8 @@ export function programDateLabel(
       ? t("draftDate", { date: formatMonthYear(start, locale) })
       : "—";
   }
+  const only = start && !end ? start : end && !start ? end : null;
+  if (only) return formatMonthYear(only, locale);
   return formatMonthRange(start, end, locale, { shareYear: true }) || "—";
 }
 
