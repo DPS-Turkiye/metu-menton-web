@@ -155,6 +155,25 @@ describe("OfficeHoursRequestCard", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows an expired request with no actions for either side", () => {
+    for (const viewer of [
+      OfficeHoursRole.Student,
+      OfficeHoursRole.Instructor,
+    ]) {
+      const { unmount } = renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={officeHoursRequest({
+            status: OfficeHoursRequestStatus.Expired,
+          })}
+          viewer={viewer}
+        />,
+      );
+      expect(screen.getByText("Süresi doldu")).toBeInTheDocument();
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it("lets the student withdraw an open request", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(
