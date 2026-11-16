@@ -10,6 +10,12 @@ import { adminAcademic } from "@test/fixtures/admin-academics";
 import { coordinatorProgramDetail } from "@test/fixtures/coordinator-programs";
 import { renderWithQueryClient } from "@test/test-utils";
 
+// The program header is edition-aware; these screens are checked in the Teknokent edition.
+vi.mock("@/hooks/use-edition", async () => {
+  const { Edition } = await import("@/interfaces/edition");
+  return { useEdition: () => Edition.Teknokent };
+});
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/coordinator/programs/program-1/academics",
   useRouter: () => ({ replace: vi.fn() }),

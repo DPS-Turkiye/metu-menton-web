@@ -1,6 +1,7 @@
 import { clientText } from "@/i18n/client-texts";
 import {
   ProgramLifecycle,
+  type CoordinatorProgram,
   type CoordinatorProgramDetail,
   type ProgramPhaseInput,
   type ProgramRules,
@@ -20,6 +21,7 @@ export enum ProgramTab {
   Matching = "MATCHING",
   Appointments = "APPOINTMENTS",
   Approvals = "APPROVALS",
+  Reports = "REPORTS",
   Settings = "SETTINGS",
 }
 
@@ -121,6 +123,25 @@ export function programTabs(
         ]),
     { id: ProgramTab.Settings, href: `${base}/settings`, count: null },
   ];
+}
+
+/**
+ * The ODTÜ tab row: the shared tabs with Raporlar as a tab before Program Ayarları, where the Teknokent header keeps
+ * it as a button.
+ */
+export function odtuProgramTabs(
+  detail: CoordinatorProgramDetail,
+  programId: string,
+) {
+  const base = `/coordinator/programs/${encodeURIComponent(programId)}`;
+  const tabs = programTabs(detail, programId);
+  const reports = {
+    id: ProgramTab.Reports,
+    href: `${base}/report`,
+    count: null,
+  };
+  const settings = tabs.findIndex((item) => item.id === ProgramTab.Settings);
+  return [...tabs.slice(0, settings), reports, ...tabs.slice(settings)];
 }
 
 /** Takımlar and Mentor Havuzu light up the Katılımcılar tab. */
@@ -492,4 +513,51 @@ export function phasesInput(phases: PhaseDraft[]): ProgramPhaseInput[] {
     endDate: phase.endDate || null,
     expectedOutput: phase.expectedOutput?.trim() || null,
   }));
+}
+
+/**
+ * The ODTÜ header line: the dates (Office Hours runs university-wide, so it says so instead), then who coordinates.
+ * "Eyl 2026 – Oca 2027 · Koordinatör: Elif Demir", "Üniversite geneli · Koordinatör: Elif Demir".
+ */
+export function odtuProgramHeaderLine(
+  detail: CoordinatorProgramDetail,
+  t: ProgramsT,
+  locale: string,
+) {
+  const program = detail.program;
+  const parts: string[] = [];
+  const range =
+    program.type === ProgramType.OfficeHours
+      ? t("universityWide")
+      : formatMonthRange(program.startDate, program.endDate, locale);
+  if (range) parts.push(range);
+  if (detail.coordinators.length > 0) {
+    parts.push(
+      t("coordinators", {
+        count: detail.coordinators.length,
+        names: detail.coordinators
+          .map((coordinator) => coordinator.fullName)
+          .join(", "),
+      }),
+    );
+  }
+  return parts.join(" · ");
+}
+
+/**
+ * The programs the header's picker offers, by name. The current one is always there, even before the list has
+ * loaded, so the picker never shows an empty choice.
+ */
+export function programSwitcherOptions(
+  programs: readonly Pick<CoordinatorProgram, "id" | "name">[],
+  currentId: string,
+  currentName = "",
+) {
+  const options = [...programs]
+    .sort((a, b) => a.name.localeCompare(b.name, "tr"))
+    .map((program) => ({ value: program.id, label: program.name }));
+  if (!options.some((option) => option.value === currentId)) {
+    options.unshift({ value: currentId, label: currentName });
+  }
+  return options;
 }

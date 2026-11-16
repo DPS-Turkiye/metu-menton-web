@@ -7,9 +7,12 @@ import {
   isPeerReportEditable,
   meetingReportHref,
   peerReportBadge,
+  reportDayHref,
   reportDayOf,
   reportWeekDays,
+  reportWeekHref,
   reportWeekStart,
+  shiftReportDay,
   shiftReportWeek,
   splitMinutes,
 } from "@/lib/peer-reports";
@@ -111,10 +114,33 @@ describe("splitMinutes", () => {
 describe("report links", () => {
   it("go to the day of a moment and to a meeting's report", () => {
     expect(dailyReportHref("2026-11-12T11:00:00Z")).toBe(
-      "/student/peer-mentoring?tab=report&view=daily&day=2026-11-12",
+      "/student/peer-mentoring?as=MENTOR&tab=report&view=daily&day=2026-11-12",
     );
     expect(meetingReportHref("meeting/1")).toBe(
       "/student/peer-mentoring/reports/meetings/meeting%2F1",
+    );
+  });
+});
+
+describe("reportDayHref", () => {
+  it("opens the day on the Mentorluk Ver side", () => {
+    expect(reportDayHref("2026-11-12")).toBe(
+      "/student/peer-mentoring?as=MENTOR&tab=report&view=daily&day=2026-11-12",
+    );
+  });
+});
+
+describe("shiftReportDay", () => {
+  it("moves by calendar days across months and years", () => {
+    expect(shiftReportDay("2026-12-31", 1)).toBe("2027-01-01");
+    expect(shiftReportDay("2026-03-01", -1)).toBe("2026-02-28");
+  });
+});
+
+describe("reportWeekHref", () => {
+  it("opens the week's summary on the Mentorluk Ver side", () => {
+    expect(reportWeekHref("2026-11-09")).toBe(
+      "/student/peer-mentoring?as=MENTOR&tab=report&view=weekly&week=2026-11-09",
     );
   });
 });
