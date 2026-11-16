@@ -83,3 +83,26 @@ backend. Add a row when you add a field.
 
 `vitest.config.mts` sets floors for statements, branches, functions and lines just under the measured coverage. CI
 fails when a change drops below them. Raise them when coverage grows; never lower them to get a change through.
+
+## End-to-end tests
+
+Playwright tests in `e2e/` drive a real stack: the backend from `metu-menton-backend` (its own `compose.yml`, run as
+the project `metu-e2e`) and this app's production build. They check what unit tests cannot: that the ODTU edition
+closes Teknokent's pages and endpoints, and that the persona login stays off on a server build. Unit tests stay the
+place for logic; an end-to-end test covers a whole journey or a deployment rule.
+
+```bash
+E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh up   # backend on :8097 (Postgres :5447, Redis :6387)
+set -a; . e2e/.stack/web.env; set +a                       # the web values the stack expects
+npm run build && npm run e2e                               # starts the app on :3300 and runs the tests
+E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh down  # removes containers, volumes and the image
+```
+
+- `e2e/stack.sh up` builds the backend like a server: `APP_EDITION=ODTU`, no `dev` profile, no persona login, AI
+  off. It writes fresh random secrets to `e2e/.stack/` (git-ignored) on every run.
+- Chromium only: `npx playwright install chromium` once.
+- Tests use fake data only (`.invalid` addresses) and never real accounts.
+- The repository is public: a failed CI run keeps screenshots and the HTML report, never traces or videos, which
+  would carry request headers and tokens.
+- CI: `.github/workflows/e2e.yml` runs on pushes to `main`, nightly, by hand, and on pull requests that change the
+  tests. It is not a required check yet.
