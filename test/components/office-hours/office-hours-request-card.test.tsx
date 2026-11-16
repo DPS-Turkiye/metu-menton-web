@@ -1,8 +1,9 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OfficeHoursRequestCard } from "@/components/office-hours/office-hours-request-card";
+import { OfficeHoursAppointmentAction } from "@/interfaces/academician-office-hours";
 import {
   OfficeHoursMessageType,
   OfficeHoursRequestStatus,
@@ -155,6 +156,25 @@ describe("OfficeHoursRequestCard", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows an expired request with no actions for either side", () => {
+    for (const viewer of [
+      OfficeHoursRole.Student,
+      OfficeHoursRole.Instructor,
+    ]) {
+      const { unmount } = renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={officeHoursRequest({
+            status: OfficeHoursRequestStatus.Expired,
+          })}
+          viewer={viewer}
+        />,
+      );
+      expect(screen.getByText("Süresi doldu")).toBeInTheDocument();
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it("lets the student withdraw an open request", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(
@@ -168,6 +188,230 @@ describe("OfficeHoursRequestCard", () => {
 
     expect(actOnOfficeHoursRequest).toHaveBeenCalledWith("course-1", "req-1", {
       kind: "withdraw",
+    });
+  });
+
+  describe("cancelling a booked meeting", () => {
+    // Thursday 12 November, 12:00 in Turkey.
+    const NOW = new Date("2026-11-12T09:00:00Z");
+
+    function booked(startsAt: string) {
+      return officeHoursRequest({
+        status: OfficeHoursRequestStatus.Accepted,
+        meeting: { startsAt, durationMinutes: 45 },
+        allowedActions: [OfficeHoursAppointmentAction.Cancel],
+      });
+    }
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(NOW);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("lets the student cancel without a reason", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-12T11:00:00Z")}
+          viewer={OfficeHoursRole.Student}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+
+      expect(actOnOfficeHoursRequest).toHaveBeenCalledWith(
+        "course-1",
+        "req-1",
+        { kind: "cancel", payload: { reason: undefined } },
+      );
+    });
+
+    it("asks the academic for a reason within 24 hours before sending", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-12T15:00:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
+      );
+      expect(actOnOfficeHoursRequest).not.toHaveBeenCalled();
+
+      await user.type(
+        screen.getByRole("textbox", { name: /24 saatten az kaldı/ }),
+        "  Fakülte kurulu  ",
+      );
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+
+      expect(actOnOfficeHoursRequest).toHaveBeenCalledWith(
+        "course-1",
+        "req-1",
+        { kind: "cancel", payload: { reason: "Fakülte kurulu" } },
+      );
+    });
+
+    it("focuses the reason and drops the missing-reason error once something is typed", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-12T15:00:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+      const reason = screen.getByRole("textbox", {
+        name: /24 saatten az kaldı/,
+      });
+      expect(reason).toHaveFocus();
+
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+      expect(await screen.findByRole("alert")).toBeInTheDocument();
+      expect(reason).toHaveAttribute("aria-invalid", "true");
+
+      await user.type(reason, "F");
+
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(reason).toHaveAttribute("aria-invalid", "false");
+    });
+
+    it("asks for a reason when a card opened a day ahead is cancelled inside 24 hours", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-13T09:30:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+      // The card was opened 24.5 hours ahead; the academic comes back to it an hour later.
+      vi.setSystemTime(new Date("2026-11-12T10:00:00Z"));
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+
+      expect(
+        screen.getByRole("textbox", { name: /24 saatten az kaldı/ }),
+      ).toBeRequired();
+    });
+
+    it("lets the academic cancel without a reason more than 24 hours ahead", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-14T09:00:00Z")}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "Görüşmeyi iptal et" }),
+      );
+      expect(
+        screen.getByRole("textbox", { name: "İptal sebebi (isteğe bağlı)" }),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "İptal et" }));
+
+      expect(actOnOfficeHoursRequest).toHaveBeenCalledWith(
+        "course-1",
+        "req-1",
+        { kind: "cancel", payload: { reason: undefined } },
+      );
+    });
+
+    it("offers no cancel when the backend doesn't allow it", () => {
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={{ ...booked("2026-11-14T09:00:00Z"), allowedActions: [] }}
+          viewer={OfficeHoursRole.Instructor}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Görüşmeyi iptal et" }),
+      ).not.toBeInTheDocument();
+    });
+
+    // The list is as of the last load; a meeting that has started since stops offering it.
+    it("offers no cancel once the meeting has started", () => {
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={booked("2026-11-12T08:30:00Z")}
+          viewer={OfficeHoursRole.Student}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Görüşmeyi iptal et" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows who cancelled, why, and that it was late", () => {
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={officeHoursRequest({
+            status: OfficeHoursRequestStatus.Cancelled,
+            meeting: { startsAt: "2026-11-12T11:00:00Z", durationMinutes: 45 },
+            cancellation: {
+              cancelledById: "academic-1",
+              reason: "Fakülte kurulu",
+              cancelledAt: "2026-11-12T08:00:00Z",
+              late: true,
+            },
+          })}
+          viewer={OfficeHoursRole.Student}
+        />,
+      );
+
+      expect(screen.getByText("İptal edildi")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Ali Kaya görüşmeyi iptal etti · Neden: Fakülte kurulu/,
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Son 24 saatte iptal")).toBeInTheDocument();
+      expect(screen.getByText(/Görüşme: 12 Kasım/)).toHaveClass("line-through");
+      expect(
+        screen.queryByRole("button", { name: "Görüşmeyi iptal et" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("tells the person who cancelled that they did", () => {
+      renderWithQueryClient(
+        <OfficeHoursRequestCard
+          request={officeHoursRequest({
+            status: OfficeHoursRequestStatus.Cancelled,
+            meeting: { startsAt: "2026-11-14T09:00:00Z", durationMinutes: 45 },
+            cancellation: {
+              cancelledById: "student-1",
+              reason: null,
+              cancelledAt: "2026-11-12T08:00:00Z",
+              late: false,
+            },
+          })}
+          viewer={OfficeHoursRole.Student}
+        />,
+      );
+
+      expect(screen.getByText("Görüşmeyi iptal ettin")).toBeInTheDocument();
+      expect(screen.queryByText("Son 24 saatte iptal")).not.toBeInTheDocument();
     });
   });
 });

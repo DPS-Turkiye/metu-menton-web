@@ -66,6 +66,19 @@ describe("office-hours course route", () => {
     });
   });
 
+  it("passes a meeting cancellation and its reason on", async () => {
+    await POST(
+      post(JSON.stringify({ reason: "Hastayım" })),
+      params(["requests", REQUEST_ID, "cancel"]),
+    );
+
+    expect(backendRequest).toHaveBeenCalledWith({
+      method: "POST",
+      url: `${BACKEND}/requests/${REQUEST_ID}/cancel`,
+      data: { reason: "Hastayım" },
+    });
+  });
+
   it("answers a body that is not JSON with a 400", async () => {
     const response = await POST(
       post("{not json"),

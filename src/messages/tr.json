@@ -6643,7 +6643,16 @@
         "send": "Talep gönder",
         "sending": "Gönderiliyor…",
         "sent": "Talebin gönderildi."
-      }
+      },
+      "cancelMeeting": "Görüşmeyi iptal et",
+      "confirmCancel": "İptal et",
+      "cancelReason": "İptal sebebi (isteğe bağlı)",
+      "cancelReasonLate": "İptal sebebi: görüşmeye 24 saatten az kaldı, öğrenci için yazman gerekiyor",
+      "cancelReasonRequired": "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
+      "cancelledBy": "{name} görüşmeyi iptal etti",
+      "cancelledByYou": "Görüşmeyi iptal ettin",
+      "lateCancel": "Son 24 saatte iptal",
+      "cancelledReason": "Neden: {reason}"
     }
   },
   "academicianWorkspace": {
