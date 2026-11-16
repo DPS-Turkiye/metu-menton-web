@@ -1,6 +1,14 @@
 import { APP_URL } from "@/lib/const";
 import { Locale } from "@/lib/i18n";
 
+/**
+ * Off unless this build sets it, like the backend's OFFICE_HOURS_CALENDAR_FEED_ENABLED: a deployment that has not
+ * turned the links on neither offers them nor answers on their routes.
+ */
+export function isCalendarFeedEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_OFFICE_HOURS_CALENDAR_FEED_ENABLED === "true";
+}
+
 /** Where Moodle fetches a calendar feed from; open to anyone, since the token in the link is the key (FR-OH-23). */
 export const CALENDAR_FEED_PATH = "/api/office-hours/calendar";
 

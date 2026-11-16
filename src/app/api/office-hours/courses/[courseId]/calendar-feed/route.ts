@@ -1,6 +1,9 @@
 import { fetchCourseCalendarFeed } from "@/lib/api/lti";
 import { apiErrorResponse, apiText } from "@/lib/server/api-response";
-import { calendarLinkResponse } from "@/lib/server/office-hours-calendar";
+import {
+  calendarLinkResponse,
+  calendarLinksOff,
+} from "@/lib/server/office-hours-calendar";
 import { requireOfficeHoursUser } from "@/lib/server/office-hours-session";
 import { readUuidParam } from "@/lib/server/path-params";
 
@@ -9,6 +12,8 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ courseId: string }> },
 ) {
+  const off = calendarLinksOff();
+  if (off) return off;
   try {
     const user = await requireOfficeHoursUser();
     const course = await readUuidParam(

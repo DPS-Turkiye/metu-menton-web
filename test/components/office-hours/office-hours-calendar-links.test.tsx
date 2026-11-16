@@ -33,8 +33,26 @@ function row(title: string) {
 describe("OfficeHoursCalendarLinks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NEXT_PUBLIC_OFFICE_HOURS_CALENDAR_FEED_ENABLED", "true");
     vi.mocked(getPersonalCalendarLink).mockResolvedValue({ url: PERSONAL_URL });
     vi.mocked(getCourseCalendarLink).mockResolvedValue({ url: COURSE_URL });
+  });
+
+  it("shows nothing while the deployment has the links off", () => {
+    vi.stubEnv("NEXT_PUBLIC_OFFICE_HOURS_CALENDAR_FEED_ENABLED", "");
+
+    renderWithQueryClient(
+      <OfficeHoursCalendarLinks
+        courseId="course-1"
+        viewer={OfficeHoursRole.Instructor}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("heading", { name: "Moodle takvimine ekle" }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Linki göster" })).toBeNull();
+    expect(getPersonalCalendarLink).not.toHaveBeenCalled();
   });
 
   it("asks for a link only once the person opens it, since asking makes it", async () => {
