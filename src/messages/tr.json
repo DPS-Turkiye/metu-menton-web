@@ -6149,7 +6149,8 @@
     "sessionRefreshFailed": "Oturum bilgilerin güncellenemedi.",
     "personSummaryLoadFailed": "Profil yüklenemedi.",
     "personIdInvalid": "Geçerli bir kişi seçin.",
-    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi."
+    "aiFeaturesLoadFailed": "Yapay zekâ ayarları yüklenemedi.",
+    "officeHoursAppointmentsLoadFailed": "Randevular yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6925,5 +6926,43 @@
     },
     "footer": "menton · ODTÜ",
     "metaTitle": "menton · ODTÜ"
+  },
+  "programAppointments": {
+    "status": {
+      "PENDING": "Onay Bekliyor",
+      "MORE_INFO_REQUESTED": "Bilgi İstendi",
+      "COUNTER_PROPOSED": "Alternatif Saat Önerildi",
+      "ACCEPTED": "Onaylandı",
+      "DECLINED": "Reddedildi",
+      "WITHDRAWN": "Geri Çekildi",
+      "CANCELLED": "İptal Edildi",
+      "EXPIRED": "Süresi Doldu"
+    },
+    "cards": {
+      "awaitingDecision": "Onay Bekliyor",
+      "alternativeProposed": "Alternatif Saat Önerildi",
+      "acceptedThisWeek": "Onaylandı · bu hafta",
+      "declinedThisWeek": "Reddedildi · bu hafta"
+    },
+    "searchLabel": "Öğrenci veya akademisyen ara",
+    "searchPlaceholder": "Öğrenci veya akademisyen ara",
+    "statusLabel": "Durum",
+    "statusAll": "Durum: Tümü",
+    "statusFilter": "Durum: {status}",
+    "facultyLabel": "Fakülte",
+    "faculty": "Fakülte",
+    "thisWeek": "Bu hafta",
+    "caption": "Randevular",
+    "columns": {
+      "student": "Öğrenci",
+      "academic": "Akademisyen",
+      "time": "Tarih · saat",
+      "status": "Durum",
+      "topic": "Başlık"
+    },
+    "empty": "Bu filtrelere uyan randevu yok.",
+    "footnote": "Office Hours'ta Onaylar sekmesi yoktur: her randevuyu akademisyen onaylar. Koordinatör randevunun başlığını, saatini ve katılımcılarını görür; açıklama öğrenci ile akademisyen arasındadır.",
+    "noTime": "—",
+    "loadFailed": "Randevular yüklenemedi."
   }
 }
