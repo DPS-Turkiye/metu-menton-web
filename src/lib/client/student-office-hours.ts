@@ -18,6 +18,7 @@ import type {
 import { ClientApiError } from "@/lib/client/api";
 import {
   answerOfficeHoursAlternative as answerAlternative,
+  cancelOfficeHoursMeeting,
   getAcademicianOpenSlots,
   getListedAcademician,
   getListedAcademicians,
@@ -107,7 +108,16 @@ function toAppointment(request: OfficeHoursStudentRequest): Appointment {
     canWithdraw: request.allowedActions.includes(
       OfficeHoursStudentAction.Withdraw,
     ),
+    canCancel: request.allowedActions.includes(OfficeHoursStudentAction.Cancel),
   };
+}
+
+/** Calls off a booked meeting; a Randevularım appointment's id is its request's id. The academician is e-mailed. */
+export async function cancelStudentOfficeHoursAppointment(
+  appointmentId: string,
+  reason: string | null,
+): Promise<void> {
+  await cancelOfficeHoursMeeting(appointmentId, reason);
 }
 
 /** A 404 here means "no such listed academician" or "no Office Hours for this account": nothing to show. */

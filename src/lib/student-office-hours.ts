@@ -139,6 +139,21 @@ export function canAnswerAlternative(appointment: Appointment) {
   );
 }
 
+/** The backend's limit on a cancel reason (`@Size(max = 2000)`), so the field stops there instead of a 400. */
+export const OFFICE_HOURS_CANCEL_REASON_MAX = 2000;
+
+/**
+ * A booked Office Hours meeting the backend lets the student call off, while it is still ahead: the list is as of the
+ * last load, so a meeting that has started since stops offering it (the backend refuses it with 409 either way).
+ */
+export function canCancelOfficeHours(appointment: Appointment, now: Date) {
+  return (
+    appointment.kind === AppointmentKind.OfficeHours &&
+    appointment.canCancel === true &&
+    Date.parse(appointment.startsAt) > now.getTime()
+  );
+}
+
 /** Every time the academician offered; the sample data carries only the one. */
 export function offeredTimes(appointment: Appointment): AppointmentTime[] {
   if (appointment.alternatives) return appointment.alternatives;

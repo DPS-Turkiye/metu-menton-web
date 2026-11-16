@@ -229,6 +229,17 @@
       "accepted": "You accepted the proposed time; your appointment is confirmed.",
       "declined": "You declined the proposed time; your request was withdrawn.",
       "failed": "Your answer could not be sent. Try again."
+    },
+    "cancel": {
+      "button": "Cancel appointment",
+      "title": "Do you want to cancel this appointment?",
+      "body": "{name} will be notified. This can't be undone.",
+      "reasonLabel": "Reason for cancelling (optional)",
+      "reasonPlaceholder": "You can keep it short…",
+      "keep": "Keep it",
+      "confirm": "Cancel appointment",
+      "done": "Appointment cancelled.",
+      "failed": "The appointment couldn't be cancelled. Try again."
     }
   },
   "profile": {

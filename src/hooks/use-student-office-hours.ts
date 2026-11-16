@@ -24,6 +24,7 @@ import { isSameDay, startOfWeek } from "@/lib/calendar";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
 import {
   answerOfficeHoursAlternative,
+  cancelStudentOfficeHoursAppointment,
   getOfficeHoursAcademician,
   getOfficeHoursAcademicians,
   getOfficeHoursSlots,
@@ -35,10 +36,12 @@ import {
   ADVISOR_ACADEMICIAN_ID,
   ADVISOR_SLOT_PREVIEW,
   advisorAcademician,
+  canCancelOfficeHours,
   filterAcademicians,
   firstBookableWeekDay,
   freeSlots,
   offeredTimes,
+  OFFICE_HOURS_CANCEL_REASON_MAX,
   OFFICE_HOURS_DESCRIPTION_MAX,
   OFFICE_HOURS_LOOKAHEAD_DAYS,
   OFFICE_HOURS_TITLE_MAX,
@@ -418,5 +421,73 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
     accept: (time: string) => respond(time),
     decline: () => respond(null),
     isAnswering: answer.isPending,
+  };
+}
+
+/**
+ * "Randevuyu İptal Et" on a booked Office Hours meeting and its confirmation (Figma 235:3694): the student may add a
+ * reason but never has to, and the academician is e-mailed.
+ */
+export function useOfficeHoursCancel(appointment: Appointment) {
+  const t = useTranslations("iaStudent.officeHours.cancel");
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  // Read when the card renders and again when the dialog opens; the backend refuses a started meeting either way.
+  const [now, setNow] = useState(() => new Date());
+  const cancel = useMutation({
+    mutationFn: (why: string | null) =>
+      cancelStudentOfficeHoursAppointment(appointment.id, why),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: STUDENT_APPOINTMENTS_QUERY_KEY,
+        }),
+        queryClient.invalidateQueries({ queryKey: STUDENT_HOME_QUERY_KEY }),
+        // The time is free again for everyone booking this academician.
+        queryClient.invalidateQueries({
+          queryKey: OFFICE_HOURS_SLOTS_QUERY_KEY,
+        }),
+      ]),
+  });
+
+  const confirm = async () => {
+    const why = reason.trim();
+    try {
+      await cancel.mutateAsync(why || null);
+      setIsOpen(false);
+      setReason("");
+      showToast({ message: t("done"), tone: ToastTone.Success });
+    } catch (error) {
+      showToast({
+        message: errorMessage(error, t("failed")),
+        tone: ToastTone.Error,
+      });
+    }
+  };
+
+  return {
+    canCancel: canCancelOfficeHours(appointment, now),
+    counterpartName: [
+      appointment.counterpart.title,
+      appointment.counterpart.fullName,
+    ]
+      .filter(Boolean)
+      .join(" "),
+    isOpen,
+    open: () => {
+      setNow(new Date());
+      setIsOpen(true);
+    },
+    close: () => {
+      setIsOpen(false);
+      setReason("");
+    },
+    reason,
+    setReason,
+    reasonMax: OFFICE_HOURS_CANCEL_REASON_MAX,
+    confirm,
+    isCancelling: cancel.isPending,
   };
 }

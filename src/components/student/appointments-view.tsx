@@ -16,6 +16,7 @@ import {
 } from "@/components/student/ia/appointment-calendar";
 import { AppointmentListCard } from "@/components/student/ia/appointment-list-card";
 import { OfficeHoursAlternativeActions } from "@/components/student/ia/office-hours-alternative-actions";
+import { OfficeHoursCancelAction } from "@/components/student/ia/office-hours-cancel-action";
 import {
   AppointmentStatusBadge,
   InitialsAvatar,
@@ -68,11 +69,21 @@ function tabAfterKey(current: AppointmentsTab, key: string) {
 
 type RenderActions = ((appointment: Appointment) => ReactNode) | undefined;
 
-/** The card's buttons: Office Hours' own answer to a proposed time, then whatever an edition adds. */
+/** The card's buttons: Office Hours' own answer to a proposed time or its cancel, then whatever an edition adds. */
 function actionsFor(appointment: Appointment, renderActions: RenderActions) {
-  const own = canAnswerAlternative(appointment) ? (
+  const answer = canAnswerAlternative(appointment) ? (
     <OfficeHoursAlternativeActions appointment={appointment} />
   ) : null;
+  const cancel = appointment.canCancel ? (
+    <OfficeHoursCancelAction appointment={appointment} />
+  ) : null;
+  const own =
+    answer || cancel ? (
+      <>
+        {answer}
+        {cancel}
+      </>
+    ) : null;
   const extra = renderActions?.(appointment) ?? null;
   return own || extra ? (
     <>

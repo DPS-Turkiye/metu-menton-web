@@ -8,6 +8,7 @@ import {
   ADVISOR_ACADEMICIAN_ID,
   advisorAcademician,
   canAnswerAlternative,
+  canCancelOfficeHours,
   filterAcademicians,
   firstBookableWeekDay,
   freeSlots,
@@ -243,5 +244,37 @@ describe("firstBookableWeekDay", () => {
     expect(firstBookableWeekDay(new Date(2026, 10, 15, 9))).toEqual(
       new Date(2026, 10, 16),
     );
+  });
+});
+
+describe("canCancelOfficeHours", () => {
+  const now = new Date("2026-11-24T09:00:00+03:00");
+  const booked = peerAppointment({
+    kind: AppointmentKind.OfficeHours,
+    status: AppointmentStatus.Confirmed,
+    startsAt: "2026-11-24T14:00:00+03:00",
+    endsAt: "2026-11-24T14:30:00+03:00",
+    canCancel: true,
+  });
+
+  it("is for an Office Hours meeting the backend lets the student call off, while it is ahead", () => {
+    expect(canCancelOfficeHours(booked, now)).toBe(true);
+    expect(
+      canCancelOfficeHours(booked, new Date("2026-11-24T14:00:00+03:00")),
+    ).toBe(false);
+  });
+
+  it("is never offered without the backend's say, nor for a peer session", () => {
+    expect(canCancelOfficeHours({ ...booked, canCancel: false }, now)).toBe(
+      false,
+    );
+    const { canCancel: _unused, ...unsaid } = booked;
+    expect(canCancelOfficeHours(unsaid, now)).toBe(false);
+    expect(
+      canCancelOfficeHours(
+        { ...booked, kind: AppointmentKind.PeerMentoring },
+        now,
+      ),
+    ).toBe(false);
   });
 });

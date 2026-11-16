@@ -20,6 +20,8 @@ export enum OfficeHoursStudentAction {
   AcceptProposed = "ACCEPT_PROPOSED",
   Withdraw = "WITHDRAW",
   Reply = "REPLY",
+  /** Call off the booked meeting before it starts; the student never owes a reason. */
+  Cancel = "CANCEL",
 }
 
 /**
