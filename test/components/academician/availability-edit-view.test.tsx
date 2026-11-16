@@ -8,6 +8,7 @@ import {
   resetAcademicianSample,
   sampleState,
 } from "@test/fixtures/academician-office-hours-sample-store";
+import { APP_ROUTER_ENTRY } from "@test/mocks/search-params";
 import { renderWithQueryClient } from "@test/test-utils";
 
 // The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
@@ -42,7 +43,7 @@ beforeEach(() => {
   vi.setSystemTime(MORNING);
   resetAcademicianSample();
   window.history.replaceState(
-    null,
+    APP_ROUTER_ENTRY,
     "",
     "/academician/appointments/availability",
   );
