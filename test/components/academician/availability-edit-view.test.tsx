@@ -8,6 +8,7 @@ import {
   sampleState,
 } from "@/lib/client/fixtures/academician-office-hours-store";
 import { fetchInstitutionAdvisees } from "@/lib/client/institution";
+import { APP_ROUTER_ENTRY } from "@test/mocks/search-params";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -36,7 +37,7 @@ beforeEach(() => {
   vi.setSystemTime(MORNING);
   resetAcademicianSample();
   window.history.replaceState(
-    null,
+    APP_ROUTER_ENTRY,
     "",
     "/academician/appointments/availability",
   );

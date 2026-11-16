@@ -17,6 +17,7 @@ import {
   AppointmentsCalendarView,
   RequestStep,
 } from "@/types/academician-calendar";
+import { APP_ROUTER_ENTRY } from "@test/mocks/search-params";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -45,7 +46,11 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(MORNING);
   resetAcademicianSample();
-  window.history.replaceState(null, "", "/academician/appointments");
+  window.history.replaceState(
+    APP_ROUTER_ENTRY,
+    "",
+    "/academician/appointments",
+  );
   vi.mocked(fetchInstitutionAdvisees)
     .mockReset()
     .mockResolvedValue([
@@ -66,7 +71,7 @@ afterEach(() => {
 /** Opens the page at the URL `search` describes, as a link or a reload would. */
 function renderView(search: Partial<AppointmentsSearch> = {}) {
   window.history.replaceState(
-    null,
+    APP_ROUTER_ENTRY,
     "",
     appointmentsHref("/academician/appointments", search),
   );
