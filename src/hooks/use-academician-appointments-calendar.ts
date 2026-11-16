@@ -141,9 +141,11 @@ export function useAcademicianAppointmentsCalendar(
     );
   };
   const replace = (next: AppointmentsSearch) => {
-    // The current entry's state is kept, so a view change under an open drawer still knows how it was opened.
+    // Only our own mark is carried over, so a view change under an open drawer still knows how it was opened.
+    // Passing window.history.state itself would hand Next its own `__NA` entry back, and Next then skips
+    // updating useSearchParams: the URL would change but the calendar would not. Next copies its state in itself.
     window.history.replaceState(
-      window.history.state,
+      { [DRAWER_OPENED_HERE]: drawerOpenedHere() },
       "",
       appointmentsHref(basePath, next),
     );
