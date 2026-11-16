@@ -33,7 +33,7 @@ export function useAppointmentDrawer(
 
   const cancel = useMutation({
     mutationFn: (why: string | null) =>
-      cancelAcademicianAppointment(appointment.id, why),
+      cancelAcademicianAppointment(appointment, why),
     onSuccess: () => {
       showToast({ message: t("cancelled"), tone: ToastTone.Success });
       onClose();

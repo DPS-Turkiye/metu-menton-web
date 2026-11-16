@@ -16,6 +16,7 @@ import {
   PUT as putProfile,
 } from "@/app/api/office-hours/me/profile/route";
 import { POST as postAlternative } from "@/app/api/office-hours/me/requests/[id]/alternative/route";
+import { POST as postCancel } from "@/app/api/office-hours/me/requests/[id]/cancel/route";
 import { POST as postDecision } from "@/app/api/office-hours/me/requests/[id]/decision/route";
 import { POST as postRequest } from "@/app/api/office-hours/me/requests/route";
 import { OfficeHoursRequestAction } from "@/interfaces/academician-office-hours";
@@ -33,6 +34,7 @@ vi.mock("@/lib/api/office-hours-me", () => ({
   saveMyOfficeHoursProfile: vi.fn(),
   fetchOfficeHoursInbox: vi.fn(),
   answerOfficeHoursRequest: vi.fn(),
+  cancelOfficeHoursMeeting: vi.fn(),
   fetchAcademicianOfficeHoursMeetings: vi.fn(),
   fetchListedAcademicians: vi.fn(),
   fetchListedAcademician: vi.fn(),
@@ -130,6 +132,14 @@ const handlers: [string, () => Promise<Response>][] = [
     () =>
       postDecision(
         request("/x", "POST", { action: OfficeHoursRequestAction.Decline }),
+        withId(REQUEST),
+      ),
+  ],
+  [
+    "POST cancel",
+    () =>
+      postCancel(
+        request("/x", "POST", { reason: "Fakülte kurulu" }),
         withId(REQUEST),
       ),
   ],
@@ -286,6 +296,15 @@ describe("office hours (Menton account) proxy routes", () => {
       () => officeHours.answerOfficeHoursRequest,
     ],
     [
+      "a cancellation",
+      () =>
+        postCancel(
+          request("/x", "POST", withForgedActor({ reason: null })),
+          withId(REQUEST),
+        ),
+      () => officeHours.cancelOfficeHoursMeeting,
+    ],
+    [
       "a request",
       () => postRequest(request("/x", "POST", withForgedActor(askBody))),
       () => officeHours.createOfficeHoursRequest,
@@ -308,6 +327,35 @@ describe("office hours (Menton account) proxy routes", () => {
       expect(JSON.stringify(rest)).not.toContain("someone-else");
     },
   );
+
+  it("calls a meeting off with no reason when none is given, and answers the backend's 204 with no body", async () => {
+    vi.mocked(officeHours.cancelOfficeHoursMeeting).mockResolvedValue(
+      backendResponse(undefined, 204),
+    );
+
+    const response = await postCancel(
+      request("/x", "POST", {}),
+      withId(REQUEST),
+    );
+
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe("");
+    expect(officeHours.cancelOfficeHoursMeeting).toHaveBeenCalledWith(
+      "user-1",
+      REQUEST,
+      { reason: null },
+    );
+  });
+
+  it("refuses a cancellation reason longer than the backend keeps", async () => {
+    const response = await postCancel(
+      request("/x", "POST", { reason: "x".repeat(2001) }),
+      withId(REQUEST),
+    );
+
+    expect(response.status).toBe(400);
+    expect(officeHours.cancelOfficeHoursMeeting).not.toHaveBeenCalled();
+  });
 
   it("ignores an actor named in the query string", async () => {
     await getAcademician(
@@ -466,6 +514,10 @@ describe("office hours (Menton account) proxy routes", () => {
       "an answer to other times",
       () =>
         postAlternative(request("/x", "POST", { accept: false }), withId("..")),
+    ],
+    [
+      "a cancellation",
+      () => postCancel(request("/x", "POST", { reason: null }), withId("..")),
     ],
   ])("refuses %s under an id that is not one", async (_name, call) => {
     expect((await call()).status).toBe(400);

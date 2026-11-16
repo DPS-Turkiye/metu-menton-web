@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { OfficeHoursRequestAction } from "@/interfaces/academician-office-hours";
+import {
+  OfficeHoursAppointmentAction,
+  OfficeHoursRequestAction,
+} from "@/interfaces/academician-office-hours";
 import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 import {
   answerAcademicianRequest,
@@ -15,7 +18,10 @@ import {
 } from "@/lib/client/academician-office-hours";
 import { ClientApiError } from "@/lib/client/api";
 import { httpClient } from "@/lib/http-client";
-import { academicianAvailability } from "@test/fixtures/academician-office-hours";
+import {
+  academicianAppointment,
+  academicianAvailability,
+} from "@test/fixtures/academician-office-hours";
 import { createMentorResponse } from "@test/fixtures/mentors";
 import {
   academicianMeeting,
@@ -121,7 +127,7 @@ describe("academician Office Hours client", () => {
     ).rejects.toBeInstanceOf(ClientApiError);
   });
 
-  it("lists booked meetings as appointments that offer no cancel yet", async () => {
+  it("lists booked meetings as appointments the academician may cancel", async () => {
     vi.mocked(httpClient.get).mockResolvedValue(
       createMentorResponse([academicianMeeting()]),
     );
@@ -129,14 +135,35 @@ describe("academician Office Hours client", () => {
     const [appointment] = await getAcademicianAppointments();
 
     expect(httpClient.get).toHaveBeenCalledWith(`${BASE}/meetings`);
-    expect(appointment?.allowedActions).toEqual([]);
+    expect(appointment?.allowedActions).toEqual([
+      OfficeHoursAppointmentAction.Cancel,
+    ]);
   });
 
-  it("refuses to cancel until cancelling has its backend", async () => {
+  it("cancels a meeting through its request, with the reason", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(null, 204),
+    );
+
+    await cancelAcademicianAppointment(
+      academicianAppointment({ id: "meeting-1", requestId: "request/1" }),
+      "Fakülte kurulu",
+    );
+
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${BASE}/requests/request%2F1/cancel`,
+      { reason: "Fakülte kurulu" },
+    );
+  });
+
+  it("passes on the backend's refusal of a meeting that has started", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse({ message: "started" }, 409),
+    );
+
     await expect(
-      cancelAcademicianAppointment("meeting-1", null),
-    ).rejects.toBeInstanceOf(OfficeHoursFeatureUnavailableError);
-    expect(httpClient.post).not.toHaveBeenCalled();
+      cancelAcademicianAppointment(academicianAppointment(), null),
+    ).rejects.toBeInstanceOf(ClientApiError);
   });
 
   it("reads and saves the weekly availability without one-offs", async () => {

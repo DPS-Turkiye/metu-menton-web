@@ -4,6 +4,7 @@ import type {
   OfficeHoursAcademicianMeeting,
   OfficeHoursAlternativeInput,
   OfficeHoursAnswerInput,
+  OfficeHoursCancelInput,
   OfficeHoursInboxRequest,
   OfficeHoursListedAcademician,
   OfficeHoursProfile,
@@ -96,6 +97,20 @@ export function answerOfficeHoursRequest(
     url: `${BASE}/requests/${encodeURIComponent(requestId)}/decision`,
     params: { actorId },
     data: answer,
+  });
+}
+
+/** Either side calls off a booked meeting; the backend answers 204, or 409 once it has started. */
+export function cancelOfficeHoursMeeting(
+  actorId: string,
+  requestId: string,
+  cancellation: OfficeHoursCancelInput,
+) {
+  return backendRequest<void>({
+    method: HttpMethod.Post,
+    url: `${BASE}/requests/${encodeURIComponent(requestId)}/cancel`,
+    params: { actorId },
+    data: cancellation,
   });
 }
 

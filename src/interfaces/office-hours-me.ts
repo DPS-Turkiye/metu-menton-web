@@ -40,9 +40,9 @@ export type OfficeHoursInboxMessage = {
   sentAt: string;
 };
 
-/** Who called a meeting off, why, when, and whether it was close to its start (FR-OH-14). */
+/** Which side called a meeting off, why, when, and whether it was close to its start (FR-OH-14). */
 export type OfficeHoursCancellation = {
-  cancelledById: string;
+  cancelledBy: OfficeHoursRole;
   reason: string | null;
   cancelledAt: string;
   late: boolean;
@@ -63,8 +63,8 @@ export type OfficeHoursInboxRequest = {
   rejectionReason: string | null;
   requestedAt: string;
   allowedActions: OfficeHoursRequestAction[];
-  /** Set on a cancelled request, once the backend sends cancellations (Göksu's cancel work). */
-  cancellation?: OfficeHoursCancellation | null | undefined;
+  /** Set only on a cancelled request. */
+  cancellation: OfficeHoursCancellation | null;
 };
 
 /** The academician's answer; `message` is the reason, the note with the offered times, or the question. */
@@ -138,8 +138,13 @@ export type OfficeHoursStudentRequest = {
   onlineLink: string | null;
   requestedAt: string;
   allowedActions: OfficeHoursStudentAction[];
-  /** Set on a cancelled request, once the backend sends cancellations (Göksu's cancel work). */
-  cancellation?: OfficeHoursCancellation | null | undefined;
+  /** Set only on a cancelled request. */
+  cancellation: OfficeHoursCancellation | null;
+};
+
+/** Why a booked meeting is called off; the backend requires it when the meeting is less than a day away. */
+export type OfficeHoursCancelInput = {
+  reason: string | null;
 };
 
 /** Take one of the academician's offered times (`accept` with `time`), or withdraw the request. */

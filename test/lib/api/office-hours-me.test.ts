@@ -6,6 +6,7 @@ import { Weekday } from "@/interfaces/mentor";
 import {
   answerOfficeHoursAlternative,
   answerOfficeHoursRequest,
+  cancelOfficeHoursMeeting,
   createOfficeHoursRequest,
   fetchAcademicianOfficeHoursMeetings,
   fetchAcademicianOpenSlots,
@@ -100,6 +101,19 @@ const cases: RequestCase[] = [
         action: OfficeHoursRequestAction.Decline,
         message: "Bu hafta dolu",
       },
+    },
+  ],
+  [
+    "cancels a meeting through its request, escaping its id",
+    () =>
+      cancelOfficeHoursMeeting("user-1", "request/1", {
+        reason: "Fakülte kurulu",
+      }),
+    {
+      method: "POST",
+      url: `${ME}/requests/request%2F1/cancel`,
+      params: actor,
+      data: { reason: "Fakülte kurulu" },
     },
   ],
   [

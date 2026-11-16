@@ -5,6 +5,7 @@ import { Weekday } from "@/interfaces/mentor";
 import {
   answerOfficeHoursAlternative,
   answerOfficeHoursRequest,
+  cancelOfficeHoursMeeting,
   getAcademicianOfficeHoursMeetings,
   getAcademicianOpenSlots,
   getListedAcademician,
@@ -106,6 +107,14 @@ const calls: ClientCall[] = [
         time: "2026-11-24T14:00:00+03:00",
       },
     ],
+  },
+  {
+    title:
+      "cancelOfficeHoursMeeting calls off a meeting by its request, escaping its id",
+    call: () => cancelOfficeHoursMeeting("request/1", null),
+    method: "post",
+    args: [`${ME}/requests/request%2F1/cancel`, { reason: null }],
+    returnsNothing: true,
   },
   {
     title: "getAcademicianOfficeHoursMeetings reads the academician's meetings",

@@ -75,6 +75,11 @@ export const officeHoursAnswerSchema = z.object({
   message: z.string().max(2000).nullable().optional(),
 });
 
+/** Calling off a meeting; whether a reason is required (less than a day ahead) is the backend's rule. */
+export const officeHoursCancelSchema = z.object({
+  reason: z.string().max(2000).nullable().default(null),
+});
+
 export const officeHoursRequestSchema = z.object({
   academicianId: z.uuid(),
   startsAt: isoTimeSchema,

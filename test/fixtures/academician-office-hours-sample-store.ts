@@ -68,7 +68,7 @@ export function answerSampleRequest(id: string, answer: OfficeHoursAnswer) {
         throw new Error("Office hours sample appointments are missing");
       state.appointments.push({
         id: `sample-appointment-from-${id}`,
-        requestId: null,
+        requestId: id,
         category: null,
         kind: sample.kind,
         side: sample.side,

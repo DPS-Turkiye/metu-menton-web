@@ -1,4 +1,5 @@
 import {
+  OfficeHoursAppointmentAction,
   OfficeHoursMessageAuthor,
   OfficeHoursRequestAction,
   type AcademicianAppointment,
@@ -93,13 +94,16 @@ export function toOfficeHoursRequest(
   };
 }
 
-/** A booked meeting as a row of Randevularım; it offers no cancel until cancelling has its backend (G2). */
+/**
+ * A booked meeting as a row of Randevularım. The meetings list holds only live meetings, so each offers CANCEL; the
+ * drawer hides it once the start has passed, and the backend refuses a started one with 409.
+ */
 export function toAcademicianAppointment(
   meeting: OfficeHoursAcademicianMeeting,
 ): AcademicianAppointment {
   return {
     id: meeting.id,
-    requestId: null,
+    requestId: meeting.requestId,
     kind: AppointmentKind.OfficeHours,
     side: AppointmentSide.Mentor,
     status: AppointmentStatus.Confirmed,
@@ -114,7 +118,7 @@ export function toAcademicianAppointment(
     rejectReason: null,
     courseName: meeting.courseName,
     lateCancel: false,
-    allowedActions: [],
+    allowedActions: [OfficeHoursAppointmentAction.Cancel],
   };
 }
 
