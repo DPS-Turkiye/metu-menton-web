@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import AdminProgramSettingsPage from "@/app/admin/programs/[id]/settings/page";
 
+// The program header is edition-aware; these screens are checked in the Teknokent edition.
+vi.mock("@/hooks/use-edition", async () => {
+  const { Edition } = await import("@/interfaces/edition");
+  return { useEdition: () => Edition.Teknokent };
+});
+
 vi.mock("@/components/coordinator/program-settings-view", () => ({
   ProgramSettingsView: ({ programId }: { programId: string }) => (
     <p>ProgramSettingsView {programId}</p>

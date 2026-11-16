@@ -1,6 +1,5 @@
 {
   "common": {
-    "sampleNotice": "Showing sample data: Office Hours isn't linked to ODTÜ accounts yet, so your changes here last only for this session.",
     "loading": "Loading…",
     "loadFailed": "Couldn't load this.",
     "retry": "Try again",
@@ -16,7 +15,10 @@
     },
     "oneOff": "{date} · one-off",
     "unavailable": "{days} · Unavailable",
-    "unavailableBecause": "{days} · Unavailable ({reason})"
+    "unavailableBecause": "{days} · Unavailable ({reason})",
+    "everyWeekday": "Every {weekday}",
+    "classYear": "Year {year}",
+    "close": "Close"
   },
   "answer": {
     "done": {
@@ -75,6 +77,253 @@
       "oneOffHint": "One-off hours",
       "unavailableTitle": "A specific day · All day",
       "unavailableHint": "Unavailable (exception)"
+    }
+  },
+  "appointments": {
+    "title": "My appointments",
+    "subtitle": "Confirmed appointments, requests waiting for you and your availability in one calendar.",
+    "editAvailability": "Edit availability",
+    "filtersLabel": "Show on the calendar",
+    "filters": {
+      "all": "All",
+      "appointments": "Appointments",
+      "requests": "Requests · {count}",
+      "availability": "Availability"
+    },
+    "viewsLabel": "Calendar view",
+    "views": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next",
+    "legendLabel": "What the colours mean",
+    "legend": {
+      "recurring": "Recurring",
+      "oneOff": "One-off",
+      "confirmed": "Confirmed appointment",
+      "pendingRequest": "Awaiting approval (faded)",
+      "awaitingStudent": "Waiting for the student",
+      "unavailable": "Unavailable"
+    },
+    "entry": {
+      "confirmed": "Confirmed",
+      "pendingRequest": "Awaiting approval",
+      "awaitingStudent": "Proposal · student's reply",
+      "recurring": "Available",
+      "oneOff": "Available",
+      "unavailable": "Unavailable"
+    },
+    "entryDetail": {
+      "recurring": "Every {weekday} · recurring",
+      "oneOff": "One-off availability"
+    },
+    "available": "Available {hours}",
+    "blockLabel": "{name}, {hours}, {status}",
+    "more": "+{count} more",
+    "openDay": "Open {day}",
+    "rail": {
+      "pendingTitle": "Requests waiting for you",
+      "all": "All",
+      "hint": "Requests have a dashed border on the calendar. Click one to see the details.",
+      "pendingEmpty": "No requests are waiting for you.",
+      "awaitingTitle": "Waiting for the student",
+      "proposed": "Time you proposed: {when}",
+      "asked": "Waiting for an answer to your question",
+      "proposedBadge": "Other time proposed",
+      "askedBadge": "Question asked",
+      "availabilityTitle": "My availability",
+      "availabilityEmpty": "No open hours yet."
+    }
+  },
+  "requestDrawer": {
+    "title": "Appointment request",
+    "openProfile": "View student profile",
+    "date": "Date",
+    "time": "Time",
+    "course": "Course",
+    "pickTime": "Which time do you accept?",
+    "note": "Note · only you see this",
+    "messages": "Messages",
+    "fit": {
+      "fits": "This time is within your {weekday} hours; no clash.",
+      "outside": "This time is outside your {weekday} hours.",
+      "clash": "You have a confirmed appointment at this time.",
+      "dayOff": "You marked this day as unavailable.",
+      "past": "This time has passed."
+    },
+    "decline": "Decline",
+    "propose": "Propose another time",
+    "accept": "Accept",
+    "declineTitle": "Decline the request",
+    "declineReason": "Note to the student (optional)",
+    "confirmDecline": "Decline request",
+    "back": "Cancel",
+    "gone": "This request no longer waits for you; the list was refreshed."
+  },
+  "appointmentDrawer": {
+    "title": "Appointment",
+    "date": "Date",
+    "time": "Time",
+    "place": "Place",
+    "online": "Online link",
+    "course": "Course",
+    "cancel": "Cancel appointment",
+    "cancelTitle": "Cancel the appointment",
+    "reason": "Reason for the student",
+    "reasonOptional": "Reason for the student (optional)",
+    "reasonRequired": "It starts in less than 24 hours, so please give the student a reason.",
+    "confirmCancel": "Cancel it",
+    "back": "Keep it",
+    "cannotCancel": "This appointment can't be cancelled here.",
+    "cancelled": "Appointment cancelled.",
+    "failed": "Couldn't cancel the appointment; the list was refreshed.",
+    "gone": "This appointment is no longer on your calendar."
+  },
+  "propose": {
+    "title": "Propose another time",
+    "requested": "{name} · requested: {when}",
+    "daysLabel": "Choose a day",
+    "dayHeading": "{day} · your open times",
+    "picked": "Your picks ({count}/{max})",
+    "remove": "Remove {time}",
+    "limit": "You can propose up to {max} times.",
+    "note": "Note to the student (optional)",
+    "infoTitle": "The student has to accept",
+    "infoBody": "A time you propose isn't booked until the student accepts it. The request shows as \"Other time proposed\" meanwhile.",
+    "cancel": "Cancel",
+    "send": "Send proposal"
+  },
+  "availability": {
+    "title": "Edit availability",
+    "subtitle": "Students can request only the times that are open here.",
+    "back": "My appointments",
+    "add": "Add availability",
+    "cards": {
+      "recurring": {
+        "title": "Weekly recurring hours",
+        "hint": "Same day and time every week",
+        "rowHint": "Weekly recurring hours",
+        "empty": "No weekly hours yet."
+      },
+      "oneOff": {
+        "title": "One-off hours",
+        "hint": "A specific date and time",
+        "rowHint": "One-off hours",
+        "rowHintPlace": "One-off hours · {place}",
+        "empty": "No one-off hours."
+      },
+      "unavailable": {
+        "title": "Days I'm unavailable",
+        "hint": "Closes the weekly hours on those days",
+        "rowHint": "Unavailable (exception)",
+        "rowHintReason": "Unavailable ({reason})",
+        "empty": "No unavailable days."
+      }
+    },
+    "addTo": "Add",
+    "addToLabel": "Add to {list}",
+    "recurringRow": "Every {weekday} · {hours}",
+    "dateRow": "{date} · {hours}",
+    "allDay": "All day",
+    "howTitle": "How is it worked out?",
+    "howBody": "Students see: weekly hours + one-off hours − the days you're unavailable. An exception always wins.",
+    "menu": {
+      "label": "Options for {item}",
+      "edit": "Edit",
+      "remove": "Delete",
+      "confirm": "Delete it?",
+      "confirmYes": "Yes, delete",
+      "confirmNo": "Cancel"
+    },
+    "dialog": {
+      "addTitle": "Add availability",
+      "editTitle": "Edit availability",
+      "kind": "What do you want to add?",
+      "weekday": "Day",
+      "start": "Start",
+      "end": "End",
+      "date": "Date",
+      "place": "Place (optional)",
+      "startsOn": "First day",
+      "endsOn": "Last day (optional)",
+      "reason": "Reason (optional)",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "needFields": "Fill in the date and the times.",
+      "endAfterStart": "The end has to be after the start.",
+      "overlap": "These hours overlap an existing entry.",
+      "past": "You can't add hours in the past.",
+      "insideDayOff": "This day is marked unavailable; remove that day first.",
+      "hidesOneOff": "You have one-off hours on these days; remove them first."
+    },
+    "saved": "Availability saved.",
+    "removed": "Deleted.",
+    "failed": "Couldn't save; please try again."
+  },
+  "advisees": {
+    "title": "My advisees",
+    "search": "Search students",
+    "readOnly": "From the university record · read-only",
+    "meetingsFailed": "Meetings couldn't be loaded; the last and upcoming meeting columns are incomplete for now.",
+    "count": "{count} students",
+    "columns": {
+      "student": "Student",
+      "program": "Department · year",
+      "last": "Last appointment",
+      "next": "Next appointment",
+      "actions": "Actions"
+    },
+    "appointments": "Appointments",
+    "appointmentsLabel": "Appointments with {name}",
+    "today": "Today {time}",
+    "pending": "Awaiting approval",
+    "none": "—",
+    "notSignedIn": "Hasn't signed in to Menton yet",
+    "empty": "ODTÜ's records show no advisees for you.",
+    "noMatch": "No student matches your search.",
+    "footnote": "This list isn't a mentoring match or an appointment. Advising relations come from ODTÜ's records and can't be changed in Menton."
+  },
+  "student": {
+    "back": {
+      "appointments": "My appointments",
+      "advisees": "My advisees"
+    },
+    "classYear": "Year {year}",
+    "record": "University record",
+    "department": "Department",
+    "classYearLabel": "Year",
+    "advisor": "Academic advisor",
+    "advisorYou": "You",
+    "privacy": "The student's mentoring details, documents and appointments with other academics aren't visible to you.",
+    "pendingTitle": "Request waiting for you",
+    "history": "Appointments with you",
+    "historyEmpty": "No appointments with you yet.",
+    "historyWhen": "{when} · Office Hours",
+    "badges": {
+      "pending": "Awaiting approval",
+      "proposed": "Other time proposed",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "decline": "Decline",
+    "propose": "Propose another time",
+    "accept": "Accept",
+    "notFound": "There's nothing to show about this student.",
+    "openProfile": "See the student's profile",
+    "close": "Close",
+    "fullProfile": "See full profile",
+    "interests": {
+      "title": "Interests and goal",
+      "topics": "Interests",
+      "goal": "Goal",
+      "noGoal": "No goal written yet.",
+      "empty": "The student hasn't filled in their interests and goal yet."
     }
   }
 }

@@ -14,7 +14,6 @@ import { useId, type ReactNode } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { AppointmentStatusBadge } from "@/components/academician/appointment-status-badge";
-import { SampleDataNotice } from "@/components/academician/sample-data-notice";
 import { StudentAvatar } from "@/components/academician/student-avatar";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
@@ -45,7 +44,6 @@ export function AcademicianHomeView() {
   if (!home.hasAvailability) {
     return (
       <div className="space-y-8">
-        <SampleDataNotice />
         <HomeWithoutAvailability home={home} />
       </div>
     );
@@ -53,7 +51,6 @@ export function AcademicianHomeView() {
   return (
     <div className="space-y-8">
       <HomeHeader home={home} />
-      <SampleDataNotice />
       <HomeWithAvailability home={home} />
     </div>
   );
@@ -66,7 +63,10 @@ function HomeHeader({ home }: { home: AcademicianHome }) {
       title={home.greeting}
       actions={
         <>
-          <Button variant={ButtonVariant.Secondary} href={home.links.calendar}>
+          <Button
+            variant={ButtonVariant.Secondary}
+            href={home.links.availability}
+          >
             {t("editAvailability")}
           </Button>
           <Button href={home.links.appointments}>{t("appointments")}</Button>
@@ -160,7 +160,7 @@ function PendingRequests({ home }: { home: AcademicianHome }) {
         </h2>
         {home.pendingCount > 0 ? (
           <Link
-            href={home.links.requests}
+            href={home.links.allRequests}
             className="inline-flex items-center gap-1 type-label text-brand-odtu-strong"
           >
             {t("seeAll", { count: home.pendingCount })}
@@ -216,14 +216,14 @@ function PendingRequestCard({
       <AppointmentStatusBadge status={AppointmentStatus.Pending} />
       <div className="flex flex-wrap gap-2">
         {card.canDecline ? (
-          <Button variant={ButtonVariant.Ghost} href={home.links.requests}>
+          <Button variant={ButtonVariant.Ghost} href={card.href}>
             {t("decline")}
           </Button>
         ) : null}
         {card.canPropose ? (
           <Button
             variant={ButtonVariant.Secondary}
-            href={home.links.requests}
+            href={card.proposeHref}
             className="flex-1"
           >
             <CalendarClock aria-hidden className="size-4" />
@@ -231,7 +231,7 @@ function PendingRequestCard({
           </Button>
         ) : null}
         {card.acceptTime === null ? (
-          <Button href={home.links.requests}>{t("accept")}</Button>
+          <Button href={card.href}>{t("accept")}</Button>
         ) : (
           <Button
             disabled={busy}
@@ -263,19 +263,24 @@ function TodayCard({ home }: { home: AcademicianHome }) {
       {home.today.length > 0 ? (
         <ul className="divide-y divide-border-subtle">
           {home.today.map((item) => (
-            <li key={item.id} className="flex items-center gap-4 py-3">
-              <span className="w-12 shrink-0 type-label text-text-primary">
-                {item.time}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate type-label text-text-primary">
-                  {item.studentName}
+            <li key={item.id}>
+              <Link
+                href={item.href}
+                className="flex items-center gap-4 rounded-xl py-3 hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
+              >
+                <span className="w-12 shrink-0 type-label text-text-primary">
+                  {item.time}
                 </span>
-                <span className="block truncate type-caption text-text-muted">
-                  {item.topic}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate type-label text-text-primary">
+                    {item.studentName}
+                  </span>
+                  <span className="block truncate type-caption text-text-muted">
+                    {item.topic}
+                  </span>
                 </span>
-              </span>
-              <AppointmentStatusBadge status={AppointmentStatus.Confirmed} />
+                <AppointmentStatusBadge status={AppointmentStatus.Confirmed} />
+              </Link>
             </li>
           ))}
         </ul>
@@ -302,34 +307,32 @@ function AvailabilityCard({ home }: { home: AcademicianHome }) {
     (row) => row.kind !== AvailabilityItemKind.Unavailable,
   );
   return (
-    <div data-tour="availability-weekly">
-      <Card labelledBy={titleId} compact className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 id={titleId} className="type-h4 text-text-primary">
-            {t("title")}
-          </h2>
-          <Link
-            href={home.links.calendar}
-            className="type-label text-brand-odtu-strong"
-          >
-            {t("edit")}
-          </Link>
-        </div>
-        <dl className="space-y-3">
-          {hours.map((row) => (
-            <AvailabilityLine key={row.key} row={row} />
-          ))}
-        </dl>
-        {dayOffs.map((row) => (
-          <p
-            key={row.key}
-            className="rounded-xl bg-brand-odtu-bg px-3 py-2 type-caption text-brand-odtu-strong"
-          >
-            {row.label}
-          </p>
+    <Card labelledBy={titleId} compact className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id={titleId} className="type-h4 text-text-primary">
+          {t("title")}
+        </h2>
+        <Link
+          href={home.links.availability}
+          className="type-label text-brand-odtu-strong"
+        >
+          {t("edit")}
+        </Link>
+      </div>
+      <dl className="space-y-3">
+        {hours.map((row) => (
+          <AvailabilityLine key={row.key} row={row} />
         ))}
-      </Card>
-    </div>
+      </dl>
+      {dayOffs.map((row) => (
+        <p
+          key={row.key}
+          className="rounded-xl bg-brand-odtu-bg px-3 py-2 type-caption text-brand-odtu-strong"
+        >
+          {row.label}
+        </p>
+      ))}
+    </Card>
   );
 }
 
@@ -427,7 +430,7 @@ function EmptyAvailability({ home }: { home: AcademicianHome }) {
         </div>
         <p className="max-w-xl type-body text-text-secondary">{t("body")}</p>
         <div data-tour="availability-add" className="w-fit">
-          <Button href={home.links.calendar}>{t("cta")}</Button>
+          <Button href={home.links.availability}>{t("cta")}</Button>
         </div>
       </div>
       <ul aria-label={t("examplesLabel")} className="space-y-3">

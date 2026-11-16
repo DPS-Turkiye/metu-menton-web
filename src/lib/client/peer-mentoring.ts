@@ -1,10 +1,14 @@
 import type {
   CreatePeerMentoringRequestInput,
+  PeerCategoryCount,
   PeerMentorCard,
+  PeerMentorDetail,
   PeerMentorFilter,
   PeerMentoringRequest,
   PeerMentorProfile,
+  PeerMentorProfileDraft,
   PeerTopicCategory,
+  SavedPeerMentorProfileDraft,
   SavePeerMentorProfileInput,
 } from "@/interfaces/peer-mentoring";
 import { UserRole } from "@/interfaces/session";
@@ -19,8 +23,41 @@ export async function getPeerMentors(
       params: {
         category: filter.category ?? undefined,
         q: filter.query || undefined,
+        subTopic: filter.subTopic ?? undefined,
+        availableThisWeek: filter.availableThisWeek ? true : undefined,
       },
     }),
+  );
+}
+
+/** One peer mentor of the student's program, or null when their directory doesn't list them. */
+export async function getPeerMentor(
+  mentorId: string,
+): Promise<PeerMentorDetail | null> {
+  try {
+    return requireSuccess(
+      await httpClient.get<PeerMentorDetail>(
+        `/api/peer-mentoring/mentors/${encodeURIComponent(mentorId)}`,
+      ),
+    );
+  } catch (error) {
+    // The proxy answers 400 only for an id that isn't a uuid, which can't name a listed mentor either.
+    if (
+      error instanceof ClientApiError &&
+      (error.status === 404 || error.status === 400)
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/** Mentors per category active in the student's program. */
+export async function getPeerMentorCounts(): Promise<PeerCategoryCount[]> {
+  return requireSuccess(
+    await httpClient.get<PeerCategoryCount[]>(
+      "/api/peer-mentoring/mentor-counts",
+    ),
   );
 }
 
@@ -91,5 +128,36 @@ export async function savePeerMentorProfile(
       "/api/peer-mentoring/profile",
       input,
     ),
+  );
+}
+
+/** The student's unfinished wizard, or null when there is none. */
+export async function getPeerMentorDraft(): Promise<SavedPeerMentorProfileDraft | null> {
+  try {
+    return requireSuccess(
+      await httpClient.get<SavedPeerMentorProfileDraft>(
+        "/api/peer-mentoring/profile/draft",
+      ),
+    );
+  } catch (error) {
+    if (error instanceof ClientApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export async function savePeerMentorDraft(
+  draft: PeerMentorProfileDraft,
+): Promise<SavedPeerMentorProfileDraft> {
+  return requireSuccess(
+    await httpClient.put<SavedPeerMentorProfileDraft>(
+      "/api/peer-mentoring/profile/draft",
+      { draft },
+    ),
+  );
+}
+
+export async function deletePeerMentorDraft(): Promise<void> {
+  requireSuccess(
+    await httpClient.delete<undefined>("/api/peer-mentoring/profile/draft"),
   );
 }

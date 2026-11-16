@@ -70,6 +70,8 @@ const PROFILE: PeerMentorProfile = {
   department: "Endüstri Mühendisliği",
   classYear: 4,
   menteeCapacity: 4,
+  levels: {},
+  experiences: [],
 };
 
 function received(
@@ -85,6 +87,7 @@ function received(
     message: "Staj başvurusu için CV'me bakar mısın?",
     status,
     createdAt: "2026-11-08T17:52:00Z",
+    acceptedAt: null,
   };
 }
 

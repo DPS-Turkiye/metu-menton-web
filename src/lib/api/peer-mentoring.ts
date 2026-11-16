@@ -2,24 +2,49 @@ import "server-only";
 
 import type {
   CreatePeerMentoringRequestInput,
+  PeerCategoryCount,
   PeerMentorCard,
+  PeerMentorDetail,
   PeerMentoringRequest,
   PeerMentorProfile,
+  PeerMentorProfileDraft,
   PeerTopicCategory,
+  SavedPeerMentorProfileDraft,
   SavePeerMentorProfileInput,
 } from "@/interfaces/peer-mentoring";
 import type { UserRole } from "@/interfaces/session";
 import { HttpMethod } from "@/lib/http-method";
 import { backendRequest } from "@/lib/server/backend-client";
 
-export function fetchPeerMentors(
-  actorId: string,
-  filter: { category?: PeerTopicCategory | undefined; q?: string | undefined },
-) {
+export type PeerMentorSearch = {
+  category?: PeerTopicCategory | undefined;
+  q?: string | undefined;
+  subTopic?: string | undefined;
+  availableThisWeek?: boolean | undefined;
+};
+
+export function fetchPeerMentors(actorId: string, filter: PeerMentorSearch) {
   return backendRequest<PeerMentorCard[]>({
     method: HttpMethod.Get,
     url: "/api/peer-mentoring/mentors",
     params: { actorId, ...filter },
+  });
+}
+
+/** One mentor of the actor's program; the backend answers 404 for anyone their directory doesn't list. */
+export function fetchPeerMentor(actorId: string, mentorId: string) {
+  return backendRequest<PeerMentorDetail>({
+    method: HttpMethod.Get,
+    url: `/api/peer-mentoring/mentors/${encodeURIComponent(mentorId)}`,
+    params: { actorId },
+  });
+}
+
+export function fetchPeerMentorCounts(actorId: string) {
+  return backendRequest<PeerCategoryCount[]>({
+    method: HttpMethod.Get,
+    url: "/api/peer-mentoring/mentor-counts",
+    params: { actorId },
   });
 }
 
@@ -73,5 +98,32 @@ export function savePeerMentorProfile(
     method: HttpMethod.Put,
     url: "/api/peer-mentoring/profile",
     data: { ...input, actorId },
+  });
+}
+
+export function fetchPeerMentorDraft(actorId: string) {
+  return backendRequest<SavedPeerMentorProfileDraft>({
+    method: HttpMethod.Get,
+    url: "/api/peer-mentoring/profile/draft",
+    params: { actorId },
+  });
+}
+
+export function savePeerMentorDraft(
+  actorId: string,
+  draft: PeerMentorProfileDraft,
+) {
+  return backendRequest<SavedPeerMentorProfileDraft>({
+    method: HttpMethod.Put,
+    url: "/api/peer-mentoring/profile/draft",
+    data: { actorId, draft },
+  });
+}
+
+export function deletePeerMentorDraft(actorId: string) {
+  return backendRequest<undefined>({
+    method: HttpMethod.Delete,
+    url: "/api/peer-mentoring/profile/draft",
+    params: { actorId },
   });
 }

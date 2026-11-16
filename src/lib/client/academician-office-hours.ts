@@ -7,62 +7,97 @@ import type {
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
 import {
-  answerSampleRequest,
-  cancelSampleAppointment,
-  sampleState,
-  saveSampleAvailability,
-  saveSampleProfile,
-} from "@/lib/client/fixtures/academician-office-hours-store";
-import { fixtureResponse } from "@/lib/client/fixtures/fixture-response";
+  toAcademicianAppointment,
+  toAcademicianAvailability,
+  toAnswerInput,
+  toOfficeHoursRequest,
+} from "@/lib/academician-office-hours-me";
+import {
+  answerOfficeHoursRequest,
+  cancelOfficeHoursMeeting,
+  getAcademicianOfficeHoursMeetings,
+  getMyOfficeHoursAvailability,
+  getMyOfficeHoursProfile,
+  getOfficeHoursInbox,
+  saveMyOfficeHoursAvailability,
+  saveMyOfficeHoursProfile,
+} from "@/lib/client/office-hours-me";
 
-// Sample data only: no Office Hours source serves ODTÜ-signed-in academicians yet. Connecting
-// one (Göksu's backend through an account link, or a Menton-account service) replaces these
-// bodies with calls to the app's own /api routes; the hooks and screens stay as they are.
+// The academician's Office Hours through /api/office-hours/me (ODTÜ-signed-in accounts, Moodle course requests
+// included once their person is linked). The screens keep their own shapes; lib/academician-office-hours-me maps.
 
-async function sample<T>(run: () => T): Promise<T> {
-  return fixtureResponse(run());
+/** One-off hours (G5) have no backend yet; the screens keep that control unavailable. */
+export class OfficeHoursFeatureUnavailableError extends Error {}
+
+export async function getAcademicianRequests(): Promise<OfficeHoursRequest[]> {
+  return (await getOfficeHoursInbox())
+    .map(toOfficeHoursRequest)
+    .filter((request) => request !== null);
 }
 
-export function getAcademicianRequests(): Promise<OfficeHoursRequest[]> {
-  return sample(() => sampleState().requests);
-}
-
-export function answerAcademicianRequest(
+/** The answered request, or null when the answer settled it (accepted or declined) and it left the open list. */
+export async function answerAcademicianRequest(
   id: string,
   answer: OfficeHoursAnswer,
 ): Promise<OfficeHoursRequest | null> {
-  return sample(() => answerSampleRequest(id, answer));
+  return toOfficeHoursRequest(
+    await answerOfficeHoursRequest(id, toAnswerInput(answer)),
+  );
 }
 
-export function getAcademicianAppointments(): Promise<
+export async function getAcademicianAppointments(): Promise<
   AcademicianAppointment[]
 > {
-  return sample(() => sampleState().appointments);
+  return (await getAcademicianOfficeHoursMeetings()).map(
+    toAcademicianAppointment,
+  );
 }
 
-export function cancelAcademicianAppointment(
-  id: string,
+/** Calls off a booked meeting; the student is e-mailed and the meeting leaves Randevularım. */
+export async function cancelAcademicianAppointment(
+  appointment: AcademicianAppointment,
   reason: string | null,
-): Promise<AcademicianAppointment> {
-  return sample(() => cancelSampleAppointment(id, reason));
+): Promise<void> {
+  await cancelOfficeHoursMeeting(appointment.requestId, reason);
 }
 
-export function getAcademicianAvailability(): Promise<AcademicianAvailability> {
-  return sample(() => sampleState().availability);
+export async function getAcademicianAvailability(): Promise<AcademicianAvailability> {
+  return toAcademicianAvailability(await getMyOfficeHoursAvailability());
 }
 
-export function saveAcademicianAvailability(
+/** Weekly ranges, days off and the numbers; one-off hours wait for their backend (G5) and are refused here. */
+export async function saveAcademicianAvailability(
   payload: UpdateAcademicianAvailabilityPayload,
 ): Promise<AcademicianAvailability> {
-  return sample(() => saveSampleAvailability(payload));
+  const { oneOffs, ...settings } = payload;
+  if (oneOffs.length > 0) {
+    throw new OfficeHoursFeatureUnavailableError(
+      "One-off Office Hours are not available yet.",
+    );
+  }
+  return toAcademicianAvailability(
+    await saveMyOfficeHoursAvailability(settings),
+  );
 }
 
-export function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {
-  return sample(() => sampleState().profile);
+export async function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {
+  const { defaultPlace, onlineLink, contactEmail } =
+    await getMyOfficeHoursProfile();
+  return { defaultPlace, onlineLink, contactEmail };
 }
 
-export function saveOfficeHoursProfileSettings(
+/**
+ * Saves where and how students meet them. Whether students see them at all (`listed`) is not on this screen yet
+ * (G6), so the saved value is read first and kept as it is.
+ */
+export async function saveOfficeHoursProfileSettings(
   settings: OfficeHoursProfileSettings,
 ): Promise<OfficeHoursProfileSettings> {
-  return sample(() => saveSampleProfile(settings));
+  const { listed } = await getMyOfficeHoursProfile();
+  const saved = await saveMyOfficeHoursProfile({ ...settings, listed });
+  return {
+    defaultPlace: saved.defaultPlace,
+    onlineLink: saved.onlineLink,
+    contactEmail: saved.contactEmail,
+  };
 }

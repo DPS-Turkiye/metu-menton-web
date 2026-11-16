@@ -6,18 +6,23 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { QueryNotice, StatusChip } from "@/components/admin/admin-ui";
+import { OdtuProgramHeader } from "@/components/coordinator/odtu-program-header";
 import { ProgramGlyph } from "@/components/coordinator/program-glyph";
 import { ProgramTabRedirect } from "@/components/coordinator/program-tab-redirect";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
+import { SegmentedTabs } from "@/components/ia/segmented-tabs";
 import {
   useCoordinatorProgram,
   useLaunchProgram,
 } from "@/hooks/use-coordinator-program";
+import { useEdition } from "@/hooks/use-edition";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
+import { useProgramWaitingCounts } from "@/hooks/use-program-waiting-counts";
 import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
+import { Edition } from "@/interfaces/edition";
 import { ProgramType } from "@/interfaces/program";
 import {
   hasTabContent,
@@ -28,6 +33,7 @@ import {
   programHeaderLine,
   programTabs,
   type ProgramTab,
+  type ProgramWaitingCounts,
 } from "@/lib/coordinator-program-detail";
 
 const LIFECYCLE_TONES: Record<ProgramLifecycle, "green" | "blue" | "neutral"> =
@@ -42,18 +48,28 @@ const LIFECYCLE_TONES: Record<ProgramLifecycle, "green" | "blue" | "neutral"> =
 export function ProgramDetailFrame({
   programId,
   tab,
+  tabCounts,
   children,
 }: {
   programId: string;
   tab: ProgramTab;
+  /** Counts a tab page knows better than the program detail (Randevular's open requests). */
+  tabCounts?: Partial<Record<ProgramTab, number | null>> | undefined;
   children: (detail: CoordinatorProgramDetail) => ReactNode;
 }) {
   const t = useTranslations("coordinatorPrograms");
+  const edition = useEdition();
   const tNav = useTranslations("roleFrame.nav");
   const locale = useLocale();
   const navigation = useProgramNavigation(programId);
   const query = useCoordinatorProgram(programId);
   const detail = query.data;
+  const waiting = useProgramWaitingCounts(
+    programId,
+    detail?.program.type === ProgramType.StartupMentoring
+      ? detail.program.teamCount
+      : null,
+  );
   if (!detail) {
     return <QueryNotice isLoading={query.isLoading} error={query.error} />;
   }
@@ -62,6 +78,38 @@ export function ProgramDetailFrame({
     return <ProgramTabRedirect href={navigation.resolveHref(misplaced)} />;
   }
   const program = detail.program;
+
+  if (edition === Edition.Odtu) {
+    return (
+      <div className="space-y-7">
+        <OdtuProgramHeader
+          detail={detail}
+          programId={programId}
+          tab={tab}
+          tabCounts={tabCounts}
+        />
+        {program.lifecycle === ProgramLifecycle.Draft ? (
+          <DraftBanner
+            programId={programId}
+            admin={navigation.admin}
+            hasCoordinator={detail.coordinators.length > 0}
+          />
+        ) : null}
+        {isParticipantsTab(tab) ? (
+          <OdtuParticipantTabs
+            detail={detail}
+            programId={programId}
+            tab={tab}
+          />
+        ) : null}
+        {hasTabContent(program.type, tab) ? (
+          children(detail)
+        ) : (
+          <TypeTabEmptyState type={program.type} admin={navigation.admin} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -105,11 +153,13 @@ export function ProgramDetailFrame({
           <Pill
             dot="#ff6a3d"
             value={program.teamCount}
+            waiting={waiting.teams}
             label={t("pills.teams")}
           />
           <Pill
             dot="#26a4ff"
             value={program.mentorCount}
+            waiting={waiting.mentors}
             label={t("pills.mentors")}
           />
           <Pill
@@ -180,7 +230,12 @@ export function ProgramDetailFrame({
       </div>
 
       {isParticipantsTab(tab) ? (
-        <ParticipantTabs detail={detail} programId={programId} tab={tab} />
+        <ParticipantTabs
+          detail={detail}
+          programId={programId}
+          tab={tab}
+          waiting={waiting}
+        />
       ) : null}
 
       {hasTabContent(program.type, tab) ? (
@@ -195,12 +250,15 @@ export function ProgramDetailFrame({
 function Pill({
   dot,
   value,
+  waiting,
   label,
 }: {
   dot?: string;
   value: number;
+  waiting?: number | null;
   label: string;
 }) {
+  const t = useTranslations("coordinatorPrograms");
   return (
     <li className="flex items-center gap-2 rounded-full border border-[#e9ecef] bg-white px-3.5 py-2">
       {dot ? (
@@ -212,6 +270,12 @@ function Pill({
       ) : null}
       <span className="font-semibold text-[#22262b]">{value}</span>
       <span className="text-[#858c96]">{label}</span>
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      {waiting ? (
+        <span className="text-[#858c96]">
+          {t("waitingSuffix", { count: waiting })}
+        </span>
+      ) : null}
     </li>
   );
 }
@@ -256,22 +320,30 @@ function ParticipantTabs({
   detail,
   programId,
   tab,
+  waiting,
 }: {
   detail: CoordinatorProgramDetail;
   programId: string;
   tab: ProgramTab;
+  waiting: ProgramWaitingCounts;
 }) {
   const t = useTranslations("coordinatorPrograms");
   const navigation = useProgramNavigation(programId);
   return (
     <nav aria-label={t("tabs.PARTICIPANTS")} className="flex flex-wrap gap-2">
-      {participantTabs(detail, programId).map((item) => {
+      {participantTabs(detail, programId, waiting).map((item) => {
         const active = item.id === tab;
         const content = (
           <>
             {t(`participantTabs.${item.id}`)}
             {item.count != null ? (
-              <span className="text-[12px] text-[#858c96]">{item.count}</span>
+              <span className="text-[12px] text-[#858c96]">
+                {item.count}
+                {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+                {item.waiting
+                  ? ` ${t("waitingSuffix", { count: item.waiting })}`
+                  : null}
+              </span>
             ) : null}
           </>
         );
@@ -301,6 +373,39 @@ function ParticipantTabs({
         );
       })}
     </nav>
+  );
+}
+
+/** Katılımcılar's sub-tabs in the ODTÜ frames: a segmented control, "Öğrenciler · 312". */
+function OdtuParticipantTabs({
+  detail,
+  programId,
+  tab,
+}: {
+  detail: CoordinatorProgramDetail;
+  programId: string;
+  tab: ProgramTab;
+}) {
+  const t = useTranslations("coordinatorPrograms");
+  const navigation = useProgramNavigation(programId);
+  const tabs = participantTabs(detail, programId).map((item) => {
+    const label = t(`participantTabs.${item.id}`);
+    return {
+      id: item.id,
+      label:
+        item.count != null
+          ? t("segmentWithCount", { label, count: item.count })
+          : label,
+      href: item.href ? navigation.resolveHref(item.href) : null,
+      active: item.id === tab,
+    };
+  });
+  return (
+    <SegmentedTabs
+      label={t("tabs.PARTICIPANTS")}
+      tabs={tabs}
+      disabledTitle={t("soon")}
+    />
   );
 }
 

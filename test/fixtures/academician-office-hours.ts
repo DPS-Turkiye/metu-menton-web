@@ -35,6 +35,7 @@ export function academicianRequest(
       fullName: "Berk Özkan",
       title: null,
       department: "Endüstri Mühendisliği",
+      classYear: 4,
     },
     topic: "Yüksek lisans başvurusu",
     note: null,
@@ -59,7 +60,7 @@ export function academicianAppointment(
 ): AcademicianAppointment {
   return {
     id: "appointment-1",
-    requestId: null,
+    requestId: "request-1",
     kind: AppointmentKind.OfficeHours,
     side: AppointmentSide.Mentor,
     status: AppointmentStatus.Confirmed,

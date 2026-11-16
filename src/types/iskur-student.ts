@@ -1,8 +1,10 @@
-/** Mentorluk Ver's tabs once the peer mentor's profile is published. */
+/**
+ * Mentorluk Ver's tabs once the peer mentor's profile is published (flow 3.2): Menteelerim, Faaliyet Raporum,
+ * Mentor Profilim. The value is the URL's `tab`, so report links (`tab=report`) land on the right one.
+ */
 export enum PeerGiveTab {
-  Requests = "requests",
   Mentees = "mentees",
-  Availability = "availability",
+  Report = "report",
   Profile = "profile",
 }
 
@@ -40,6 +42,25 @@ export enum PeerRequestAvailability {
   /** Every place is taken. */
   Full = "full",
 }
+
+/** Why an experience card can't be saved yet. */
+export enum ExperienceCardProblem {
+  Title = "title",
+  Organization = "organization",
+  Start = "start",
+  /** A browser without a month picker shows a text box, where anything can be typed. */
+  Month = "month",
+  EndBeforeStart = "endBeforeStart",
+}
+
+/** The "Yeni deneyim" form as typed; months as "yyyy-MM" (a month input's value). */
+export type ExperienceCardForm = {
+  title: string;
+  organization: string;
+  startedOn: string;
+  endedOn: string;
+  summary: string;
+};
 
 /** What the İŞKUR home adds next to the shared student home. */
 export enum IskurHomeMode {
