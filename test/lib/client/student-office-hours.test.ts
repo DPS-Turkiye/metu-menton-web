@@ -293,10 +293,10 @@ describe("student Office Hours client", () => {
       request({ id: "request-2", status: OfficeHoursRequestStatus.Accepted }),
     ]);
 
-    const [cancellable, started] = await getStudentOfficeHoursAppointments();
+    const [cancellable, notOffered] = await getStudentOfficeHoursAppointments();
 
     expect(cancellable?.canCancel).toBe(true);
-    expect(started?.canCancel).toBe(false);
+    expect(notOffered?.canCancel).toBe(false);
   });
 
   it("cancels through the request, passing the reason on", async () => {

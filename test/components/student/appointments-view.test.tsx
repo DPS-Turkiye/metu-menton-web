@@ -297,6 +297,22 @@ describe("StudentAppointmentsView", () => {
       expect(screen.getByRole("dialog")).toBeVisible();
     });
 
+    it("offers no cancel, and no empty action row, once the meeting has started", async () => {
+      vi.mocked(getStudentAppointments).mockResolvedValue([
+        {
+          ...booked,
+          startsAt: "2026-11-09T08:30:00.000Z",
+          endsAt: "2026-11-09T09:30:00.000Z",
+        },
+      ]);
+      renderWithQueryClient(<StudentAppointmentsView />);
+      const card = within(await panel()).getByRole("article");
+
+      expect(within(card).queryByRole("button")).not.toBeInTheDocument();
+      // The card ends with its actions row when it has one; a started meeting leaves no empty row behind.
+      expect(card.lastElementChild).not.toBeEmptyDOMElement();
+    });
+
     it("offers no cancel unless the backend allows it", async () => {
       vi.mocked(getStudentAppointments).mockResolvedValue([
         { ...booked, canCancel: false },

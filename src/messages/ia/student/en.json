@@ -239,7 +239,8 @@
       "keep": "Keep it",
       "confirm": "Cancel appointment",
       "done": "Appointment cancelled.",
-      "failed": "The appointment couldn't be cancelled. Try again."
+      "failed": "The appointment couldn't be cancelled. Try again.",
+      "started": "The meeting has started; it can't be cancelled any more."
     }
   },
   "profile": {

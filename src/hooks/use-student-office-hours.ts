@@ -439,7 +439,9 @@ export function useOfficeHoursCancel(appointment: Appointment) {
   const cancel = useMutation({
     mutationFn: (why: string | null) =>
       cancelStudentOfficeHoursAppointment(appointment.id, why),
-    onSuccess: () =>
+    // Settled, not only on success: a refused cancel (the meeting started, or the academician called it off first)
+    // still brings the card up to date.
+    onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: STUDENT_APPOINTMENTS_QUERY_KEY,
@@ -477,10 +479,17 @@ export function useOfficeHoursCancel(appointment: Appointment) {
       .join(" "),
     isOpen,
     open: () => {
-      setNow(new Date());
+      const at = new Date();
+      setNow(at);
+      if (!canCancelOfficeHours(appointment, at)) {
+        showToast({ message: t("started"), tone: ToastTone.Error });
+        return;
+      }
       setIsOpen(true);
     },
+    // Not while the cancel is on its way: "Vazgeç" would read as keeping the meeting while it is being called off.
     close: () => {
+      if (cancel.isPending) return;
       setIsOpen(false);
       setReason("");
     },

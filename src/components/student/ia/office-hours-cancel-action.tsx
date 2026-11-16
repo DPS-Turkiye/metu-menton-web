@@ -79,6 +79,7 @@ export function OfficeHoursCancelAction({
               <Button
                 variant={ButtonVariant.Secondary}
                 onClick={cancel.close}
+                disabled={cancel.isCancelling}
                 fullWidth
               >
                 {t("keep")}

@@ -239,7 +239,8 @@
       "keep": "Vazgeç",
       "confirm": "Randevuyu İptal Et",
       "done": "Randevu iptal edildi.",
-      "failed": "Randevu iptal edilemedi. Tekrar dene."
+      "failed": "Randevu iptal edilemedi. Tekrar dene.",
+      "started": "Görüşme başladı; artık iptal edilemez."
     }
   },
   "profile": {
