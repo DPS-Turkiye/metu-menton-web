@@ -650,12 +650,12 @@ export function requestFit(
   };
 }
 
-/** A cancel close to the start owes the student a reason. */
+/** A cancel close to the start owes the student a reason; the Moodle card asks the same of the academic. */
 export function cancelNeedsReason(
-  appointment: AcademicianAppointment,
+  meeting: Pick<AcademicianAppointment, "startsAt">,
   now: Date,
 ) {
-  return Date.parse(appointment.startsAt) - now.getTime() < LATE_CANCEL_MS;
+  return Date.parse(meeting.startsAt) - now.getTime() < LATE_CANCEL_MS;
 }
 
 /** "Ayşe Y.": how the month grid fits a name. */

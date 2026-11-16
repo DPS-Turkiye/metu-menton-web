@@ -1,3 +1,9 @@
+import type {
+  OfficeHoursAppointmentAction,
+  OfficeHoursRequestAction,
+} from "@/interfaces/academician-office-hours";
+import type { OfficeHoursStudentAction } from "@/interfaces/office-hours-me";
+
 export enum OfficeHoursRole {
   Instructor = "INSTRUCTOR",
   Student = "STUDENT",
@@ -102,7 +108,28 @@ export interface OfficeHoursRequest {
     createdAt: string;
   }[];
   meeting: OfficeHoursSlot | null;
+  cancellation: OfficeHoursCourseCancellation | null;
   createdAt: string;
+  /** What the viewer may do next; the backend works it out, so the card never re-derives its rules. */
+  allowedActions: OfficeHoursCourseAction[];
+}
+
+/** The course routes send one list for either side: the academic's answers, the student's steps, and CANCEL. */
+export type OfficeHoursCourseAction =
+  | OfficeHoursRequestAction
+  | OfficeHoursStudentAction
+  | OfficeHoursAppointmentAction;
+
+/**
+ * Who called an accepted meeting off and why, as the course routes send it: `cancelledById` is that person's
+ * office-hours id, set together with the time. The Menton routes name the side instead (`office-hours-me.ts`).
+ * `late` when it was less than 24 hours before the start.
+ */
+export interface OfficeHoursCourseCancellation {
+  cancelledById: string;
+  reason: string | null;
+  cancelledAt: string;
+  late: boolean;
 }
 
 export interface OfficeHoursMeeting {

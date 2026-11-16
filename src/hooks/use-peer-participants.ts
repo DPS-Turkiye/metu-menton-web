@@ -26,7 +26,6 @@ export function usePeerParticipants(
   const badges = useProgramBadges(programId, null);
   const [badgeFilter, setBadgeFilter] = useState(StudentFilter.All);
   const [capacityFilter, setCapacityFilter] = useState(CapacityFilter.All);
-  const [menuFor, setMenuFor] = useState<string | null>(null);
 
   const tabRows =
     tab === ProgramTab.PeerMentors ? peerMentorRows(badges.rows) : badges.rows;
@@ -57,10 +56,5 @@ export function usePeerParticipants(
       value,
       label: t(`capacityFilter.${value}`),
     })),
-    /** The row whose ⋯ menu is open, or null. */
-    menuFor,
-    toggleMenu: (userId: string) =>
-      setMenuFor((current) => (current === userId ? null : userId)),
-    closeMenu: () => setMenuFor(null),
   };
 }

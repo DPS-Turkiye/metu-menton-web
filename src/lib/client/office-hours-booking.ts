@@ -67,7 +67,8 @@ export type OfficeHoursRequestAction =
   | { kind: "decision"; payload: OfficeHoursDecisionPayload }
   | { kind: "reply"; payload: { message: string } }
   | { kind: "accept-proposed"; payload: { slot: string } }
-  | { kind: "withdraw"; payload?: undefined };
+  | { kind: "withdraw"; payload?: undefined }
+  | { kind: "cancel"; payload: { reason?: string | undefined } };
 
 export async function actOnOfficeHoursRequest(
   courseId: string,

@@ -9,7 +9,10 @@ import {
   AppointmentStatus,
 } from "@/interfaces/appointment";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
-import { answerOfficeHoursAlternative } from "@/lib/client/student-office-hours";
+import {
+  answerOfficeHoursAlternative,
+  cancelStudentOfficeHoursAppointment,
+} from "@/lib/client/student-office-hours";
 import {
   APPOINTMENTS_NOW,
   peerAppointment,
@@ -22,6 +25,7 @@ vi.mock("@/lib/client/student-appointments", () => ({
 }));
 vi.mock("@/lib/client/student-office-hours", () => ({
   answerOfficeHoursAlternative: vi.fn(),
+  cancelStudentOfficeHoursAppointment: vi.fn(),
 }));
 
 const alternative = peerAppointment({
@@ -202,6 +206,124 @@ describe("StudentAppointmentsView", () => {
     const card = within(await panel()).getByRole("article");
     expect(within(card).getByText("Gerekçe: Fakülte kurulu")).toBeVisible();
     expect(within(card).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  describe("cancelling a booked Office Hours meeting", () => {
+    const booked = {
+      ...alternative,
+      id: "booked",
+      status: AppointmentStatus.Confirmed,
+      alternative: null,
+      startsAt: "2026-11-10T11:00:00.000Z",
+      endsAt: "2026-11-10T11:30:00.000Z",
+      canCancel: true,
+    };
+
+    beforeEach(() => {
+      vi.mocked(getStudentAppointments).mockResolvedValue([booked]);
+      vi.mocked(cancelStudentOfficeHoursAppointment)
+        .mockReset()
+        .mockResolvedValue();
+    });
+
+    async function openDialog() {
+      renderWithQueryClient(<StudentAppointmentsView />);
+      const card = within(await panel()).getByRole("article");
+      await userEvent.click(
+        within(card).getByRole("button", { name: "Randevuyu İptal Et" }),
+      );
+      return screen.getByRole("dialog", {
+        name: "Randevuyu iptal etmek istiyor musun?",
+      });
+    }
+
+    it("asks first, then cancels with the reason the student gave", async () => {
+      const dialog = await openDialog();
+      expect(
+        within(dialog).getByText(
+          "Prof. Dr. Ahmet Kaya bildirim alır. Bu işlem geri alınamaz.",
+        ),
+      ).toBeVisible();
+
+      await userEvent.type(
+        within(dialog).getByRole("textbox", {
+          name: "İptal nedeni (opsiyonel)",
+        }),
+        "  Sınavım çakıştı  ",
+      );
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "Randevuyu İptal Et" }),
+      );
+
+      expect(cancelStudentOfficeHoursAppointment).toHaveBeenCalledWith(
+        "booked",
+        "Sınavım çakıştı",
+      );
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("sends no reason when none was written", async () => {
+      const dialog = await openDialog();
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "Randevuyu İptal Et" }),
+      );
+
+      expect(cancelStudentOfficeHoursAppointment).toHaveBeenCalledWith(
+        "booked",
+        null,
+      );
+    });
+
+    it("keeps the meeting with Vazgeç", async () => {
+      const dialog = await openDialog();
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "Vazgeç" }),
+      );
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(cancelStudentOfficeHoursAppointment).not.toHaveBeenCalled();
+    });
+
+    it("keeps the dialog open when the cancel fails", async () => {
+      vi.mocked(cancelStudentOfficeHoursAppointment).mockRejectedValue(
+        new Error("Görüşme başladı."),
+      );
+      const dialog = await openDialog();
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "Randevuyu İptal Et" }),
+      );
+
+      expect(cancelStudentOfficeHoursAppointment).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("dialog")).toBeVisible();
+    });
+
+    it("offers no cancel, and no empty action row, once the meeting has started", async () => {
+      vi.mocked(getStudentAppointments).mockResolvedValue([
+        {
+          ...booked,
+          startsAt: "2026-11-09T08:30:00.000Z",
+          endsAt: "2026-11-09T09:30:00.000Z",
+        },
+      ]);
+      renderWithQueryClient(<StudentAppointmentsView />);
+      const card = within(await panel()).getByRole("article");
+
+      expect(within(card).queryByRole("button")).not.toBeInTheDocument();
+      // The card ends with its actions row when it has one; a started meeting leaves no empty row behind.
+      expect(card.lastElementChild).not.toBeEmptyDOMElement();
+    });
+
+    it("offers no cancel unless the backend allows it", async () => {
+      vi.mocked(getStudentAppointments).mockResolvedValue([
+        { ...booked, canCancel: false },
+      ]);
+      renderWithQueryClient(<StudentAppointmentsView />);
+      const card = within(await panel()).getByRole("article");
+
+      expect(
+        within(card).queryByRole("button", { name: "Randevuyu İptal Et" }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("adds a kind's answer buttons through renderActions", async () => {

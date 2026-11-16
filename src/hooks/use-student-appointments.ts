@@ -93,6 +93,7 @@ export function useStudentAppointments({
     },
     isRetrying: query.isFetching,
     isEmpty: query.data?.length === 0,
+    now,
     view,
     setView: changeView,
     tab,

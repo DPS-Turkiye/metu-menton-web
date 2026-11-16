@@ -17,6 +17,7 @@ import {
 import { ClientApiError } from "@/lib/client/api";
 import {
   answerOfficeHoursAlternative as answerAlternative,
+  cancelOfficeHoursMeeting,
   getAcademicianOpenSlots,
   getListedAcademician,
   getListedAcademicians,
@@ -25,6 +26,7 @@ import {
 } from "@/lib/client/office-hours-me";
 import {
   answerOfficeHoursAlternative,
+  cancelStudentOfficeHoursAppointment,
   getOfficeHoursAcademician,
   getOfficeHoursAcademicians,
   getOfficeHoursSlots,
@@ -34,6 +36,7 @@ import {
 
 vi.mock("@/lib/client/office-hours-me", () => ({
   answerOfficeHoursAlternative: vi.fn(),
+  cancelOfficeHoursMeeting: vi.fn(),
   getAcademicianOpenSlots: vi.fn(),
   getListedAcademician: vi.fn(),
   getListedAcademicians: vi.fn(),
@@ -279,6 +282,32 @@ describe("student Office Hours client", () => {
       canAcceptAlternative: false,
       canWithdraw: false,
     });
+  });
+
+  it("offers cancelling a booked meeting only when the backend allows it", async () => {
+    vi.mocked(getMyOfficeHoursRequests).mockResolvedValue([
+      request({
+        status: OfficeHoursRequestStatus.Accepted,
+        allowedActions: [OfficeHoursStudentAction.Cancel],
+      }),
+      request({ id: "request-2", status: OfficeHoursRequestStatus.Accepted }),
+    ]);
+
+    const [cancellable, notOffered] = await getStudentOfficeHoursAppointments();
+
+    expect(cancellable?.canCancel).toBe(true);
+    expect(notOffered?.canCancel).toBe(false);
+  });
+
+  it("cancels through the request, passing the reason on", async () => {
+    vi.mocked(cancelOfficeHoursMeeting).mockResolvedValue();
+
+    await cancelStudentOfficeHoursAppointment("request-1", "Sınavım var");
+
+    expect(cancelOfficeHoursMeeting).toHaveBeenCalledWith(
+      "request-1",
+      "Sınavım var",
+    );
   });
 
   it("shows the academician's question while it waits on the student", async () => {

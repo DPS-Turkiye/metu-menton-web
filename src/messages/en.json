@@ -4767,6 +4767,51 @@
     "phaseMentoring": "{date} · Mentoring",
     "phaseSetup": "{date} · Setup"
   },
+  "odtuAdminPrograms": {
+    "statusLabel": "Program status",
+    "filters": {
+      "ALL": "All {count}",
+      "ACTIVE": "Active {count}",
+      "DRAFT": "Draft {count}",
+      "COMPLETED": "Completed {count}"
+    },
+    "searchLabel": "Search programs",
+    "typeLabel": "Program type",
+    "typeAll": "Program type: All",
+    "coordinatorLabel": "Coordinator",
+    "coordinatorAll": "Coordinator: All",
+    "newProgram": "Create new program",
+    "caption": "Programs",
+    "columns": {
+      "program": "Program",
+      "type": "Program type",
+      "status": "Status",
+      "coordinator": "Coordinator",
+      "date": "Dates",
+      "participants": "Participants",
+      "actions": "Actions"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed"
+    },
+    "coordinatorMore": "{name} +{count}",
+    "noCoordinator": "No coordinator",
+    "assignCoordinator": "Assign coordinator",
+    "addCoordinator": "Add coordinator",
+    "universityWide": "University-wide",
+    "draftDate": "{date} · draft",
+    "participantsAll": "Everyone",
+    "open": "Open",
+    "openLabel": "Open {name}",
+    "rowActions": "More actions for {name}",
+    "loading": "Loading programs…",
+    "loadFailed": "Programs could not be loaded.",
+    "empty": "No programs yet. Start the first one with Create new program.",
+    "noMatch": "No program matches these filters.",
+    "footnote": "Only the admin creates and starts programs. Coordinators set the terms of the programs they are assigned to."
+  },
   "adminCoordinators": {
     "roles": {
       "ADMIN": "an admin",
@@ -6427,6 +6472,80 @@
     "PEER_MENTORING": "Peer mentoring",
     "OFFICE_HOURS": "Office hours"
   },
+  "odtuProgramWizard": {
+    "title": "Create new program",
+    "back": "Programs",
+    "stepsLabel": "Steps",
+    "steps": {
+      "TYPE": "Program type",
+      "INFO": "Program details",
+      "COORDINATORS": "Coordinator",
+      "SUMMARY": "Summary and save"
+    },
+    "typeQuestion": "What kind of program are you creating?",
+    "typeNote": "The program type decides which structures the program has and cannot be changed later.",
+    "includes": "What the program has",
+    "types": {
+      "STARTUP_MENTORING": {
+        "description": "Matches startup teams with mentors. The current program structure stays as it is.",
+        "first": "Teams · Mentor pool",
+        "second": "Matches and approvals",
+        "third": "Curriculum and phases"
+      },
+      "PEER_MENTORING": {
+        "description": "METU students get mentoring from badge-verified İŞKUR students.",
+        "first": "Students · Peer mentors",
+        "second": "Mentoring requests and matches",
+        "third": "Active mentoring categories"
+      },
+      "OFFICE_HOURS": {
+        "description": "Every METU academician takes part without an invite; any student can request an appointment.",
+        "first": "Academicians · Students (automatic)",
+        "second": "Appointments the academician approves",
+        "third": "No invites or matching"
+      }
+    },
+    "typeLabel": "Program type",
+    "name": "Program name",
+    "namePlaceholder": "e.g. Career Peer Mentoring 2027",
+    "start": "Start",
+    "end": "End",
+    "description": "Short description",
+    "descriptionHint": "The coordinator and participants see it on the program page. {used} / {max}",
+    "termsTitle": "The coordinator sets the terms",
+    "termsBody": "The coordinator you assign sets how the program runs, such as mentoring categories, capacity and matching rules, in Program settings.",
+    "coordinatorsTitle": "Assign a coordinator",
+    "coordinatorsNote": "The coordinator sets the program's terms and runs it day to day. One coordinator can be responsible for several programs of different types.",
+    "coordinatorSearch": "Search coordinators",
+    "coordinatorsLoading": "Loading coordinators…",
+    "coordinatorsFailed": "Coordinators could not be loaded.",
+    "coordinatorResults": "{count, plural, one {# result} other {# results}} · Approved coordinators",
+    "noCoordinators": "No approved coordinator matches this search. Add new coordinators under Users › Coordinators.",
+    "programLoad": "{count, plural, one {# program} other {# programs}} · {names}",
+    "noPrograms": "No programs right now",
+    "busy": "Busy",
+    "available": "Has capacity",
+    "chosenTitle": "Selected coordinator",
+    "noneChosen": "No coordinator selected yet.",
+    "removeCoordinator": "Remove {name}",
+    "summaryTitle": "Summary",
+    "summaryType": "Program type",
+    "summaryName": "Program name",
+    "summaryDates": "Dates",
+    "noDates": "Not set",
+    "summaryCoordinators": "Coordinator",
+    "summaryStatus": "Status",
+    "savedAsDraft": "When saved: Draft",
+    "afterTitle": "After saving",
+    "afterDraft": "The program is created as a \"Draft\".",
+    "afterCoordinator": "The program appears in the coordinator's ({names}) My programs list; they set its terms.",
+    "afterLaunch": "When it is ready, you start the program from Program details.",
+    "cancel": "Cancel",
+    "previous": "Back",
+    "next": "Continue",
+    "save": "Save",
+    "saving": "Saving…"
+  },
   "adminProgramWizard": {
     "breadcrumb": "Programs",
     "newProgram": "Create a new program",
@@ -6642,7 +6761,16 @@
         "send": "Send request",
         "sending": "Sending…",
         "sent": "Your request was sent."
-      }
+      },
+      "cancelMeeting": "Cancel the meeting",
+      "confirmCancel": "Cancel it",
+      "cancelReason": "Reason for cancelling (optional)",
+      "cancelReasonLate": "Reason for cancelling: the meeting is less than 24 hours away, so write one for the student",
+      "cancelReasonRequired": "The meeting is less than 24 hours away; write a reason for the student.",
+      "cancelledBy": "{name} cancelled the meeting",
+      "cancelledByYou": "You cancelled the meeting",
+      "lateCancel": "Cancelled within 24 hours",
+      "cancelledReason": "Reason: {reason}"
     }
   },
   "academicianWorkspace": {

@@ -16,6 +16,7 @@ import {
 } from "@/components/student/ia/appointment-calendar";
 import { AppointmentListCard } from "@/components/student/ia/appointment-list-card";
 import { OfficeHoursAlternativeActions } from "@/components/student/ia/office-hours-alternative-actions";
+import { OfficeHoursCancelAction } from "@/components/student/ia/office-hours-cancel-action";
 import {
   AppointmentStatusBadge,
   InitialsAvatar,
@@ -32,7 +33,11 @@ import {
 } from "@/interfaces/appointment";
 import { timeLabel } from "@/lib/calendar";
 import { calendarTitle } from "@/lib/student-appointments";
-import { canAnswerAlternative, offeredTimes } from "@/lib/student-office-hours";
+import {
+  canAnswerAlternative,
+  canCancelOfficeHours,
+  offeredTimes,
+} from "@/lib/student-office-hours";
 import { formatDayMonth } from "@/lib/utils";
 import {
   AppointmentsTab,
@@ -68,11 +73,25 @@ function tabAfterKey(current: AppointmentsTab, key: string) {
 
 type RenderActions = ((appointment: Appointment) => ReactNode) | undefined;
 
-/** The card's buttons: Office Hours' own answer to a proposed time, then whatever an edition adds. */
-function actionsFor(appointment: Appointment, renderActions: RenderActions) {
-  const own = canAnswerAlternative(appointment) ? (
+/** The card's buttons: Office Hours' own answer to a proposed time or its cancel, then whatever an edition adds. */
+function actionsFor(
+  appointment: Appointment,
+  renderActions: RenderActions,
+  now: Date,
+) {
+  const answer = canAnswerAlternative(appointment) ? (
     <OfficeHoursAlternativeActions appointment={appointment} />
   ) : null;
+  const cancel = canCancelOfficeHours(appointment, now) ? (
+    <OfficeHoursCancelAction appointment={appointment} />
+  ) : null;
+  const own =
+    answer || cancel ? (
+      <>
+        {answer}
+        {cancel}
+      </>
+    ) : null;
   const extra = renderActions?.(appointment) ?? null;
   return own || extra ? (
     <>
@@ -273,7 +292,7 @@ function ListView({
                 <li key={item.id}>
                   <AppointmentListCard
                     appointment={item}
-                    actions={actionsFor(item, renderActions)}
+                    actions={actionsFor(item, renderActions, appointments.now)}
                     tourAnchor={
                       appointments.tab === AppointmentsTab.Upcoming &&
                       index === 0
@@ -426,7 +445,11 @@ function CalendarView({
         ) : appointments.selected ? (
           <AppointmentDetail
             appointment={appointments.selected}
-            actions={actionsFor(appointments.selected, renderActions)}
+            actions={actionsFor(
+              appointments.selected,
+              renderActions,
+              appointments.now,
+            )}
           />
         ) : (
           <Card>

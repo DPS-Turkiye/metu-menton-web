@@ -4769,6 +4769,51 @@
     "phaseMentoring": "{date} · Mentorluk",
     "phaseSetup": "{date} · Kurulum"
   },
+  "odtuAdminPrograms": {
+    "statusLabel": "Program durumu",
+    "filters": {
+      "ALL": "Tümü {count}",
+      "ACTIVE": "Aktif {count}",
+      "DRAFT": "Taslak {count}",
+      "COMPLETED": "Tamamlanan {count}"
+    },
+    "searchLabel": "Program ara",
+    "typeLabel": "Program türü",
+    "typeAll": "Program türü: Tümü",
+    "coordinatorLabel": "Koordinatör",
+    "coordinatorAll": "Koordinatör: Tümü",
+    "newProgram": "Yeni Program Oluştur",
+    "caption": "Programlar",
+    "columns": {
+      "program": "Program",
+      "type": "Program türü",
+      "status": "Durum",
+      "coordinator": "Koordinatör",
+      "date": "Tarih",
+      "participants": "Katılımcı",
+      "actions": "İşlemler"
+    },
+    "status": {
+      "DRAFT": "Taslak",
+      "ACTIVE": "Aktif",
+      "COMPLETED": "Tamamlandı"
+    },
+    "coordinatorMore": "{name} +{count}",
+    "noCoordinator": "Koordinatör yok",
+    "assignCoordinator": "Koordinatör ata",
+    "addCoordinator": "Koordinatör ekle",
+    "universityWide": "Üniversite geneli",
+    "draftDate": "{date} · taslak",
+    "participantsAll": "Tümü",
+    "open": "Aç",
+    "openLabel": "{name} programını aç",
+    "rowActions": "{name} için diğer işlemler",
+    "loading": "Programlar yükleniyor…",
+    "loadFailed": "Programlar yüklenemedi.",
+    "empty": "Henüz program yok. İlk programı Yeni Program Oluştur ile başlatın.",
+    "noMatch": "Bu filtrelere uyan program yok.",
+    "footnote": "Programları yalnızca Admin oluşturur ve başlatır. Koordinatörler atandıkları programların koşullarını yapılandırır."
+  },
   "adminCoordinators": {
     "roles": {
       "ADMIN": "yönetici",
@@ -6429,6 +6474,80 @@
     "PEER_MENTORING": "Akran Mentörlüğü",
     "OFFICE_HOURS": "Office Hours"
   },
+  "odtuProgramWizard": {
+    "title": "Yeni Program Oluştur",
+    "back": "Programlar",
+    "stepsLabel": "Adımlar",
+    "steps": {
+      "TYPE": "Program türü",
+      "INFO": "Program bilgileri",
+      "COORDINATORS": "Koordinatör",
+      "SUMMARY": "Özet ve kaydet"
+    },
+    "typeQuestion": "Hangi tür programı oluşturuyorsun?",
+    "typeNote": "Program türü, programda hangi yapıların görüneceğini belirler ve sonradan değiştirilemez.",
+    "includes": "Programda neler var",
+    "types": {
+      "STARTUP_MENTORING": {
+        "description": "Girişim takımları ile mentorları eşleştirir. Mevcut program yapısı aynen kullanılır.",
+        "first": "Takımlar · Mentor Havuzu",
+        "second": "Eşleşmeler ve onaylar",
+        "third": "Müfredat ve fazlar"
+      },
+      "PEER_MENTORING": {
+        "description": "ODTÜ öğrencileri, rozeti doğrulanmış İŞKUR öğrencilerinden mentorluk alır.",
+        "first": "Öğrenciler · Akran Mentorları",
+        "second": "Mentorluk talepleri ve eşleşmeler",
+        "third": "Aktif mentorluk kategorileri"
+      },
+      "OFFICE_HOURS": {
+        "description": "Tüm ODTÜ akademisyenleri davetsiz dahil olur; tüm öğrenciler randevu talep eder.",
+        "first": "Akademisyenler · Öğrenciler (otomatik)",
+        "second": "Randevular — akademisyen onaylı",
+        "third": "Davet ve eşleştirme yok"
+      }
+    },
+    "typeLabel": "Program türü",
+    "name": "Program adı",
+    "namePlaceholder": "örn. Kariyer Akran Mentörlüğü 2027",
+    "start": "Başlangıç",
+    "end": "Bitiş",
+    "description": "Kısa açıklama",
+    "descriptionHint": "Koordinatör ve katılımcılar program sayfasında görür. {used} / {max}",
+    "termsTitle": "Koşulları koordinatör belirler",
+    "termsBody": "Mentorluk kategorileri, kapasite ve eşleşme kuralları gibi işleyiş ayarlarını atadığın koordinatör Program Ayarları'ndan yapılandırır.",
+    "coordinatorsTitle": "Programa koordinatör ata",
+    "coordinatorsNote": "Koordinatör programın koşullarını yapılandırır ve operasyonu yönetir. Bir koordinatör farklı türde birden fazla programdan sorumlu olabilir.",
+    "coordinatorSearch": "Koordinatör ara",
+    "coordinatorsLoading": "Koordinatörler yükleniyor…",
+    "coordinatorsFailed": "Koordinatörler yüklenemedi.",
+    "coordinatorResults": "{count} sonuç · Onaylı koordinatörler",
+    "noCoordinators": "Bu aramaya uyan onaylı koordinatör yok. Yeni koordinatörü Kullanıcılar › Koordinatörler bölümünden ekleyebilirsin.",
+    "programLoad": "{count} program · {names}",
+    "noPrograms": "Şu an programı yok",
+    "busy": "Yoğun",
+    "available": "Yük uygun",
+    "chosenTitle": "Seçilen koordinatör",
+    "noneChosen": "Henüz koordinatör seçilmedi.",
+    "removeCoordinator": "{name} seçimini kaldır",
+    "summaryTitle": "Özet",
+    "summaryType": "Program türü",
+    "summaryName": "Program adı",
+    "summaryDates": "Tarih",
+    "noDates": "Belirtilmedi",
+    "summaryCoordinators": "Koordinatör",
+    "summaryStatus": "Durum",
+    "savedAsDraft": "Kaydedildiğinde: Taslak",
+    "afterTitle": "Kaydettikten sonra",
+    "afterDraft": "Program \"Taslak\" olarak oluşturulur.",
+    "afterCoordinator": "Program, koordinatörün ({names}) Programlarım listesinde görünür; koşulları o yapılandırır.",
+    "afterLaunch": "Hazır olduğunda Program Detayı'ndan programı başlatırsın.",
+    "cancel": "Vazgeç",
+    "previous": "Geri",
+    "next": "Devam Et",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…"
+  },
   "adminProgramWizard": {
     "breadcrumb": "Programlar",
     "newProgram": "Yeni Program Oluştur",
@@ -6644,7 +6763,16 @@
         "send": "Talep gönder",
         "sending": "Gönderiliyor…",
         "sent": "Talebin gönderildi."
-      }
+      },
+      "cancelMeeting": "Görüşmeyi iptal et",
+      "confirmCancel": "İptal et",
+      "cancelReason": "İptal sebebi (isteğe bağlı)",
+      "cancelReasonLate": "İptal sebebi: görüşmeye 24 saatten az kaldı, öğrenci için yazman gerekiyor",
+      "cancelReasonRequired": "Görüşmeye 24 saatten az kaldı; öğrenci için bir iptal sebebi yaz.",
+      "cancelledBy": "{name} görüşmeyi iptal etti",
+      "cancelledByYou": "Görüşmeyi iptal ettin",
+      "lateCancel": "Son 24 saatte iptal",
+      "cancelledReason": "Neden: {reason}"
     }
   },
   "academicianWorkspace": {

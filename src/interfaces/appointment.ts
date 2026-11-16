@@ -66,4 +66,6 @@ export type Appointment = AppointmentTime & {
    */
   canAcceptAlternative?: boolean | undefined;
   canWithdraw?: boolean | undefined;
+  /** Office Hours: whether the backend lets the student call off the booked meeting. Absent means no. */
+  canCancel?: boolean | undefined;
 };

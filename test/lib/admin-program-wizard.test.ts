@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { ProgramType } from "@/interfaces/program";
+import type { AdminOverview, AdminUser } from "@/interfaces/admin-overview";
+import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import { UserAccountStatus, UserRole } from "@/interfaces/session";
 import {
+  BUSY_COORDINATOR_PROGRAMS,
+  coordinatorLoads,
   createProgramInput,
   emptyWizardDraft,
+  matchesCoordinatorQuery,
   stepProblem,
+  toggleCoordinator,
   WizardProblem,
   WizardStep,
 } from "@/lib/admin-program-wizard";
@@ -13,6 +19,7 @@ import {
   existingChoice,
   invitedChoice,
 } from "@/lib/coordinator-picker";
+import { adminProgram } from "@test/fixtures/admin-programs";
 
 describe("admin program wizard", () => {
   it("chooses the type up front only when the edition offers a single one", () => {
@@ -96,5 +103,103 @@ describe("admin program wizard", () => {
       coordinatorIds: ["c1"],
       newCoordinators: [{ fullName: "Yeni Kişi", email: "yeni@teknokent.org" }],
     });
+  });
+});
+
+function person(
+  id: string,
+  fullName: string,
+  overrides: Partial<AdminUser> = {},
+): AdminUser {
+  return {
+    id,
+    email: `${id}@metu.test`,
+    fullName,
+    role: UserRole.Coordinator,
+    status: UserAccountStatus.Approved,
+    organizationId: null,
+    organizationName: null,
+    jobTitle: null,
+    ...overrides,
+  };
+}
+
+describe("the ODTÜ wizard's coordinators", () => {
+  const overview: AdminOverview = {
+    programs: [
+      adminProgram({ id: "a", name: "Akran", coordinatorIds: ["ilk"] }),
+      adminProgram({
+        id: "b",
+        name: "Taslak",
+        status: ProgramStatus.Draft,
+        coordinatorIds: ["ilk"],
+      }),
+      adminProgram({ id: "c", name: "OH", coordinatorIds: ["ilk"] }),
+      adminProgram({
+        id: "d",
+        name: "Biten",
+        status: ProgramStatus.Completed,
+        coordinatorIds: ["ikinci"],
+      }),
+    ],
+    users: [
+      person("ikinci", "Şule İnce"),
+      person("ilk", "Çağrı Ak"),
+      person("mentor", "Mentor Kişi", { role: UserRole.Mentor }),
+      person("red", "Reddedilen", { status: UserAccountStatus.Rejected }),
+    ],
+    mentorships: [],
+    requests: [],
+    bottlenecks: [],
+    meetingsLast8Weeks: 0,
+  };
+
+  it("lists approved coordinators in Turkish order with the programs they run now", () => {
+    expect(coordinatorLoads(overview)).toEqual([
+      {
+        id: "ilk",
+        fullName: "Çağrı Ak",
+        email: "ilk@metu.test",
+        programs: ["Akran", "Taslak", "OH"],
+        busy: true,
+      },
+      {
+        id: "ikinci",
+        fullName: "Şule İnce",
+        email: "ikinci@metu.test",
+        programs: [],
+        busy: false,
+      },
+    ]);
+    expect(BUSY_COORDINATOR_PROGRAMS).toBe(3);
+  });
+
+  it("finds a coordinator by name or e-mail, Turkish case-insensitive", () => {
+    const [cagri, sule] = coordinatorLoads(overview);
+    if (!cagri || !sule) throw new Error("missing loads");
+    expect(matchesCoordinatorQuery(sule, "İNCE")).toBe(true);
+    expect(matchesCoordinatorQuery(cagri, "ilk@")).toBe(true);
+    expect(matchesCoordinatorQuery(cagri, "şule")).toBe(false);
+    expect(matchesCoordinatorQuery(cagri, "  ")).toBe(true);
+    expect(matchesCoordinatorQuery(cagri, "CAĞRI")).toBe(false);
+    expect(matchesCoordinatorQuery(sule, "ince")).toBe(true);
+    expect(matchesCoordinatorQuery(cagri, "ILK@")).toBe(true);
+  });
+
+  it("picks and unpicks a coordinator, keeping the others", () => {
+    const [cagri, sule] = coordinatorLoads(overview);
+    if (!cagri || !sule) throw new Error("missing loads");
+    const invited = invitedChoice("yeni@metu.test", "Yeni Kişi");
+    const picked = toggleCoordinator([invited], cagri);
+    expect(picked).toEqual([
+      invited,
+      {
+        kind: CoordinatorChoiceKind.Existing,
+        id: "ilk",
+        fullName: "Çağrı Ak",
+        email: "ilk@metu.test",
+      },
+    ]);
+    expect(toggleCoordinator(picked, cagri)).toEqual([invited]);
   });
 });

@@ -127,7 +127,7 @@ export const OFFICE_HOURS_COURSE_PATHS = [
   /^instructors$/,
   /^instructors\/[0-9a-f-]{36}\/slots$/,
   /^requests$/,
-  /^requests\/[0-9a-f-]{36}\/(decision|reply|accept-proposed|withdraw)$/,
+  /^requests\/[0-9a-f-]{36}\/(decision|reply|accept-proposed|withdraw|cancel)$/,
   /^meetings$/,
 ] as const;
 
