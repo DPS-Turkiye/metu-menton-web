@@ -6,6 +6,7 @@ import type {
   ProgramStatus,
   ProgramType,
 } from "@/interfaces/program";
+import type { ProgramCounts } from "@/interfaces/program-counts";
 import type { UserAccountStatus, UserRole } from "@/interfaces/session";
 
 export type AdminProgram = {
@@ -14,6 +15,9 @@ export type AdminProgram = {
   status: ProgramStatus;
   type: ProgramType;
   createdAt: string;
+  /** The planned run; null while a draft has none. Absent from a backend without the participant counts. */
+  startDate?: string | null;
+  endDate?: string | null;
   /** The first assigned coordinator; null until one is assigned (an admin who created it doesn't count). */
   coordinatorId: string | null;
   /** Every assigned coordinator, comma-separated; null until one is assigned. */
@@ -25,6 +29,8 @@ export type AdminProgram = {
   pendingMentorCount: number;
   startups: AdminStartup[];
   mentors: AdminMentorMembership[];
+  /** A peer or Office Hours program's participants; absent from an older backend. */
+  counts?: ProgramCounts;
 };
 
 /** What the admin puts into a program; also the path segment of the assignment. */
