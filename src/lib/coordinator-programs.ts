@@ -108,6 +108,21 @@ export function formatMonthRange(
   return `${from} – ${to}`.trim();
 }
 
+/**
+ * A program's run for a list: "Şub – Ara 2026", "Eyl 2026 – Oca 2027", the one month when only one date is known,
+ * and "" with neither.
+ */
+export function formatProgramRun(
+  start: string | null,
+  end: string | null,
+  locale: string,
+) {
+  if (start && end)
+    return formatMonthRange(start, end, locale, { shareYear: true });
+  const only = start ?? end;
+  return only ? formatMonthYear(only, locale) : "";
+}
+
 export function daysUntil(date: string, today = new Date()) {
   const start = new Date(
     today.getFullYear(),
