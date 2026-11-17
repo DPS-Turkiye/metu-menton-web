@@ -7,6 +7,7 @@ import {
   fetchOfficeHoursAvailability,
   saveOfficeHoursAvailability,
 } from "@/lib/api/lti";
+import { APP_URL } from "@/lib/const";
 import { requireOfficeHoursUser } from "@/lib/server/office-hours-session";
 import { SessionRequiredError } from "@/lib/server/session-error";
 import { backendRefusal } from "@test/fixtures/route-handlers";
@@ -69,6 +70,7 @@ describe("office-hours availability route", () => {
     await PUT(
       new NextRequest("http://localhost", {
         method: "PUT",
+        headers: { origin: new URL(APP_URL).origin },
         body: JSON.stringify({
           rules: [],
           exceptions: [],
@@ -86,6 +88,19 @@ describe("office-hours availability route", () => {
       defaultMeetingDurationMinutes: 45,
       meetingBufferMinutes: 15,
     });
+  });
+
+  it("refuses a save sent from another site", async () => {
+    const response = await PUT(
+      new NextRequest("http://localhost", {
+        method: "PUT",
+        headers: { origin: "https://attacker.example" },
+        body: JSON.stringify({ rules: [] }),
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    expect(saveOfficeHoursAvailability).not.toHaveBeenCalled();
   });
 
   it("passes the backend's refusal on, such as a student trying to edit", async () => {

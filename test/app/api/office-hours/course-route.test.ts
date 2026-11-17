@@ -5,6 +5,7 @@ import {
   GET,
   POST,
 } from "@/app/api/office-hours/courses/[courseId]/[...path]/route";
+import { APP_URL } from "@/lib/const";
 import { backendRequest } from "@/lib/server/backend-client";
 import { requireOfficeHoursUser } from "@/lib/server/office-hours-session";
 import { SessionRequiredError } from "@/lib/server/session-error";
@@ -21,8 +22,12 @@ function params(path: string[]) {
   return { params: Promise.resolve({ courseId: "course-1", path }) };
 }
 
-function post(body: string) {
-  return new NextRequest("http://localhost", { method: "POST", body });
+function post(body: string, origin = new URL(APP_URL).origin) {
+  return new NextRequest("http://localhost", {
+    method: "POST",
+    body,
+    headers: { origin },
+  });
 }
 
 describe("office-hours course route", () => {
@@ -100,6 +105,17 @@ describe("office-hours course route", () => {
     );
 
     expect(response.status).toBe(404);
+    expect(backendRequest).not.toHaveBeenCalled();
+  });
+
+  it("refuses an action posted from another site before the session or the backend is asked", async () => {
+    const response = await POST(
+      post(JSON.stringify({ reason: "x" }), "https://attacker.example"),
+      params(["requests", REQUEST_ID, "cancel"]),
+    );
+
+    expect(response.status).toBe(403);
+    expect(requireOfficeHoursUser).not.toHaveBeenCalled();
     expect(backendRequest).not.toHaveBeenCalled();
   });
 

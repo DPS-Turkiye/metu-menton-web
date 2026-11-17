@@ -17,6 +17,7 @@ import {
 } from "@/lib/server/api-response";
 import type { BackendResponse } from "@/lib/server/backend-client";
 import { requireOfficeHoursUser } from "@/lib/server/office-hours-session";
+import { refuseCrossSite } from "@/lib/server/same-origin";
 
 export async function GET() {
   try {
@@ -30,6 +31,8 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const crossSite = refuseCrossSite(request);
+  if (crossSite) return crossSite;
   try {
     const user = await requireOfficeHoursUser();
     const payload =
