@@ -49,3 +49,9 @@ next-env.d.ts
 
 # Local design QA notes, not part of the app
 design-qa.md
+
+# end-to-end tests (see docs/testing.md)
+/playwright-report/
+/test-results/
+/e2e/.stack/
+/.e2e-backend/
