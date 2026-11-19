@@ -3971,6 +3971,38 @@
     "calendar": "Takvimde gör →",
     "message": "Mesaj gönder"
   },
+  "odtuCoordinatorPrograms": {
+    "title": "Programlarım",
+    "subtitle": "Atandığın {count} program · farklı türdeki programları aynı yerden yönetirsin.",
+    "segmentsLabel": "Program durumu",
+    "segments": {
+      "ALL": "Tümü {count}",
+      "ACTIVE": "Aktif {count}",
+      "DRAFT": "Taslak {count}"
+    },
+    "typeLabel": "Program türü",
+    "typeAll": "Program türü: Tümü",
+    "draftsTitle": "Yapılandırma bekleyen program",
+    "draftsBody": "{names} için koşulları belirle. Admin programı başlatmadan önce ayarlarını kaydetmen önerilir.",
+    "stats": {
+      "teams": "takım",
+      "mentors": "mentor",
+      "openActions": "açık iş",
+      "students": "öğrenci",
+      "peerMentors": "akran mentoru",
+      "openRequests": "bekleyen talep",
+      "activeCategories": "aktif kategori",
+      "academicians": "akademisyen",
+      "withAvailability": "müsaitliği olan",
+      "awaitingDecision": "onay bekliyor"
+    },
+    "open": "Programı Aç",
+    "settings": "Program Ayarları",
+    "loading": "Programların yükleniyor…",
+    "loadFailed": "Programların yüklenemedi.",
+    "none": "Henüz atandığın bir program yok. Admin seni bir programa atadığında burada görünür.",
+    "noMatch": "Bu filtrelere uyan program yok."
+  },
   "coordinatorPrograms": {
     "filters": {
       "ALL": "Tümü {count}",

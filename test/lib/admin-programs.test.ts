@@ -11,10 +11,9 @@ import {
   participantsLabel,
   programCoordinators,
   programDateLabel,
-  ProgramStatusFilter,
-  statusCounts,
 } from "@/lib/admin-programs";
 import { formatMonthRange } from "@/lib/coordinator-programs";
+import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
 import { ALL_PROGRAM_TYPES } from "@/lib/program-types";
 import { adminProgram } from "@test/fixtures/admin-programs";
 import { translatorIn } from "@test/translators";

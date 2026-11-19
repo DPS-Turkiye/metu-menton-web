@@ -2,7 +2,11 @@ import type { useTranslations } from "next-intl";
 
 import type { AdminProgram, AdminUser } from "@/interfaces/admin-overview";
 import { ProgramStatus, ProgramType } from "@/interfaces/program";
-import { formatMonthRange, formatMonthYear } from "@/lib/coordinator-programs";
+import { formatMonthYear, formatProgramRun } from "@/lib/coordinator-programs";
+import {
+  matchesStatus,
+  type ProgramStatusFilter,
+} from "@/lib/program-status-filter";
 import {
   matchesProgramType,
   type ProgramTypeFilter,
@@ -11,14 +15,6 @@ import {
 export type AdminProgramsT = ReturnType<
   typeof useTranslations<"odtuAdminPrograms">
 >;
-
-/** The admin's Programlar segments, in display order (Figma 152:7056). */
-export enum ProgramStatusFilter {
-  All = "ALL",
-  Active = "ACTIVE",
-  Draft = "DRAFT",
-  Completed = "COMPLETED",
-}
 
 export const ALL_COORDINATORS = "ALL";
 
@@ -30,36 +26,6 @@ export type AdminProgramFilters = {
   coordinatorId: string;
   search: string;
 };
-
-const SEGMENT_STATUS: Record<
-  Exclude<ProgramStatusFilter, ProgramStatusFilter.All>,
-  ProgramStatus
-> = {
-  [ProgramStatusFilter.Active]: ProgramStatus.Active,
-  [ProgramStatusFilter.Draft]: ProgramStatus.Draft,
-  [ProgramStatusFilter.Completed]: ProgramStatus.Completed,
-};
-
-function matchesStatus(program: AdminProgram, filter: ProgramStatusFilter) {
-  return (
-    filter === ProgramStatusFilter.All ||
-    program.status === SEGMENT_STATUS[filter]
-  );
-}
-
-/** How many programs each segment holds. */
-export function statusCounts(
-  programs: readonly AdminProgram[],
-): Record<ProgramStatusFilter, number> {
-  const count = (filter: ProgramStatusFilter) =>
-    programs.filter((program) => matchesStatus(program, filter)).length;
-  return {
-    [ProgramStatusFilter.All]: count(ProgramStatusFilter.All),
-    [ProgramStatusFilter.Active]: count(ProgramStatusFilter.Active),
-    [ProgramStatusFilter.Draft]: count(ProgramStatusFilter.Draft),
-    [ProgramStatusFilter.Completed]: count(ProgramStatusFilter.Completed),
-  };
-}
 
 /**
  * A program's coordinators, first one first. The label lists the same people in the same order, so it names anyone
@@ -139,9 +105,7 @@ export function programDateLabel(
       ? t("draftDate", { date: formatMonthYear(start, locale) })
       : "—";
   }
-  const only = start && !end ? start : end && !start ? end : null;
-  if (only) return formatMonthYear(only, locale);
-  return formatMonthRange(start, end, locale, { shareYear: true }) || "—";
+  return formatProgramRun(start, end, locale) || "—";
 }
 
 /**

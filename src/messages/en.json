@@ -3969,6 +3969,38 @@
     "calendar": "See it in the calendar →",
     "message": "Send a message"
   },
+  "odtuCoordinatorPrograms": {
+    "title": "My programs",
+    "subtitle": "{count, plural, one {# program assigned to you} other {# programs assigned to you}} · run programs of every type from one place.",
+    "segmentsLabel": "Program status",
+    "segments": {
+      "ALL": "All {count}",
+      "ACTIVE": "Active {count}",
+      "DRAFT": "Draft {count}"
+    },
+    "typeLabel": "Program type",
+    "typeAll": "Program type: All",
+    "draftsTitle": "Program waiting to be set up",
+    "draftsBody": "Set the terms for {names}. Save the settings before the admin starts the program.",
+    "stats": {
+      "teams": "teams",
+      "mentors": "mentors",
+      "openActions": "open actions",
+      "students": "students",
+      "peerMentors": "peer mentors",
+      "openRequests": "pending requests",
+      "activeCategories": "active categories",
+      "academicians": "academicians",
+      "withAvailability": "with availability",
+      "awaitingDecision": "awaiting approval"
+    },
+    "open": "Open program",
+    "settings": "Program settings",
+    "loading": "Loading your programs…",
+    "loadFailed": "Your programs could not be loaded.",
+    "none": "You are not assigned to a program yet. It shows here once the admin assigns you.",
+    "noMatch": "No program matches these filters."
+  },
   "coordinatorPrograms": {
     "filters": {
       "ALL": "All {count}",
