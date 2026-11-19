@@ -17,6 +17,7 @@ export enum ProgramTab {
   MentorPool = "MENTOR_POOL",
   Students = "STUDENTS",
   PeerMentors = "PEER_MENTORS",
+  IskurTeams = "ISKUR_TEAMS",
   Academics = "ACADEMICS",
   Matching = "MATCHING",
   Appointments = "APPOINTMENTS",
@@ -34,6 +35,7 @@ export const ParticipantTab = {
   MentorPool: ProgramTab.MentorPool,
   Students: ProgramTab.Students,
   PeerMentors: ProgramTab.PeerMentors,
+  IskurTeams: ProgramTab.IskurTeams,
   Academics: ProgramTab.Academics,
 } as const;
 export type ParticipantTab =
@@ -74,6 +76,7 @@ const PARTICIPANT_PAGES = [
   ProgramTab.MentorPool,
   ProgramTab.Students,
   ProgramTab.PeerMentors,
+  ProgramTab.IskurTeams,
   ProgramTab.Academics,
 ];
 
@@ -188,6 +191,11 @@ export function participantTabs(
           href: `${base}/peer-mentors`,
           count: null,
         },
+        {
+          id: ParticipantTab.IskurTeams,
+          href: `${base}/iskur`,
+          count: null,
+        },
       ];
     case ProgramType.OfficeHours:
       return [
@@ -232,6 +240,7 @@ export function misplacedTabHref(
         tab === ProgramTab.Participants ||
         tab === ProgramTab.Students ||
         tab === ProgramTab.PeerMentors ||
+        tab === ProgramTab.IskurTeams ||
         tab === ProgramTab.Academics
       )
         return `${base}/teams`;
@@ -242,6 +251,7 @@ export function misplacedTabHref(
         tab === ProgramTab.Teams ||
         tab === ProgramTab.MentorPool ||
         tab === ProgramTab.PeerMentors ||
+        tab === ProgramTab.IskurTeams ||
         tab === ProgramTab.Participants
       )
         return `${base}/academics`;
@@ -270,7 +280,9 @@ export function hasTabContent(type: ProgramType, tab: ProgramTab) {
     type === ProgramType.StartupMentoring ||
     tab === ProgramTab.Settings ||
     (type === ProgramType.PeerMentoring &&
-      (tab === ProgramTab.Students || tab === ProgramTab.PeerMentors)) ||
+      (tab === ProgramTab.Students ||
+        tab === ProgramTab.PeerMentors ||
+        tab === ProgramTab.IskurTeams)) ||
     (type === ProgramType.OfficeHours &&
       (tab === ProgramTab.Academics ||
         tab === ProgramTab.Students ||
