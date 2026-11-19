@@ -52,11 +52,16 @@ async function peerMentoring(
   side: "Mentorluk Al" | "Mentorluk Ver",
 ) {
   await page.goto("/student/peer-mentoring");
-  // The Al / Ver switch is only there for İŞKUR students and peer mentors.
-  const toggle = page
-    .getByRole("group", { name: "Akran mentörlüğü tarafı" })
-    .getByRole("button", { name: side });
-  if (await toggle.count()) await toggle.click();
+  await expect(
+    page.getByRole("heading", { name: "Akran Mentörlüğü", level: 1 }),
+  ).toBeVisible();
+  // Mentorluk Al is the default; the Al / Ver switch is there only for İŞKUR students and peer mentors.
+  if (side === "Mentorluk Ver") {
+    await page
+      .getByRole("group", { name: "Akran mentörlüğü tarafı" })
+      .getByRole("button", { name: side })
+      .click();
+  }
 }
 
 async function upcomingAppointment(page: Page, counterpart: string) {
