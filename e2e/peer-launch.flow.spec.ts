@@ -9,11 +9,10 @@ import {
   Staff,
 } from "./support/personas";
 
-// The weekend launch, end to end on one İŞKUR peer program: the admin opens it, a student earns the Akran Mentoru
-// badge and is found and booked by another student (Akran), then the program gets its İŞKUR structure and the two
-// interns work a week in it (İŞKUR). One program and one database, so the steps run in order. The file name keeps
-// it after office-hours.flow.spec.ts: once the program has İŞKUR units, every student of it is an intern (main until
-// the intern list lands) and Ayşe would be sent to the onboarding.
+// The weekend launch, end to end on one İŞKUR peer program: the admin opens it, the coordinator lists two students
+// as İŞKUR interns, one earns the Akran Mentoru badge and is found and booked by a plain student (Akran), then the
+// program gets its İŞKUR structure and the two interns work a week in it (İŞKUR), while the plain student never sees
+// an İŞKUR screen. One program and one database, so the steps run in order.
 test.describe.configure({ mode: "serial" });
 // ODTÜ's day: a task is due "today" in the browser, and the backend's work days are in Istanbul.
 test.use({ timezoneId: "Europe/Istanbul" });
@@ -32,6 +31,12 @@ const TODAY = new Intl.DateTimeFormat("tr-TR", {
   weekday: "long",
   timeZone: "Europe/Istanbul",
 }).format(new Date());
+
+/** The persona login's addresses (metu-menton-backend dev/odtu-personas.json); Ayşe stays off the list. */
+const INTERN_EMAILS = [
+  "mehmet.kaya@odtu-dev.invalid",
+  "zeynep.demir@odtu-dev.invalid",
+];
 
 let programId = "";
 const accountIds: Partial<Record<Persona, string>> = {};
@@ -106,10 +111,27 @@ test.describe("Akran", () => {
     ).toHaveCount(0, { timeout: 15_000 });
   });
 
-  test("two students are in the program, and the coordinator turns a category on", async ({
+  test("three students are in the program; the coordinator lists two as İŞKUR interns and turns a category on", async ({
     page,
   }) => {
-    await joinProgram(page, [Persona.MehmetKaya, Persona.AyseYilmaz]);
+    await joinProgram(page, [
+      Persona.MehmetKaya,
+      Persona.ZeynepDemir,
+      Persona.AyseYilmaz,
+    ]);
+
+    await signInAsStaff(page, Staff.Coordinator);
+    await page.goto(`/coordinator/programs/${programId}/iskur`);
+    await page
+      .getByLabel("Eklenecek e-posta adresleri")
+      .fill(`${INTERN_EMAILS.join("\n")}\n`);
+    await page.getByRole("button", { name: "Listeye ekle" }).click();
+    const listed = page.getByRole("list", { name: "Listedeki adresler" });
+    for (const email of INTERN_EMAILS) {
+      await expect(
+        listed.getByRole("listitem").filter({ hasText: email }),
+      ).toContainText("Kayıtlı");
+    }
 
     await signInAsStaff(page, Staff.Coordinator);
     await page.goto(`/coordinator/programs/${programId}/settings`);
@@ -292,8 +314,6 @@ test.describe("İŞKUR", () => {
   test("the coordinator builds the default units and teams and places a leader and a member", async ({
     page,
   }) => {
-    await joinProgram(page, [Persona.ZeynepDemir]);
-
     await signInAsStaff(page, Staff.Coordinator);
     await page.goto(`/coordinator/programs/${programId}/iskur`);
     await page
@@ -463,5 +483,32 @@ test.describe("İŞKUR", () => {
     await expect(page.getByText(CHANNEL_MESSAGE)).toBeVisible({
       timeout: 20_000,
     });
+  });
+
+  test("Ayşe, not on the intern list, sees no İŞKUR screen but keeps the mentor list, Office Hours and Randevularım", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.AyseYilmaz);
+    await page.goto("/student");
+    await expect(page).toHaveURL(/\/student$/);
+    await expect(page.getByText(/^Bu Haftam/)).toHaveCount(0);
+    await expect(page.getByText(/^Ekibin belli oldu/)).toHaveCount(0);
+
+    await page.goto("/iskur/onboarding");
+    await expect(
+      page.getByText("Yerleştirme formu sana açık değil"),
+    ).toBeVisible();
+
+    await peerMentoring(page, "Mentorluk Al");
+    await expect(
+      page.getByRole("article", { name: Persona.MehmetKaya }),
+    ).toBeVisible();
+    await page.goto("/student/office-hours");
+    await expect(
+      page.getByRole("heading", { name: "Office Hours", level: 1 }),
+    ).toBeVisible();
+    await expect(
+      await upcomingAppointment(page, Persona.MehmetKaya),
+    ).toHaveCount(1);
   });
 });
