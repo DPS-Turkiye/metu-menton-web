@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
+import { ChatBubble, ChatComposer } from "@/components/common/chat-thread";
 import type { ProgramThreads } from "@/hooks/use-program-threads";
 import {
   conversationTime,
@@ -119,27 +120,14 @@ export function ProgramThreadPane({
           <p className="text-[12px] text-[#858c96]">{t("loading")}</p>
         ) : threads.messages.length ? (
           threads.messages.map((message) => (
-            <article
+            <ChatBubble
               key={message.id}
-              className={`flex flex-col ${message.mine ? "items-end" : "items-start"}`}
-            >
-              <div
-                className={`max-w-[520px] rounded-xl px-3.5 py-3 text-[13px] leading-5 ${message.mine ? "text-white" : "border border-[#e4e7ea] bg-[#f6f7f9]"}`}
-                style={
-                  message.mine ? { backgroundColor: accent.strong } : undefined
-                }
-              >
-                {message.mine ? null : (
-                  <p className="mb-1 text-[10.5px] font-medium text-[#858c96]">
-                    {message.senderName}
-                  </p>
-                )}
-                <p className="whitespace-pre-wrap">{message.body}</p>
-              </div>
-              <time className="mt-1 text-[10px] text-[#858c96]">
-                {messageTime(message.createdAt, locale)}
-              </time>
-            </article>
+              mine={message.mine}
+              senderName={message.senderName}
+              body={message.body}
+              time={messageTime(message.createdAt, locale)}
+              accent={accent}
+            />
           ))
         ) : (
           <p className="text-[12px] text-[#858c96]">{t("empty")}</p>
@@ -148,30 +136,17 @@ export function ProgramThreadPane({
       {threads.sendError ? (
         <p className="px-6 text-[12px] text-red-700">{t("sendFailed")}</p>
       ) : null}
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          threads.send();
-        }}
-        className="flex items-center gap-3 border-t border-[#e4e7ea] px-6 py-4"
-      >
-        <input
-          value={threads.draft}
-          onChange={(event) => threads.setDraft(event.target.value)}
-          maxLength={MAX_MESSAGE_LENGTH}
-          placeholder={t("placeholder")}
-          aria-label={t("inputLabel")}
-          className="h-9 min-w-0 flex-1 rounded-full bg-[#f6f7f9] px-4 text-[13px] outline-none placeholder:text-[#858c96]"
-        />
-        <button
-          type="submit"
-          disabled={!threads.canSend}
-          style={{ backgroundColor: accent.strong }}
-          className="h-9 rounded-full px-[18px] text-[13px] font-semibold text-white disabled:opacity-50"
-        >
-          {t("send")}
-        </button>
-      </form>
+      <ChatComposer
+        value={threads.draft}
+        onChange={threads.setDraft}
+        onSubmit={threads.send}
+        canSend={threads.canSend}
+        maxLength={MAX_MESSAGE_LENGTH}
+        placeholder={t("placeholder")}
+        inputLabel={t("inputLabel")}
+        sendLabel={t("send")}
+        accent={accent}
+      />
     </section>
   );
 }

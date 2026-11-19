@@ -18,6 +18,7 @@ export enum ProgramTab {
   Students = "STUDENTS",
   PeerMentors = "PEER_MENTORS",
   IskurTeams = "ISKUR_TEAMS",
+  IskurChannels = "ISKUR_CHANNELS",
   Academics = "ACADEMICS",
   Matching = "MATCHING",
   Appointments = "APPOINTMENTS",
@@ -36,6 +37,7 @@ export const ParticipantTab = {
   Students: ProgramTab.Students,
   PeerMentors: ProgramTab.PeerMentors,
   IskurTeams: ProgramTab.IskurTeams,
+  IskurChannels: ProgramTab.IskurChannels,
   Academics: ProgramTab.Academics,
 } as const;
 export type ParticipantTab =
@@ -77,6 +79,7 @@ const PARTICIPANT_PAGES = [
   ProgramTab.Students,
   ProgramTab.PeerMentors,
   ProgramTab.IskurTeams,
+  ProgramTab.IskurChannels,
   ProgramTab.Academics,
 ];
 
@@ -196,6 +199,11 @@ export function participantTabs(
           href: `${base}/iskur`,
           count: null,
         },
+        {
+          id: ParticipantTab.IskurChannels,
+          href: `${base}/iskur/messages`,
+          count: null,
+        },
       ];
     case ProgramType.OfficeHours:
       return [
@@ -241,6 +249,7 @@ export function misplacedTabHref(
         tab === ProgramTab.Students ||
         tab === ProgramTab.PeerMentors ||
         tab === ProgramTab.IskurTeams ||
+        tab === ProgramTab.IskurChannels ||
         tab === ProgramTab.Academics
       )
         return `${base}/teams`;
@@ -252,6 +261,7 @@ export function misplacedTabHref(
         tab === ProgramTab.MentorPool ||
         tab === ProgramTab.PeerMentors ||
         tab === ProgramTab.IskurTeams ||
+        tab === ProgramTab.IskurChannels ||
         tab === ProgramTab.Participants
       )
         return `${base}/academics`;
@@ -282,7 +292,8 @@ export function hasTabContent(type: ProgramType, tab: ProgramTab) {
     (type === ProgramType.PeerMentoring &&
       (tab === ProgramTab.Students ||
         tab === ProgramTab.PeerMentors ||
-        tab === ProgramTab.IskurTeams)) ||
+        tab === ProgramTab.IskurTeams ||
+        tab === ProgramTab.IskurChannels)) ||
     (type === ProgramType.OfficeHours &&
       (tab === ProgramTab.Academics ||
         tab === ProgramTab.Students ||

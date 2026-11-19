@@ -5,6 +5,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import {
+  IskurChannelsCard,
+  IskurChannelsOpenedAlert,
+} from "@/components/iskur/iskur-channels-card";
 import { StudentHomeView } from "@/components/student/home-view";
 import { SectionHeader } from "@/components/student/ia/ui";
 import {
@@ -26,8 +30,18 @@ export function IskurHomeView() {
   if (home.mode === IskurHomeMode.None) return <StudentHomeView />;
   return (
     <StudentHomeView
-      main={home.mode === IskurHomeMode.Mentor ? <Giving home={home} /> : null}
-      aside={<MentorSide home={home} />}
+      main={
+        <>
+          <IskurChannelsOpenedAlert />
+          {home.mode === IskurHomeMode.Mentor ? <Giving home={home} /> : null}
+        </>
+      }
+      aside={
+        <>
+          <IskurChannelsCard />
+          <MentorSide home={home} />
+        </>
+      }
     />
   );
 }

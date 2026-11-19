@@ -50,6 +50,9 @@ vi.mock("@/components/providers/session-provider", () => ({
 vi.mock("@/components/common/notification-menu", () => ({
   NotificationMenu: () => null,
 }));
+vi.mock("@/components/iskur/iskur-messages-menu", () => ({
+  IskurMessagesMenu: () => <button type="button">İŞKUR Mesajlar</button>,
+}));
 // The tour has its own tests (test/components/product-tour); here it would only open over the menus.
 vi.mock("@/components/product-tour/product-tour", () => ({
   ProductTour: () => null,
@@ -72,6 +75,9 @@ describe("StudentFrame", () => {
         <p>Ana içerik</p>
       </StudentFrame>,
     );
+    expect(
+      screen.getByRole("button", { name: "İŞKUR Mesajlar" }),
+    ).toBeInTheDocument();
     const nav = desktopNav("Öğrenci menüsü");
     expect(within(nav).getByRole("link", { name: "Anasayfa" })).toHaveAttribute(
       "aria-current",
