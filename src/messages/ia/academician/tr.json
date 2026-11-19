@@ -256,6 +256,7 @@
     "errors": {
       "needFields": "Tarih ve saatleri doldur.",
       "endAfterStart": "Bitiş, başlangıçtan sonra olmalı.",
+      "tooShort": "Tek seferlik saat en az 15 dakika olmalı.",
       "overlap": "Bu saatler mevcut bir kayıtla çakışıyor.",
       "past": "Geçmiş bir saate müsaitlik eklenemez.",
       "insideDayOff": "Bu gün müsait değil olarak işaretli; önce o günü kaldır.",

@@ -97,6 +97,13 @@ export type BackendOfficeHoursAvailability = {
   studentCapacity: number | null;
   defaultMeetingDurationMinutes: number;
   meetingBufferMinutes: number;
+  /** Hours on single dates (FR-OH-19), as instants with Turkey's offset. */
+  oneOffs: {
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    place: string | null;
+  }[];
 };
 
 function availabilityUrl(userId: string) {
@@ -112,9 +119,14 @@ export function fetchOfficeHoursAvailability(userId: string) {
 
 export function saveOfficeHoursAvailability(
   userId: string,
-  payload: Omit<BackendOfficeHoursAvailability, "rules" | "exceptions"> & {
+  payload: Omit<
+    BackendOfficeHoursAvailability,
+    "rules" | "exceptions" | "oneOffs"
+  > & {
     rules: unknown[];
     exceptions: unknown[];
+    /** Left out, the saved one-off hours stay. */
+    oneOffs?: unknown[] | undefined;
   },
 ) {
   return backendRequest<BackendOfficeHoursAvailability>({

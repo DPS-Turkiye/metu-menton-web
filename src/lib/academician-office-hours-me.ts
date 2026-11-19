@@ -14,7 +14,6 @@ import {
   AppointmentSide,
   AppointmentStatus,
 } from "@/interfaces/appointment";
-import type { MentorAvailabilitySettings } from "@/interfaces/mentor";
 import {
   OfficeHoursRequestStatus,
   OfficeHoursRole,
@@ -142,12 +141,9 @@ export function toAnswerInput(
   }
 }
 
-/**
- * The weekly settings as the editor reads them: times as "HH:mm" (the backend sends "HH:mm:ss"), and no one-off
- * hours until they have a backend (G5).
- */
+/** The settings as the editor reads them: weekly times as "HH:mm" (the backend sends "HH:mm:ss"). */
 export function toAcademicianAvailability(
-  settings: MentorAvailabilitySettings,
+  settings: AcademicianAvailability,
 ): AcademicianAvailability {
   return {
     ...settings,
@@ -156,6 +152,5 @@ export function toAcademicianAvailability(
       startTime: toTimeInput(rule.startTime),
       endTime: toTimeInput(rule.endTime),
     })),
-    oneOffs: [],
   };
 }

@@ -103,13 +103,11 @@ function EditorLists({ editor }: { editor: AcademicianAvailabilityEditor }) {
           rows={editor.recurring}
         />
       </div>
-      {editor.offersOneOffs ? (
-        <ListCard
-          editor={editor}
-          kind={AvailabilityItemKind.OneOff}
-          rows={editor.oneOff}
-        />
-      ) : null}
+      <ListCard
+        editor={editor}
+        kind={AvailabilityItemKind.OneOff}
+        rows={editor.oneOff}
+      />
       <ListCard
         editor={editor}
         kind={AvailabilityItemKind.Unavailable}
