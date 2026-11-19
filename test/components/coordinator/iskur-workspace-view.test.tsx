@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IskurWorkspaceView } from "@/components/coordinator/iskur-workspace-view";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
+import { getIskurInterns } from "@/lib/client/iskur-interns";
 import {
   getIskurApplications,
   replaceIskurUnitSkills,
@@ -22,6 +23,7 @@ import {
   updateIskurTeam,
   updateIskurUnit,
 } from "@/lib/client/iskur-workspace";
+import { iskurInternList } from "@test/fixtures/iskur-interns";
 import { applications, KREATIF } from "@test/fixtures/iskur-onboarding";
 import { iskurWorkspace } from "@test/fixtures/iskur-workspace";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -45,6 +47,12 @@ vi.mock("@/lib/client/iskur-workspace", () => ({
   unplaceIskurIntern: vi.fn(),
   updateIskurTeam: vi.fn(),
   updateIskurUnit: vi.fn(),
+}));
+
+vi.mock("@/lib/client/iskur-interns", () => ({
+  getIskurInterns: vi.fn(),
+  addIskurInterns: vi.fn(),
+  removeIskurIntern: vi.fn(),
 }));
 
 vi.mock("@/lib/client/iskur-onboarding", () => ({
@@ -81,6 +89,7 @@ describe("IskurWorkspaceView", () => {
     vi.clearAllMocks();
     vi.mocked(getIskurWorkspace).mockResolvedValue(workspace);
     vi.mocked(getIskurApplications).mockResolvedValue(noForms);
+    vi.mocked(getIskurInterns).mockResolvedValue(iskurInternList([]));
     for (const change of [
       createDefaultIskurStructure,
       createIskurTeam,
