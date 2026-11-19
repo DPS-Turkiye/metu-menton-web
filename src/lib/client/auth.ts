@@ -1,6 +1,7 @@
 import type { ProgramEligibility } from "@/interfaces/program";
 import type { AppSession, BackendUser } from "@/interfaces/session";
 import type { ContactPreference } from "@/interfaces/signup";
+import type { StudentRegistration } from "@/interfaces/student-signup";
 import type { Workspace } from "@/interfaces/workspace";
 import { requireSuccess } from "@/lib/client/api";
 import { currentIdToken } from "@/lib/firebase/auth";
@@ -107,6 +108,20 @@ export async function registerMember(
   return requireSuccess(
     await httpClient.post<BackendUser>(
       "/api/auth/register/member",
+      input,
+      bearer(idToken),
+    ),
+  );
+}
+
+/** ODTÜ: the backend takes the address from the token, so the payload carries none. */
+export async function registerStudent(
+  input: StudentRegistration,
+  idToken: string,
+) {
+  return requireSuccess(
+    await httpClient.post<BackendUser>(
+      "/api/auth/register/student",
       input,
       bearer(idToken),
     ),
