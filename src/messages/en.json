@@ -4059,6 +4059,7 @@
       "STUDENTS": "Students",
       "PEER_MENTORS": "Peer Mentors",
       "ISKUR_TEAMS": "İŞKUR Teams",
+      "ISKUR_CHANNELS": "İŞKUR Channels",
       "ACADEMICS": "Academics",
       "REPORTS": "Reports"
     },
@@ -4147,6 +4148,7 @@
       "STUDENTS": "Students",
       "PEER_MENTORS": "Peer mentors",
       "ISKUR_TEAMS": "İŞKUR Teams",
+      "ISKUR_CHANNELS": "İŞKUR Channels",
       "ACADEMICS": "Academics"
     },
     "typeTabEmptyAdmin": "This section is not ready for {type} programs yet. The program’s coordinators set up its conditions in Program settings.",
@@ -6286,7 +6288,12 @@
     "iskurDocumentInvalid": "Invalid document: choose a PDF of at most 10 MB.",
     "iskurDocumentUploadFailed": "The document could not be saved.",
     "iskurTeamLoadFailed": "Your team could not be loaded.",
-    "iskurApplicationsLoadFailed": "The placement forms could not be loaded."
+    "iskurApplicationsLoadFailed": "The placement forms could not be loaded.",
+    "iskurChannelsLoadFailed": "İŞKUR channels could not be loaded.",
+    "iskurMessageSendFailed": "The message could not be sent.",
+    "iskurChannelsInvalid": "The message details are not valid.",
+    "iskurAcknowledgeFailed": "The read confirmation could not be saved.",
+    "iskurPreferencesSaveFailed": "The notification setting could not be saved."
   },
   "startupStart": {
     "title": "My startup",
@@ -7811,6 +7818,74 @@
       "skillsSaveFailed": "The skills could not be saved.",
       "skillsInvalid": "At most 30 skills, each at most 80 characters.",
       "loadFailed": "The placement forms could not be loaded."
+    }
+  },
+  "iskurChannels": {
+    "title": "Messages",
+    "loading": "Loading…",
+    "loadFailed": "Messages could not be loaded.",
+    "noChannels": "Your channels open once your team placement is final.",
+    "listLabel": "Channels",
+    "group": {
+      "ANNOUNCEMENTS": "Announcements",
+      "UNIT": "Unit",
+      "TEAM": "Thematic team",
+      "LEADER_DIRECT": "One to one"
+    },
+    "withYourLeader": "{name} · your team leader",
+    "unread": "{count} unread messages",
+    "new": "New",
+    "subtitle": {
+      "announcements": "Broadcast channel · {count} people · only authorised coordinators post",
+      "unit": "Unit channel · {count} people",
+      "team": "Thematic team channel · {count} people",
+      "withLeader": "One to one with your team leader",
+      "withMember": "One to one with your team"
+    },
+    "older": "Older messages",
+    "empty": "No messages in this channel yet.",
+    "formerMember": "Former member",
+    "coordinatorTag": "Coordinator",
+    "importantTag": "Important",
+    "note": {
+      "announcementsLocked": "🔒 Only authorised coordinators post in this channel. For questions use your team channel or your one to one with your leader.",
+      "coordinatorReadOnly": "You can view this channel; only the team's members write here."
+    },
+    "sendFailed": "The message could not be sent.",
+    "placeholder": "Write a message…",
+    "inputLabel": "Message",
+    "send": "Send",
+    "titlePlaceholder": "Announcement title (optional)",
+    "titleLabel": "Announcement title",
+    "markImportant": "Important · ask for a read confirmation",
+    "acknowledge": "I have read it",
+    "acknowledgeAsked": "A read confirmation is asked for this announcement",
+    "acknowledged": "✓ You read it · {time}",
+    "receiptsCount": "{read} / {total} people read it",
+    "receipts": {
+      "title": "Read confirmations",
+      "notYet": "Not read yet",
+      "close": "Close"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "important": "Important announcements (always on)",
+      "TEAM": "Thematic team channel",
+      "LEADER_DIRECT": "One to one with your team leader",
+      "UNIT": "Unit channel",
+      "hint": "No notifications outside work days or after 19:00. Messages do not count as work time."
+    },
+    "menu": {
+      "label": "Messages",
+      "labelUnread": "Messages, {count} unread",
+      "openAll": "Open all messages →"
+    },
+    "opened": {
+      "title": "Your team placement is final: {team}",
+      "body": "{count} channels were created for you. You can change notification settings in Messages."
+    },
+    "card": {
+      "title": "Your channels"
     }
   }
 }

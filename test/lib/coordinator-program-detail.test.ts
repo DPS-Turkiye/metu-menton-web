@@ -190,9 +190,17 @@ describe("program tabs by type", () => {
         href: "/coordinator/programs/p1/iskur",
         count: null,
       },
+      {
+        id: ParticipantTab.IskurChannels,
+        href: "/coordinator/programs/p1/iskur/messages",
+        count: null,
+      },
     ]);
     expect(
       hasTabContent(ProgramType.PeerMentoring, ProgramTab.IskurTeams),
+    ).toBe(true);
+    expect(
+      hasTabContent(ProgramType.PeerMentoring, ProgramTab.IskurChannels),
     ).toBe(true);
     expect(hasTabContent(ProgramType.PeerMentoring, ProgramTab.Students)).toBe(
       true,

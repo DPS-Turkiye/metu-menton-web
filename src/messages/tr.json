@@ -4061,6 +4061,7 @@
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
       "ISKUR_TEAMS": "İŞKUR Ekipleri",
+      "ISKUR_CHANNELS": "İŞKUR Kanalları",
       "ACADEMICS": "Akademisyenler",
       "REPORTS": "Raporlar"
     },
@@ -4149,6 +4150,7 @@
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
       "ISKUR_TEAMS": "İŞKUR Ekipleri",
+      "ISKUR_CHANNELS": "İŞKUR Kanalları",
       "ACADEMICS": "Akademisyenler"
     },
     "typeTabEmptyAdmin": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını koordinatörleri Program Ayarları’nda yapılandırır.",
@@ -6288,7 +6290,12 @@
     "iskurDocumentInvalid": "Belge geçersiz: en fazla 10 MB'lık bir PDF seçin.",
     "iskurDocumentUploadFailed": "Belge kaydedilemedi.",
     "iskurTeamLoadFailed": "Ekibin yüklenemedi.",
-    "iskurApplicationsLoadFailed": "Yerleştirme formları yüklenemedi."
+    "iskurApplicationsLoadFailed": "Yerleştirme formları yüklenemedi.",
+    "iskurChannelsLoadFailed": "İŞKUR kanalları yüklenemedi.",
+    "iskurMessageSendFailed": "Mesaj gönderilemedi.",
+    "iskurChannelsInvalid": "Mesaj bilgileri geçersiz.",
+    "iskurAcknowledgeFailed": "Okundu onayı kaydedilemedi.",
+    "iskurPreferencesSaveFailed": "Bildirim tercihi kaydedilemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -7813,6 +7820,74 @@
       "skillsSaveFailed": "Yetkinlikler kaydedilemedi.",
       "skillsInvalid": "En fazla 30 yetkinlik; her biri en fazla 80 karakter.",
       "loadFailed": "Yerleştirme formları yüklenemedi."
+    }
+  },
+  "iskurChannels": {
+    "title": "Mesajlar",
+    "loading": "Yükleniyor…",
+    "loadFailed": "Mesajlar yüklenemedi.",
+    "noChannels": "Kanalların, ekip ataman kesinleşince açılır.",
+    "listLabel": "Kanallar",
+    "group": {
+      "ANNOUNCEMENTS": "Duyurular",
+      "UNIT": "Birim",
+      "TEAM": "Tematik ekip",
+      "LEADER_DIRECT": "Birebir"
+    },
+    "withYourLeader": "{name} · ekip liderin",
+    "unread": "{count} okunmamış mesaj",
+    "new": "Yeni",
+    "subtitle": {
+      "announcements": "Yayın kanalı · {count} kişi · yalnızca yetkili koordinatörler paylaşır",
+      "unit": "Birim kanalı · {count} kişi",
+      "team": "Tematik ekip kanalı · {count} kişi",
+      "withLeader": "Ekip liderinle birebir",
+      "withMember": "Ekibinden birebir"
+    },
+    "older": "Daha eski mesajlar",
+    "empty": "Bu kanalda henüz mesaj yok.",
+    "formerMember": "Eski üye",
+    "coordinatorTag": "Koordinatör",
+    "importantTag": "Önemli",
+    "note": {
+      "announcementsLocked": "🔒 Bu kanalda yalnızca yetkili koordinatörler paylaşım yapabilir. Soruların için ekip kanalını veya liderinle birebir mesajı kullan.",
+      "coordinatorReadOnly": "Bu kanalı görüntüleyebilirsin; yalnızca ekip üyeleri yazar."
+    },
+    "sendFailed": "Mesaj gönderilemedi.",
+    "placeholder": "Mesaj yaz…",
+    "inputLabel": "Mesaj",
+    "send": "Gönder",
+    "titlePlaceholder": "Duyuru başlığı (isteğe bağlı)",
+    "titleLabel": "Duyuru başlığı",
+    "markImportant": "Önemli · okundu onayı iste",
+    "acknowledge": "Okudum",
+    "acknowledgeAsked": "Bu duyuru için okundu onayı isteniyor",
+    "acknowledged": "✓ Okudun · {time}",
+    "receiptsCount": "{read} / {total} kişi okudu",
+    "receipts": {
+      "title": "Okundu onayları",
+      "notYet": "Henüz okumadı",
+      "close": "Kapat"
+    },
+    "notifications": {
+      "title": "Bildirimler",
+      "important": "Önemli duyurular (kapatılamaz)",
+      "TEAM": "Tematik ekip kanalı",
+      "LEADER_DIRECT": "Ekip liderinle birebir",
+      "UNIT": "Birim kanalı",
+      "hint": "Görev günü dışında ve 19:00’dan sonra bildirim gönderilmez. Mesajlar çalışma süresine sayılmaz."
+    },
+    "menu": {
+      "label": "Mesajlar",
+      "labelUnread": "Mesajlar, {count} okunmamış",
+      "openAll": "Tüm mesajları aç →"
+    },
+    "opened": {
+      "title": "Ekip atamanız kesinleşti: {team}",
+      "body": "{count} kanal otomatik oluşturuldu. Bildirim tercihlerini Mesajlar’dan değiştirebilirsin."
+    },
+    "card": {
+      "title": "Kanalların"
     }
   }
 }
