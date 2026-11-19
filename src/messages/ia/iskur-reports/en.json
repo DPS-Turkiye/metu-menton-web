@@ -12,6 +12,7 @@
   "duration": {
     "minutes": "{minutes} min",
     "hoursMinutes": "{hours} h {minutes} min",
+    "hours": "{hours} h",
     "recordedNote": "Recorded time is for information only; it is not an approved working time."
   },
   "meeting": {
