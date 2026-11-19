@@ -14,10 +14,9 @@ import {
   participantsLabel,
   programCoordinators,
   programDateLabel,
-  ProgramStatusFilter,
-  statusCounts,
 } from "@/lib/admin-programs";
 import { programTypesOf } from "@/lib/edition-screens";
+import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
 import { ALL_PROGRAM_TYPES, type ProgramTypeFilter } from "@/lib/program-types";
 
 /** One row of the ODTÜ Programlar table, with its texts worked out. */
