@@ -7,6 +7,7 @@ import {
   errorMessage,
   formatFileSize,
   formatLongDate,
+  formatLongDateRange,
   formatShortDate,
   formatTime,
   httpUrlOrNull,
@@ -142,5 +143,19 @@ describe("minutesOfDay", () => {
     expect(minutesOfDay("00:00")).toBe(0);
     expect(minutesOfDay("09:30")).toBe(570);
     expect(minutesOfDay("23:59")).toBe(1439);
+  });
+});
+
+describe("formatLongDateRange", () => {
+  it("names a shared year once, one day alone, and nothing without dates", () => {
+    expect(formatLongDateRange("2027-02-01", "2027-06-30")).toBe(
+      "1 Şubat – 30 Haziran 2027",
+    );
+    expect(formatLongDateRange("2026-09-01", "2027-01-31")).toBe(
+      "1 Eylül 2026 – 31 Ocak 2027",
+    );
+    expect(formatLongDateRange("", "2027-06-30")).toBe("30 Haziran 2027");
+    expect(formatLongDateRange("", "")).toBe("");
+    expect(formatLongDateRange("20270-01-01", "2027-06-30")).toBe("");
   });
 });

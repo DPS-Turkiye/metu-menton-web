@@ -1,0 +1,91 @@
+name: E2E
+
+# Browser tests against a real stack: metu-menton-backend main (compose) + this app's production build.
+# Not a required check yet. The repository is public, so a failed run uploads screenshots and the HTML report
+# only (no traces or videos), and every value the stack uses is generated per run or fake.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "e2e/**"
+      - "playwright.config.ts"
+      - ".github/workflows/e2e.yml"
+  schedule:
+    - cron: "30 1 * * *" # 04:30 in Istanbul
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Checkout the backend
+        uses: actions/checkout@v5
+        with:
+          repository: DPS-Turkiye/metu-menton-backend
+          ref: main
+          path: .e2e-backend
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start the backend
+        run: e2e/stack.sh up
+        env:
+          E2E_BACKEND_DIR: ${{ github.workspace }}/.e2e-backend
+
+      - name: Build the web app
+        run: |
+          set -a
+          . e2e/.stack/web.env
+          set +a
+          npm run build
+
+      - name: Run the tests
+        run: |
+          set -a
+          . e2e/.stack/web.env
+          set +a
+          npm run e2e
+
+      - name: Upload the report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-report
+          path: |
+            playwright-report/
+            test-results/**/*.png
+          retention-days: 7
+
+      - name: Stop the backend
+        if: always()
+        run: e2e/stack.sh down
+        env:
+          E2E_BACKEND_DIR: ${{ github.workspace }}/.e2e-backend

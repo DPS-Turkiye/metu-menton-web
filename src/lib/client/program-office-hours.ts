@@ -2,12 +2,16 @@ import type {
   ProgramOfficeHoursAppointment,
   ProgramOfficeHoursAppointments,
   ProgramOfficeHoursQuery,
+  ProgramOfficeHoursStudents,
+  ProgramOfficeHoursStudentsQuery,
 } from "@/interfaces/program-office-hours";
 import { requireSuccess } from "@/lib/client/api";
 import { httpClient } from "@/lib/http-client";
 
 /** The query string for the filters that are set; an empty filter is left out rather than sent blank. */
-export function programOfficeHoursSearch(query: ProgramOfficeHoursQuery) {
+export function programOfficeHoursSearch(
+  query: ProgramOfficeHoursQuery | ProgramOfficeHoursStudentsQuery,
+) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     if (value !== null && value !== "") search.set(key, String(value));
@@ -33,6 +37,17 @@ export async function getProgramOfficeHoursAppointment(
   return requireSuccess(
     await httpClient.get<ProgramOfficeHoursAppointment>(
       `/api/coordinator/programs/${encodeURIComponent(programId)}/office-hours/appointments/${encodeURIComponent(requestId)}`,
+    ),
+  );
+}
+
+export async function getProgramOfficeHoursStudents(
+  programId: string,
+  query: ProgramOfficeHoursStudentsQuery,
+) {
+  return requireSuccess(
+    await httpClient.get<ProgramOfficeHoursStudents>(
+      `/api/coordinator/programs/${encodeURIComponent(programId)}/office-hours/students?${programOfficeHoursSearch(query)}`,
     ),
   );
 }

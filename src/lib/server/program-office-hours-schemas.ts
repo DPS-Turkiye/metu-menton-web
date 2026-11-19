@@ -35,3 +35,15 @@ export const programOfficeHoursQuerySchema = z
     },
     { path: ["to"] },
   );
+
+/** Öğrenciler's query: a name, a faculty, "only with a request awaiting a decision", and the page. */
+export const programOfficeHoursStudentsQuerySchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  faculty: z.string().trim().min(1).max(200).optional(),
+  awaitingOnly: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
+  page: wholeNumber.pipe(z.number().max(PAGE_LIMIT)).optional(),
+  size: wholeNumber.pipe(z.number().min(1).max(PAGE_SIZE_LIMIT)).optional(),
+});

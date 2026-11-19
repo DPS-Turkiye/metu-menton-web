@@ -75,3 +75,35 @@ export type ProgramOfficeHoursAppointment = {
   academic: ProgramOfficeHoursPerson;
   history: ProgramOfficeHoursHistoryEntry[];
 };
+
+/** A student's office-hours requests in the window, by status; awaiting = PENDING plus MORE_INFO_REQUESTED. */
+export type ProgramOfficeHoursStudentRequests = {
+  awaitingDecision: number;
+  alternativeProposed: number;
+  accepted: number;
+  declined: number;
+  withdrawn: number;
+};
+
+/** An Öğrenciler row: who asked and how their requests stand. No topics, descriptions or contact details. */
+export type ProgramOfficeHoursStudentRow = {
+  id: string;
+  student: ProgramOfficeHoursPerson;
+  classYear: number | null;
+  requests: ProgramOfficeHoursStudentRequests;
+  academicians: number;
+  lastRequestedAt: string;
+};
+
+export type ProgramOfficeHoursStudents = {
+  faculties: string[];
+  students: PageResponse<ProgramOfficeHoursStudentRow>;
+};
+
+export type ProgramOfficeHoursStudentsQuery = {
+  search: string | null;
+  faculty: string | null;
+  awaitingOnly: boolean;
+  page: number;
+  size: number;
+};
