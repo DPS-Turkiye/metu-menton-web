@@ -93,9 +93,24 @@ export function createIskurTeamTasks(
       }),
     ],
     roster: [
-      { userId: LEADER_ID, fullName: "Zeynep Kaya", role: IskurTeamRole.Leader, leaderId: null },
-      { userId: MEMBER_ID, fullName: "Mert Demir", role: IskurTeamRole.Member, leaderId: LEADER_ID },
-      { userId: OTHER_LEADER_ID, fullName: "Kaan Yurt", role: IskurTeamRole.Leader, leaderId: null },
+      {
+        userId: LEADER_ID,
+        fullName: "Zeynep Kaya",
+        role: IskurTeamRole.Leader,
+        leaderId: null,
+      },
+      {
+        userId: MEMBER_ID,
+        fullName: "Mert Demir",
+        role: IskurTeamRole.Member,
+        leaderId: LEADER_ID,
+      },
+      {
+        userId: OTHER_LEADER_ID,
+        fullName: "Kaan Yurt",
+        role: IskurTeamRole.Leader,
+        leaderId: null,
+      },
     ],
     ...overrides,
   };

@@ -12,8 +12,8 @@ import {
 } from "@/lib/client/iskur-support-activities";
 import { useToastStore } from "@/stores/toast-store";
 import {
-  createIskurSupportActivities,
   createIskurSupportActivity as activityFixture,
+  createIskurSupportActivities,
 } from "@test/fixtures/iskur-tasks";
 import { queryWrapper } from "@test/fixtures/query-wrapper";
 
@@ -79,14 +79,34 @@ describe("useIskurSupportActivities", () => {
     });
 
     act(() => result.current.toggleActive(activity));
-    await waitFor(() => expect(updateIskurSupportActivity).toHaveBeenCalledTimes(2));
-    expect(vi.mocked(updateIskurSupportActivity).mock.calls[1]?.[2].active).toBe(false);
+    await waitFor(() =>
+      expect(updateIskurSupportActivity).toHaveBeenCalledTimes(2),
+    );
+    expect(
+      vi.mocked(updateIskurSupportActivity).mock.calls[1]?.[2].active,
+    ).toBe(false);
 
     act(() => result.current.createDefaults());
-    await waitFor(() => expect(createDefaultIskurSupportActivities).toHaveBeenCalledWith("p1"));
+    await waitFor(() =>
+      expect(createDefaultIskurSupportActivities).toHaveBeenCalledWith("p1"),
+    );
+    act(() => result.current.askDelete(activity));
+    expect(result.current.confirmingDelete).toBe("act-1");
+    act(() => result.current.cancelDelete());
+    expect(result.current.confirmingDelete).toBeNull();
     act(() => result.current.remove(activity));
-    await waitFor(() => expect(deleteIskurSupportActivity).toHaveBeenCalledWith("p1", "act-1"));
+    await waitFor(() =>
+      expect(deleteIskurSupportActivity).toHaveBeenCalledWith("p1", "act-1"),
+    );
     act(() => result.current.cancel());
+    expect(result.current.form).toBeNull();
+  });
+
+  it("closes an open edit of the row it retires", async () => {
+    const { result } = await renderLoaded();
+    const activity = activityFixture();
+    act(() => result.current.startEdit(activity));
+    act(() => result.current.toggleActive(activity));
     expect(result.current.form).toBeNull();
   });
 
@@ -97,7 +117,9 @@ describe("useIskurSupportActivities", () => {
     const { result } = await renderLoaded();
     act(() => result.current.createDefaults());
     await waitFor(() =>
-      expect(useToastStore.getState().toasts.at(-1)?.message).toBe("Havuz zaten dolu."),
+      expect(useToastStore.getState().toasts.at(-1)?.message).toBe(
+        "Havuz zaten dolu.",
+      ),
     );
   });
 });

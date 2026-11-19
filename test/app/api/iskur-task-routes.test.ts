@@ -1,20 +1,23 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DELETE as deleteActivity, PUT as updateActivity } from "@/app/api/coordinator/programs/[id]/iskur/support-activities/[activityId]/route";
+import {
+  DELETE as deleteActivity,
+  PUT as updateActivity,
+} from "@/app/api/coordinator/programs/[id]/iskur/support-activities/[activityId]/route";
 import { POST as seedPool } from "@/app/api/coordinator/programs/[id]/iskur/support-activities/default/route";
 import {
-  GET as listPool,
   POST as addActivity,
+  GET as listPool,
 } from "@/app/api/coordinator/programs/[id]/iskur/support-activities/route";
 import {
   DELETE as deleteTask,
-  GET as readTask,
   PATCH as patchTask,
+  GET as readTask,
 } from "@/app/api/iskur/tasks/[taskId]/route";
 import {
-  GET as teamTasks,
   POST as assign,
+  GET as teamTasks,
 } from "@/app/api/iskur/team/tasks/route";
 import { IskurTaskKind, IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import { UserRole, type AppSession } from "@/interfaces/session";
@@ -72,7 +75,9 @@ const ACTIVITY = "00000000-0000-4000-8000-0000000000d1";
 const MEMBER = "00000000-0000-4000-8000-0000000000a2";
 const task = { params: Promise.resolve({ taskId: TASK }) };
 const program = { params: Promise.resolve({ id: PROGRAM }) };
-const activity = { params: Promise.resolve({ id: PROGRAM, activityId: ACTIVITY }) };
+const activity = {
+  params: Promise.resolve({ id: PROGRAM, activityId: ACTIVITY }),
+};
 const validTask = {
   assigneeId: MEMBER,
   title: "Afiş",
@@ -112,7 +117,9 @@ describe("İŞKUR task routes", () => {
       await patchTask(json({}, "PATCH"), task),
       await deleteTask(new Request("http://x"), task),
     ];
-    expect(refused.map((response) => response.status)).toEqual([401, 401, 401, 401, 401]);
+    expect(refused.map((response) => response.status)).toEqual([
+      401, 401, 401, 401, 401,
+    ]);
     for (const call of taskCalls) expect(call).not.toHaveBeenCalled();
   });
 
@@ -132,7 +139,10 @@ describe("İŞKUR task routes", () => {
     });
 
     await patchTask(
-      json({ status: IskurTaskStatus.Done, actualMinutes: 90, actorId: "x" }, "PATCH"),
+      json(
+        { status: IskurTaskStatus.Done, actualMinutes: 90, actorId: "x" },
+        "PATCH",
+      ),
       task,
     );
     expect(updateIskurTask).toHaveBeenCalledWith("MENTEE-1", TASK, {
@@ -148,16 +158,53 @@ describe("İŞKUR task routes", () => {
     expect(deleteIskurTask).toHaveBeenCalledWith("MENTEE-1", TASK);
   });
 
+  it("takes the limits the backend takes, and blank text as null", async () => {
+    await assign(
+      json({ ...validTask, estimatedMinutes: 60, description: "  " }),
+    );
+    await assign(
+      json({ ...validTask, estimatedMinutes: 450, title: "x".repeat(200) }),
+    );
+    expect(createIskurTask).toHaveBeenCalledTimes(2);
+    expect(
+      vi.mocked(createIskurTask).mock.calls[0]?.[1].description,
+    ).toBeNull();
+    await patchTask(
+      json({ actualMinutes: 1350, outputNote: " " }, "PATCH"),
+      task,
+    );
+    expect(vi.mocked(updateIskurTask).mock.calls[0]?.[2]).toMatchObject({
+      actualMinutes: 1350,
+      outputNote: null,
+    });
+  });
+
+  // The task routes take any signed-in role: the backend decides from the caller's İŞKUR placement.
   it("refuses a bad week, a bad task id and an invalid body before the backend", async () => {
     const answers = [
-      await teamTasks(new NextRequest("http://x/api/iskur/team/tasks?weekStart=2026-02-30")),
-      await readTask(new Request("http://x"), { params: Promise.resolve({ taskId: ".." }) }),
+      await teamTasks(
+        new NextRequest("http://x/api/iskur/team/tasks?weekStart=2026-02-30"),
+      ),
+      await readTask(new Request("http://x"), {
+        params: Promise.resolve({ taskId: ".." }),
+      }),
       await assign(json({ ...validTask, estimatedMinutes: 75 })),
       await assign(json({ ...validTask, estimatedMinutes: 30 })),
       await assign(json({ ...validTask, title: "  " })),
-      await patchTask(json({ outputLink: "javascript:alert(1)" }, "PATCH"), task),
+      await assign(json({ ...validTask, estimatedMinutes: 480 })),
+      await assign(json({ ...validTask, title: "x".repeat(201) })),
+      await assign(json({ ...validTask, description: "x".repeat(1001) })),
+      await patchTask(json({ actualMinutes: 0 }, "PATCH"), task),
+      await patchTask(json({ actualMinutes: 1351 }, "PATCH"), task),
+      await patchTask(json({ handoverReason: "x".repeat(501) }, "PATCH"), task),
+      await patchTask(
+        json({ outputLink: "javascript:alert(1)" }, "PATCH"),
+        task,
+      ),
       await patchTask(json({ outputLink: "http://x.test" }, "PATCH"), task),
-      await deleteTask(new Request("http://x"), { params: Promise.resolve({ taskId: "../x" }) }),
+      await deleteTask(new Request("http://x"), {
+        params: Promise.resolve({ taskId: "../x" }),
+      }),
     ];
     expect(answers.map((response) => response.status)).toEqual(
       answers.map(() => 400),
@@ -190,30 +237,58 @@ describe("İŞKUR support-activity routes", () => {
 
   it("passes the coordinator's changes through as the session user", async () => {
     await listPool(new Request("http://x"), program);
-    expect(fetchIskurSupportActivities).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM);
+    expect(fetchIskurSupportActivities).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+    );
     await seedPool(new Request("http://x"), program);
-    expect(createDefaultIskurSupportActivities).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM);
+    expect(createDefaultIskurSupportActivities).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+    );
     await addActivity(json({ title: " Açık ofis ", actorId: "x" }), program);
-    expect(createIskurSupportActivity).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM, {
-      title: "Açık ofis",
-      description: null,
-      active: null,
-    });
-    await updateActivity(json({ title: "Vaka", active: false }, "PUT"), activity);
-    expect(updateIskurSupportActivity).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM, ACTIVITY, {
-      title: "Vaka",
-      description: null,
-      active: false,
-    });
+    expect(createIskurSupportActivity).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      {
+        title: "Açık ofis",
+        description: null,
+        active: null,
+      },
+    );
+    await updateActivity(
+      json({ title: "Vaka", active: false }, "PUT"),
+      activity,
+    );
+    expect(updateIskurSupportActivity).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      ACTIVITY,
+      {
+        title: "Vaka",
+        description: null,
+        active: false,
+      },
+    );
     await deleteActivity(new Request("http://x"), activity);
-    expect(deleteIskurSupportActivity).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM, ACTIVITY);
+    expect(deleteIskurSupportActivity).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      ACTIVITY,
+    );
   });
 
   it("refuses ids that are not uuids and an empty title", async () => {
-    const dots = { params: Promise.resolve({ id: "..", activityId: ACTIVITY }) };
+    const dots = {
+      params: Promise.resolve({ id: "..", activityId: ACTIVITY }),
+    };
     const answers = [
-      await listPool(new Request("http://x"), { params: Promise.resolve({ id: ".." }) }),
-      await seedPool(new Request("http://x"), { params: Promise.resolve({ id: "../x" }) }),
+      await listPool(new Request("http://x"), {
+        params: Promise.resolve({ id: ".." }),
+      }),
+      await seedPool(new Request("http://x"), {
+        params: Promise.resolve({ id: "../x" }),
+      }),
       await updateActivity(json({ title: "Vaka" }, "PUT"), dots),
       await deleteActivity(new Request("http://x"), {
         params: Promise.resolve({ id: PROGRAM, activityId: ".." }),

@@ -3,17 +3,27 @@ import { z } from "zod";
 
 import { IskurTaskKind, IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import {
+  isHttpsLink,
   ISKUR_NOTE_MAX,
+  ISKUR_SUPPORT_DESCRIPTION_MAX,
   ISKUR_SUPPORT_TITLE_MAX,
   ISKUR_TASK_DESCRIPTION_MAX,
+  ISKUR_TASK_MAX_ACTUAL_MINUTES,
   ISKUR_TASK_MAX_MINUTES,
   ISKUR_TASK_MIN_MINUTES,
   ISKUR_TASK_STEP_MINUTES,
   ISKUR_TASK_TITLE_MAX,
 } from "@/lib/iskur-tasks";
 
+// A blank answer reaches the backend as null, so "nothing written" has one shape.
 const optionalText = (max: number) =>
-  z.string().trim().max(max).nullable().default(null);
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullable()
+    .default(null)
+    .transform((value) => value || null);
 
 /** "Görev ata" (2.1): one hour to one work day, in half-hour steps, as the backend checks too. */
 export const iskurTaskSchema = z.object({
@@ -34,12 +44,18 @@ export const iskurTaskSchema = z.object({
 // The output link is checked for https by the backend as well; this stops a javascript: link before it leaves.
 export const iskurTaskUpdateSchema = z.object({
   status: z.enum(IskurTaskStatus).nullable().default(null),
-  actualMinutes: z.number().int().min(1).max(1350).nullable().default(null),
+  actualMinutes: z
+    .number()
+    .int()
+    .min(1)
+    .max(ISKUR_TASK_MAX_ACTUAL_MINUTES)
+    .nullable()
+    .default(null),
   outputLink: z
     .string()
     .trim()
     .max(ISKUR_NOTE_MAX)
-    .regex(/^https:\/\/\S+$/)
+    .refine(isHttpsLink)
     .nullable()
     .default(null),
   outputNote: optionalText(ISKUR_NOTE_MAX),
@@ -52,6 +68,6 @@ export const iskurWeekQuerySchema = z.object({
 
 export const iskurSupportActivitySchema = z.object({
   title: z.string().trim().min(1).max(ISKUR_SUPPORT_TITLE_MAX),
-  description: optionalText(ISKUR_NOTE_MAX),
+  description: optionalText(ISKUR_SUPPORT_DESCRIPTION_MAX),
   active: z.boolean().nullable().default(null),
 });

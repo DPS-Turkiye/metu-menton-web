@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ISKUR_TEAM_TASKS_KEY } from "@/hooks/use-iskur-team";
 import { IskurTaskStatus, type IskurTask } from "@/interfaces/iskur-tasks";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
@@ -17,6 +18,7 @@ import {
   completeBlock,
   ISKUR_TEAM_HREF,
   linkSavable,
+  minutesSavable,
   taskForm,
   taskUpdateInput,
 } from "@/lib/iskur-tasks";
@@ -55,7 +57,7 @@ export function useIskurTask(taskId: string) {
       updateIskurTask(taskId, taskUpdateInput(form ?? emptyForm(), status)),
     onSuccess: (data: IskurTask, status) => {
       queryClient.setQueryData(iskurTaskQueryKey(taskId), data);
-      void queryClient.invalidateQueries({ queryKey: ["iskur-team-tasks"] });
+      void queryClient.invalidateQueries({ queryKey: [ISKUR_TEAM_TASKS_KEY] });
       setDraft(null);
       setHandingOver(false);
       showToast({
@@ -73,7 +75,9 @@ export function useIskurTask(taskId: string) {
   const remove = useMutation({
     mutationFn: () => deleteIskurTask(taskId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["iskur-team-tasks"] });
+      setConfirmingDelete(false);
+      queryClient.removeQueries({ queryKey: iskurTaskQueryKey(taskId) });
+      void queryClient.invalidateQueries({ queryKey: [ISKUR_TEAM_TASKS_KEY] });
       showToast({ message: t("deleted"), tone: ToastTone.Success });
       router.push(ISKUR_TEAM_HREF);
     },
@@ -103,7 +107,6 @@ export function useIskurTask(taskId: string) {
     canWork: task?.canWork ?? false,
     canManage: task?.canManage ?? false,
     open,
-    dirty: draft != null,
     completeBlock: block,
     handingOver,
     setActualMinutes: (actualMinutes: string) => update({ actualMinutes }),
@@ -111,7 +114,13 @@ export function useIskurTask(taskId: string) {
     setOutputNote: (outputNote: string) => update({ outputNote }),
     setHandoverReason: (handoverReason: string) => update({ handoverReason }),
     linkInvalid: form != null && !linkSavable(form),
-    canSave: draft != null && form != null && linkSavable(form) && !busy,
+    minutesInvalid: form != null && !minutesSavable(form),
+    canSave:
+      draft != null &&
+      form != null &&
+      linkSavable(form) &&
+      minutesSavable(form) &&
+      !busy,
     save: () => {
       if (!busy) change.mutate(null);
     },

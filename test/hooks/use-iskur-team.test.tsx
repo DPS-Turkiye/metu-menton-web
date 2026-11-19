@@ -35,7 +35,6 @@ describe("useIskurTeam", () => {
   it("loads this week and starts the form on the first member of the sub-group", async () => {
     const { result } = await renderLoaded();
     expect(getIskurTeamTasks).toHaveBeenCalledWith(result.current.weekStart);
-    expect(result.current.isThisWeek).toBe(true);
     expect(result.current.people.map((person) => person.userId)).toEqual([
       LEADER_ID,
       MEMBER_ID,
@@ -44,7 +43,11 @@ describe("useIskurTeam", () => {
     expect(result.current.taskCount).toBe(1);
     expect(result.current.memberCount).toBe(3);
     expect(result.current.canSubmit).toBe(false);
-    expect(result.current.preview).toMatchObject({ before: 720, after: 840, target: 990 });
+    expect(result.current.preview).toMatchObject({
+      before: 720,
+      after: 840,
+      target: 990,
+    });
   });
 
   it("assigns the task, caches the answer and clears the form", async () => {
@@ -64,8 +67,12 @@ describe("useIskurTeam", () => {
     expect(result.current.form.estimatedMinutes).toBe(150);
     expect(result.current.canSubmit).toBe(true);
 
+    // The screen then reads the week the task went to.
+    vi.mocked(getIskurTeamTasks).mockResolvedValue(answered);
     act(() => result.current.submit());
     await waitFor(() => expect(result.current.form.title).toBe(""));
+    // The task is due in another week, so the screen moves there.
+    expect(result.current.weekStart).toBe("2026-11-23");
     expect(createIskurTask).toHaveBeenCalledWith({
       assigneeId: LEADER_ID,
       title: "Afiş",
@@ -75,13 +82,20 @@ describe("useIskurTeam", () => {
       needsOutput: true,
       description: "A3",
     });
-    expect(queryClient.getQueryData(["iskur-team-tasks", "2026-11-23"])).toEqual(answered);
-    expect(useToastStore.getState().toasts.at(-1)?.message).toBe("Görev atandı.");
+    expect(
+      queryClient.getQueryData(["iskur-team-tasks", "2026-11-23"]),
+    ).toEqual(answered);
+    expect(useToastStore.getState().toasts.at(-1)?.message).toBe(
+      "Görev atandı.",
+    );
   });
 
   it("shows the backend's refusal and keeps the form", async () => {
     vi.mocked(createIskurTask).mockRejectedValue(
-      new ClientApiError("Görev yalnızca kendine ya da alt grubundaki bir üyeye atanabilir.", 400),
+      new ClientApiError(
+        "Görev yalnızca kendine ya da alt grubundaki bir üyeye atanabilir.",
+        400,
+      ),
     );
     const { result } = await renderLoaded();
     act(() => result.current.setTitle("Afiş"));
@@ -100,7 +114,10 @@ describe("useIskurTeam", () => {
     const { result } = await renderLoaded();
     const thisWeek = result.current.weekStart;
     act(() => result.current.nextWeek());
-    expect(result.current.isThisWeek).toBe(false);
+    expect(result.current.weekStart).not.toBe(thisWeek);
+    // The last week stays on screen while the next one loads.
+    expect(result.current.team).not.toBeNull();
+    expect(result.current.loading).toBe(false);
     act(() => result.current.previousWeek());
     expect(result.current.weekStart).toBe(thisWeek);
     act(() => result.current.setTab(IskurTeamTab.Members));
@@ -108,13 +125,17 @@ describe("useIskurTeam", () => {
   });
 
   it("tells a person who is not placed apart from a failure", async () => {
-    vi.mocked(getIskurTeamTasks).mockRejectedValue(new ClientApiError("x", 404));
+    vi.mocked(getIskurTeamTasks).mockRejectedValue(
+      new ClientApiError("x", 404),
+    );
     const { wrapper } = queryWrapper();
     const notPlaced = renderHook(() => useIskurTeam(), { wrapper });
     await waitFor(() => expect(notPlaced.result.current.notPlaced).toBe(true));
     expect(notPlaced.result.current.failed).toBe(false);
 
-    vi.mocked(getIskurTeamTasks).mockRejectedValue(new ClientApiError("x", 500));
+    vi.mocked(getIskurTeamTasks).mockRejectedValue(
+      new ClientApiError("x", 500),
+    );
     const other = queryWrapper();
     const failed = renderHook(() => useIskurTeam(), { wrapper: other.wrapper });
     await waitFor(() => expect(failed.result.current.failed).toBe(true), {

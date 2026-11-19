@@ -7,10 +7,11 @@ import {
   assignInput,
   completeBlock,
   emptyAssignForm,
-  iskurTaskHref,
   isHttpsLink,
+  iskurTaskHref,
   isPlanFull,
   linkSavable,
+  minutesSavable,
   orderedTasks,
   parseMinutes,
   planPreview,
@@ -62,17 +63,24 @@ describe("İŞKUR task helpers", () => {
     });
     const onlyLeader = createIskurTeamTasks({
       members: [
-        createIskurTeamMember({ userId: LEADER_ID, role: IskurTeamRole.Leader }),
+        createIskurTeamMember({
+          userId: LEADER_ID,
+          role: IskurTeamRole.Leader,
+        }),
       ],
     });
-    expect(emptyAssignForm(onlyLeader, "2026-11-19").assigneeId).toBe(LEADER_ID);
+    expect(emptyAssignForm(onlyLeader, "2026-11-19").assigneeId).toBe(
+      LEADER_ID,
+    );
     expect(emptyAssignForm(null, "2026-11-19").assigneeId).toBeNull();
   });
 
   it("builds the task input only with a title and an assignee", () => {
     const base = emptyAssignForm(createIskurTeamTasks(), "2026-11-19");
     expect(assignInput({ ...base, title: "  " })).toBeNull();
-    expect(assignInput({ ...base, title: "Afiş", assigneeId: null })).toBeNull();
+    expect(
+      assignInput({ ...base, title: "Afiş", assigneeId: null }),
+    ).toBeNull();
     expect(
       assignInput({ ...base, title: "  Afiş  ", description: "  A3  " }),
     ).toEqual({
@@ -101,8 +109,12 @@ describe("İŞKUR task helpers", () => {
       planPreview(createIskurTeamMember({ teamMinutes: null }), 600)?.over,
     ).toBe(false);
     expect(planPreview(null, 60)).toBeNull();
-    expect(isPlanFull(createIskurTeamMember({ plannedMinutes: 990 }))).toBe(true);
-    expect(isPlanFull(createIskurTeamMember({ teamMinutes: null }))).toBe(false);
+    expect(isPlanFull(createIskurTeamMember({ plannedMinutes: 990 }))).toBe(
+      true,
+    );
+    expect(isPlanFull(createIskurTeamMember({ teamMinutes: null }))).toBe(
+      false,
+    );
   });
 
   it("reads minutes and https links strictly", () => {
@@ -110,6 +122,12 @@ describe("İŞKUR task helpers", () => {
     expect(parseMinutes("0")).toBeNull();
     expect(parseMinutes("1,5")).toBeNull();
     expect(parseMinutes("")).toBeNull();
+    expect(parseMinutes("1350")).toBe(1350);
+    expect(parseMinutes("1351")).toBeNull();
+    expect(parseMinutes("99999")).toBeNull();
+    expect(parseMinutes("007")).toBe(7);
+    expect(minutesSavable(form())).toBe(true);
+    expect(minutesSavable(form({ actualMinutes: "abc" }))).toBe(false);
     expect(isHttpsLink("https://drive.example.test/a")).toBe(true);
     expect(isHttpsLink("http://drive.example.test/a")).toBe(false);
     expect(isHttpsLink("javascript:alert(1)")).toBe(false);
@@ -153,15 +171,29 @@ describe("İŞKUR task helpers", () => {
       IskurCompleteBlock.ActualMissing,
     );
     expect(
-      completeBlock(needsOutput, form({ actualMinutes: "60", outputLink: "x" })),
+      completeBlock(
+        needsOutput,
+        form({ actualMinutes: "60", outputLink: "x" }),
+      ),
     ).toBe(IskurCompleteBlock.LinkInvalid);
     expect(completeBlock(needsOutput, form({ actualMinutes: "60" }))).toBe(
       IskurCompleteBlock.OutputMissing,
     );
     expect(
-      completeBlock(needsOutput, form({ actualMinutes: "60", outputNote: "ok" })),
+      completeBlock(
+        needsOutput,
+        form({ actualMinutes: "60", outputNote: "ok" }),
+      ),
     ).toBeNull();
-    expect(completeBlock(createIskurTask(), form({ actualMinutes: "60" }))).toBeNull();
+    expect(
+      completeBlock(createIskurTask(), form({ actualMinutes: "60" })),
+    ).toBeNull();
+    expect(
+      completeBlock(
+        needsOutput,
+        form({ actualMinutes: "60", outputNote: "  " }),
+      ),
+    ).toBe(IskurCompleteBlock.OutputMissing);
   });
 
   it("lists open tasks first, then handed over, then done, by due date", () => {
@@ -170,9 +202,15 @@ describe("İŞKUR task helpers", () => {
       createIskurTask({ id: "late", dueDate: "2026-11-21" }),
       createIskurTask({ id: "over", status: IskurTaskStatus.HandedOver }),
       createIskurTask({ id: "early", dueDate: "2026-11-18" }),
+      createIskurTask({
+        id: "early-later",
+        dueDate: "2026-11-18",
+        createdAt: "2026-11-18T10:00:00Z",
+      }),
     ];
     expect(orderedTasks(tasks).map((task) => task.id)).toEqual([
       "early",
+      "early-later",
       "late",
       "over",
       "done",

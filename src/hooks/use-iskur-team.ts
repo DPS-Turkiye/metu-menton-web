@@ -1,10 +1,15 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import type { IskurTeamTasks } from "@/interfaces/iskur-tasks";
+import type { IskurTaskInput, IskurTeamTasks } from "@/interfaces/iskur-tasks";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
 import { createIskurTask, getIskurTeamTasks } from "@/lib/client/iskur-tasks";
@@ -26,8 +31,11 @@ import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 import { IskurTeamTab, type IskurAssignForm } from "@/types/iskur-tasks";
 
+/** Every cached week of Ekibim starts with this, so a task change can refresh them all. */
+export const ISKUR_TEAM_TASKS_KEY = "iskur-team-tasks";
+
 export const iskurTeamTasksQueryKey = (weekStart: string) =>
-  ["iskur-team-tasks", weekStart] as const;
+  [ISKUR_TEAM_TASKS_KEY, weekStart] as const;
 
 function isNotPlaced(error: unknown) {
   return error instanceof ClientApiError && error.status === 404;
@@ -52,6 +60,8 @@ export function useIskurTeam() {
     queryKey: iskurTeamTasksQueryKey(weekStart),
     queryFn: () => getIskurTeamTasks(weekStart),
     retry: (failures, error) => !isNotPlaced(error) && failures < 1,
+    // Another week keeps the screen (and the half-written form) while it loads.
+    placeholderData: keepPreviousData,
   });
   const team = query.data ?? null;
   const form = draft ?? emptyAssignForm(team, today);
@@ -61,9 +71,11 @@ export function useIskurTeam() {
   const input = assignInput(form);
 
   const assign = useMutation({
-    mutationFn: createIskurTask,
+    mutationFn: (input: IskurTaskInput) => createIskurTask(input),
     onSuccess: (data: IskurTeamTasks) => {
       queryClient.setQueryData(iskurTeamTasksQueryKey(data.weekStart), data);
+      // A task due in another week shows there, so the leader sees what they assigned.
+      setWeekStart(data.weekStart);
       setDraft(null);
       showToast({ message: t("assigned"), tone: ToastTone.Success });
     },
@@ -80,12 +92,12 @@ export function useIskurTeam() {
   return {
     team,
     loading: query.isPending,
+    fetching: query.isFetching,
     notPlaced: isNotPlaced(query.error),
     failed: query.isError && !isNotPlaced(query.error),
     retry: () => void query.refetch(),
     weekStart,
     weekLabel: reportWeekLabel(weekStart, locale),
-    isThisWeek: weekStart === reportWeekStart(now),
     previousWeek: () => setWeekStart((week) => shiftReportWeek(week, -1)),
     nextWeek: () => setWeekStart((week) => shiftReportWeek(week, 1)),
     tab,

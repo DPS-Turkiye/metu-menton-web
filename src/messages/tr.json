@@ -7450,7 +7450,9 @@
       "linkInvalid": "Bağlantı https:// ile başlamalı.",
       "note": "Çıktı notu",
       "save": "Kaydet",
-      "none": "—"
+      "none": "—",
+      "actualInvalid": "1 ile 1350 arasında, tam dakika gir.",
+      "linkPlaceholder": "https://"
     },
     "actions": {
       "title": "Görev",
@@ -7498,6 +7500,9 @@
       "active": "Öğrencilere sunulsun",
       "cancel": "Vazgeç",
       "save": "Kaydet"
-    }
+    },
+    "deleteYes": "Evet, sil",
+    "deleteNo": "Vazgeç",
+    "deleteYesLabel": "{title} faaliyetini silmeyi onayla"
   }
 }

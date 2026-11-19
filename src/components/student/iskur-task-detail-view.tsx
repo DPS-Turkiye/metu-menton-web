@@ -158,16 +158,18 @@ function WorkForm({ view, task }: { view: View; task: IskurTask }) {
           <input
             inputMode="numeric"
             value={form.actualMinutes}
-            readOnly={locked}
+            readOnly={locked || view.busy}
+            maxLength={4}
             onChange={(event) => view.setActualMinutes(event.target.value)}
+            aria-invalid={view.minutesInvalid}
             aria-describedby="iskur-task-actual-hint"
             className={`${ISKUR_FIELD_CLASS} max-w-40`}
           />
           <span
             id="iskur-task-actual-hint"
-            className="block type-caption text-text-muted"
+            className={`block type-caption ${view.minutesInvalid ? "text-status-error-text" : "text-text-muted"}`}
           >
-            {t("actualHint")}
+            {t(view.minutesInvalid ? "actualInvalid" : "actualHint")}
           </span>
         </label>
         <label className="block space-y-2">
@@ -175,8 +177,8 @@ function WorkForm({ view, task }: { view: View; task: IskurTask }) {
           <input
             type="url"
             value={form.outputLink}
-            readOnly={locked}
-            placeholder="https://"
+            readOnly={locked || view.busy}
+            placeholder={t("linkPlaceholder")}
             maxLength={ISKUR_NOTE_MAX}
             aria-invalid={view.linkInvalid}
             aria-describedby="iskur-task-link-hint"
@@ -194,7 +196,7 @@ function WorkForm({ view, task }: { view: View; task: IskurTask }) {
           <span className="type-label text-text-primary">{t("note")}</span>
           <textarea
             value={form.outputNote}
-            readOnly={locked}
+            readOnly={locked || view.busy}
             maxLength={ISKUR_NOTE_MAX}
             rows={3}
             onChange={(event) => view.setOutputNote(event.target.value)}
@@ -254,7 +256,7 @@ function OutputLink({ link }: { link: string | null }) {
   }
   return (
     <a
-      href={link}
+      href={link.trim()}
       target="_blank"
       rel="noopener noreferrer"
       className="break-all text-text-accent hover:underline"
@@ -280,11 +282,17 @@ function Actions({ view, task }: { view: View; task: IskurTask }) {
             fullWidth
             onClick={view.complete}
             disabled={!view.canComplete}
+            aria-describedby={
+              view.completeBlock ? "iskur-task-complete-block" : undefined
+            }
           >
             {t("complete")}
           </Button>
           {view.completeBlock ? (
-            <p className="type-caption text-text-muted">
+            <p
+              id="iskur-task-complete-block"
+              className="type-caption text-text-muted"
+            >
               {tBlock(view.completeBlock)}
             </p>
           ) : null}
@@ -346,10 +354,13 @@ function Actions({ view, task }: { view: View; task: IskurTask }) {
         view.confirmingDelete ? (
           <div
             role="group"
-            aria-label={t("deleteConfirm")}
+            aria-labelledby="iskur-task-delete-confirm"
             className="space-y-2"
           >
-            <p className="type-body-sm text-text-primary">
+            <p
+              id="iskur-task-delete-confirm"
+              className="type-body-sm text-text-primary"
+            >
               {t("deleteConfirm")}
             </p>
             <div className="flex gap-2">

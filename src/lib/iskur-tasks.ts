@@ -25,6 +25,10 @@ export const ISKUR_TASK_MIN_MINUTES = 60;
 export const ISKUR_TASK_MAX_MINUTES = 450;
 export const ISKUR_TASK_STEP_MINUTES = 30;
 export const ISKUR_TASK_DEFAULT_MINUTES = 120;
+/** The actual time may run over the estimate, up to a three-day week. */
+export const ISKUR_TASK_MAX_ACTUAL_MINUTES = 1350;
+export const ISKUR_SUPPORT_DESCRIPTION_MAX = 500;
+export const ISKUR_HTTPS_LINK = /^https:\/\/\S+$/;
 
 export const ISKUR_TASK_KINDS: readonly IskurTaskKind[] = [
   IskurTaskKind.TeamTask,
@@ -122,16 +126,23 @@ export function taskForm(task: IskurTask): IskurTaskForm {
   };
 }
 
-/** A whole number of minutes from the form, or null when empty or not a positive number. */
+/** A whole number of minutes from the form, or null when empty, not a positive number, or over a three-day week. */
 export function parseMinutes(value: string): number | null {
   const trimmed = value.trim();
-  if (!/^\d+$/.test(trimmed)) return null;
+  if (!/^\d{1,4}$/.test(trimmed)) return null;
   const minutes = Number(trimmed);
-  return minutes > 0 ? minutes : null;
+  return minutes > 0 && minutes <= ISKUR_TASK_MAX_ACTUAL_MINUTES
+    ? minutes
+    : null;
 }
 
 export function isHttpsLink(value: string) {
-  return /^https:\/\/\S+$/.test(value.trim());
+  return ISKUR_HTTPS_LINK.test(value.trim());
+}
+
+/** Whether the typed time can be saved: empty, or a valid number of minutes. */
+export function minutesSavable(form: IskurTaskForm) {
+  return !form.actualMinutes.trim() || parseMinutes(form.actualMinutes) != null;
 }
 
 /** The assignee's save: their time, output and (for a handover) reason, with the status to move to. */
@@ -181,9 +192,12 @@ export function orderedTasks(tasks: readonly IskurTask[]) {
     [IskurTaskStatus.HandedOver]: 1,
     [IskurTaskStatus.Done]: 2,
   };
+  const byDay = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
   return [...tasks].sort(
     (a, b) =>
-      rank[a.status] - rank[b.status] || a.dueDate.localeCompare(b.dueDate),
+      rank[a.status] - rank[b.status] ||
+      byDay(a.dueDate, b.dueDate) ||
+      byDay(a.createdAt, b.createdAt),
   );
 }
 

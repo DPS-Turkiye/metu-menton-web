@@ -33,6 +33,7 @@ export function useIskurSupportActivities(programId: string) {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<IskurSupportForm | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
   const query = useQuery({
     queryKey: iskurSupportActivitiesQueryKey(programId),
     queryFn: () => getIskurSupportActivities(programId),
@@ -43,6 +44,7 @@ export function useIskurSupportActivities(programId: string) {
     onSuccess: (data) => {
       queryClient.setQueryData(iskurSupportActivitiesQueryKey(programId), data);
       setForm(null);
+      setConfirmingDelete(null);
       showToast({ message: t("saved"), tone: ToastTone.Success });
     },
     onError: (failure: Error) =>
@@ -91,14 +93,21 @@ export function useIskurSupportActivities(programId: string) {
     },
     createDefaults: () =>
       run(() => createDefaultIskurSupportActivities(programId)),
-    toggleActive: (activity: IskurSupportActivity) =>
+    toggleActive: (activity: IskurSupportActivity) => {
+      // An open edit of the same row would later save its stale "active" back.
+      if (form?.id === activity.id) setForm(null);
       run(() =>
         updateIskurSupportActivity(programId, activity.id, {
           title: activity.title,
           description: activity.description,
           active: !activity.active,
         }),
-      ),
+      );
+    },
+    confirmingDelete,
+    askDelete: (activity: IskurSupportActivity) =>
+      setConfirmingDelete(activity.id),
+    cancelDelete: () => setConfirmingDelete(null),
     remove: (activity: IskurSupportActivity) =>
       run(() => deleteIskurSupportActivity(programId, activity.id)),
   };

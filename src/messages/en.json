@@ -7448,7 +7448,9 @@
       "linkInvalid": "The link must start with https://.",
       "note": "Output note",
       "save": "Save",
-      "none": "—"
+      "none": "—",
+      "actualInvalid": "Enter whole minutes from 1 to 1350.",
+      "linkPlaceholder": "https://"
     },
     "actions": {
       "title": "Task",
@@ -7496,6 +7498,9 @@
       "active": "Offer to students",
       "cancel": "Cancel",
       "save": "Save"
-    }
+    },
+    "deleteYes": "Yes, delete",
+    "deleteNo": "Cancel",
+    "deleteYesLabel": "Confirm deleting {title}"
   }
 }

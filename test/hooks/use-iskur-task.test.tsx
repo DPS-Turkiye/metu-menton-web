@@ -59,7 +59,9 @@ describe("useIskurTask", () => {
     expect(result.current.canComplete).toBe(true);
 
     act(() => result.current.complete());
-    await waitFor(() => expect(result.current.task?.status).toBe(IskurTaskStatus.Done));
+    await waitFor(() =>
+      expect(result.current.task?.status).toBe(IskurTaskStatus.Done),
+    );
     expect(updateIskurTask).toHaveBeenCalledWith(TASK_ID, {
       status: IskurTaskStatus.Done,
       actualMinutes: 105,
@@ -67,13 +69,20 @@ describe("useIskurTask", () => {
       outputNote: "İki öneri",
       handoverReason: null,
     });
-    expect(result.current.dirty).toBe(false);
-    expect(useToastStore.getState().toasts.at(-1)?.message).toBe("Görev tamamlandı.");
+    expect(useToastStore.getState().toasts.at(-1)?.message).toBe(
+      "Görev tamamlandı.",
+    );
   });
 
   it("saves the fields without moving the task, and hands it over with a reason", async () => {
     vi.mocked(updateIskurTask).mockResolvedValue(createIskurTask());
     const { result } = await renderLoaded();
+    expect(result.current.canSave).toBe(false);
+    // A time that would wipe the stored one, or that the backend refuses, cannot be saved.
+    act(() => result.current.setActualMinutes("abc"));
+    expect(result.current.minutesInvalid).toBe(true);
+    expect(result.current.canSave).toBe(false);
+    act(() => result.current.setActualMinutes("2000"));
     expect(result.current.canSave).toBe(false);
     act(() => result.current.setActualMinutes("30"));
     expect(result.current.canSave).toBe(true);
@@ -98,10 +107,17 @@ describe("useIskurTask", () => {
 
   it("reopens, and shows the refusal when a save is turned down", async () => {
     vi.mocked(getIskurTask).mockResolvedValue(
-      createIskurTask({ status: IskurTaskStatus.Done, canWork: false, canManage: true }),
+      createIskurTask({
+        status: IskurTaskStatus.Done,
+        canWork: false,
+        canManage: true,
+      }),
     );
     vi.mocked(updateIskurTask).mockRejectedValue(
-      new ClientApiError("Görev bu arada değişti; sayfayı yenileyip yeniden dene.", 409),
+      new ClientApiError(
+        "Görev bu arada değişti; sayfayı yenileyip yeniden dene.",
+        409,
+      ),
     );
     const { result } = await renderLoaded();
     expect(result.current.canManage).toBe(true);
@@ -111,7 +127,9 @@ describe("useIskurTask", () => {
         "Görev bu arada değişti; sayfayı yenileyip yeniden dene.",
       ),
     );
-    expect(vi.mocked(updateIskurTask).mock.calls[0]?.[1].status).toBe(IskurTaskStatus.Open);
+    expect(vi.mocked(updateIskurTask).mock.calls[0]?.[1].status).toBe(
+      IskurTaskStatus.Open,
+    );
   });
 
   it("asks before deleting, then goes back to the team", async () => {

@@ -146,7 +146,11 @@ export function IskurTeamView() {
 function TaskList({ team, data }: { team: Team; data: IskurTeamTasks }) {
   const t = useTranslations("iskurTeam");
   return (
-    <section aria-labelledby="iskur-team-tasks" className="space-y-4">
+    <section
+      aria-labelledby="iskur-team-tasks"
+      aria-busy={team.fetching}
+      className="space-y-4"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="iskur-team-tasks" className="type-h3 text-text-primary">
           {t(
@@ -290,161 +294,171 @@ function AssignForm({ team }: { team: Team }) {
   const duration = useReportDuration();
   const { form, preview } = team;
   return (
-    <Card labelledBy="iskur-assign-title" className="h-fit space-y-5">
-      <h2 id="iskur-assign-title" className="type-h3 text-text-primary">
-        {t("title")}
-      </h2>
-      <label className="block space-y-2">
-        <span className="type-label text-text-primary">{t("task")}</span>
-        <input
-          value={form.title}
-          maxLength={ISKUR_TASK_TITLE_MAX}
-          onChange={(event) => team.setTitle(event.target.value)}
-          placeholder={t("taskPlaceholder")}
-          className={ISKUR_FIELD_CLASS}
-        />
-      </label>
-      <fieldset className="space-y-2">
-        <legend className="type-label-sm text-text-secondary">
-          {t("kind")}
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {ISKUR_TASK_KINDS.map((kind) => (
-            <Chip
-              key={kind}
-              selected={form.kind === kind}
-              onClick={() => team.setKind(kind)}
-            >
-              {tKind(kind)}
-            </Chip>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset className="space-y-2">
-        <legend className="type-label-sm text-text-secondary">
-          {t("assignee")}
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {team.people.map((person) => (
-            <Chip
-              key={person.userId}
-              selected={form.assigneeId === person.userId}
-              onClick={() => team.setAssignee(person.userId)}
-            >
-              {person.fullName}
-            </Chip>
-          ))}
-        </div>
-      </fieldset>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <span
-            id="iskur-assign-estimate"
-            className="type-label text-text-primary"
-          >
-            {t("estimate")}
-          </span>
-          <div
-            role="group"
-            aria-labelledby="iskur-assign-estimate"
-            className="flex items-center gap-2"
-          >
-            <button
-              type="button"
-              onClick={team.lessTime}
-              disabled={form.estimatedMinutes <= ISKUR_TASK_MIN_MINUTES}
-              aria-label={t("less")}
-              className="grid size-12 place-items-center rounded-button bg-background-selected text-text-accent disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-border-selected"
-            >
-              <Minus aria-hidden className="size-4" />
-            </button>
-            <output
-              aria-live="polite"
-              className="grid h-12 min-w-20 place-items-center rounded-input border border-border-default px-3 type-body"
-            >
-              {duration(form.estimatedMinutes)}
-            </output>
-            <button
-              type="button"
-              onClick={team.moreTime}
-              disabled={form.estimatedMinutes >= ISKUR_TASK_MAX_MINUTES}
-              aria-label={t("more")}
-              className="grid size-12 place-items-center rounded-button bg-background-selected text-text-accent disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-border-selected"
-            >
-              <Plus aria-hidden className="size-4" />
-            </button>
-          </div>
-          <p className="type-caption text-text-muted">{t("estimateHint")}</p>
-        </div>
+    <Card labelledBy="iskur-assign-title" className="h-fit">
+      <form
+        className="space-y-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          team.submit();
+        }}
+      >
+        <h2 id="iskur-assign-title" className="type-h3 text-text-primary">
+          {t("title")}
+        </h2>
         <label className="block space-y-2">
-          <span className="type-label text-text-primary">{t("dueDate")}</span>
+          <span className="type-label text-text-primary">{t("task")}</span>
           <input
-            type="date"
-            value={form.dueDate}
-            min={team.today}
-            onChange={(event) => team.setDueDate(event.target.value)}
+            value={form.title}
+            maxLength={ISKUR_TASK_TITLE_MAX}
+            onChange={(event) => team.setTitle(event.target.value)}
+            placeholder={t("taskPlaceholder")}
             className={ISKUR_FIELD_CLASS}
           />
         </label>
-      </div>
-      {preview ? (
+        <fieldset className="space-y-2">
+          <legend className="type-label-sm text-text-secondary">
+            {t("kind")}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {ISKUR_TASK_KINDS.map((kind) => (
+              <Chip
+                key={kind}
+                selected={form.kind === kind}
+                onClick={() => team.setKind(kind)}
+              >
+                {tKind(kind)}
+              </Chip>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className="space-y-2">
+          <legend className="type-label-sm text-text-secondary">
+            {t("assignee")}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {team.people.map((person) => (
+              <Chip
+                key={person.userId}
+                selected={form.assigneeId === person.userId}
+                onClick={() => team.setAssignee(person.userId)}
+              >
+                {person.fullName}
+              </Chip>
+            ))}
+          </div>
+        </fieldset>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <span
+              id="iskur-assign-estimate"
+              className="type-label text-text-primary"
+            >
+              {t("estimate")}
+            </span>
+            <div
+              role="group"
+              aria-labelledby="iskur-assign-estimate"
+              className="flex items-center gap-2"
+            >
+              <button
+                type="button"
+                onClick={team.lessTime}
+                disabled={form.estimatedMinutes <= ISKUR_TASK_MIN_MINUTES}
+                aria-label={t("less")}
+                className="grid size-12 place-items-center rounded-button bg-background-selected text-text-accent disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-border-selected"
+              >
+                <Minus aria-hidden className="size-4" />
+              </button>
+              <output
+                aria-live="polite"
+                className="grid h-12 min-w-20 place-items-center rounded-input border border-border-default px-3 type-body"
+              >
+                {duration(form.estimatedMinutes)}
+              </output>
+              <button
+                type="button"
+                onClick={team.moreTime}
+                disabled={form.estimatedMinutes >= ISKUR_TASK_MAX_MINUTES}
+                aria-label={t("more")}
+                className="grid size-12 place-items-center rounded-button bg-background-selected text-text-accent disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-border-selected"
+              >
+                <Plus aria-hidden className="size-4" />
+              </button>
+            </div>
+            <p className="type-caption text-text-muted">{t("estimateHint")}</p>
+          </div>
+          <label className="block space-y-2">
+            <span className="type-label text-text-primary">{t("dueDate")}</span>
+            <input
+              type="date"
+              value={form.dueDate}
+              min={team.today}
+              onChange={(event) => team.setDueDate(event.target.value)}
+              className={ISKUR_FIELD_CLASS}
+            />
+          </label>
+        </div>
         <p
-          className={`type-caption ${preview.over ? "text-status-warning-text" : "text-text-muted"}`}
-          role={preview.over ? "status" : undefined}
+          role="status"
+          className={`type-caption ${preview?.over ? "text-status-warning-text" : "text-text-muted"}`}
         >
-          {preview.target == null
-            ? t("previewNoTarget", {
-                name: preview.fullName,
-                before: duration(preview.before),
-                after: duration(preview.after),
-              })
-            : t(preview.over ? "previewOver" : "preview", {
-                name: preview.fullName,
-                before: duration(preview.before),
-                after: duration(preview.after),
-                target: duration(preview.target),
-              })}
+          {preview == null
+            ? null
+            : preview.target == null
+              ? t("previewNoTarget", {
+                  name: preview.fullName,
+                  before: duration(preview.before),
+                  after: duration(preview.after),
+                })
+              : t(preview.over ? "previewOver" : "preview", {
+                  name: preview.fullName,
+                  before: duration(preview.before),
+                  after: duration(preview.after),
+                  target: duration(preview.target),
+                })}
         </p>
-      ) : null}
-      <label className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          role="switch"
-          checked={form.needsOutput}
-          onChange={(event) => team.setNeedsOutput(event.target.checked)}
-          className="size-5"
-        />
-        <span className="type-body-sm text-text-primary">
-          {t("needsOutput")}
-        </span>
-      </label>
-      <label className="block space-y-2">
-        <span className="type-label text-text-primary">{t("description")}</span>
-        <textarea
-          value={form.description}
-          maxLength={ISKUR_TASK_DESCRIPTION_MAX}
-          onChange={(event) => team.setDescription(event.target.value)}
-          rows={4}
-          className={ISKUR_FIELD_CLASS}
-        />
-      </label>
-      <div className="flex justify-end gap-3">
-        <Button
-          variant={ButtonVariant.Ghost}
-          size={ButtonSize.Medium}
-          onClick={team.cancel}
-        >
-          {t("cancel")}
-        </Button>
-        <Button
-          onClick={team.submit}
-          disabled={!team.canSubmit}
-          aria-busy={team.submitting}
-        >
-          {t("submit")}
-        </Button>
-      </div>
-      <p className="type-caption text-text-muted">{t("footnote")}</p>
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            role="switch"
+            checked={form.needsOutput}
+            onChange={(event) => team.setNeedsOutput(event.target.checked)}
+            className="size-5"
+          />
+          <span className="type-body-sm text-text-primary">
+            {t("needsOutput")}
+          </span>
+        </label>
+        <label className="block space-y-2">
+          <span className="type-label text-text-primary">
+            {t("description")}
+          </span>
+          <textarea
+            value={form.description}
+            maxLength={ISKUR_TASK_DESCRIPTION_MAX}
+            onChange={(event) => team.setDescription(event.target.value)}
+            rows={4}
+            className={ISKUR_FIELD_CLASS}
+          />
+        </label>
+        <div className="flex justify-end gap-3">
+          <Button
+            variant={ButtonVariant.Ghost}
+            size={ButtonSize.Medium}
+            onClick={team.cancel}
+          >
+            {t("cancel")}
+          </Button>
+          <Button
+            type="submit"
+            disabled={!team.canSubmit}
+            aria-busy={team.submitting}
+          >
+            {t("submit")}
+          </Button>
+        </div>
+        <p className="type-caption text-text-muted">{t("footnote")}</p>
+      </form>
     </Card>
   );
 }

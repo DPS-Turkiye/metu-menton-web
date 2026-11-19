@@ -58,7 +58,11 @@ const cases: [string, () => Promise<unknown>, AxiosRequestConfig][] = [
   [
     "assigns a task as the session user",
     () => createIskurTask("u1", withForgedActor(task)),
-    { method: "POST", url: "/api/iskur/team/tasks", data: { ...task, actorId: "u1" } },
+    {
+      method: "POST",
+      url: "/api/iskur/team/tasks",
+      data: { ...task, actorId: "u1" },
+    },
   ],
   [
     "reads a task",
@@ -68,12 +72,20 @@ const cases: [string, () => Promise<unknown>, AxiosRequestConfig][] = [
   [
     "updates a task as the session user",
     () => updateIskurTask("u1", "t/1", withForgedActor(update)),
-    { method: "PATCH", url: "/api/iskur/tasks/t%2F1", data: { ...update, actorId: "u1" } },
+    {
+      method: "PATCH",
+      url: "/api/iskur/tasks/t%2F1",
+      data: { ...update, actorId: "u1" },
+    },
   ],
   [
     "deletes a task",
     () => deleteIskurTask("u1", "t/1"),
-    { method: "DELETE", url: "/api/iskur/tasks/t%2F1", params: { actorId: "u1" } },
+    {
+      method: "DELETE",
+      url: "/api/iskur/tasks/t%2F1",
+      params: { actorId: "u1" },
+    },
   ],
   [
     "reads the pool",
@@ -93,7 +105,11 @@ const cases: [string, () => Promise<unknown>, AxiosRequestConfig][] = [
   [
     "updates an activity",
     () => updateIskurSupportActivity("c1", "p/1", "a/1", activity),
-    { method: "PUT", url: `${POOL}/a%2F1`, data: { ...activity, actorId: "c1" } },
+    {
+      method: "PUT",
+      url: `${POOL}/a%2F1`,
+      data: { ...activity, actorId: "c1" },
+    },
   ],
   [
     "deletes an activity",

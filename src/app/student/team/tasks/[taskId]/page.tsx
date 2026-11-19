@@ -6,5 +6,5 @@ export default async function StudentTeamTaskPage({
   params: Promise<{ taskId: string }>;
 }) {
   const { taskId } = await params;
-  return <IskurTaskDetailView taskId={taskId} />;
+  return <IskurTaskDetailView key={taskId} taskId={taskId} />;
 }

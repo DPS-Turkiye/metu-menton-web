@@ -8,10 +8,10 @@ import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import { ClientApiError } from "@/lib/client/api";
 import { createIskurTask, getIskurTeamTasks } from "@/lib/client/iskur-tasks";
 import {
-  createIskurTask as taskFixture,
   createIskurTeamMember,
   createIskurTeamTasks,
   MEMBER_ID,
+  createIskurTask as taskFixture,
 } from "@test/fixtures/iskur-tasks";
 import { renderWithQueryClient } from "@test/test-utils";
 
@@ -35,21 +35,36 @@ describe("IskurTeamView", () => {
       await screen.findByRole("heading", { name: "Medya ve Kreatif Üretim" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Ekip lideri görünümü")).toBeInTheDocument();
-    expect(screen.getByText("3 gün · Ekip Çalışmaları hedefi 16 sa 30 dk")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("3 gün · Ekip Çalışmaları hedefi 16 sa 30 dk"),
+    ).toHaveLength(2);
     expect(screen.getByText("12 sa planlı / 16 sa 30 dk")).toBeInTheDocument();
-    expect(screen.getByText("Görev günleri henüz belli değil")).toBeInTheDocument();
-    const task = screen.getByRole("link", { name: /Sponsor listesi: 10 firma/ });
+    expect(
+      screen.getByText("Görev günleri henüz belli değil"),
+    ).toBeInTheDocument();
+    const task = screen.getByRole("link", {
+      name: /Sponsor listesi: 10 firma/,
+    });
     expect(task).toHaveAttribute(
       "href",
       "/student/team/tasks/00000000-0000-4000-8000-0000000000b1",
     );
 
     const form = screen.getByRole("region", { name: "Görev ata" });
-    expect(within(form).getByRole("button", { name: "Görevi ata" })).toBeDisabled();
-    await user.type(within(form).getByRole("textbox", { name: "Görev" }), "Afiş");
+    expect(
+      within(form).getByRole("button", { name: "Görevi ata" }),
+    ).toBeDisabled();
+    await user.type(
+      within(form).getByRole("textbox", { name: "Görev" }),
+      "Afiş",
+    );
     await user.click(within(form).getByRole("button", { name: "Etkinlik" }));
-    await user.click(within(form).getByRole("button", { name: "Süreyi 30 dakika artır" }));
-    expect(within(form).getByText("Mert Demir: 12 sa → 14 sa 30 dk / 16 sa 30 dk")).toBeInTheDocument();
+    await user.click(
+      within(form).getByRole("button", { name: "Süreyi 30 dakika artır" }),
+    );
+    expect(
+      within(form).getByText("Mert Demir: 12 sa → 14 sa 30 dk / 16 sa 30 dk"),
+    ).toBeInTheDocument();
     await user.click(within(form).getByRole("button", { name: "Görevi ata" }));
 
     await waitFor(() => expect(createIskurTask).toHaveBeenCalledTimes(1));
@@ -69,8 +84,10 @@ describe("IskurTeamView", () => {
     );
     renderWithQueryClient(<IskurTeamView />);
     const form = await screen.findByRole("region", { name: "Görev ata" });
-    await user.click(within(form).getByRole("button", { name: "Süreyi 30 dakika artır" }));
-    expect(within(form).getByRole("status")).toHaveTextContent("hedef aşılıyor");
+    await user.click(
+      within(form).getByRole("button", { name: "Süreyi 30 dakika artır" }),
+    );
+    expect(within(form).getByText(/hedef aşılıyor/)).toBeInTheDocument();
   });
 
   it("shows a member only their own tasks, without the form, and the roster", async () => {
@@ -82,18 +99,32 @@ describe("IskurTeamView", () => {
         members: [
           createIskurTeamMember({
             tasks: [
-              taskFixture({ id: "done", title: "Fotoğraf arşivi", status: IskurTaskStatus.Done }),
-              taskFixture({ id: "over", title: "Web içerik", status: IskurTaskStatus.HandedOver }),
+              taskFixture({
+                id: "done",
+                title: "Fotoğraf arşivi",
+                status: IskurTaskStatus.Done,
+              }),
+              taskFixture({
+                id: "over",
+                title: "Web içerik",
+                status: IskurTaskStatus.HandedOver,
+              }),
             ],
           }),
         ],
       }),
     );
     renderWithQueryClient(<IskurTeamView />);
-    expect(await screen.findByText("Bu haftaki görevlerin")).toBeInTheDocument();
-    expect(screen.queryByRole("region", { name: "Görev ata" })).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("Bu haftaki görevlerin"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "Görev ata" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText("Ekip lideri görünümü")).not.toBeInTheDocument();
-    const links = screen.getAllByRole("link", { name: /Fotoğraf arşivi|Web içerik/ });
+    const links = screen.getAllByRole("link", {
+      name: /Fotoğraf arşivi|Web içerik/,
+    });
     expect(links.map((link) => link.textContent)).toEqual([
       expect.stringContaining("Web içerik"),
       expect.stringContaining("Fotoğraf arşivi"),
@@ -106,19 +137,31 @@ describe("IskurTeamView", () => {
   });
 
   it("says when the intern is not placed yet, and offers a retry on a failure", async () => {
-    vi.mocked(getIskurTeamTasks).mockRejectedValue(new ClientApiError("x", 404));
+    vi.mocked(getIskurTeamTasks).mockRejectedValue(
+      new ClientApiError("x", 404),
+    );
     renderWithQueryClient(<IskurTeamView />);
     expect(
-      await screen.findByRole("heading", { name: "Henüz bir ekibe yerleştirilmedin" }),
+      await screen.findByRole("heading", {
+        name: "Henüz bir ekibe yerleştirilmedin",
+      }),
     ).toBeInTheDocument();
   });
 
   it("offers a retry when the team could not load", async () => {
-    vi.mocked(getIskurTeamTasks).mockRejectedValue(new ClientApiError("x", 500));
+    vi.mocked(getIskurTeamTasks).mockRejectedValue(
+      new ClientApiError("x", 500),
+    );
     renderWithQueryClient(<IskurTeamView />);
     expect(
-      await screen.findByText("Ekip bilgileri yüklenemedi.", {}, { timeout: 3000 }),
+      await screen.findByText(
+        "Ekip bilgileri yüklenemedi.",
+        {},
+        { timeout: 3000 },
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Yeniden dene" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Yeniden dene" }),
+    ).toBeInTheDocument();
   });
 });

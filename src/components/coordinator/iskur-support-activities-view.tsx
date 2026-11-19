@@ -125,15 +125,38 @@ function PoolBody({ pool, programId }: { pool: Pool; programId: string }) {
                 >
                   {t(activity.active ? "retire" : "restore")}
                 </Button>
-                <Button
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Destructive}
-                  disabled={pool.busy}
-                  onClick={() => pool.remove(activity)}
-                  aria-label={t("deleteLabel", { title: activity.title })}
-                >
-                  {t("delete")}
-                </Button>
+                {pool.confirmingDelete === activity.id ? (
+                  <>
+                    <Button
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Destructive}
+                      disabled={pool.busy}
+                      onClick={() => pool.remove(activity)}
+                      aria-label={t("deleteYesLabel", {
+                        title: activity.title,
+                      })}
+                    >
+                      {t("deleteYes")}
+                    </Button>
+                    <Button
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Ghost}
+                      onClick={pool.cancelDelete}
+                    >
+                      {t("deleteNo")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Destructive}
+                    disabled={pool.busy}
+                    onClick={() => pool.askDelete(activity)}
+                    aria-label={t("deleteLabel", { title: activity.title })}
+                  >
+                    {t("delete")}
+                  </Button>
+                )}
               </div>
             </li>
           ))}
@@ -149,48 +172,58 @@ function ActivityForm({ pool }: { pool: Pool }) {
   const form = pool.form;
   if (!form) return null;
   return (
-    <Card labelledBy="iskur-support-form" className="space-y-4">
-      <h3 id="iskur-support-form" className="type-label text-text-primary">
-        {t(form.id ? "editTitle" : "newTitle")}
-      </h3>
-      <label className="block space-y-2">
-        <span className="type-label-sm text-text-secondary">{t("title")}</span>
-        <input
-          value={form.title}
-          maxLength={ISKUR_SUPPORT_TITLE_MAX}
-          onChange={(event) => pool.setTitle(event.target.value)}
-          className={ISKUR_FIELD_CLASS}
-        />
-      </label>
-      <label className="block space-y-2">
-        <span className="type-label-sm text-text-secondary">
-          {t("description")}
-        </span>
-        <textarea
-          value={form.description}
-          maxLength={ISKUR_NOTE_MAX}
-          rows={2}
-          onChange={(event) => pool.setDescription(event.target.value)}
-          className={ISKUR_FIELD_CLASS}
-        />
-      </label>
-      <label className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          checked={form.active}
-          onChange={(event) => pool.setActive(event.target.checked)}
-          className="size-5"
-        />
-        <span className="type-body-sm text-text-primary">{t("active")}</span>
-      </label>
-      <div className="flex justify-end gap-2">
-        <Button variant={ButtonVariant.Ghost} onClick={pool.cancel}>
-          {t("cancel")}
-        </Button>
-        <Button onClick={pool.save} disabled={!pool.canSave}>
-          {t("save")}
-        </Button>
-      </div>
+    <Card labelledBy="iskur-support-form">
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          pool.save();
+        }}
+      >
+        <h3 id="iskur-support-form" className="type-label text-text-primary">
+          {t(form.id ? "editTitle" : "newTitle")}
+        </h3>
+        <label className="block space-y-2">
+          <span className="type-label-sm text-text-secondary">
+            {t("title")}
+          </span>
+          <input
+            value={form.title}
+            maxLength={ISKUR_SUPPORT_TITLE_MAX}
+            onChange={(event) => pool.setTitle(event.target.value)}
+            className={ISKUR_FIELD_CLASS}
+          />
+        </label>
+        <label className="block space-y-2">
+          <span className="type-label-sm text-text-secondary">
+            {t("description")}
+          </span>
+          <textarea
+            value={form.description}
+            maxLength={ISKUR_NOTE_MAX}
+            rows={2}
+            onChange={(event) => pool.setDescription(event.target.value)}
+            className={ISKUR_FIELD_CLASS}
+          />
+        </label>
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={form.active}
+            onChange={(event) => pool.setActive(event.target.checked)}
+            className="size-5"
+          />
+          <span className="type-body-sm text-text-primary">{t("active")}</span>
+        </label>
+        <div className="flex justify-end gap-2">
+          <Button variant={ButtonVariant.Ghost} onClick={pool.cancel}>
+            {t("cancel")}
+          </Button>
+          <Button type="submit" disabled={!pool.canSave}>
+            {t("save")}
+          </Button>
+        </div>
+      </form>
     </Card>
   );
 }

@@ -47,13 +47,28 @@ describe("IskurTaskDetailView", () => {
     expect(screen.getByText("Teslim edilecek çıktı var")).toBeInTheDocument();
     const complete = screen.getByRole("button", { name: "Görevi tamamla" });
     expect(complete).toBeDisabled();
-    expect(screen.getByText("Tamamlamak için gerçekleşen süreyi gir.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Tamamlamak için gerçekleşen süreyi gir."),
+    ).toBeInTheDocument();
 
-    await user.type(screen.getByRole("textbox", { name: "Gerçekleşen süre (dakika)" }), "90");
-    await user.type(screen.getByRole("textbox", { name: "Çıktı bağlantısı" }), "http://x");
-    expect(screen.getByText("Bağlantı https:// ile başlamalı.", { selector: "span" })).toBeInTheDocument();
-    await user.clear(screen.getByRole("textbox", { name: "Çıktı bağlantısı" }));
-    await user.type(screen.getByRole("textbox", { name: "Çıktı notu" }), "Teslim edildi");
+    await user.type(
+      screen.getByRole("textbox", { name: /Gerçekleşen süre/ }),
+      "90",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: /Çıktı bağlantısı/ }),
+      "http://x",
+    );
+    expect(
+      screen.getByText("Bağlantı https:// ile başlamalı.", {
+        selector: "span",
+      }),
+    ).toBeInTheDocument();
+    await user.clear(screen.getByRole("textbox", { name: /Çıktı bağlantısı/ }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Çıktı notu" }),
+      "Teslim edildi",
+    );
     await user.click(complete);
 
     await waitFor(() => expect(updateIskurTask).toHaveBeenCalledTimes(1));
@@ -69,7 +84,9 @@ describe("IskurTaskDetailView", () => {
         "Tamamlanan görev değiştirilemez; değiştirmek için önce yeniden aç.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Yeniden aç" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Yeniden aç" }),
+    ).toBeInTheDocument();
   });
 
   it("hands a task over to next week with a reason", async () => {
@@ -82,13 +99,20 @@ describe("IskurTaskDetailView", () => {
       }),
     );
     renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
-    await user.click(await screen.findByRole("button", { name: "Sonraki haftaya devret" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Sonraki haftaya devret" }),
+    );
     const confirm = screen.getByRole("button", { name: "Devret" });
     expect(confirm).toBeDisabled();
-    await user.type(screen.getByRole("textbox", { name: "Gerekçe" }), "Veri bekleniyor");
+    await user.type(
+      screen.getByRole("textbox", { name: "Gerekçe" }),
+      "Veri bekleniyor",
+    );
     await user.click(confirm);
     expect(
-      await screen.findByText("Sonraki haftaya devredildi · gerekçe: Veri bekleniyor"),
+      await screen.findByText(
+        "Sonraki haftaya devredildi · gerekçe: Veri bekleniyor",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -106,11 +130,15 @@ describe("IskurTaskDetailView", () => {
     vi.mocked(deleteIskurTask).mockResolvedValue(createIskurTeamTasks());
     renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
 
-    const link = await screen.findByRole("link", { name: "https://drive.example.test/afis.pdf" });
+    const link = await screen.findByRole("link", {
+      name: "https://drive.example.test/afis.pdf",
+    });
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
     expect(link).toHaveAttribute("target", "_blank");
     expect(screen.getByText("1 sa 45 dk")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Görevi tamamla" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Görevi tamamla" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Görevi sil" }));
@@ -120,17 +148,28 @@ describe("IskurTaskDetailView", () => {
 
   it("never turns a stored non-https output into a link", async () => {
     vi.mocked(getIskurTask).mockResolvedValue(
-      createIskurTask({ canWork: false, canManage: true, outputLink: "javascript:alert(1)" }),
+      createIskurTask({
+        canWork: false,
+        canManage: true,
+        outputLink: "javascript:alert(1)",
+      }),
     );
     renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
     expect(await screen.findByText("javascript:alert(1)")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "javascript:alert(1)" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "javascript:alert(1)" }),
+    ).not.toBeInTheDocument();
   });
 
   it("says a hidden task was not found", async () => {
     vi.mocked(getIskurTask).mockRejectedValue(new ClientApiError("x", 404));
     renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
-    expect(await screen.findByRole("heading", { name: "Görev bulunamadı." })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ekibime dön" })).toHaveAttribute("href", "/student/team");
+    expect(
+      await screen.findByRole("heading", { name: "Görev bulunamadı." }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ekibime dön" })).toHaveAttribute(
+      "href",
+      "/student/team",
+    );
   });
 });

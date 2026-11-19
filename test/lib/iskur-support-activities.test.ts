@@ -9,13 +9,28 @@ import {
 describe("İŞKUR support-activity helpers", () => {
   it("sends a trimmed title and an empty description as null", () => {
     expect(
-      supportActivityInput({ id: null, title: "  Açık ofis  ", description: " ", active: true }),
+      supportActivityInput({
+        id: null,
+        title: "  Açık ofis  ",
+        description: " ",
+        active: true,
+      }),
     ).toEqual({ title: "Açık ofis", description: null, active: true });
     expect(
-      supportActivityInput({ id: "a", title: "Vaka", description: " Salı ", active: false }),
+      supportActivityInput({
+        id: "a",
+        title: "Vaka",
+        description: " Salı ",
+        active: false,
+      }),
     ).toEqual({ title: "Vaka", description: "Salı", active: false });
     expect(
-      supportActivityInput({ id: null, title: " ", description: "", active: true }),
+      supportActivityInput({
+        id: null,
+        title: " ",
+        description: "",
+        active: true,
+      }),
     ).toBeNull();
   });
 
