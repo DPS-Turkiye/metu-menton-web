@@ -11,6 +11,7 @@ import {
 } from "@/interfaces/appointment";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
 import {
+  AppointmentRequestGroup,
   AppointmentsTab,
   AppointmentsView,
 } from "@/types/student-appointments";
@@ -133,5 +134,58 @@ describe("useStudentAppointments", () => {
 
     act(() => result.current.next());
     expect(result.current.selectedDay).toEqual(new Date(2026, 11, 1));
+  });
+
+  it("groups Taleplerim and opens what waits for an answer", async () => {
+    const { result } = await loaded();
+    expect(
+      result.current.requestGroups[AppointmentRequestGroup.AwaitingThem],
+    ).toEqual([request]);
+    expect(
+      result.current.isGroupOpen(AppointmentRequestGroup.AwaitingThem),
+    ).toBe(true);
+    expect(result.current.isGroupOpen(AppointmentRequestGroup.Confirmed)).toBe(
+      false,
+    );
+
+    act(() => result.current.toggleGroup(AppointmentRequestGroup.AwaitingThem));
+    act(() => result.current.toggleGroup(AppointmentRequestGroup.Confirmed));
+    expect(
+      result.current.isGroupOpen(AppointmentRequestGroup.AwaitingThem),
+    ).toBe(false);
+    expect(result.current.isGroupOpen(AppointmentRequestGroup.Confirmed)).toBe(
+      true,
+    );
+  });
+
+  it("moves the calendar to a row picked in Taleplerim and opens it", async () => {
+    const { result } = await loaded();
+    act(() => result.current.setView(AppointmentsView.Month));
+    const held = result.current.requestGroups[AppointmentRequestGroup.Past][1];
+    expect(held?.id).toBe("meeting-3");
+    act(() => {
+      if (held) result.current.focus(held);
+    });
+    expect(result.current.selected?.id).toBe("meeting-3");
+    expect(result.current.selectedDay).toEqual(new Date(2026, 10, 2));
+    expect(result.current.anchor).toEqual(new Date(2026, 10, 2));
+  });
+
+  it("opens a list tab from Taleplerim", async () => {
+    const { result } = await loaded();
+    act(() => result.current.setView(AppointmentsView.Week));
+    act(() => result.current.showInList(AppointmentsTab.Past));
+    expect(result.current.view).toBe(AppointmentsView.List);
+    expect(result.current.tab).toBe(AppointmentsTab.Past);
+  });
+
+  it("draws the Şu an line on today's day view only", async () => {
+    const { result } = await loaded();
+    expect(result.current.nowLine).toBeNull();
+    act(() => result.current.setView(AppointmentsView.Day));
+    // 09:00Z is 12:00 in Istanbul: three hours below the grid's 09:00 row.
+    expect(result.current.nowLine).toBe(3);
+    act(() => result.current.next());
+    expect(result.current.nowLine).toBeNull();
   });
 });

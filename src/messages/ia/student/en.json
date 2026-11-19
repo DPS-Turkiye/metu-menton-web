@@ -103,7 +103,8 @@
       "time": "Time",
       "proposedTime": "Proposed time",
       "nothingInView": "You have no appointments in this range.",
-      "emptyDay": "You have no appointments on this day."
+      "emptyDay": "You have no appointments on this day.",
+      "now": "Now: {time}"
     },
     "colors": {
       "title": "Colours",
@@ -116,8 +117,8 @@
         "body": "Session with a peer mentor"
       },
       "dashed": {
-        "title": "Dashed frame",
-        "body": "Not confirmed yet: awaiting approval or an alternative time proposed"
+        "title": "Not confirmed yet",
+        "body": "Awaiting approval or an alternative time proposed"
       }
     },
     "loading": "Loading appointments…",
@@ -125,7 +126,30 @@
     "retry": "Try again",
     "empty": "No appointments yet",
     "emptyBody": "Ask a peer mentor or Office Hours for an appointment; it will show up here.",
-    "findMentor": "Find a mentor"
+    "findMentor": "Find a mentor",
+    "requests": {
+      "title": "My requests",
+      "list": "List",
+      "count": ", {count, plural, =0 {no appointments} one {# appointment} other {# appointments}}",
+      "groups": {
+        "awaitingYou": "Proposals awaiting your answer",
+        "awaitingThem": "Requests awaiting approval",
+        "confirmed": "My confirmed appointments",
+        "past": "Past"
+      },
+      "hints": {
+        "awaitingYou": "The appointment is not confirmed until you accept the proposed time.",
+        "awaitingThem": "Not final until the academician or mentor answers."
+      },
+      "seeInList": {
+        "upcoming": "See all in the list",
+        "requests": "See all requests in the list",
+        "past": "See all past in the list"
+      },
+      "proposed": "Proposed: {time}",
+      "held": "Held",
+      "empty": "No appointments in this group."
+    }
   },
   "officeHours": {
     "list": {

@@ -103,7 +103,8 @@
       "time": "Saat",
       "proposedTime": "Önerilen saat",
       "nothingInView": "Bu aralıkta randevun yok.",
-      "emptyDay": "Bu gün randevun yok."
+      "emptyDay": "Bu gün randevun yok.",
+      "now": "Şu an: {time}"
     },
     "colors": {
       "title": "Renkler",
@@ -116,8 +117,8 @@
         "body": "Akran mentoruyla görüşme"
       },
       "dashed": {
-        "title": "Kesikli çerçeve",
-        "body": "Henüz onaylanmadı: Onay Bekliyor veya Alternatif Saat Önerildi"
+        "title": "Henüz Onaylanmadı",
+        "body": "Onay Bekliyor veya Alternatif Saat Önerildi"
       }
     },
     "loading": "Randevular yükleniyor…",
@@ -125,7 +126,30 @@
     "retry": "Tekrar dene",
     "empty": "Henüz randevun yok",
     "emptyBody": "Bir akran mentordan ya da Office Hours'tan randevu iste; burada görünür.",
-    "findMentor": "Mentor bul"
+    "findMentor": "Mentor bul",
+    "requests": {
+      "title": "Taleplerim",
+      "list": "Liste",
+      "count": ", {count, plural, =0 {randevu yok} other {# randevu}}",
+      "groups": {
+        "awaitingYou": "Yanıtını bekleyen öneriler",
+        "awaitingThem": "Onay bekleyen taleplerim",
+        "confirmed": "Onaylanan randevularım",
+        "past": "Geçmiş"
+      },
+      "hints": {
+        "awaitingYou": "Önerilen saati kabul etmeden randevu onaylanmaz.",
+        "awaitingThem": "Akademisyen ya da mentor yanıtlayana kadar kesinleşmez."
+      },
+      "seeInList": {
+        "upcoming": "Tümünü listede gör",
+        "requests": "Tüm talepleri listede gör",
+        "past": "Tüm geçmişi listede gör"
+      },
+      "proposed": "Önerilen: {time}",
+      "held": "Tamamlandı",
+      "empty": "Bu grupta randevu yok."
+    }
   },
   "officeHours": {
     "list": {
