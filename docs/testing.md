@@ -87,22 +87,36 @@ fails when a change drops below them. Raise them when coverage grows; never lowe
 ## End-to-end tests
 
 Playwright tests in `e2e/` drive a real stack: the backend from `metu-menton-backend` (its own `compose.yml`, run as
-the project `metu-e2e`) and this app's production build. They check what unit tests cannot: that the ODTU edition
-closes Teknokent's pages and endpoints, and that the persona login stays off on a server build. Unit tests stay the
-place for logic; an end-to-end test covers a whole journey or a deployment rule.
+the project `metu-e2e`) and this app's production build. Unit tests stay the place for logic; an end-to-end test
+covers a whole journey or a deployment rule.
+
+There are two kinds, each with its own build of the stack (`E2E_MODE`):
+
+| Project | `E2E_MODE`        | Built like                                                                                 | Specs                                            |
+| ------- | ----------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| `gates` | `gates` (default) | a server: no `dev` profile, no persona login, no Firebase                                  | `edition-gates.spec.ts`, `dev-login-off.spec.ts` |
+| `flows` | `flows`           | a developer's machine: the persona login on, signed in through a Firebase **test** project | `*.flow.spec.ts`                                 |
 
 ```bash
 E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh up   # backend on :8097 (Postgres :5447, Redis :6387)
 set -a; . e2e/.stack/web.env; set +a                       # the web values the stack expects
-npm run build && npm run e2e                               # starts the app on :3300 and runs the tests
+npm run build && npm run e2e -- --project=gates            # starts the app on :3300 and runs the tests
 E2E_BACKEND_DIR=../metu-menton-backend e2e/stack.sh down  # removes containers, volumes and the image
 ```
 
-- `e2e/stack.sh up` builds the backend like a server: `APP_EDITION=ODTU`, no `dev` profile, no persona login, AI
-  off. It writes fresh random secrets to `e2e/.stack/` (git-ignored) on every run.
+For the journeys, start the stack with `E2E_MODE=flows` and the test project's service account and web config
+(`E2E_FIREBASE_CREDENTIALS_FILE` and `E2E_FIREBASE_WEB_ENV`, or the `E2E_FIREBASE_*` values CI uses; see the top of
+`e2e/stack.sh`), then run `--project=flows`.
+
+- Every run gets fresh random secrets in `e2e/.stack/` (git-ignored, owner-only, removed by `down`). The service
+  account only ever goes there; never print it, commit it or point the stack at a real project.
+- A journey sets its scene through the backend (`e2e/support/backend.ts`: the service credential and the acting
+  person's id) and checks what matters through the screens. `e2e/support/database.ts` moves a row's clock where
+  waiting is not possible, such as an Office Hours request that should be four days old.
 - Chromium only: `npx playwright install chromium` once.
-- Tests use fake data only (`.invalid` addresses) and never real accounts.
+- Tests use fake data only (personas, `.invalid` addresses) and never real accounts.
 - The repository is public: a failed CI run keeps screenshots and the HTML report, never traces or videos, which
   would carry request headers and tokens.
-- CI: `.github/workflows/e2e.yml` runs on pushes to `main`, nightly, by hand, and on pull requests that change the
-  tests. It is not a required check yet.
+- CI: `.github/workflows/e2e.yml` runs the gates on pushes to `main`, nightly, by hand, and on pull requests that
+  change the tests. The `e2e-flows` job runs the journeys once the test project's secrets are set, and skips with a
+  notice until then. Neither is a required check yet.
