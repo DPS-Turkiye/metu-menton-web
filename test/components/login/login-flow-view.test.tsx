@@ -71,9 +71,8 @@ describe("Login screen", () => {
     vi.unstubAllEnvs();
   });
 
-  it("leads ODTÜ with its own sign-in and opens e-mail only for staff who ask", async () => {
+  it("keeps the dev ODTÜ sign-in above the students' e-mail form, which is always open", () => {
     vi.stubEnv("NEXT_PUBLIC_ODTU_DEV_LOGIN", "true");
-    const user = userEvent.setup();
     render(
       <InLocale locale="tr">
         <LoginFlowView edition={Edition.Odtu} />
@@ -83,7 +82,8 @@ describe("Login screen", () => {
     expect(
       screen.getByRole("button", { name: "ODTÜ Hesabıyla Giriş Yap" }),
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText(/Şifre/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/E-posta/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Şifre/)).toBeInTheDocument();
     expect(screen.queryByText(/ODTÜ TEKNOKENT Girişimcilik/)).toBeNull();
     expect(screen.queryByRole("link", { name: /davet/i })).toBeNull();
     expect(
@@ -93,29 +93,30 @@ describe("Login screen", () => {
       "href",
       "/signup",
     );
-
-    await user.click(
-      screen.getByRole("button", { name: "E-posta ile giriş yap" }),
-    );
-
-    expect(screen.getByLabelText(/Şifre/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/E-posta/)).toHaveFocus();
-    expect(
-      screen.queryByRole("button", { name: "E-posta ile giriş yap" }),
-    ).toBeNull();
   });
 
-  it("falls back to e-mail on ODTÜ while no institution login is wired", () => {
+  // On a server the dev persona login is off: students see only e-mail, password, "Şifremi unuttum" and sign-up.
+  it("signs ODTÜ students in by e-mail, with no ODTÜ button outside the dev login", () => {
     render(
       <InLocale locale="tr">
         <LoginFlowView edition={Edition.Odtu} />
       </InLocale>,
     );
 
+    expect(
+      screen.getByText(/ODTÜ e-posta adresin \(@metu.edu.tr\) ve şifrenle/),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText(/Şifre/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Şifremi unuttum" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "ODTÜ Hesabıyla Giriş Yap" }),
     ).toBeNull();
+    expect(screen.getByRole("link", { name: "Kayıt Ol" })).toHaveAttribute(
+      "href",
+      "/signup",
+    );
     expect(screen.queryByRole("link", { name: /davet/i })).toBeNull();
   });
 

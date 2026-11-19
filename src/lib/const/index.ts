@@ -63,6 +63,9 @@ export const ACCOUNT_NOT_APPROVED = "ACCOUNT_NOT_APPROVED";
 /** A program-coordinator assignment that already exists; the admin flow treats it as done. */
 export const ALREADY_COORDINATOR = "ALREADY_COORDINATOR";
 export const REGISTRATION_REQUIRED = "REGISTRATION_REQUIRED";
+/** Sign-up met a login or an address that already has an account; the person signs in instead. */
+export const ACCOUNT_ALREADY_REGISTERED = "ACCOUNT_ALREADY_REGISTERED";
+export const EMAIL_ALREADY_REGISTERED = "EMAIL_ALREADY_REGISTERED";
 
 export const TRANSCRIPT_BOT_LEAD_MS = 60_000;
 export const TRANSCRIPT_BOT_MAX_TIMER_MS = 86_400_000;

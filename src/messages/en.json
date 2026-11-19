@@ -73,11 +73,12 @@
     "invite": "Got an invitation? Continue with your invite code",
     "odtu": "Sign in with your METU account",
     "otg": "Sign in with ODTÜ TEKNOKENT Girişimcilik",
-    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
+    "odtuStudentIntro": "Sign in with your ODTÜ e-mail address (@metu.edu.tr) and password. No account yet? Sign up below.",
     "or": "or",
+    "help": "Cannot sign in? Get help",
+    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
     "staffQuestion": "Do you have a coordinator, admin or startup program account?",
-    "emailLogin": "Sign in with e-mail",
-    "help": "Cannot sign in? Get help"
+    "emailLogin": "Sign in with e-mail"
   },
   "otgLogin": {
     "signingIn": "Signing you in with your ODTÜ TEKNOKENT Girişimcilik account…",
@@ -6296,7 +6297,10 @@
     "iskurMessageSendFailed": "The message could not be sent.",
     "iskurChannelsInvalid": "The message details are not valid.",
     "iskurAcknowledgeFailed": "The read confirmation could not be saved.",
-    "iskurPreferencesSaveFailed": "The notification setting could not be saved."
+    "iskurPreferencesSaveFailed": "The notification setting could not be saved.",
+    "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
+    "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
+    "iskurInternsInvalid": "The addresses to add are not valid."
   },
   "startupStart": {
     "title": "My startup",
@@ -8115,5 +8119,59 @@
     "card": {
       "title": "Your channels"
     }
+  },
+  "studentSignup": {
+    "title": "ODTÜ student sign-up",
+    "intro": "Sign up with your ODTÜ e-mail address. Once you verify it, you can start right away.",
+    "profileTitle": "Finish signing up",
+    "profileIntro": "A few details are left for {email}.",
+    "department": "Department",
+    "departmentPlaceholder": "e.g. Computer Engineering",
+    "year": "Year",
+    "yearPlaceholder": "Choose",
+    "years": {
+      "PREP": "Preparatory",
+      "YEAR_1": "Year 1",
+      "YEAR_2": "Year 2",
+      "YEAR_3": "Year 3",
+      "YEAR_4": "Year 4",
+      "YEAR_5_PLUS": "Year 5 or later",
+      "MASTER": "Master's",
+      "DOCTORATE": "Doctorate"
+    },
+    "emailPlaceholder": "name.surname@metu.edu.tr",
+    "submit": "Sign up",
+    "finish": "Finish signing up",
+    "submitting": "Saving…",
+    "haveAccount": "Already have an account?",
+    "checking": "Checking your session…"
+  },
+  "iskurInterns": {
+    "title": "İŞKUR interns",
+    "hint": "Only accounts whose e-mail address is on this list count as İŞKUR interns; other students do not see the İŞKUR screens. An address can be added before the person signs up.",
+    "summary": "{listed} addresses · {interns} interns · {notSignedUp} not signed up yet",
+    "loading": "Loading the intern list…",
+    "loadFailed": "The intern list could not be loaded.",
+    "pasteLabel": "E-mail addresses to add",
+    "pasteHint": "One address per line, or separate them with commas. Addresses are lowercased.",
+    "add": "Add to the list",
+    "tooMany": "At most {max} addresses can be added at once.",
+    "added": "The intern list was updated.",
+    "nothingAdded": "No new addresses were added; they were already listed or could not be read.",
+    "addFailed": "The addresses could not be added.",
+    "rejected": "These entries could not be read as e-mail addresses and were not added: {entries}",
+    "empty": "No addresses on the list yet.",
+    "listLabel": "Addresses on the list",
+    "states": {
+      "INTERN": "Signed up",
+      "NOT_SIGNED_UP": "Not signed up yet",
+      "OUTSIDE_PROGRAM": "Has an account, not in the program"
+    },
+    "placed": "Placed in a team",
+    "remove": "Remove",
+    "removeNamed": "Remove {email} from the list",
+    "removePlacedHint": "Remove the placement first.",
+    "removed": "The address was removed from the list.",
+    "removeFailed": "The address could not be removed."
   }
 }
