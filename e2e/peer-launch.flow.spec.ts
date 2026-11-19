@@ -82,7 +82,7 @@ test.describe("Akran", () => {
     await page.getByLabel("Program adı").fill(PROGRAM);
     await page.getByRole("button", { name: "Devam Et" }).click();
     await page
-      .getByRole("button", { name: /Program Koordinatörü/ })
+      .getByRole("checkbox", { name: /Program Koordinatörü/ })
       .first()
       .click();
     await expect(
