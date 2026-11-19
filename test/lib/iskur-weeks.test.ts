@@ -1,0 +1,160 @@
+import { describe, expect, it } from "vitest";
+
+import { IskurTaskStatus } from "@/interfaces/iskur-tasks";
+import {
+  IskurWeekDecision,
+  IskurWorkEntryKind,
+} from "@/interfaces/iskur-weeks";
+import {
+  dayMinutes,
+  decisionInput,
+  emptyDecisionForm,
+  entriesInput,
+  entryDrafts,
+  iskurFallbackQueueHref,
+  iskurFallbackWeekHref,
+  iskurLeaderWeekHref,
+  iskurWorkLogHref,
+  overflowingDays,
+  percentOf,
+  teamDraft,
+  weekTodos,
+} from "@/lib/iskur-weeks";
+import { IskurTodoKind } from "@/types/iskur-weeks";
+import {
+  ACTIVITY_ID,
+  createIskurWeek,
+  createIskurWorkEntry,
+} from "@test/fixtures/iskur-weeks";
+
+describe("İŞKUR week helpers", () => {
+  it("links the work log, the review and the coordinators' queue", () => {
+    expect(iskurWorkLogHref("2026-11-16")).toBe(
+      "/student/work-log?view=daily&week=2026-11-16",
+    );
+    expect(iskurWorkLogHref("2026-11-16", true)).toContain("view=weekly");
+    expect(iskurLeaderWeekHref("w/1")).toBe("/student/team/weeks/w%2F1");
+    expect(iskurFallbackWeekHref("p/1", "w/1")).toBe(
+      "/coordinator/programs/p%2F1/iskur/weeks/w%2F1",
+    );
+    expect(iskurFallbackQueueHref("p1")).toBe(
+      "/coordinator/programs/p1/iskur/weeks",
+    );
+  });
+
+  it("measures logged time against a target", () => {
+    expect(percentOf(180, 360)).toBe(50);
+    expect(percentOf(500, 360)).toBe(100);
+    expect(percentOf(100, null)).toBeNull();
+    expect(percentOf(100, 0)).toBeNull();
+  });
+
+  it("turns entries into drafts and back, dropping free text from support lines", () => {
+    const drafts = entryDrafts([
+      createIskurWorkEntry(),
+      createIskurWorkEntry({
+        id: "e2",
+        kind: IskurWorkEntryKind.SupportActivity,
+        taskId: null,
+        supportActivityId: ACTIVITY_ID,
+        title: "Açık ofis saati",
+        minutes: 60,
+        output: null,
+      }),
+    ]);
+    expect(drafts[0]?.minutes).toBe("180");
+    expect(drafts[1]?.output).toBe("");
+    expect(new Set(drafts.map((draft) => draft.key)).size).toBe(2);
+    const withNote = drafts.map((draft) => ({ ...draft, note: "Mentee adı" }));
+    expect(entriesInput(withNote)).toEqual([
+      {
+        date: "2026-11-17",
+        kind: IskurWorkEntryKind.Team,
+        taskId: "task-1",
+        supportActivityId: null,
+        title: "Sponsor listesi: 10 firma",
+        minutes: 180,
+        output: "sponsor-listesi.xlsx",
+        note: "Mentee adı",
+      },
+      {
+        date: "2026-11-17",
+        kind: IskurWorkEntryKind.SupportActivity,
+        taskId: null,
+        supportActivityId: ACTIVITY_ID,
+        title: null,
+        minutes: 60,
+        output: null,
+        note: null,
+      },
+    ]);
+  });
+
+  it("refuses a line without a title or minutes, and a day over 7.5 hours", () => {
+    const blank = teamDraft("2026-11-17", null);
+    expect(entriesInput([{ ...blank, minutes: "60" }])).toBeNull();
+    expect(entriesInput([{ ...blank, title: "Plan", minutes: "" }])).toBeNull();
+    const onTask = teamDraft("2026-11-17", {
+      id: "task-1",
+      title: "Afiş",
+      estimatedMinutes: 120,
+    });
+    expect(onTask.minutes).toBe("120");
+    expect(entriesInput([{ ...onTask, title: "" }])?.[0]?.title).toBeNull();
+    const long = [
+      { ...onTask, minutes: "300" },
+      { ...teamDraft("2026-11-17", null), title: "Toplantı", minutes: "200" },
+    ];
+    expect(dayMinutes(long, "2026-11-17")).toBe(500);
+    expect(overflowingDays(long)).toEqual(["2026-11-17"]);
+    expect(entriesInput(long)).toBeNull();
+  });
+
+  it("lists the week's to-dos: reports first, then open tasks, then the support prompt", () => {
+    const week = createIskurWeek({ needsSupportActivity: true });
+    expect(weekTodos(week)).toEqual([
+      { kind: IskurTodoKind.Reports, count: 1 },
+      {
+        kind: IskurTodoKind.Task,
+        taskId: "task-1",
+        title: "Sponsor listesi: 10 firma",
+        dueDate: "2026-11-20",
+        needsOutput: true,
+      },
+      { kind: IskurTodoKind.Support },
+    ]);
+    const done = createIskurWeek({
+      mentoring: { ...week.mentoring, reportsSubmitted: 2 },
+      tasks: week.tasks.map((task) => ({
+        ...task,
+        status: IskurTaskStatus.Done,
+      })),
+    });
+    expect(weekTodos(done)).toEqual([]);
+  });
+
+  it("needs a decision, and a reason unless approving", () => {
+    expect(decisionInput(emptyDecisionForm())).toBeNull();
+    const revision = {
+      ...emptyDecisionForm(),
+      decision: IskurWeekDecision.Revision,
+    };
+    expect(decisionInput(revision)).toBeNull();
+    expect(decisionInput({ ...revision, reason: " Eksik " })?.reason).toBe(
+      "Eksik",
+    );
+    expect(
+      decisionInput({
+        ...emptyDecisionForm(),
+        decision: IskurWeekDecision.Approve,
+        timeMatchesWork: true,
+      }),
+    ).toEqual({
+      decision: IskurWeekDecision.Approve,
+      timeMatchesWork: true,
+      effortDocumented: false,
+      outputsSufficient: false,
+      reason: null,
+    });
+  });
+});

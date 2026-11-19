@@ -122,7 +122,11 @@
     "sent": "Meeting report sent.",
     "sendFailed": "The report could not be sent.",
     "notFound": "This meeting's report could not be found.",
-    "missingSummary": "The report was not sent. Sections with required fields left empty: {sections}"
+    "missingSummary": "The report was not sent. Sections with required fields left empty: {sections}",
+    "leaderPrivacy": {
+      "title": "Your team leader does not see this report",
+      "body": "Only you and the peer mentoring coordinator see its content. The weekly work log carries only its time and whether it was sent, as peer mentoring."
+    }
   },
   "skills": {
     "ACTIVE_LISTENING": "Active listening",

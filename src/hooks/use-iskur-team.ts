@@ -9,7 +9,9 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useIskurReviewQueue } from "@/hooks/use-iskur-review";
 import type { IskurTaskInput, IskurTeamTasks } from "@/interfaces/iskur-tasks";
+import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
 import { createIskurTask, getIskurTeamTasks } from "@/lib/client/iskur-tasks";
@@ -64,6 +66,12 @@ export function useIskurTeam() {
     placeholderData: keepPreviousData,
   });
   const team = query.data ?? null;
+  // "Haftalık kayıtlar" is a leader's tab: the weeks of the people they review, for the week shown.
+  const reviews = useIskurReviewQueue(
+    { programId: null },
+    weekStart,
+    team?.viewerRole === IskurTeamRole.Leader,
+  );
   const form = draft ?? emptyAssignForm(team, today);
   const people = assignableMembers(team);
   const assignee =
@@ -104,6 +112,7 @@ export function useIskurTeam() {
     setTab,
     taskCount: taskCount(team),
     memberCount: team?.roster.length ?? 0,
+    reviews,
     today,
     form,
     people,

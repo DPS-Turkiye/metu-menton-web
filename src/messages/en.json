@@ -6279,7 +6279,10 @@
     "iskurTaskSaveFailed": "The task could not be saved.",
     "iskurSupportLoadFailed": "Support activities could not be loaded.",
     "iskurSupportInvalid": "The support activity details are invalid.",
-    "iskurSupportSaveFailed": "The support activity could not be saved."
+    "iskurSupportSaveFailed": "The support activity could not be saved.",
+    "iskurWeekLoadFailed": "The weekly log could not be loaded.",
+    "iskurWeekSaveFailed": "The weekly log could not be saved.",
+    "iskurWeekInvalid": "The weekly log details are invalid."
   },
   "startupStart": {
     "title": "My startup",
@@ -7352,7 +7355,8 @@
     "tabsLabel": "My team tabs",
     "tabs": {
       "tasks": "Tasks",
-      "members": "Members"
+      "members": "Members",
+      "weeks": "Weekly logs"
     },
     "tasksTitleLeader": "This week's team tasks · by person",
     "tasksTitleMember": "Your tasks this week",
@@ -7399,6 +7403,16 @@
         "MEMBER": "Member"
       },
       "privacy": "Only names and team roles show here."
+    },
+    "weeks": {
+      "title": "Weekly logs · {week}",
+      "empty": "No log to review this week.",
+      "totals": "Team {team} · Mentoring {mentoring}",
+      "notStarted": "Not started",
+      "open": "Review",
+      "privacy": "On the mentoring side only time, meeting count and report status show.",
+      "loading": "Loading weekly logs…",
+      "failed": "Weekly logs could not be loaded."
     }
   },
   "iskurTask": {
@@ -7469,6 +7483,216 @@
       "actualMissing": "Enter the actual time to complete it.",
       "linkInvalid": "The link must start with https://.",
       "outputMissing": "This task has an output; add the link or a note."
+    }
+  },
+  "iskurWeek": {
+    "loading": "Loading your work log…",
+    "loadFailed": "The work log could not be loaded.",
+    "saved": "Saved.",
+    "saveFailed": "Could not be saved.",
+    "notPlaced": {
+      "title": "You have not been placed in a team yet",
+      "body": "Once your coordinator places you in a team, your work log opens here."
+    },
+    "breadcrumb": "Location",
+    "home": "Home",
+    "title": "Work log",
+    "intro": "Peer mentoring and team work come together in one weekly log that goes to your team leader for review.",
+    "viewLabel": "View",
+    "daily": {
+      "days": "Days of the week",
+      "today": "Today",
+      "title": "The day's work",
+      "mentoring": "Peer mentoring",
+      "mentoringHint": "Meetings and their reports are under Activity reports; only their time shows here.",
+      "openDailyReport": "Open the daily report →",
+      "lines": "Team work and support activities",
+      "noLines": "No lines for this day yet.",
+      "addTeam": "Team work",
+      "freeLine": "Line without a task",
+      "add": "Add",
+      "addSupport": "Support activity",
+      "choose": "Choose",
+      "addSupportButton": "Add activity",
+      "dayOver": "This day's lines pass one work day (7.5 h).",
+      "summary": "The day",
+      "dayLogged": "Logged: {minutes}",
+      "dayLimit": "A day's log can be at most 7.5 hours.",
+      "weekTeam": "This week · Team work",
+      "logged": "Logged",
+      "officialNote": "Logged time is for information; the official attendance sheet is kept by the authorised unit."
+    },
+    "weekly": {
+      "summary": "The week",
+      "mentoring": "Peer mentoring",
+      "teamWork": "Team work",
+      "byTarget": "Against the target",
+      "total": "Total logged: {logged} / {target}",
+      "totalNoTarget": "Total logged: {logged}",
+      "team": "Team work",
+      "noTeam": "No team work logged this week.",
+      "lineWithOutput": "{day} · Output: {output}",
+      "mentoringDetail": "Peer mentoring in detail",
+      "meetings": "Meetings",
+      "reports": "Meeting reports",
+      "reportsValue": "{sent} / {due}",
+      "otherWork": "Other activities",
+      "supportWork": "Support activities",
+      "privacy": "Your team leader does not see meeting contents; only time and report status reach the summary.",
+      "openWeeklyReport": "Write your weekly evaluation under Activity reports →"
+    },
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Awaiting approval",
+      "APPROVED": "Approved",
+      "REVISION_REQUESTED": "Revision requested",
+      "REJECTED": "Rejected"
+    },
+    "reviewer": "Reviewer: {name}",
+    "discard": "Discard changes",
+    "saveDraft": "Save draft",
+    "locked": "This week was sent to your team leader and cannot change.",
+    "progress": {
+      "of": "{logged} / {target}",
+      "percent": "{percent}%"
+    },
+    "card": {
+      "title": "This week · {week}",
+      "team": "My team",
+      "openLog": "Open work log",
+      "hours": "Working hours",
+      "mentoring": "Peer mentoring",
+      "teamWork": "Team work",
+      "logged": "Logged",
+      "todos": "To do",
+      "noTodos": "Nothing pending this week.",
+      "task": "Team task · {day}",
+      "taskWithOutput": "Team task · output to hand in · {day}",
+      "reports": "{count, plural, one {# meeting report pending} other {# meeting reports pending}}",
+      "reportsHint": "Peer mentoring · fill in under Activity reports",
+      "support": "Pick a mentoring support activity (optional)",
+      "supportHint": "You have no meeting planned this week. The activity you pick from the pool counts towards your peer mentoring hours.",
+      "supportPick": "Support activity",
+      "supportAdd": "Add 1 hour today",
+      "supportChoose": "Pick an activity",
+      "supportEmpty": "The coordinator has not set up the support activity pool yet.",
+      "cancel": "Cancel",
+      "loadFailed": "This week could not be loaded."
+    },
+    "line": {
+      "remove": "Remove {title}",
+      "untitled": "Untitled",
+      "title": "Title",
+      "minutes": "Time (min)",
+      "output": "Output (file name or link)",
+      "note": "Note",
+      "supportHint": "Only the activity's name and time show to your team leader.",
+      "teamHint": "Team lines show to your team leader as written; do not put mentee names or meeting details here.",
+      "kind": {
+        "support": "Support activity",
+        "task": "Team task",
+        "team": "Team work"
+      },
+      "problem": {
+        "minutes": "Enter whole minutes from 1 to 450.",
+        "title": "Write a title or pick a task.",
+        "activity": "Pick a support activity from the pool."
+      }
+    },
+    "send": {
+      "title": "Send to your team leader",
+      "decidedBy": "Reviewed by {name}",
+      "objected": "Your objection: {text}",
+      "objection": "Object to the decision",
+      "objectionSend": "Send objection",
+      "submit": "Send the weekly log to your team leader",
+      "resend": "Send the corrected log again",
+      "saveFirst": "Save your changes first.",
+      "hint": "Once sent, the log cannot change; it opens again if your leader asks for a revision.",
+      "team": "My team →",
+      "locked": {
+        "DRAFT": "This week cannot be sent yet.",
+        "SUBMITTED": "Waiting for your team leader's review.",
+        "APPROVED": "Week approved: hours completed.",
+        "REVISION_REQUESTED": "A revision was requested.",
+        "REJECTED": "The week was rejected."
+      }
+    },
+    "decision": {
+      "APPROVE": "Approved",
+      "REVISION": "Revision requested",
+      "REJECT": "Rejected"
+    }
+  },
+  "iskurReview": {
+    "loading": "Loading the weekly log…",
+    "loadFailed": "The weekly log could not be loaded.",
+    "notFound": "Weekly log not found.",
+    "back": "← Weekly logs",
+    "title": "{name} · {week}",
+    "days": "{days} work days",
+    "submittedAt": "sent {at}",
+    "summary": "The week",
+    "mentoring": "Peer mentoring",
+    "teamWork": "Team work",
+    "byTarget": "Against the target",
+    "officialNote": "The official attendance sheet is kept by the authorised unit.",
+    "team": "Team work",
+    "teamHint": "Tasks, time and outputs show in full.",
+    "noTeam": "No team work logged.",
+    "output": "Output: {output}",
+    "handedOver": "Handed over · reason: {reason}",
+    "contentHidden": "Content hidden",
+    "mentoringHint": "Only time, meeting count and report status show.",
+    "noMentoring": "No peer mentoring logged this week.",
+    "meetings": "{count, plural, one {# meeting} other {# meetings}} · {sent}/{due} reports sent",
+    "supportActivity": "Support activity: {title}",
+    "otherWork": "Mentoring work outside meetings",
+    "privacy": "Mentee names, meeting notes and report contents are not shown to you. If you see a problem, ask the peer mentoring coordinator.",
+    "queue": "Next logs",
+    "notStarted": "Not started",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Awaiting approval",
+      "APPROVED": "Approved",
+      "REVISION_REQUESTED": "Revision requested",
+      "REJECTED": "Rejected"
+    },
+    "decided": "Decision sent.",
+    "decideFailed": "The decision could not be sent.",
+    "decisionIncomplete": "Pick a decision; write a reason for a revision or a rejection.",
+    "decision": {
+      "title": "Review",
+      "checks": "Checks",
+      "timeMatchesWork": "The logged time matches the work done",
+      "effortDocumented": "The effort is documented (output, note, link)",
+      "outputsSufficient": "Reports and outputs are sufficient",
+      "choiceLabel": "Decision",
+      "choice": {
+        "APPROVE": "Approve",
+        "REVISION": "Ask for a revision",
+        "REJECT": "Reject"
+      },
+      "reason": "Reason",
+      "reasonPlaceholder": "Required for a revision or a rejection; an optional note when approving",
+      "reasonHint": "The student sees the reason and may object · {length} / {max}",
+      "submit": "Send decision",
+      "footnote": "Once approved, the student's week reads “Hours completed”. Not finding a sponsor or missing a target is not a reason to reject on its own.",
+      "notSent": "This week has not been sent yet.",
+      "objection": "The student's objection: {text}"
+    },
+    "fallback": {
+      "back": "← İŞKUR teams",
+      "title": "Weekly logs without a team leader",
+      "subtitle": "The leaders of one-leader teams and members without a leader have their week reviewed by the coordinators.",
+      "loading": "Loading…",
+      "empty": "No log falls to the coordinators this week.",
+      "totals": "Team {team} · Mentoring {mentoring}",
+      "notStarted": "Not started",
+      "open": "Open",
+      "failed": "The logs could not be loaded."
     }
   },
   "iskurSupport": {

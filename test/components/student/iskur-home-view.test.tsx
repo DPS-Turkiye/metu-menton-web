@@ -20,6 +20,13 @@ import {
 import { renderWithQueryClient } from "@test/test-utils";
 
 // The shared home is ODTÜ öğrenci's screen; here it only shows where the İŞKUR blocks land.
+vi.mock("@/lib/client/iskur-weeks", () => ({
+  getIskurLeaderQueue: vi.fn().mockResolvedValue({
+    weekStart: "2026-11-16",
+    people: [],
+  }),
+  getIskurWeek: vi.fn().mockRejectedValue(new Error("not placed")),
+}));
 vi.mock("@/components/student/home-view", () => ({
   StudentHomeView: ({
     main,

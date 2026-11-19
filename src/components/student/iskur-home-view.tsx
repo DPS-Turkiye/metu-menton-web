@@ -11,6 +11,7 @@ import {
   InitialsAvatar,
   RequestStatusBadge,
 } from "@/components/student/iskur-ui";
+import { IskurThisWeekCard } from "@/components/student/iskur/this-week-card";
 import { PEER_MENTOR_WIZARD_HREF } from "@/components/student/peer-mentor-give-view";
 import { useIskurHome } from "@/hooks/use-iskur-home";
 import { PEER_MENTOR_GIVE_HREF } from "@/lib/peer-mentoring";
@@ -26,6 +27,7 @@ export function IskurHomeView() {
   if (home.mode === IskurHomeMode.None) return <StudentHomeView />;
   return (
     <StudentHomeView
+      top={<IskurThisWeekCard />}
       main={home.mode === IskurHomeMode.Mentor ? <Giving home={home} /> : null}
       aside={<MentorSide home={home} />}
     />
