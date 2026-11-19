@@ -9,6 +9,7 @@ export enum AvailabilityItemKind {
 export enum AvailabilityFormError {
   NeedFields = "needFields",
   EndAfterStart = "endAfterStart",
+  TooShort = "tooShort",
   Overlap = "overlap",
   Past = "past",
   InsideDayOff = "insideDayOff",

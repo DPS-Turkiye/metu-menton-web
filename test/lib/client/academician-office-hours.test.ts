@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   OfficeHoursAppointmentAction,
@@ -12,7 +12,6 @@ import {
   getAcademicianAvailability,
   getAcademicianRequests,
   getOfficeHoursProfileSettings,
-  OfficeHoursFeatureUnavailableError,
   saveAcademicianAvailability,
   saveOfficeHoursProfileSettings,
 } from "@/lib/client/academician-office-hours";
@@ -47,6 +46,9 @@ const TIME = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("academician Office Hours client", () => {
@@ -166,34 +168,48 @@ describe("academician Office Hours client", () => {
     ).rejects.toBeInstanceOf(ClientApiError);
   });
 
-  it("reads and saves the weekly availability without one-offs", async () => {
-    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+  it("reads and saves the availability with its one-off hours", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-16T09:00:00+03:00"));
+    const settings = academicianAvailability({
+      oneOffs: [{ id: "one-off-1", ...TIME, place: "B-204" }],
+    });
     vi.mocked(httpClient.get).mockResolvedValue(createMentorResponse(settings));
     vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
 
-    expect((await getAcademicianAvailability()).oneOffs).toEqual([]);
-    const saved = await saveAcademicianAvailability({
-      ...settings,
-      oneOffs: [],
-    });
+    expect((await getAcademicianAvailability()).oneOffs).toEqual(
+      settings.oneOffs,
+    );
+    const payload = { ...settings, oneOffs: [{ ...TIME, place: "B-204" }] };
+    const saved = await saveAcademicianAvailability(payload);
 
     expect(httpClient.put).toHaveBeenCalledWith(
       `${BASE}/availability`,
-      settings,
+      payload,
     );
-    expect(saved.rules).toEqual(settings.rules);
+    expect(saved.oneOffs).toEqual(settings.oneOffs);
   });
 
-  it("refuses to save one-off hours instead of dropping them silently", async () => {
-    const { oneOffs: _ignored, ...settings } = academicianAvailability();
+  it("leaves ended one-off hours out of a save", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-17T16:00:00+03:00"));
+    const settings = academicianAvailability();
+    vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
+    const ahead = {
+      startsAt: "2026-11-18T14:00:00+03:00",
+      endsAt: "2026-11-18T15:00:00+03:00",
+      place: null,
+    };
 
-    await expect(
-      saveAcademicianAvailability({
-        ...settings,
-        oneOffs: [{ ...TIME, place: null }],
-      }),
-    ).rejects.toBeInstanceOf(OfficeHoursFeatureUnavailableError);
-    expect(httpClient.put).not.toHaveBeenCalled();
+    await saveAcademicianAvailability({
+      ...settings,
+      oneOffs: [{ ...TIME, place: null }, ahead],
+    });
+
+    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/availability`, {
+      ...settings,
+      oneOffs: [ahead],
+    });
   });
 
   it("reads where and how students meet them", async () => {

@@ -79,10 +79,7 @@ describe("AcademicianAvailabilityEditView", () => {
       "data-tour",
       "availability-weekly",
     );
-    // One-off hours wait for their backend (G5): no list, so none can be added.
-    expect(
-      screen.queryByRole("region", { name: /Tek seferlik müsaitlik/ }),
-    ).toBeNull();
+    expect(await list("Tek seferlik müsaitlik")).toHaveTextContent("B-110");
     expect(await list("Müsait olmadığım günler")).toHaveTextContent(
       "20–22 Kasım 2026 · Tüm günMüsait değilim (Konferans)",
     );
@@ -190,7 +187,33 @@ describe("AcademicianAvailabilityEditView", () => {
     );
   });
 
-  it("offers only weekly hours and days off in the add dialog until one-offs can be saved", async () => {
+  it("adds one-off hours and refuses ones shorter than 15 minutes", async () => {
+    const user = userEvent.setup();
+    renderView();
+    await user.click(
+      await screen.findByRole("button", { name: "Müsaitlik Ekle" }),
+    );
+
+    const dialog = screen.getByRole("dialog", { name: "Müsaitlik ekle" });
+    await user.click(
+      within(dialog).getByRole("radio", { name: /Tek seferlik müsaitlik/ }),
+    );
+    setField(dialog, "Tarih", "2026-11-26");
+    setField(dialog, "Başlangıç", "15:00");
+    setField(dialog, "Bitiş", "15:10");
+    await user.click(within(dialog).getByRole("button", { name: "Kaydet" }));
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(
+      "Tek seferlik saat en az 15 dakika olmalı.",
+    );
+
+    setField(dialog, "Bitiş", "16:00");
+    await user.click(within(dialog).getByRole("button", { name: "Kaydet" }));
+
+    expect(await screen.findByText("Müsaitlik kaydedildi.")).toBeVisible();
+    expect(await list("Tek seferlik müsaitlik")).toHaveTextContent("26 Kasım");
+  });
+
+  it("offers weekly hours, one-off hours and days off in the add dialog", async () => {
     const user = userEvent.setup();
     renderView();
     await user.click(
@@ -204,6 +227,7 @@ describe("AcademicianAvailabilityEditView", () => {
         .map((radio) => radio.closest("label")?.textContent ?? ""),
     ).toEqual([
       expect.stringContaining("Tekrarlanan haftalık müsaitlik"),
+      expect.stringContaining("Tek seferlik müsaitlik"),
       expect.stringContaining("Müsait olmadığım günler"),
     ]);
   });

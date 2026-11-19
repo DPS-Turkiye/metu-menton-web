@@ -82,6 +82,14 @@ const backendHours = {
   studentCapacity: 4,
   defaultMeetingDurationMinutes: 30,
   meetingBufferMinutes: 0,
+  oneOffs: [
+    {
+      id: "one-off-1",
+      startsAt: "2026-11-24T14:00:00+03:00",
+      endsAt: "2026-11-24T15:00:00+03:00",
+      place: "B-204",
+    },
+  ],
 };
 const editorHours = {
   rules: [
@@ -197,6 +205,7 @@ describe("office hours (Menton account) proxy routes", () => {
       menteeCapacity: 4,
       defaultMeetingDurationMinutes: 30,
       meetingBufferMinutes: 0,
+      oneOffs: backendHours.oneOffs,
     });
 
     await putAvailability(request("/x", "PUT", editorHours));
@@ -210,6 +219,51 @@ describe("office hours (Menton account) proxy routes", () => {
         meetingBufferMinutes: 0,
       },
     );
+  });
+
+  it("passes the one-off hours of a save on to the backend", async () => {
+    vi.mocked(officeHours.saveMyOfficeHoursAvailability).mockResolvedValue(
+      backendResponse(backendHours),
+    );
+    const oneOffs = [
+      {
+        startsAt: "2026-11-24T14:00:00+03:00",
+        endsAt: "2026-11-24T15:00:00+03:00",
+        place: "B-204",
+      },
+    ];
+
+    await putAvailability(request("/x", "PUT", { ...editorHours, oneOffs }));
+
+    expect(officeHours.saveMyOfficeHoursAvailability).toHaveBeenCalledWith(
+      "user-1",
+      {
+        rules: editorHours.rules,
+        exceptions: [],
+        studentCapacity: 4,
+        defaultMeetingDurationMinutes: 30,
+        meetingBufferMinutes: 0,
+        oneOffs,
+      },
+    );
+  });
+
+  it("refuses more one-off hours than the backend keeps", async () => {
+    const oneOff = {
+      startsAt: "2026-11-24T14:00:00+03:00",
+      endsAt: "2026-11-24T15:00:00+03:00",
+      place: null,
+    };
+
+    const response = await putAvailability(
+      request("/x", "PUT", {
+        ...editorHours,
+        oneOffs: Array.from({ length: 31 }, () => oneOff),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(officeHours.saveMyOfficeHoursAvailability).not.toHaveBeenCalled();
   });
 
   it("passes a refusal from the backend through as it is", async () => {

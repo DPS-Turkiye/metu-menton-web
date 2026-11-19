@@ -49,7 +49,8 @@ export const officeHoursAvailabilitySchema = z.object({
         place: optionalText(200),
       }),
     )
-    .max(50)
+    // The backend's own limit (@Size(max = 30)), so a longer list is refused here with the same 400.
+    .max(30)
     .optional(),
   menteeCapacity: z.number().int().min(1).max(50).nullable(),
   defaultMeetingDurationMinutes: z.number().int().min(15).max(480),
