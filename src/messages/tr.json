@@ -6805,6 +6805,31 @@
       "cancelledByYou": "Görüşmeyi iptal ettin",
       "lateCancel": "Son 24 saatte iptal",
       "cancelledReason": "Neden: {reason}"
+    },
+    "calendar": {
+      "title": "Moodle takvimine ekle",
+      "hint": "Linki kopyalayıp Moodle'da Takvim sayfasındaki takvim aboneliklerine URL olarak ekleyin. Moodle takvimi kendisi günceller; görüşme değişince takvim de değişir.",
+      "personal": {
+        "title": "Görüşmelerim",
+        "description": "Kesinleşen ofis saati görüşmelerin. Link sana özel, kimseyle paylaşma."
+      },
+      "course": {
+        "title": "Dersin ofis saatleri",
+        "description": "Dersin akademisyenlerinin önümüzdeki 8 haftadaki ofis saatleri. Öğrenci bilgisi içermez, dersin takvimine eklenebilir."
+      },
+      "show": "Linki göster",
+      "loading": "Yükleniyor…",
+      "loadFailed": "Link alınamadı.",
+      "retry": "Tekrar dene",
+      "linkLabel": "Takvim linki",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı.",
+      "copyFailed": "Kopyalanamadı. Linki seçip kendin kopyala.",
+      "reset": "Yeni link oluştur",
+      "resetConfirm": "Eski link çalışmayı bırakır ve onu kullanan takvimler artık güncellenmez. Yeni link oluşturulsun mu?",
+      "resetYes": "Evet, yenile",
+      "resetNo": "Vazgeç",
+      "resetFailed": "Yeni link oluşturulamadı."
     }
   },
   "academicianWorkspace": {

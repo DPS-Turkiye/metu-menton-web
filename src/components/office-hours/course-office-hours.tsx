@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { OfficeHoursCalendarLinks } from "@/components/office-hours/office-hours-calendar-links";
 import { OfficeHoursListState } from "@/components/office-hours/office-hours-list-state";
 import { OfficeHoursMeetings } from "@/components/office-hours/office-hours-meetings";
 import { OfficeHoursRequestCard } from "@/components/office-hours/office-hours-request-card";
@@ -110,6 +111,7 @@ export function CourseOfficeHours({
       )}
       <OfficeHoursMeetings courseId={courseId} viewer={viewer} />
       <CourseRequests courseId={courseId} viewer={viewer} />
+      <OfficeHoursCalendarLinks courseId={courseId} viewer={viewer} />
       {requesting ? (
         <OfficeHoursRequestDialog
           courseId={courseId}

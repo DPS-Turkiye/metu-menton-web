@@ -6803,6 +6803,31 @@
       "cancelledByYou": "You cancelled the meeting",
       "lateCancel": "Cancelled within 24 hours",
       "cancelledReason": "Reason: {reason}"
+    },
+    "calendar": {
+      "title": "Add to the Moodle calendar",
+      "hint": "Copy a link and add it as a calendar subscription URL on Moodle's Calendar page. Moodle keeps it up to date; when a meeting changes, the calendar does too.",
+      "personal": {
+        "title": "My meetings",
+        "description": "Your confirmed office hours meetings. The link is yours only; don't share it."
+      },
+      "course": {
+        "title": "The course's office hours",
+        "description": "The course's academics' office hours for the next 8 weeks. No student data, so it can go on the course calendar."
+      },
+      "show": "Show link",
+      "loading": "Loading…",
+      "loadFailed": "The link could not be loaded.",
+      "retry": "Try again",
+      "linkLabel": "Calendar link",
+      "copy": "Copy",
+      "copied": "Copied.",
+      "copyFailed": "Could not copy. Select the link and copy it yourself.",
+      "reset": "Make a new link",
+      "resetConfirm": "The old link stops working, and calendars that use it no longer update. Make a new link?",
+      "resetYes": "Yes, make a new one",
+      "resetNo": "Cancel",
+      "resetFailed": "A new link could not be made."
     }
   },
   "academicianWorkspace": {
