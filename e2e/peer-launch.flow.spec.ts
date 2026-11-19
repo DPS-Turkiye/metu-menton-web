@@ -15,6 +15,8 @@ import {
 // it after office-hours.flow.spec.ts: once the program has İŞKUR units, every student of it is an intern (main until
 // the intern list lands) and Ayşe would be sent to the onboarding.
 test.describe.configure({ mode: "serial" });
+// ODTÜ's day: a task is due "today" in the browser, and the backend's work days are in Istanbul.
+test.use({ timezoneId: "Europe/Istanbul" });
 
 const RUN = Date.now().toString(36);
 const PROGRAM = `E2E İŞKUR Akran ${RUN}`;
@@ -22,6 +24,14 @@ const CATEGORY = "Kariyer ve Staj";
 const HELP_WITH = `Staj başvurusu ve CV üzerine birlikte çalışabiliriz (${RUN}).`;
 const REQUEST_MESSAGE = `Yaz stajı için CV'mi birlikte gözden geçirmek istiyorum (${RUN}).`;
 const UUID = /[0-9a-f-]{36}/;
+const TASK = `Etkinlik afişi için 2 görsel öneri (${RUN})`;
+const WORK_NOTE = `Afiş taslakları hazırlandı (${RUN})`;
+const CHANNEL_MESSAGE = `Merhaba ekip, bu haftanın görevleri paylaşıldı (${RUN}).`;
+/** Today in Istanbul, as the onboarding names a work day ("Cuma"). */
+const TODAY = new Intl.DateTimeFormat("tr-TR", {
+  weekday: "long",
+  timeZone: "Europe/Istanbul",
+}).format(new Date());
 
 let programId = "";
 const accountIds: Partial<Record<Persona, string>> = {};
@@ -205,5 +215,248 @@ test.describe("Akran", () => {
     await expect(
       await upcomingAppointment(page, Persona.AyseYilmaz),
     ).toHaveCount(1);
+  });
+});
+
+/** The 5-step İŞKUR form, one work day (today, 09:00–16:30), as the gate sends a new intern to it. */
+async function onboard(page: Page) {
+  await page.goto("/iskur/onboarding");
+  await page.getByRole("button", { name: "Forma başla" }).click();
+  const next = page.getByRole("button", { name: "Devam et" });
+
+  await page
+    .getByRole("group", { name: "Haftalık gün sayısı" })
+    .getByRole("button", { name: /^1 gün/ })
+    .click();
+  await page.getByRole("button", { name: TODAY, exact: true }).click();
+  await page
+    .getByLabel("Daha önce İŞKUR programlarında kullandığın gün sayısı")
+    .fill("0");
+  await next.click(); // Görev günleri
+
+  await page.getByRole("checkbox").first().check();
+  for (const skill of await page
+    .getByRole("group", { name: / düzeyi$/ })
+    .all()) {
+    await skill.getByRole("button", { name: "İyi" }).click();
+  }
+  await page.getByRole("button", { name: "Planlayan" }).click();
+  await next.click(); // Birimler ve yetkinlikler
+
+  await expect(page.getByText("Belge yükleme şu an kapalı")).toBeVisible();
+  await next.click(); // Belgeler: storage is off on this stack
+  await next.click(); // Liderlik: no application
+  await page.getByRole("button", { name: "Formu gönder" }).click();
+  await expect(page.getByText("Formun gönderildi")).toBeVisible({
+    timeout: 15_000,
+  });
+}
+
+/** Ekip lideri / Üye in the coordinator's "Yerleştir" dialog, all in the first team of the default structure. */
+async function place(
+  page: Page,
+  person: Persona,
+  role: "Ekip lideri" | "Üye",
+  leader?: Persona,
+) {
+  await page
+    .getByRole("button", { name: `${person} kişisini yerleştir` })
+    .click();
+  const dialog = page.getByRole("dialog");
+  const team = dialog.getByLabel("Ekip", { exact: true });
+  await team.selectOption({ index: 0 });
+  await dialog.getByRole("radio", { name: role }).check();
+  if (leader) {
+    await dialog
+      .getByLabel("Bağlı olduğu lider")
+      .selectOption({ label: leader });
+  }
+  await dialog.getByRole("button", { name: "Kaydet" }).click();
+  await expect(
+    page.getByRole("button", { name: `${person} yerleşimini düzenle` }),
+  ).toBeVisible();
+}
+
+let teamName = "";
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+test.describe("İŞKUR", () => {
+  test("the coordinator builds the default units and teams and places a leader and a member", async ({
+    page,
+  }) => {
+    await joinProgram(page, [Persona.ZeynepDemir]);
+
+    await signInAsStaff(page, Staff.Coordinator);
+    await page.goto(`/coordinator/programs/${programId}/iskur`);
+    await page
+      .getByRole("button", { name: "Varsayılan yapıyı oluştur" })
+      .click();
+    await expect(
+      page.getByRole("button", {
+        name: `${Persona.ZeynepDemir} kişisini yerleştir`,
+      }),
+    ).toBeVisible({ timeout: 15_000 });
+
+    await page
+      .getByRole("button", {
+        name: `${Persona.ZeynepDemir} kişisini yerleştir`,
+      })
+      .click();
+    teamName =
+      (await page
+        .getByRole("dialog")
+        .getByLabel("Ekip", { exact: true })
+        .locator("option")
+        .first()
+        .textContent()) ?? "";
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Vazgeç" })
+      .click();
+    expect(teamName).not.toBe("");
+
+    await place(page, Persona.ZeynepDemir, "Ekip lideri");
+    await place(page, Persona.MehmetKaya, "Üye", Persona.ZeynepDemir);
+
+    await page.getByRole("button", { name: "Tümünü kesinleştir" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Kesinleştir" })
+      .click();
+    await expect(page.getByText(/2 kesinleşti/)).toBeVisible();
+  });
+
+  test("both interns go through the onboarding and see their team", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.MehmetKaya);
+    await onboard(page);
+    await page.goto("/student");
+    await expect(
+      page.getByRole("heading", { name: `Ekibin belli oldu: ${teamName}` }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(`Lideriniz ${Persona.ZeynepDemir}`),
+    ).toBeVisible();
+
+    await signInAs(page, Persona.ZeynepDemir);
+    await onboard(page);
+    await page.goto("/student");
+    await expect(page.getByText("Bu ekipte ekip liderisin")).toBeVisible();
+  });
+
+  test("the leader assigns Mehmet a task", async ({ page }) => {
+    await signInAs(page, Persona.ZeynepDemir);
+    await page.goto("/student/team");
+    await page.getByLabel("Görev", { exact: true }).fill(TASK);
+    await page
+      .getByRole("button", { name: Persona.MehmetKaya, exact: true })
+      .click();
+    await page.getByRole("button", { name: "Görevi ata" }).click();
+    await expect(page.getByText("Görev atandı.")).toBeVisible();
+  });
+
+  test("Mehmet logs his hours on it and sends the week", async ({ page }) => {
+    await signInAs(page, Persona.MehmetKaya);
+    await page.goto("/student/work-log");
+    await page.getByRole("button", { name: /Bugün/ }).click();
+    await page
+      .getByLabel("Ekip çalışması", { exact: true })
+      .selectOption({ label: TASK });
+    await page.getByRole("button", { name: "Ekle", exact: true }).click();
+    await page.getByLabel("Süre (dk)").fill("120");
+    await page.getByLabel("Not", { exact: true }).fill(WORK_NOTE);
+    await page.getByRole("button", { name: "Taslak olarak kaydet" }).click();
+    await expect(page.getByText("Kaydedildi.")).toBeVisible();
+
+    await page
+      .getByRole("group", { name: "Görünüm" })
+      .getByRole("button", { name: "Haftalık özet" })
+      .click();
+    await page
+      .getByRole("button", { name: "Haftalık kaydı ekip liderine gönder" })
+      .click();
+    await expect(
+      page.getByText("Ekip liderinin değerlendirmesi bekleniyor."),
+    ).toBeVisible();
+  });
+
+  test("the leader approves the week and never sees Mehmet's mentee or notes", async ({
+    page,
+  }) => {
+    // Everything the leader's screens load, to check the mentee is in none of it, not only in what is drawn.
+    const bodies: string[] = [];
+    page.on("response", async (response) => {
+      if (response.url().includes("/api/") && response.ok()) {
+        bodies.push(await response.text().catch(() => ""));
+      }
+    });
+
+    await signInAs(page, Persona.ZeynepDemir);
+    await page.goto("/student/team");
+    await page.getByRole("tab", { name: "Haftalık kayıtlar" }).click();
+    await page
+      .getByRole("listitem")
+      .filter({ hasText: Persona.MehmetKaya })
+      .getByRole("link", { name: "İncele" })
+      .click();
+
+    await expect(page.getByText(TASK)).toBeVisible();
+    await expect(page.getByText("İçerik gizli")).toBeVisible();
+    for (const secret of [Persona.AyseYilmaz, REQUEST_MESSAGE]) {
+      await expect(page.getByText(secret)).toHaveCount(0);
+      expect(
+        bodies.filter((body) => body.includes(secret)),
+        `the leader's screens loaded "${secret}"`,
+      ).toEqual([]);
+    }
+
+    for (const check of [
+      "Kaydedilen süre yapılan işle tutarlı",
+      "Emek belgelenmiş (çıktı, not, bağlantı)",
+      "Raporlar ve çıktılar yeterli",
+    ]) {
+      await page.getByRole("checkbox", { name: check }).check();
+    }
+    await page.getByRole("radio", { name: "Onayla" }).check();
+    await page.getByRole("button", { name: "Kararı gönder" }).click();
+    await expect(page.getByText("Karar gönderildi.")).toBeVisible();
+
+    await signInAs(page, Persona.MehmetKaya);
+    await page.goto("/student/work-log");
+    await page
+      .getByRole("group", { name: "Görünüm" })
+      .getByRole("button", { name: "Haftalık özet" })
+      .click();
+    await expect(
+      page.getByText("Hafta onaylandı: mesai tamamlandı."),
+    ).toBeVisible();
+  });
+
+  test("the leader writes in the team channel and Mehmet reads it", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.ZeynepDemir);
+    await page.goto("/student/messages");
+    await page
+      .getByRole("region", { name: "Tematik ekip" })
+      .getByRole("button", { name: new RegExp(escapeRegExp(teamName)) })
+      .click();
+    await page.getByLabel("Mesaj", { exact: true }).fill(CHANNEL_MESSAGE);
+    await page.getByRole("button", { name: "Gönder", exact: true }).click();
+    await expect(page.getByText(CHANNEL_MESSAGE)).toBeVisible();
+
+    await signInAs(page, Persona.MehmetKaya);
+    await page.goto("/student/messages");
+    await page
+      .getByRole("region", { name: "Tematik ekip" })
+      .getByRole("button", { name: new RegExp(escapeRegExp(teamName)) })
+      .click();
+    await expect(page.getByText(CHANNEL_MESSAGE)).toBeVisible({
+      timeout: 20_000,
+    });
   });
 });

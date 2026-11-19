@@ -114,9 +114,16 @@ For the journeys, start the stack with `E2E_MODE=flows` and the test project's s
   person's id) and checks what matters through the screens. `e2e/support/database.ts` moves a row's clock where
   waiting is not possible, such as an Office Hours request that should be four days old.
 - Chromium only: `npx playwright install chromium` once.
-- Tests use fake data only (personas, `.invalid` addresses) and never real accounts.
+- Tests use fake data only (personas, `.invalid` and `@example.test` addresses) and never real accounts.
 - The repository is public: a failed CI run keeps screenshots and the HTML report, never traces or videos, which
   would carry request headers and tokens.
-- CI: `.github/workflows/e2e.yml` runs the gates on pushes to `main`, nightly, by hand, and on pull requests that
-  change the tests. The `e2e-flows` job runs the journeys once the test project's secrets are set, and skips with a
-  notice until then. Neither is a required check yet.
+- CI: `.github/workflows/e2e.yml` runs on pushes to `main`, nightly, by hand, and on every pull request except
+  docs-only ones (one run per branch; a new push cancels the old one). The `e2e` job runs the gates; `e2e-flows` runs
+  the journeys with the test project's secrets, and skips with a notice for a fork's pull request or when they are
+  not set. Neither is a required check yet.
+  - The stack is always **backend `main`**, so a web PR whose backend half is not merged yet can fail for that reason.
+    To test against that branch first, run the workflow by hand ("Run workflow") with `backend_ref` set to it.
+  - The service-account secret reaches only the two steps that need it, never `npm ci`, the build or the tests.
+  - In flows mode `stack.sh` also makes the E2E staff logins (`e2e/support/staff-logins.mjs`): `e2e-admin` and
+    `e2e-coordinator` (`@example.test`) in the test project only, bootstrapped as ADMIN and COORDINATOR.
+    `signInAsStaff` signs them in with e-mail and password.
