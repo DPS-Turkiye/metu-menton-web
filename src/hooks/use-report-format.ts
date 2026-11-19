@@ -14,13 +14,14 @@ export function useReportDayLabel() {
   };
 }
 
-/** "11 sa 20 dk", or "45 dk" under an hour. */
+/** "11 sa 20 dk", "2 sa" on the hour, or "45 dk" under an hour. */
 export function useReportDuration() {
   const t = useTranslations("iaIskurReports.duration");
   return (total: number) => {
     const { hours, minutes } = splitMinutes(total);
-    return hours > 0
-      ? t("hoursMinutes", { hours, minutes })
-      : t("minutes", { minutes });
+    if (hours === 0) return t("minutes", { minutes });
+    return minutes === 0
+      ? t("hours", { hours })
+      : t("hoursMinutes", { hours, minutes });
   };
 }

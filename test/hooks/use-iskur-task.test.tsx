@@ -1,0 +1,136 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useIskurTask } from "@/hooks/use-iskur-task";
+import { IskurTaskStatus } from "@/interfaces/iskur-tasks";
+import { ClientApiError } from "@/lib/client/api";
+import {
+  deleteIskurTask,
+  getIskurTask,
+  updateIskurTask,
+} from "@/lib/client/iskur-tasks";
+import { useToastStore } from "@/stores/toast-store";
+import { IskurCompleteBlock } from "@/types/iskur-tasks";
+import {
+  createIskurTask,
+  createIskurTeamTasks,
+  TASK_ID,
+} from "@test/fixtures/iskur-tasks";
+import { queryWrapper } from "@test/fixtures/query-wrapper";
+
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("@/lib/client/iskur-tasks", () => ({
+  deleteIskurTask: vi.fn(),
+  getIskurTask: vi.fn(),
+  updateIskurTask: vi.fn(),
+}));
+
+async function renderLoaded() {
+  const { queryClient, wrapper } = queryWrapper();
+  const view = renderHook(() => useIskurTask(TASK_ID), { wrapper });
+  await waitFor(() => expect(view.result.current.task).not.toBeNull());
+  return { ...view, queryClient };
+}
+
+describe("useIskurTask", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({ needsOutput: true }),
+    );
+  });
+
+  it("blocks completing until the time and an output are there, then completes", async () => {
+    vi.mocked(updateIskurTask).mockResolvedValue(
+      createIskurTask({ status: IskurTaskStatus.Done, actualMinutes: 105 }),
+    );
+    const { result } = await renderLoaded();
+    expect(result.current.completeBlock).toBe(IskurCompleteBlock.ActualMissing);
+    expect(result.current.canComplete).toBe(false);
+
+    act(() => result.current.setActualMinutes("105"));
+    expect(result.current.completeBlock).toBe(IskurCompleteBlock.OutputMissing);
+    act(() => result.current.setOutputLink("http://x.test"));
+    expect(result.current.linkInvalid).toBe(true);
+    expect(result.current.canSave).toBe(false);
+    act(() => result.current.setOutputLink("https://x.test/afis.pdf"));
+    act(() => result.current.setOutputNote("İki öneri"));
+    expect(result.current.canComplete).toBe(true);
+
+    act(() => result.current.complete());
+    await waitFor(() => expect(result.current.task?.status).toBe(IskurTaskStatus.Done));
+    expect(updateIskurTask).toHaveBeenCalledWith(TASK_ID, {
+      status: IskurTaskStatus.Done,
+      actualMinutes: 105,
+      outputLink: "https://x.test/afis.pdf",
+      outputNote: "İki öneri",
+      handoverReason: null,
+    });
+    expect(result.current.dirty).toBe(false);
+    expect(useToastStore.getState().toasts.at(-1)?.message).toBe("Görev tamamlandı.");
+  });
+
+  it("saves the fields without moving the task, and hands it over with a reason", async () => {
+    vi.mocked(updateIskurTask).mockResolvedValue(createIskurTask());
+    const { result } = await renderLoaded();
+    expect(result.current.canSave).toBe(false);
+    act(() => result.current.setActualMinutes("30"));
+    expect(result.current.canSave).toBe(true);
+    act(() => result.current.save());
+    await waitFor(() => expect(updateIskurTask).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(updateIskurTask).mock.calls[0]?.[1].status).toBeNull();
+
+    act(() => result.current.startHandover());
+    expect(result.current.handingOver).toBe(true);
+    expect(result.current.canHandOver).toBe(false);
+    act(() => result.current.setHandoverReason("Veri bekleniyor"));
+    expect(result.current.canHandOver).toBe(true);
+    act(() => result.current.handOver());
+    await waitFor(() => expect(updateIskurTask).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(updateIskurTask).mock.calls[1]?.[1]).toMatchObject({
+      status: IskurTaskStatus.HandedOver,
+      handoverReason: "Veri bekleniyor",
+    });
+    act(() => result.current.cancelHandover());
+    expect(result.current.handingOver).toBe(false);
+  });
+
+  it("reopens, and shows the refusal when a save is turned down", async () => {
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({ status: IskurTaskStatus.Done, canWork: false, canManage: true }),
+    );
+    vi.mocked(updateIskurTask).mockRejectedValue(
+      new ClientApiError("Görev bu arada değişti; sayfayı yenileyip yeniden dene.", 409),
+    );
+    const { result } = await renderLoaded();
+    expect(result.current.canManage).toBe(true);
+    act(() => result.current.reopen());
+    await waitFor(() =>
+      expect(useToastStore.getState().toasts.at(-1)?.message).toBe(
+        "Görev bu arada değişti; sayfayı yenileyip yeniden dene.",
+      ),
+    );
+    expect(vi.mocked(updateIskurTask).mock.calls[0]?.[1].status).toBe(IskurTaskStatus.Open);
+  });
+
+  it("asks before deleting, then goes back to the team", async () => {
+    vi.mocked(deleteIskurTask).mockResolvedValue(createIskurTeamTasks());
+    const { result } = await renderLoaded();
+    act(() => result.current.askDelete());
+    expect(result.current.confirmingDelete).toBe(true);
+    act(() => result.current.cancelDelete());
+    expect(result.current.confirmingDelete).toBe(false);
+    act(() => result.current.remove());
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/student/team"));
+    expect(deleteIskurTask).toHaveBeenCalledWith(TASK_ID);
+  });
+
+  it("tells a hidden task from a failed load", async () => {
+    vi.mocked(getIskurTask).mockRejectedValue(new ClientApiError("x", 404));
+    const { wrapper } = queryWrapper();
+    const view = renderHook(() => useIskurTask(TASK_ID), { wrapper });
+    await waitFor(() => expect(view.result.current.notFound).toBe(true));
+    expect(view.result.current.form).toBeNull();
+  });
+});

@@ -6273,7 +6273,13 @@
     "officeHoursStudentsLoadFailed": "Could not load the students.",
     "iskurWorkspaceLoadFailed": "İŞKUR teams could not be loaded.",
     "iskurWorkspaceSaveFailed": "The İŞKUR team change could not be saved.",
-    "iskurWorkspaceInvalid": "The İŞKUR team details are not valid."
+    "iskurWorkspaceInvalid": "The İŞKUR team details are not valid.",
+    "iskurTasksLoadFailed": "Team tasks could not be loaded.",
+    "iskurTaskInvalid": "The task details are invalid.",
+    "iskurTaskSaveFailed": "The task could not be saved.",
+    "iskurSupportLoadFailed": "Support activities could not be loaded.",
+    "iskurSupportInvalid": "The support activity details are invalid.",
+    "iskurSupportSaveFailed": "The support activity could not be saved."
   },
   "startupStart": {
     "title": "My startup",
@@ -7328,6 +7334,168 @@
     "deleteTeamTitle": "Delete the team {name}",
     "deleteBody": "It is deleted only when nobody is placed in it.",
     "confirmFinalize": "Finalize",
-    "confirmDelete": "Delete"
+    "confirmDelete": "Delete",
+    "supportPool": "Support activity pool"
+  },
+  "iskurTeam": {
+    "loading": "Loading your team…",
+    "loadFailed": "Your team could not be loaded.",
+    "retry": "Try again",
+    "notPlaced": {
+      "title": "You have not been placed in a team yet",
+      "body": "Once your coordinator places you in a team, your team and your tasks show here."
+    },
+    "breadcrumb": "Location",
+    "home": "Home",
+    "title": "My team",
+    "leaderView": "Team leader view",
+    "tabsLabel": "My team tabs",
+    "tabs": {
+      "tasks": "Tasks",
+      "members": "Members"
+    },
+    "tasksTitleLeader": "This week's team tasks · by person",
+    "tasksTitleMember": "Your tasks this week",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "target": "{days} days · team work target {target}",
+    "daysMissing": "Work days not set yet",
+    "planned": "{planned} planned / {target}",
+    "plannedOnly": "{planned} planned",
+    "noTasks": "No tasks this week.",
+    "taskMeta": "{kind} · {day}",
+    "status": {
+      "OPEN": "Open",
+      "DONE": "Done",
+      "HANDED_OVER": "Handed over to next week"
+    },
+    "footnote": "Assigning warns when the planned time passes the team work target. Peer mentoring hours are not included here.",
+    "assigned": "Task assigned.",
+    "assignFailed": "The task could not be assigned.",
+    "assign": {
+      "title": "Assign a task",
+      "task": "Task",
+      "taskPlaceholder": "E.g. two poster ideas for the event",
+      "kind": "Kind",
+      "assignee": "Assignee",
+      "estimate": "Estimate",
+      "less": "30 minutes less",
+      "more": "30 minutes more",
+      "estimateHint": "Min 1 h · max 7.5 h · 30 min steps",
+      "dueDate": "Due date",
+      "preview": "{name}: {before} → {after} / {target}",
+      "previewOver": "{name}: {before} → {after} / {target} · over the target",
+      "previewNoTarget": "{name}: {before} → {after} (work days not set)",
+      "needsOutput": "Has an output to hand in (link or note)",
+      "description": "Description",
+      "cancel": "Cancel",
+      "submit": "Assign task",
+      "footnote": "The task appears in the person's This Week area on the home page and in their work log; they get a notification."
+    },
+    "roster": {
+      "title": "People in the team",
+      "role": {
+        "LEADER": "Team leader",
+        "MEMBER": "Member"
+      },
+      "privacy": "Only names and team roles show here."
+    }
+  },
+  "iskurTask": {
+    "loading": "Loading the task…",
+    "loadFailed": "The task could not be loaded.",
+    "notFound": "Task not found.",
+    "backToTeam": "Back to my team",
+    "breadcrumb": "Location",
+    "home": "Home",
+    "team": "My team",
+    "title": "Task detail",
+    "kind": "Kind",
+    "dueDate": "Due date",
+    "estimate": "Estimate",
+    "assignee": "Assignee",
+    "assignedBy": "Assigned by",
+    "output": "Output",
+    "outputNeeded": "Has an output to hand in",
+    "outputOptional": "Output optional",
+    "handedOverBecause": "Handed over to next week · reason: {reason}",
+    "status": {
+      "OPEN": "Open",
+      "DONE": "Done",
+      "HANDED_OVER": "Handed over to next week"
+    },
+    "kinds": {
+      "TEAM_TASK": "Team task",
+      "EVENT": "Event",
+      "CORPORATE": "Corporate work",
+      "CONTRIBUTION_PROJECT": "Contribution project"
+    },
+    "saved": "Saved.",
+    "saveFailed": "The task could not be saved.",
+    "deleted": "Task deleted.",
+    "moved": {
+      "OPEN": "Task reopened.",
+      "DONE": "Task completed.",
+      "HANDED_OVER": "Task handed over to next week."
+    },
+    "work": {
+      "title": "Output and actual time",
+      "locked": "A completed task cannot change; reopen it first.",
+      "actual": "Actual time (minutes)",
+      "actualHint": "E.g. 105 = 1 h 45 min",
+      "link": "Output link",
+      "linkHint": "The file's sharing link; starts with https://.",
+      "linkInvalid": "The link must start with https://.",
+      "note": "Output note",
+      "save": "Save",
+      "none": "—"
+    },
+    "actions": {
+      "title": "Task",
+      "complete": "Complete task",
+      "handOver": "Hand over to next week",
+      "handoverReason": "Reason",
+      "handOverConfirm": "Hand over",
+      "cancel": "Cancel",
+      "reopen": "Reopen",
+      "delete": "Delete task",
+      "deleteConfirm": "Delete this task? This cannot be undone.",
+      "deleteYes": "Yes, delete",
+      "footnote": "The actual time goes into the work log; the team leader sees it in the weekly review."
+    },
+    "block": {
+      "actualMissing": "Enter the actual time to complete it.",
+      "linkInvalid": "The link must start with https://.",
+      "outputMissing": "This task has an output; add the link or a note."
+    }
+  },
+  "iskurSupport": {
+    "loading": "Loading support activities…",
+    "loadFailed": "Support activities could not be loaded.",
+    "saved": "Saved.",
+    "saveFailed": "Could not be saved.",
+    "back": "İŞKUR teams",
+    "title": "Support activity pool",
+    "subtitle": "Students with no meeting planned from Monday pick from this pool in This Week; the activity counts towards their peer mentoring hours.",
+    "createDefaults": "Create the default pool",
+    "add": "Add activity",
+    "empty": "The pool is empty. Start with the five defaults or add your own.",
+    "retired": "Retired",
+    "edit": "Edit",
+    "editLabel": "Edit {title}",
+    "retire": "Retire",
+    "restore": "Offer again",
+    "delete": "Delete",
+    "deleteLabel": "Delete {title}",
+    "footnote": "A deleted or retired activity keeps its name in the weeks that used it.",
+    "form": {
+      "newTitle": "New support activity",
+      "editTitle": "Edit activity",
+      "title": "Name",
+      "description": "Description (optional)",
+      "active": "Offer to students",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
   }
 }

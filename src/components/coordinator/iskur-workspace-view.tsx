@@ -24,6 +24,7 @@ import {
   type IskurWorkspace,
 } from "@/interfaces/iskur-workspace";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
+import { iskurSupportActivitiesHref } from "@/lib/iskur-support-activities";
 import {
   confirmCopy,
   ISKUR_NAME_MAX,
@@ -121,6 +122,13 @@ function Summary({
           onClick={() => state.openUnit(null)}
         >
           {t("addUnit")}
+        </Button>
+        <Button
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Ghost}
+          href={iskurSupportActivitiesHref(workspace.programId)}
+        >
+          {t("supportPool")}
         </Button>
         {workspace.units.length > 0 ? (
           <Button
