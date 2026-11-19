@@ -97,9 +97,9 @@ jobs:
 
     timeout-minutes: 40
 
+    # The service-account key reaches only the two steps that need it, never npm ci, the build or the tests.
     env:
       E2E_MODE: flows
-      E2E_FIREBASE_CREDENTIALS_JSON: ${{ secrets.E2E_FIREBASE_CREDENTIALS_JSON }}
       E2E_FIREBASE_API_KEY: ${{ vars.E2E_FIREBASE_API_KEY }}
       E2E_FIREBASE_AUTH_DOMAIN: ${{ vars.E2E_FIREBASE_AUTH_DOMAIN }}
       E2E_FIREBASE_PROJECT_ID: ${{ vars.E2E_FIREBASE_PROJECT_ID }}
@@ -108,6 +108,8 @@ jobs:
     steps:
       - name: Check for the Firebase test project
         id: firebase
+        env:
+          E2E_FIREBASE_CREDENTIALS_JSON: ${{ secrets.E2E_FIREBASE_CREDENTIALS_JSON }}
         run: |
           if [ -n "$E2E_FIREBASE_CREDENTIALS_JSON" ] && [ -n "$E2E_FIREBASE_API_KEY" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -151,6 +153,7 @@ jobs:
         run: e2e/stack.sh up
         env:
           E2E_BACKEND_DIR: ${{ github.workspace }}/.e2e-backend
+          E2E_FIREBASE_CREDENTIALS_JSON: ${{ secrets.E2E_FIREBASE_CREDENTIALS_JSON }}
 
       - name: Build the web app
         if: steps.firebase.outputs.ready == 'true'
