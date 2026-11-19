@@ -1,5 +1,4 @@
-import { PeerParticipantsView } from "@/components/coordinator/peer-participants-view";
-import { ProgramTab } from "@/lib/coordinator-program-detail";
+import { ProgramStudentsView } from "@/components/coordinator/program-students-view";
 
 export default async function CoordinatorProgramStudentsPage({
   params,
@@ -7,5 +6,5 @@ export default async function CoordinatorProgramStudentsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <PeerParticipantsView programId={id} tab={ProgramTab.Students} />;
+  return <ProgramStudentsView programId={id} />;
 }
