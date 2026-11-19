@@ -250,6 +250,15 @@ describe("ODTÜ student sign-up", () => {
       ).toBeInTheDocument();
     });
 
+    it("falls back to the form when the saved login cannot be read", async () => {
+      vi.mocked(currentFirebaseAccount).mockRejectedValue(new Error("offline"));
+      render(<StudentSignupFlow />);
+
+      expect(
+        await screen.findByRole("heading", { name: "ODTÜ öğrenci kaydı" }),
+      ).toBeInTheDocument();
+    });
+
     it("tells the student when the session has run out", async () => {
       vi.mocked(currentFirebaseAccount).mockResolvedValue({
         email: "deniz@metu.edu.tr",

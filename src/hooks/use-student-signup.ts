@@ -2,7 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type SubmitEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type SubmitEvent,
+} from "react";
 
 import { useSession } from "@/components/providers/session-provider";
 import type {
@@ -69,7 +75,8 @@ export function useStudentSignup() {
     if (!isResuming) return;
     const cancellation = new AbortController();
     void (async () => {
-      const firebaseAccount = await currentFirebaseAccount();
+      // currentFirebaseAccount answers null on its own failures; the catch keeps the page off a stuck spinner anyway.
+      const firebaseAccount = await currentFirebaseAccount().catch(() => null);
       if (cancellation.signal.aborted) return;
       if (!firebaseAccount) {
         setStep(StudentSignupStep.Form);
@@ -101,12 +108,17 @@ export function useStudentSignup() {
     [],
   );
 
+  // One registration at a time, whichever of the verify poll, its button or the profile form asked for it.
+  const registering = useRef(false);
+
   const register = useCallback(async () => {
     const payload = studentRegistration(profile);
     if (!payload) {
       setStep(StudentSignupStep.Profile);
       return;
     }
+    if (registering.current) return;
+    registering.current = true;
     setError("");
     setStep(StudentSignupStep.Registering);
     try {
@@ -120,6 +132,7 @@ export function useStudentSignup() {
       await login(idToken);
       router.push("/workspace");
     } catch (caught) {
+      registering.current = false;
       setError(describeAuthError(caught));
       setStep(StudentSignupStep.Profile);
     }
