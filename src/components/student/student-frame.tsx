@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { RoleFrame, type RoleNavItem } from "@/components/common/role-frame";
+import { IskurMessagesMenu } from "@/components/iskur/iskur-messages-menu";
 import { Workspace } from "@/interfaces/workspace";
 
 export const STUDENT_HOME = "/student";
@@ -51,6 +52,7 @@ export function StudentFrame({ children }: { children: ReactNode }) {
       menuLabel="studentMenu"
       nav={STUDENT_NAV}
       roleLabel={t("student")}
+      headerExtras={<IskurMessagesMenu />}
     >
       {children}
     </RoleFrame>
