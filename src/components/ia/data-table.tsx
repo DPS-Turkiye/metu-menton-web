@@ -49,17 +49,25 @@ export function DataTable({
   );
 }
 
-/** A body cell: 12 px vertical, 16 px horizontal padding, Body/Small text. */
+/**
+ * A body cell: 12 px vertical, 16 px horizontal padding, Body/Small text. `rowHeader` makes it the row's name, so a
+ * screen reader announces it with every other cell of the row.
+ */
 export function DataCell({
   children,
   className = "",
+  rowHeader = false,
 }: {
   children: ReactNode;
   className?: string | undefined;
+  rowHeader?: boolean | undefined;
 }) {
-  return (
-    <td className={`px-4 py-3 type-body-sm text-text-primary ${className}`}>
+  const classes = `px-4 py-3 type-body-sm text-text-primary ${className}`;
+  return rowHeader ? (
+    <th scope="row" className={`text-left ${classes}`}>
       {children}
-    </td>
+    </th>
+  ) : (
+    <td className={classes}>{children}</td>
   );
 }

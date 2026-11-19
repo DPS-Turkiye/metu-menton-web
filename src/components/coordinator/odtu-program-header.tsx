@@ -4,59 +4,18 @@ import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ProgramLifecyclePill } from "@/components/ia/program-status-pill";
 import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
-import { StatusTone } from "@/components/ia/status-badge";
-import { STATUS_DOT_ICON, StatusPill } from "@/components/ia/status-pill";
 import { UnderlineTabs } from "@/components/ia/underline-tabs";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
 import { useProgramSwitcher } from "@/hooks/use-program-switcher";
-import {
-  ProgramLifecycle,
-  type CoordinatorProgramDetail,
-} from "@/interfaces/coordinator-program";
+import type { CoordinatorProgramDetail } from "@/interfaces/coordinator-program";
 import {
   isActiveTab,
   odtuProgramHeaderLine,
   odtuProgramTabs,
   type ProgramTab,
 } from "@/lib/coordinator-program-detail";
-
-const LIFECYCLE_PILLS: Record<
-  ProgramLifecycle,
-  { tone: StatusTone; icon: string }
-> = {
-  [ProgramLifecycle.Draft]: {
-    tone: StatusTone.Neutral,
-    icon: "/ia/icons/edit.svg",
-  },
-  [ProgramLifecycle.Active]: {
-    tone: StatusTone.Success,
-    icon: STATUS_DOT_ICON,
-  },
-  [ProgramLifecycle.Upcoming]: {
-    tone: StatusTone.Info,
-    icon: "/ia/icons/time.svg",
-  },
-  [ProgramLifecycle.Completed]: {
-    tone: StatusTone.Neutral,
-    icon: "/ia/icons/check.svg",
-  },
-};
-
-/** A program's lifecycle as the Figma "Status Pill" (Aktif, Taslak…). */
-export function ProgramLifecyclePill({
-  lifecycle,
-}: {
-  lifecycle: ProgramLifecycle;
-}) {
-  const t = useTranslations("coordinatorPrograms");
-  const pill = LIFECYCLE_PILLS[lifecycle];
-  return (
-    <StatusPill tone={pill.tone} icon={pill.icon}>
-      {t(`lifecycle.${lifecycle}`)}
-    </StatusPill>
-  );
-}
 
 /**
  * The ODTÜ program header (Figma 06 — Koordinatör, "Program Detayı"): the breadcrumb, the name with its type and
@@ -105,7 +64,9 @@ export function OdtuProgramHeader({
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="type-h1 text-text-primary">{program.name}</h1>
             <ProgramTypeBadge type={program.type} />
-            <ProgramLifecyclePill lifecycle={program.lifecycle} />
+            <ProgramLifecyclePill lifecycle={program.lifecycle}>
+              {t(`lifecycle.${program.lifecycle}`)}
+            </ProgramLifecyclePill>
           </div>
           <p className="type-body text-text-secondary">
             {odtuProgramHeaderLine(detail, t, locale)}

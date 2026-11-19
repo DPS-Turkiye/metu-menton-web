@@ -53,13 +53,13 @@ describe("office-hours session guards", () => {
     await expect(saveOfficeHoursUser(user)).rejects.toThrow(/SESSION_PASSWORD/);
   });
 
-  it("sends the cookie cross-site in production, so it travels inside Moodle's frame", async () => {
+  it("keeps the cookie same-site and secure in production, since Moodle opens the tool in a new window", async () => {
     vi.stubEnv("NODE_ENV", "production");
 
     await getOfficeHoursUser();
 
     expect(cookieOptions()).toMatchObject({
-      cookieOptions: { sameSite: "none", secure: true },
+      cookieOptions: { sameSite: "lax", secure: true },
     });
   });
 

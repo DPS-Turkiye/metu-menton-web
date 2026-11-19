@@ -13,8 +13,10 @@ const OFFICE_HOURS_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 /**
  * Office hours are signed into by the LTI launch from Moodle, not Firebase, so they keep their own cookie,
- * apart from the Menton session: it opens the office-hours pages and nothing else. In production the
- * cookie is SameSite=None so it still travels when Moodle shows the tool inside a course page.
+ * apart from the Menton session: it opens the office-hours pages and nothing else. Moodle opens the tool in a new
+ * window (the app refuses to be framed), so the cookie only has to travel on our own requests and on the launch's
+ * redirect, a top-level GET: SameSite=Lax covers both and keeps other sites' requests from carrying it. The launch
+ * POST itself needs no cookie; its state and nonce are checked by the backend.
  */
 function officeHoursSessionOptions(): SessionOptions {
   const password = process.env.SESSION_PASSWORD;
@@ -27,7 +29,7 @@ function officeHoursSessionOptions(): SessionOptions {
     password,
     cookieOptions: {
       httpOnly: true,
-      sameSite: production ? "none" : "lax",
+      sameSite: "lax",
       secure: production,
       maxAge: OFFICE_HOURS_MAX_AGE_SECONDS,
     },

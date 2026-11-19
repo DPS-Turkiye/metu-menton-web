@@ -21,11 +21,18 @@ vi.mock("@/lib/server/office-hours-session", () => ({
   saveOfficeHoursUser: vi.fn(),
 }));
 
-function formPost(url: string, fields: Record<string, string>) {
+function formPost(
+  url: string,
+  fields: Record<string, string>,
+  headers: Record<string, string> = {},
+) {
   return new NextRequest(url, {
     method: "POST",
     body: new URLSearchParams(fields),
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...headers,
+    },
   });
 }
 
@@ -171,6 +178,32 @@ describe("LTI launch", () => {
       expect(saveOfficeHoursUser).not.toHaveBeenCalled();
     },
   );
+
+  it("still accepts the launch Moodle posts from its own origin, which is not ours", async () => {
+    vi.mocked(completeLtiLaunch).mockResolvedValue(
+      backendResponse({
+        userId: "user-1",
+        fullName: "Ayşe Yılmaz",
+        courseId: "course-1",
+        courseTitle: "Introduction to Computing",
+        role: OfficeHoursRole.Student,
+      }),
+    );
+
+    const response = await launch(
+      formPost(
+        "http://localhost:3000/lti/launch",
+        { id_token: "token", state: "state-1" },
+        {
+          origin: "https://odtuclass.metu.edu.tr",
+          "sec-fetch-site": "cross-site",
+        },
+      ),
+    );
+
+    expect(response.status).toBe(303);
+    expect(saveOfficeHoursUser).toHaveBeenCalled();
+  });
 
   it("answers a malformed launch with a 400 that names the field", async () => {
     vi.mocked(completeLtiLaunch).mockRejectedValue(

@@ -109,15 +109,15 @@ describe("program detail frame, ODTÜ edition", () => {
     expect(screen.getByText("Sekme içeriği")).toBeInTheDocument();
   });
 
-  it("shows Katılımcılar's sub-tabs as a segmented control, a missing one disabled", async () => {
+  it("shows Katılımcılar's sub-tabs as a segmented control, Öğrenciler included", async () => {
     renderFrame(ProgramTab.Academics);
 
     expect(
       await screen.findByRole("link", { name: "Akademisyenler" }),
     ).toHaveAttribute("aria-current", "page");
-    expect(screen.getByText("Öğrenciler")).toHaveAttribute(
-      "aria-disabled",
-      "true",
+    expect(screen.getByRole("link", { name: "Öğrenciler" })).toHaveAttribute(
+      "href",
+      "/coordinator/programs/oh-1/students",
     );
   });
 

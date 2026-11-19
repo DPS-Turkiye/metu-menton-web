@@ -9,6 +9,7 @@ import {
   type ApiTextKey,
 } from "@/lib/server/api-response";
 import { backendRequest } from "@/lib/server/backend-client";
+import { refuseCrossSite } from "@/lib/server/same-origin";
 
 type Method = "GET" | "POST";
 
@@ -25,8 +26,8 @@ export type AllowlistedProxyOptions<P> = {
 
 /**
  * A catch-all route that passes a fixed set of paths on to the backend for the signed-in person. The checks live
- * here rather than in each route, so a new feature gets the same allowlist, session and error handling by
- * passing its own paths and URL.
+ * here rather than in each route, so a new feature gets the same allowlist, session, same-origin writes and error
+ * handling by passing its own paths and URL.
  */
 export function allowlistedProxy<P>(options: AllowlistedProxyOptions<P>) {
   async function forward(
@@ -38,6 +39,10 @@ export function allowlistedProxy<P>(options: AllowlistedProxyOptions<P>) {
     const joined = path.join("/");
     if (!options.allowedPaths.some((pattern) => pattern.test(joined))) {
       return NextResponse.json({ code: "NOT_FOUND" }, { status: 404 });
+    }
+    if (method === HttpMethod.Post) {
+      const crossSite = refuseCrossSite(request);
+      if (crossSite) return crossSite;
     }
     try {
       const userId = await options.requireUserId();
