@@ -8115,5 +8115,15 @@
     "card": {
       "title": "Your channels"
     }
+  },
+  "iskurWeekHistory": {
+    "title": "Week history",
+    "kinds": {
+      "SUBMITTED": "Sent",
+      "APPROVED": "Approved",
+      "REVISION": "Revision requested",
+      "REJECTED": "Rejected",
+      "OBJECTION": "Objection"
+    }
   }
 }

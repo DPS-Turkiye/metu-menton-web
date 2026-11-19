@@ -8117,5 +8117,15 @@
     "card": {
       "title": "Kanalların"
     }
+  },
+  "iskurWeekHistory": {
+    "title": "Hafta geçmişi",
+    "kinds": {
+      "SUBMITTED": "Gönderildi",
+      "APPROVED": "Onaylandı",
+      "REVISION": "Revizyon istendi",
+      "REJECTED": "Reddedildi",
+      "OBJECTION": "İtiraz edildi"
+    }
   }
 }
