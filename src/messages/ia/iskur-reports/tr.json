@@ -12,6 +12,7 @@
   "duration": {
     "minutes": "{minutes} dk",
     "hoursMinutes": "{hours} sa {minutes} dk",
+    "hours": "{hours} sa",
     "recordedNote": "Kayıtlı süre bilgilendirme amaçlıdır; resmi çalışma süresi onayı değildir."
   },
   "meeting": {

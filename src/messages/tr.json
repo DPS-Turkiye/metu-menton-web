@@ -6278,6 +6278,12 @@
     "iskurWorkspaceLoadFailed": "İŞKUR ekipleri yüklenemedi.",
     "iskurWorkspaceSaveFailed": "İŞKUR ekip değişikliği kaydedilemedi.",
     "iskurWorkspaceInvalid": "İŞKUR ekip bilgileri geçersiz.",
+    "iskurTasksLoadFailed": "Ekip görevleri yüklenemedi.",
+    "iskurTaskInvalid": "Görev bilgileri geçersiz.",
+    "iskurTaskSaveFailed": "Görev kaydedilemedi.",
+    "iskurSupportLoadFailed": "Destek faaliyetleri yüklenemedi.",
+    "iskurSupportInvalid": "Destek faaliyeti bilgileri geçersiz.",
+    "iskurSupportSaveFailed": "Destek faaliyeti kaydedilemedi.",
     "iskurOnboardingLoadFailed": "Yerleştirme formu yüklenemedi.",
     "iskurOnboardingSaveFailed": "Yerleştirme formu kaydedilemedi.",
     "iskurOnboardingInvalid": "Yerleştirme formu bilgileri geçersiz.",
@@ -7344,7 +7350,174 @@
     "deleteTeamTitle": "{name} ekibini sil",
     "deleteBody": "Yalnızca içinde kimse yerleştirilmemişse silinir.",
     "confirmFinalize": "Kesinleştir",
-    "confirmDelete": "Sil"
+    "confirmDelete": "Sil",
+    "supportPool": "Destek faaliyeti havuzu"
+  },
+  "iskurTeam": {
+    "loading": "Ekibin yükleniyor…",
+    "loadFailed": "Ekip bilgileri yüklenemedi.",
+    "retry": "Yeniden dene",
+    "notPlaced": {
+      "title": "Henüz bir ekibe yerleştirilmedin",
+      "body": "Koordinatörün seni bir ekibe yerleştirdiğinde ekibin ve görevlerin burada görünür."
+    },
+    "breadcrumb": "Konum",
+    "home": "Ana Sayfa",
+    "title": "Ekibim",
+    "leaderView": "Ekip lideri görünümü",
+    "tabsLabel": "Ekibim sekmeleri",
+    "tabs": {
+      "tasks": "Görevler",
+      "members": "Üyeler"
+    },
+    "tasksTitleLeader": "Bu haftanın ekip görevleri · üyeye göre",
+    "tasksTitleMember": "Bu haftaki görevlerin",
+    "previousWeek": "Önceki hafta",
+    "nextWeek": "Sonraki hafta",
+    "target": "{days} gün · Ekip Çalışmaları hedefi {target}",
+    "daysMissing": "Görev günleri henüz belli değil",
+    "planned": "{planned} planlı / {target}",
+    "plannedOnly": "{planned} planlı",
+    "noTasks": "Bu hafta için görev yok.",
+    "taskMeta": "{kind} · {day}",
+    "status": {
+      "OPEN": "Açık",
+      "DONE": "Tamamlandı",
+      "HANDED_OVER": "Sonraki haftaya devredildi"
+    },
+    "footnote": "Planlı süre Ekip Çalışmaları hedefini aşarsa atama uyarı verir. Akran Mentörlüğü saatleri buraya dahil değildir.",
+    "assigned": "Görev atandı.",
+    "assignFailed": "Görev atanamadı.",
+    "assign": {
+      "title": "Görev ata",
+      "task": "Görev",
+      "taskPlaceholder": "Örn. Etkinlik afişi için 2 görsel öneri",
+      "kind": "Tür",
+      "assignee": "Atanan",
+      "estimate": "Tahmini süre",
+      "less": "Süreyi 30 dakika azalt",
+      "more": "Süreyi 30 dakika artır",
+      "estimateHint": "Min 1 sa · maks 7,5 sa · 30 dk adım",
+      "dueDate": "Son tarih",
+      "preview": "{name}: {before} → {after} / {target}",
+      "previewOver": "{name}: {before} → {after} / {target} · hedef aşılıyor",
+      "previewNoTarget": "{name}: {before} → {after} (görev günleri belli değil)",
+      "needsOutput": "Teslim edilecek çıktı var (bağlantı veya not)",
+      "description": "Açıklama",
+      "cancel": "İptal",
+      "submit": "Görevi ata",
+      "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır."
+    },
+    "roster": {
+      "title": "Ekipteki kişiler",
+      "role": {
+        "LEADER": "Ekip lideri",
+        "MEMBER": "Üye"
+      },
+      "privacy": "Burada yalnızca adlar ve ekip rolleri görünür."
+    }
+  },
+  "iskurTask": {
+    "loading": "Görev yükleniyor…",
+    "loadFailed": "Görev yüklenemedi.",
+    "notFound": "Görev bulunamadı.",
+    "backToTeam": "Ekibime dön",
+    "breadcrumb": "Konum",
+    "home": "Ana Sayfa",
+    "team": "Ekibim",
+    "title": "Görev detayı",
+    "kind": "Tür",
+    "dueDate": "Son tarih",
+    "estimate": "Tahmini süre",
+    "assignee": "Atanan",
+    "assignedBy": "Atayan",
+    "output": "Çıktı",
+    "outputNeeded": "Teslim edilecek çıktı var",
+    "outputOptional": "Çıktı isteğe bağlı",
+    "handedOverBecause": "Sonraki haftaya devredildi · gerekçe: {reason}",
+    "status": {
+      "OPEN": "Açık",
+      "DONE": "Tamamlandı",
+      "HANDED_OVER": "Sonraki haftaya devredildi"
+    },
+    "kinds": {
+      "TEAM_TASK": "Ekip görevi",
+      "EVENT": "Etkinlik",
+      "CORPORATE": "Kurumsal iş",
+      "CONTRIBUTION_PROJECT": "Katkı projesi"
+    },
+    "saved": "Kaydedildi.",
+    "saveFailed": "Görev kaydedilemedi.",
+    "deleted": "Görev silindi.",
+    "moved": {
+      "OPEN": "Görev yeniden açıldı.",
+      "DONE": "Görev tamamlandı.",
+      "HANDED_OVER": "Görev sonraki haftaya devredildi."
+    },
+    "work": {
+      "title": "Çıktı ve gerçekleşen süre",
+      "locked": "Tamamlanan görev değiştirilemez; değiştirmek için önce yeniden aç.",
+      "actual": "Gerçekleşen süre (dakika)",
+      "actualHint": "Örn. 105 = 1 sa 45 dk",
+      "link": "Çıktı bağlantısı",
+      "linkHint": "Dosyanın paylaşım bağlantısı; https:// ile başlar.",
+      "linkInvalid": "Bağlantı https:// ile başlamalı.",
+      "note": "Çıktı notu",
+      "save": "Kaydet",
+      "none": "—",
+      "actualInvalid": "1 ile 1350 arasında, tam dakika gir.",
+      "linkPlaceholder": "https://"
+    },
+    "actions": {
+      "title": "Görev",
+      "complete": "Görevi tamamla",
+      "handOver": "Sonraki haftaya devret",
+      "handoverReason": "Gerekçe",
+      "handOverConfirm": "Devret",
+      "cancel": "Vazgeç",
+      "reopen": "Yeniden aç",
+      "delete": "Görevi sil",
+      "deleteConfirm": "Görev silinsin mi? Bu geri alınamaz.",
+      "deleteYes": "Evet, sil",
+      "footnote": "Gerçekleşen süre çalışma kaydına yansır; ekip lideri haftalık değerlendirmede görür."
+    },
+    "block": {
+      "actualMissing": "Tamamlamak için gerçekleşen süreyi gir.",
+      "linkInvalid": "Bağlantı https:// ile başlamalı.",
+      "outputMissing": "Bu görevin çıktısı var; bağlantıyı ya da notu ekle."
+    }
+  },
+  "iskurSupport": {
+    "loading": "Destek faaliyetleri yükleniyor…",
+    "loadFailed": "Destek faaliyetleri yüklenemedi.",
+    "saved": "Kaydedildi.",
+    "saveFailed": "Kaydedilemedi.",
+    "back": "İŞKUR ekipleri",
+    "title": "Destek faaliyeti havuzu",
+    "subtitle": "Pazartesiden itibaren planlı görüşmesi olmayan öğrenciler Bu Haftam’da bu havuzdan seçer; seçilen faaliyet Akran Mentörlüğü saatine yazılır.",
+    "createDefaults": "Varsayılan havuzu oluştur",
+    "add": "Faaliyet ekle",
+    "empty": "Havuz boş. Varsayılan beş faaliyetle başlayabilir ya da kendin ekleyebilirsin.",
+    "retired": "Kullanımdan kalktı",
+    "edit": "Düzenle",
+    "editLabel": "{title} faaliyetini düzenle",
+    "retire": "Kullanımdan kaldır",
+    "restore": "Yeniden sun",
+    "delete": "Sil",
+    "deleteLabel": "{title} faaliyetini sil",
+    "footnote": "Silinen ya da kullanımdan kalkan bir faaliyet, onu seçmiş haftalarda adıyla kalır.",
+    "form": {
+      "newTitle": "Yeni destek faaliyeti",
+      "editTitle": "Faaliyeti düzenle",
+      "title": "Ad",
+      "description": "Açıklama (isteğe bağlı)",
+      "active": "Öğrencilere sunulsun",
+      "cancel": "Vazgeç",
+      "save": "Kaydet"
+    },
+    "deleteYes": "Evet, sil",
+    "deleteNo": "Vazgeç",
+    "deleteYesLabel": "{title} faaliyetini silmeyi onayla"
   },
   "iskurOnboarding": {
     "loading": "Yerleştirme formu yükleniyor…",

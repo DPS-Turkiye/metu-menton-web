@@ -133,7 +133,7 @@ describe("ActivityReportView", () => {
     expect(
       screen.getByText("Emre Kaya · görüşme raporu eksik"),
     ).toBeInTheDocument();
-    expect(screen.getByText("2 sa 0 dk")).toBeInTheDocument();
+    expect(screen.getByText("2 sa")).toBeInTheDocument();
   });
 
   it("keeps sending closed while a meeting report is missing", async () => {
