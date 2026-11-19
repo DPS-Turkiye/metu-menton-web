@@ -73,10 +73,10 @@ describe("IskurReviewView", () => {
     );
     const send = await screen.findByRole("button", { name: "Kararı gönder" });
     expect(send).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "Reddet" }));
+    await user.click(screen.getByRole("radio", { name: "Reddet" }));
     expect(send).toBeDisabled();
     await user.type(
-      screen.getByRole("textbox", { name: "Gerekçe" }),
+      screen.getByRole("textbox", { name: /^Gerekçe/ }),
       "Süre işle tutarsız",
     );
     await user.click(
