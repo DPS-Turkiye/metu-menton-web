@@ -7626,7 +7626,9 @@
       "APPROVE": "Approved",
       "REVISION": "Revision requested",
       "REJECT": "Rejected"
-    }
+    },
+    "dailyView": "Daily log",
+    "weeklyView": "Weekly summary"
   },
   "iskurReview": {
     "loading": "Loading the weekly log…",

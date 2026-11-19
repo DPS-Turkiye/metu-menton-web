@@ -81,8 +81,8 @@ export function IskurWorkLogView() {
         <Segmented
           label={t("viewLabel")}
           options={[
-            { id: PeerReportView.Daily, label: t("daily") },
-            { id: PeerReportView.Weekly, label: t("weekly") },
+            { id: PeerReportView.Daily, label: t("dailyView") },
+            { id: PeerReportView.Weekly, label: t("weeklyView") },
           ]}
           selected={log.view}
           onSelect={log.setView}
@@ -213,12 +213,7 @@ function Daily({ log, week }: { log: Log; week: IskurWeek }) {
             ) : (
               <ul className="space-y-3">
                 {log.dayLines.map((line) => (
-                  <LineEditor
-                    key={line.key}
-                    log={log}
-                    line={line}
-                    week={week}
-                  />
+                  <LineEditor key={line.key} log={log} line={line} />
                 ))}
               </ul>
             )}

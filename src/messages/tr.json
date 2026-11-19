@@ -7628,7 +7628,9 @@
       "APPROVE": "Onaylandı",
       "REVISION": "Revizyon istendi",
       "REJECT": "Reddedildi"
-    }
+    },
+    "dailyView": "Günlük kayıt",
+    "weeklyView": "Haftalık özet"
   },
   "iskurReview": {
     "loading": "Haftalık kayıt yükleniyor…",
