@@ -32,9 +32,9 @@ const SCREENS: Record<Edition, EditionScreens> = {
     userDeletion: true,
   },
   [Edition.Odtu]: {
-    // Password stays for ODTÜ's seeded admin and coordinator accounts; invite codes and OTG belong to Teknokent.
+    // Students and staff sign in with e-mail and password; invite codes and OTG belong to Teknokent.
     loginOptions: [LoginOption.Password, LoginOption.Odtu, LoginOption.SignUp],
-    // Students sign up through the founder flow into an individual (İŞKUR) program; there is no mentor sign-up.
+    // /signup on ODTÜ is the student e-mail sign-up (StudentSignupFlow), so this role list is not shown there.
     signupRoles: [SignupRole.Founder],
     programTypes: [ProgramType.PeerMentoring, ProgramType.OfficeHours],
     adminUserTabs: [UserTab.Coordinators, UserTab.Students, UserTab.Academics],

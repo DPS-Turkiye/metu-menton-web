@@ -73,11 +73,12 @@
     "invite": "Got an invitation? Continue with your invite code",
     "odtu": "Sign in with your METU account",
     "otg": "Sign in with ODTÜ TEKNOKENT Girişimcilik",
-    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
+    "odtuStudentIntro": "Sign in with your ODTÜ e-mail address (@metu.edu.tr) and password. No account yet? Sign up below.",
     "or": "or",
+    "help": "Cannot sign in? Get help",
+    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
     "staffQuestion": "Do you have a coordinator, admin or startup program account?",
-    "emailLogin": "Sign in with e-mail",
-    "help": "Cannot sign in? Get help"
+    "emailLogin": "Sign in with e-mail"
   },
   "otgLogin": {
     "signingIn": "Signing you in with your ODTÜ TEKNOKENT Girişimcilik account…",
@@ -8177,6 +8178,32 @@
     "card": {
       "title": "Your channels"
     }
+  },
+  "studentSignup": {
+    "title": "ODTÜ student sign-up",
+    "intro": "Sign up with your ODTÜ e-mail address. Once you verify it, you can start right away.",
+    "profileTitle": "Finish signing up",
+    "profileIntro": "A few details are left for {email}.",
+    "department": "Department",
+    "departmentPlaceholder": "e.g. Computer Engineering",
+    "year": "Year",
+    "yearPlaceholder": "Choose",
+    "years": {
+      "PREP": "Preparatory",
+      "YEAR_1": "Year 1",
+      "YEAR_2": "Year 2",
+      "YEAR_3": "Year 3",
+      "YEAR_4": "Year 4",
+      "YEAR_5_PLUS": "Year 5 or later",
+      "MASTER": "Master's",
+      "DOCTORATE": "Doctorate"
+    },
+    "emailPlaceholder": "name.surname@metu.edu.tr",
+    "submit": "Sign up",
+    "finish": "Finish signing up",
+    "submitting": "Saving…",
+    "haveAccount": "Already have an account?",
+    "checking": "Checking your session…"
   },
   "iskurInterns": {
     "title": "İŞKUR interns",
