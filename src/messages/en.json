@@ -6296,7 +6296,10 @@
     "iskurMessageSendFailed": "The message could not be sent.",
     "iskurChannelsInvalid": "The message details are not valid.",
     "iskurAcknowledgeFailed": "The read confirmation could not be saved.",
-    "iskurPreferencesSaveFailed": "The notification setting could not be saved."
+    "iskurPreferencesSaveFailed": "The notification setting could not be saved.",
+    "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
+    "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
+    "iskurInternsInvalid": "The addresses to add are not valid."
   },
   "startupStart": {
     "title": "My startup",
@@ -8115,5 +8118,32 @@
     "card": {
       "title": "Your channels"
     }
+  },
+  "iskurInterns": {
+    "title": "İŞKUR interns",
+    "hint": "Only accounts whose e-mail address is on this list count as İŞKUR interns; other students do not see the İŞKUR screens. An address can be added before the person signs up.",
+    "summary": "{listed} addresses · {interns} interns · {notSignedUp} not signed up yet",
+    "loading": "Loading the intern list…",
+    "loadFailed": "The intern list could not be loaded.",
+    "pasteLabel": "E-mail addresses to add",
+    "pasteHint": "One address per line, or separate them with commas. Addresses are lowercased.",
+    "add": "Add to the list",
+    "tooMany": "At most {max} addresses can be added at once.",
+    "added": "The intern list was updated.",
+    "addFailed": "The addresses could not be added.",
+    "rejected": "These entries could not be read as e-mail addresses and were not added: {entries}",
+    "empty": "No addresses on the list yet.",
+    "listLabel": "Addresses on the list",
+    "states": {
+      "INTERN": "Signed up",
+      "NOT_SIGNED_UP": "Not signed up yet",
+      "OUTSIDE_PROGRAM": "Has an account, not in the program"
+    },
+    "placed": "Placed in a team",
+    "remove": "Remove",
+    "removeNamed": "Remove {email} from the list",
+    "removePlacedHint": "Remove the placement first.",
+    "removed": "The address was removed from the list.",
+    "removeFailed": "The address could not be removed."
   }
 }
