@@ -1,12 +1,14 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { AppointmentKind, type Appointment } from "@/interfaces/appointment";
+import { currentTime } from "@/lib/appointments";
 import {
   isSameDay,
   shortWeekday,
   timeLabel,
   type MonthCell,
 } from "@/lib/calendar";
+import { titledName } from "@/lib/profile-completion";
 import {
   APPOINTMENT_GRID_HOURS,
   gridPlacement,
@@ -16,6 +18,8 @@ import { isAwaitingAnswer } from "@/lib/student-home";
 import { formatDayMonth } from "@/lib/utils";
 
 const HOUR_HEIGHT = 46;
+/** The day view has one wide column, so each hour gets more room (Figma 258:4290). */
+const DAY_HOUR_HEIGHT = 60;
 
 /** Office Hours in the info indigo, peer mentoring in the theme accent; a dashed frame while not confirmed. */
 const KIND_SOLID: Record<AppointmentKind, string> = {
@@ -37,7 +41,106 @@ function dayKey(day: Date) {
   return `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
 }
 
-/** The day or week time grid (Figma 99:2 / 99:228): one column per day, sessions placed by their hours. */
+/**
+ * The day grid (Figma 258:4290): one wide column with the hours, each session spelling out its time, who and its
+ * status, and the "Şu an" line across the grid while today is shown.
+ */
+export function AppointmentDayGrid({
+  day,
+  items,
+  nowLine,
+  clock,
+  selectedId,
+  onSelect,
+}: {
+  day: Date;
+  items: Appointment[];
+  /** Hours from the grid's first row; null when the line is not on this day's grid. */
+  nowLine: number | null;
+  clock: Date;
+  selectedId: string | null;
+  onSelect: (appointment: Appointment) => void;
+}) {
+  const t = useTranslations("appointments.status");
+  const tCalendar = useTranslations("iaStudent.appointments.calendar");
+  const locale = useLocale();
+  const height = APPOINTMENT_GRID_HOURS.length * DAY_HOUR_HEIGHT;
+  return (
+    <div className="grid grid-cols-[60px_minmax(0,1fr)] pt-2">
+      <div className="relative" style={{ height }}>
+        {APPOINTMENT_GRID_HOURS.map((hour, index) => (
+          <span
+            key={hour}
+            className="absolute left-0 -translate-y-1/2 type-caption text-text-muted"
+            style={{ top: index * DAY_HOUR_HEIGHT }}
+          >
+            {`${String(hour).padStart(2, "0")}:00`}
+          </span>
+        ))}
+      </div>
+      <div className="relative" style={{ height }}>
+        <ul
+          aria-label={formatDayMonth(day, locale)}
+          className="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,var(--color-border-subtle)_0_1px,transparent_1px_60px)]"
+        >
+          {items.map((item) => {
+            const place = gridPlacement(item);
+            const time = currentTime(item);
+            const dashed = isAwaitingAnswer(item);
+            const isSelected = selectedId === item.id;
+            return (
+              <li
+                key={item.id}
+                className="absolute inset-x-2"
+                style={{
+                  top: place.top * DAY_HOUR_HEIGHT + 1,
+                  height: place.height * DAY_HOUR_HEIGHT - 2,
+                }}
+              >
+                <button
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => onSelect(item)}
+                  className={`flex size-full flex-col gap-0.5 overflow-hidden rounded-lg px-3 pt-2 pb-1.5 text-left type-caption ${kindSwatch(item.kind, dashed)} ${
+                    isSelected
+                      ? "ring-2 ring-border-selected ring-offset-1"
+                      : ""
+                  }`}
+                >
+                  <span className="truncate type-label-sm">
+                    {[
+                      `${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`,
+                      titledName(
+                        item.counterpart.title,
+                        item.counterpart.fullName,
+                      ),
+                      t(item.status),
+                    ].join(" · ")}
+                  </span>
+                  <span className="truncate">{item.topic}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {nowLine === null ? null : (
+          <div
+            className="pointer-events-none absolute inset-x-0 h-0.5 bg-status-error-icon"
+            style={{ top: nowLine * DAY_HOUR_HEIGHT }}
+          >
+            <span className="sr-only">
+              {tCalendar("now", {
+                time: timeLabel(clock.toISOString(), locale),
+              })}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The week time grid (Figma 99:228 / 258:3993): one column per day, sessions placed by their hours. */
 export function AppointmentTimeGrid({
   days,
   today,
@@ -115,7 +218,7 @@ export function AppointmentTimeGrid({
                     }`}
                   >
                     <span className="truncate">
-                      {`${timeLabel(item.startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
+                      {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                     </span>
                     <span className="truncate opacity-90">
                       {dashed ? t(item.status) : item.topic}
@@ -191,7 +294,7 @@ export function AppointmentMonthGrid({
                   aria-hidden
                   className={`truncate rounded-md px-1.5 py-0.5 type-caption ${kindSwatch(item.kind, isAwaitingAnswer(item))}`}
                 >
-                  {`${timeLabel(item.startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
+                  {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                 </span>
               ))}
             </button>

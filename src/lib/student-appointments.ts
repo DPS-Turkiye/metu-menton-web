@@ -1,16 +1,21 @@
 import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
-import { splitAppointments } from "@/lib/appointments";
+import { currentTime, splitAppointments } from "@/lib/appointments";
 import {
   isSameDay,
   monthLabel,
+  shortWeekday,
   startOfWeek,
+  timeLabel,
+  weekdayName,
   weekDays,
   weekRangeLabel,
 } from "@/lib/calendar";
+import { dateTile } from "@/lib/coordinator-program-detail";
 import { startOfDay } from "@/lib/mobile-calendar";
 import { isAwaitingAnswer } from "@/lib/student-home";
 import { splitFullName } from "@/lib/utils";
 import {
+  AppointmentRequestGroup,
   AppointmentsTab,
   AppointmentsView,
 } from "@/types/student-appointments";
@@ -36,11 +41,94 @@ export function appointmentTabs(
   };
 }
 
-/** A day's appointments, earliest first. */
+/**
+ * A day's appointments, earliest first. A request with another time on the table sits at that offered time, the one
+ * it would become (Figma 258:3993 shows it on the proposed day).
+ */
 export function appointmentsOnDay(appointments: Appointment[], day: Date) {
+  const startOf = (item: Appointment) => currentTime(item).startsAt;
   return appointments
-    .filter((item) => isSameDay(item.startsAt, day))
-    .toSorted((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
+    .filter((item) => isSameDay(startOf(item), day))
+    .toSorted((a, b) => Date.parse(startOf(a)) - Date.parse(startOf(b)));
+}
+
+/** Taleplerim's groups, each in the order the list tabs keep: requests split by who answers next. */
+export function appointmentRequestGroups(
+  tabs: Record<AppointmentsTab, Appointment[]>,
+): Record<AppointmentRequestGroup, Appointment[]> {
+  const requests = tabs[AppointmentsTab.Requests];
+  return {
+    [AppointmentRequestGroup.AwaitingYou]: requests.filter(
+      (item) => item.status === AppointmentStatus.AlternativeProposed,
+    ),
+    [AppointmentRequestGroup.AwaitingThem]: requests.filter(
+      (item) => item.status === AppointmentStatus.Pending,
+    ),
+    [AppointmentRequestGroup.Confirmed]: tabs[AppointmentsTab.Upcoming],
+    [AppointmentRequestGroup.Past]: tabs[AppointmentsTab.Past],
+  };
+}
+
+/** A group shows this many rows; "Tümünü listede gör" opens the rest in the list. */
+export const REQUEST_GROUP_PREVIEW = 4;
+
+/** The list tab a group's "listede gör" link opens; the request groups have none, they fit the panel. */
+export const REQUEST_GROUP_LIST_TAB: Partial<
+  Record<AppointmentRequestGroup, AppointmentsTab>
+> = {
+  [AppointmentRequestGroup.Confirmed]: AppointmentsTab.Upcoming,
+  [AppointmentRequestGroup.Past]: AppointmentsTab.Past,
+};
+
+/** The groups open on arrival: whatever waits for an answer, else the confirmed sessions ahead. */
+export function defaultOpenGroups(
+  groups: Record<AppointmentRequestGroup, Appointment[]>,
+): AppointmentRequestGroup[] {
+  const waiting = [
+    AppointmentRequestGroup.AwaitingYou,
+    AppointmentRequestGroup.AwaitingThem,
+  ].filter((group) => groups[group].length > 0);
+  if (waiting.length > 0) return waiting;
+  return groups[AppointmentRequestGroup.Confirmed].length > 0
+    ? [AppointmentRequestGroup.Confirmed]
+    : [];
+}
+
+/**
+ * A Taleplerim row's date tile ("12" / "KAS") and weekday with hours ("Per 11:00 – 11:30"), at the time the
+ * appointment stands at now. Past rows give the start only: the length no longer matters there, the outcome does.
+ */
+export function requestRowTime(
+  appointment: Appointment,
+  group: AppointmentRequestGroup,
+  locale: string,
+) {
+  const time = currentTime(appointment);
+  const start = timeLabel(time.startsAt, locale);
+  const hours =
+    group === AppointmentRequestGroup.Past
+      ? start
+      : `${start} – ${timeLabel(time.endsAt, locale)}`;
+  return {
+    tile: dateTile(time.startsAt, locale),
+    when: `${shortWeekday(new Date(time.startsAt), locale)} ${hours}`,
+  };
+}
+
+/** In Geçmiş a confirmed session is one that was held ("Tamamlandı"); every other status says its own outcome. */
+export function wasHeld(appointment: Appointment) {
+  return appointment.status === AppointmentStatus.Confirmed;
+}
+
+/** Where the "Şu an" line crosses the day grid, in hours from its first row; null on another day or off the grid. */
+export function nowLineOffset(
+  now: Date,
+  day: Date,
+  hours: readonly number[] = APPOINTMENT_GRID_HOURS,
+) {
+  if (!isSameDay(now.toISOString(), day)) return null;
+  const offset = now.getHours() + now.getMinutes() / 60 - (hours[0] ?? 0);
+  return offset >= 0 && offset <= hours.length ? offset : null;
 }
 
 /**
@@ -54,8 +142,9 @@ export function gridPlacement(
 ) {
   const first = hours[0] ?? 0;
   const span = hours.length;
-  const start = new Date(appointment.startsAt);
-  const end = new Date(appointment.endsAt);
+  const time = currentTime(appointment);
+  const start = new Date(time.startsAt);
+  const end = new Date(time.endsAt);
   const minimum = 0.5;
   const top = Math.min(
     Math.max(start.getHours() + start.getMinutes() / 60 - first, 0),
@@ -111,13 +200,14 @@ export function calendarTitle(
   locale: string,
 ) {
   switch (view) {
-    case AppointmentsView.Day:
-      return new Intl.DateTimeFormat(locale, {
+    case AppointmentsView.Day: {
+      const date = new Intl.DateTimeFormat(locale, {
         day: "numeric",
         month: "long",
         year: "numeric",
-        weekday: "long",
       }).format(anchor);
+      return `${date}, ${weekdayName(anchor, locale)}`;
+    }
     case AppointmentsView.Week: {
       const days = weekDays(startOfWeek(anchor), 7);
       const first = days[0] ?? anchor;
@@ -128,6 +218,15 @@ export function calendarTitle(
     case AppointmentsView.List:
       return monthLabel(anchor, locale);
   }
+}
+
+/** "13 Kasım, Cuma": the "Seçili gün" panel's heading. */
+export function selectedDayTitle(day: Date, locale: string) {
+  const date = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+  }).format(day);
+  return `${date}, ${weekdayName(day, locale)}`;
 }
 
 /** "Elif Karaca" → "E. Karaca", as a calendar chip names the other side; one word stays as it is. */

@@ -3,16 +3,23 @@ import { describe, expect, it } from "vitest";
 import { AppointmentStatus } from "@/interfaces/appointment";
 import {
   APPOINTMENT_GRID_HOURS,
+  appointmentRequestGroups,
   appointmentsOnDay,
   appointmentTabs,
   calendarTitle,
+  defaultOpenGroups,
   gridPlacement,
+  nowLineOffset,
+  requestRowTime,
+  selectedDayTitle,
   sentToParam,
   shiftAnchor,
   shortPersonName,
   visibleDays,
+  wasHeld,
 } from "@/lib/student-appointments";
 import {
+  AppointmentRequestGroup,
   AppointmentsTab,
   AppointmentsView,
 } from "@/types/student-appointments";
@@ -151,7 +158,7 @@ describe("calendarTitle", () => {
 
   it("names the day, the week or the month", () => {
     expect(calendarTitle(AppointmentsView.Day, anchor, "tr")).toBe(
-      "13 Kasım 2026 Cuma",
+      "13 Kasım 2026, Cuma",
     );
     expect(calendarTitle(AppointmentsView.Week, anchor, "tr")).toBe(
       "9 – 15 Kasım 2026",
@@ -179,5 +186,141 @@ describe("sentToParam", () => {
     expect(sentToParam("   ")).toBeNull();
     expect(sentToParam([])).toBeNull();
     expect(sentToParam(undefined)).toBeNull();
+  });
+});
+
+describe("an alternative time on the calendar", () => {
+  const proposed = peerAppointment({
+    id: "proposed",
+    status: AppointmentStatus.AlternativeProposed,
+    startsAt: at(12, 11),
+    endsAt: at(12, 11, 30),
+    alternative: { startsAt: at(13, 10, 30), endsAt: at(13, 11) },
+  });
+
+  it("sits on the offered day and hours, not the requested ones", () => {
+    expect(appointmentsOnDay([proposed], new Date(2026, 10, 12))).toEqual([]);
+    expect(appointmentsOnDay([proposed], new Date(2026, 10, 13))).toEqual([
+      proposed,
+    ]);
+    expect(gridPlacement(proposed)).toEqual({ top: 1.5, height: 0.5 });
+  });
+});
+
+describe("appointmentRequestGroups", () => {
+  const tabs = appointmentTabs(
+    [
+      ...STUDENT_APPOINTMENTS,
+      peerAppointment({
+        id: "offered",
+        status: AppointmentStatus.AlternativeProposed,
+        startsAt: at(13, 10),
+        endsAt: at(13, 11),
+      }),
+      peerAppointment({
+        id: "asked",
+        status: AppointmentStatus.Pending,
+        startsAt: at(14, 10),
+        endsAt: at(14, 11),
+      }),
+    ],
+    APPOINTMENTS_NOW,
+  );
+
+  it("splits the requests by who answers next and keeps the tabs' other lists", () => {
+    const groups = appointmentRequestGroups(tabs);
+    const ids = (group: AppointmentRequestGroup) =>
+      groups[group].map((item) => item.id);
+    expect(ids(AppointmentRequestGroup.AwaitingYou)).toEqual(["offered"]);
+    expect(ids(AppointmentRequestGroup.AwaitingThem)).toEqual(["asked"]);
+    expect(ids(AppointmentRequestGroup.Confirmed)).toEqual([
+      "meeting-2",
+      "meeting-1",
+    ]);
+    expect(ids(AppointmentRequestGroup.Past)).toEqual([
+      "meeting-4",
+      "meeting-3",
+    ]);
+  });
+
+  it("opens what waits for an answer, else the confirmed sessions, else nothing", () => {
+    expect(defaultOpenGroups(appointmentRequestGroups(tabs))).toEqual([
+      AppointmentRequestGroup.AwaitingYou,
+      AppointmentRequestGroup.AwaitingThem,
+    ]);
+    const settled = appointmentRequestGroups(
+      appointmentTabs(STUDENT_APPOINTMENTS, APPOINTMENTS_NOW),
+    );
+    expect(defaultOpenGroups(settled)).toEqual([
+      AppointmentRequestGroup.Confirmed,
+    ]);
+    expect(
+      defaultOpenGroups(
+        appointmentRequestGroups(appointmentTabs([], APPOINTMENTS_NOW)),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("nowLineOffset", () => {
+  const day = new Date(2026, 10, 13);
+
+  it("places the line by the hours since the grid's first row", () => {
+    expect(nowLineOffset(new Date(2026, 10, 13, 12, 18), day)).toBeCloseTo(3.3);
+    expect(nowLineOffset(new Date(2026, 10, 13, 9), day)).toBe(0);
+  });
+
+  it("leaves the line out on another day or off the grid's hours", () => {
+    expect(nowLineOffset(new Date(2026, 10, 12, 12), day)).toBeNull();
+    expect(nowLineOffset(new Date(2026, 10, 13, 8, 59), day)).toBeNull();
+    expect(nowLineOffset(new Date(2026, 10, 13, 19, 1), day)).toBeNull();
+  });
+});
+
+describe("selectedDayTitle", () => {
+  it("names the day with its weekday", () => {
+    expect(selectedDayTitle(new Date(2026, 10, 13), "tr")).toBe(
+      "13 Kasım, Cuma",
+    );
+  });
+});
+
+describe("requestRowTime", () => {
+  const session = peerAppointment({
+    startsAt: at(12, 11),
+    endsAt: at(12, 11, 30),
+  });
+
+  it("gives the date tile and the weekday with the hours", () => {
+    expect(
+      requestRowTime(session, AppointmentRequestGroup.Confirmed, "tr"),
+    ).toEqual({ tile: { day: "12", month: "KAS" }, when: "Per 11:00 – 11:30" });
+  });
+
+  it("gives a past row its start only", () => {
+    expect(
+      requestRowTime(session, AppointmentRequestGroup.Past, "tr").when,
+    ).toBe("Per 11:00");
+  });
+
+  it("reads a proposal at the offered time", () => {
+    const proposed = peerAppointment({
+      status: AppointmentStatus.AlternativeProposed,
+      startsAt: at(12, 11),
+      endsAt: at(12, 11, 30),
+      alternative: { startsAt: at(13, 10, 30), endsAt: at(13, 11) },
+    });
+    expect(
+      requestRowTime(proposed, AppointmentRequestGroup.AwaitingYou, "tr"),
+    ).toEqual({ tile: { day: "13", month: "KAS" }, when: "Cum 10:30 – 11:00" });
+  });
+});
+
+describe("wasHeld", () => {
+  it("counts a confirmed past session as held and nothing else", () => {
+    expect(wasHeld(peerAppointment())).toBe(true);
+    expect(
+      wasHeld(peerAppointment({ status: AppointmentStatus.Cancelled })),
+    ).toBe(false);
   });
 });

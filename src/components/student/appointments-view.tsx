@@ -8,13 +8,16 @@ import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
+import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
 import { StatusTone } from "@/components/ia/status-badge";
 import {
+  AppointmentDayGrid,
   AppointmentMonthGrid,
   AppointmentTimeGrid,
   kindSwatch,
 } from "@/components/student/ia/appointment-calendar";
 import { AppointmentListCard } from "@/components/student/ia/appointment-list-card";
+import { AppointmentRequestsPanel } from "@/components/student/ia/appointment-requests-panel";
 import { OfficeHoursAlternativeActions } from "@/components/student/ia/office-hours-alternative-actions";
 import { OfficeHoursCancelAction } from "@/components/student/ia/office-hours-cancel-action";
 import {
@@ -31,8 +34,14 @@ import {
   AppointmentStatus,
   type Appointment,
 } from "@/interfaces/appointment";
+import { ProgramType } from "@/interfaces/program";
+import { currentTime } from "@/lib/appointments";
 import { timeLabel } from "@/lib/calendar";
-import { calendarTitle } from "@/lib/student-appointments";
+import {
+  calendarTitle,
+  selectedDayTitle,
+  shortPersonName,
+} from "@/lib/student-appointments";
 import {
   canAnswerAlternative,
   canCancelOfficeHours,
@@ -48,6 +57,10 @@ const FIND_MENTOR_HREF = "/student/peer-mentoring";
 const SIDE_PREVIEW = 3;
 const VIEWS = Object.values(AppointmentsView);
 const TABS = Object.values(AppointmentsTab);
+const KIND_PROGRAM_TYPE: Record<AppointmentKind, ProgramType> = {
+  [AppointmentKind.OfficeHours]: ProgramType.OfficeHours,
+  [AppointmentKind.PeerMentoring]: ProgramType.PeerMentoring,
+};
 const LEGEND_STATUSES = [
   AppointmentStatus.Pending,
   AppointmentStatus.AlternativeProposed,
@@ -387,6 +400,7 @@ function CalendarView({
   const t = useTranslations("iaStudent.appointments.calendar");
   const locale = useLocale();
   const isMonth = appointments.view === AppointmentsView.Month;
+  const day = appointments.days[0];
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
       <Card labelledBy="appointments-calendar-title">
@@ -430,6 +444,15 @@ function CalendarView({
             selectedDay={appointments.selectedDay}
             onSelectDay={appointments.selectDay}
           />
+        ) : appointments.view === AppointmentsView.Day && day ? (
+          <AppointmentDayGrid
+            day={day.day}
+            items={day.items}
+            nowLine={appointments.nowLine}
+            clock={appointments.clock}
+            selectedId={appointments.selected?.id ?? null}
+            onSelect={appointments.select}
+          />
         ) : (
           <AppointmentTimeGrid
             days={appointments.days}
@@ -438,6 +461,7 @@ function CalendarView({
             onSelect={appointments.select}
           />
         )}
+        <ColorLegend />
       </Card>
       <aside className="flex flex-col gap-6">
         {isMonth ? (
@@ -456,7 +480,14 @@ function CalendarView({
             <p className="type-body-sm text-text-muted">{t("nothingInView")}</p>
           </Card>
         )}
-        <ColorLegend />
+        <AppointmentRequestsPanel
+          groups={appointments.requestGroups}
+          isOpen={appointments.isGroupOpen}
+          onToggle={appointments.toggleGroup}
+          selectedId={appointments.selected?.id ?? null}
+          onSelect={appointments.focus}
+          onShowList={appointments.showInList}
+        />
       </aside>
     </div>
   );
@@ -471,7 +502,6 @@ function AppointmentDetail({
 }) {
   const t = useTranslations("iaStudent.appointments.calendar");
   const tList = useTranslations("iaStudent.appointments");
-  const tKind = useTranslations("iaStudent.common.kind");
   const tTopic = useTranslations("peerTopics");
   const locale = useLocale();
   const proposed =
@@ -485,9 +515,7 @@ function AppointmentDetail({
   return (
     <Card labelledBy="appointment-detail-title">
       <div className="flex flex-wrap gap-2">
-        <span className="inline-flex h-7 items-center rounded-full bg-background-muted px-2.5 type-label-sm text-text-primary">
-          {tKind(appointment.kind)}
-        </span>
+        <ProgramTypeBadge type={KIND_PROGRAM_TYPE[appointment.kind]} />
         <AppointmentStatusBadge status={appointment.status} />
       </div>
       <h2
@@ -532,34 +560,49 @@ function AppointmentDetail({
   );
 }
 
+/** "Seçili gün" rows take their kind's tint with a bar in its colour (Figma 258:4684). */
+const DAY_ROW_TONE: Record<AppointmentKind, { row: string; bar: string }> = {
+  [AppointmentKind.OfficeHours]: {
+    row: "bg-status-info-bg",
+    bar: "bg-status-info-icon",
+  },
+  [AppointmentKind.PeerMentoring]: {
+    row: "bg-brand-mentee-bg",
+    bar: "bg-action-primary-bg",
+  },
+};
+
 function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
   const t = useTranslations("iaStudent.appointments.calendar");
   const tKind = useTranslations("iaStudent.common.kind");
   const locale = useLocale();
   return (
     <Card labelledBy="appointments-day-title">
-      <h2 id="appointments-day-title" className="type-h4 text-text-primary">
-        {formatDayMonth(appointments.selectedDay, locale)}
+      <h2
+        id="appointments-day-title"
+        className="type-title-card text-text-primary"
+      >
+        {selectedDayTitle(appointments.selectedDay, locale)}
       </h2>
       {appointments.selectedDayItems.length === 0 ? (
         <p className="mt-3 type-body-sm text-text-muted">{t("emptyDay")}</p>
       ) : (
-        <ul className="mt-4 flex flex-col gap-3">
+        <ul className="mt-3 flex flex-col gap-3">
           {appointments.selectedDayItems.map((item) => (
             <li
               key={item.id}
-              className={`flex items-center justify-between gap-3 rounded-2xl border-l-4 px-4 py-3 ${
-                item.kind === AppointmentKind.OfficeHours
-                  ? "border-status-info-icon bg-status-info-bg"
-                  : "border-action-primary-bg bg-background-selected"
-              }`}
+              className={`flex items-center gap-3 rounded-2xl p-3 ${DAY_ROW_TONE[item.kind].row}`}
             >
-              <div className="min-w-0">
+              <span
+                aria-hidden
+                className={`h-10 w-1 shrink-0 rounded-sm ${DAY_ROW_TONE[item.kind].bar}`}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <p className="type-label break-words text-text-primary">
-                  {`${timeLabel(item.startsAt, locale)} · ${item.topic}`}
+                  {`${timeLabel(currentTime(item).startsAt, locale)} · ${item.topic}`}
                 </p>
                 <p className="type-caption text-text-secondary">
-                  {`${item.counterpart.fullName} · ${tKind(item.kind)}`}
+                  {`${shortPersonName(item.counterpart.fullName)} · ${tKind(item.kind)}`}
                 </p>
               </div>
               <AppointmentStatusBadge status={item.status} />
@@ -571,14 +614,18 @@ function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
   );
 }
 
+/** "Renkler" under the grid (Figma 258:4065): what each colour and the dashed frame stand for, side by side. */
 function ColorLegend() {
   const t = useTranslations("iaStudent.appointments.colors");
   return (
-    <Card labelledBy="appointments-colors">
-      <h2 id="appointments-colors" className="type-h4 text-text-primary">
+    <section
+      aria-labelledby="appointments-colors"
+      className="mt-4 rounded-card border border-border-subtle bg-background-surface p-5"
+    >
+      <h3 id="appointments-colors" className="sr-only">
         {t("title")}
-      </h2>
-      <ul className="mt-4 flex flex-col gap-3">
+      </h3>
+      <ul className="grid gap-3 sm:grid-cols-3">
         {Object.values(AppointmentKind).map((kind) => (
           <LegendRow
             key={kind}
@@ -593,7 +640,7 @@ function ColorLegend() {
           body={t("dashed.body")}
         />
       </ul>
-    </Card>
+    </section>
   );
 }
 
@@ -607,9 +654,9 @@ function LegendRow({
   body: string;
 }) {
   return (
-    <li className="flex items-start gap-3">
-      <span aria-hidden className={`mt-1 size-4 shrink-0 rounded ${swatch}`} />
-      <span className="flex flex-col">
+    <li className="flex min-w-0 items-center gap-2.5">
+      <span aria-hidden className={`size-4 shrink-0 rounded ${swatch}`} />
+      <span className="flex min-w-0 flex-col">
         <span className="type-label text-text-primary">{title}</span>
         <span className="type-caption text-text-muted">{body}</span>
       </span>
