@@ -111,6 +111,10 @@ export function getRealtimeUrl(): string {
   return process.env.NEXT_PUBLIC_REALTIME_URL ?? DEFAULT_REALTIME_URL;
 }
 
+export function getIskurChannelTopic(channelId: string): string {
+  return `/topic/iskur/channels/${channelId}`;
+}
+
 export function getMeetingNoteApiUrl(meetingId: string): string {
   return `/api/meetings/${encodeURIComponent(meetingId)}/note`;
 }

@@ -89,13 +89,17 @@ export function deleteMeetingTodo(
   });
 }
 
-/** signedInAt (epoch ms) lets the backend close the socket when an admin ends the sign-ins after it. */
+/**
+ * signedInAt (epoch ms) lets the backend close the socket when an admin ends the sign-ins after it. An account
+ * without a team (ODTÜ's students and coordinators) names only itself.
+ */
 export function issueRealtimeToken(session: SessionIds, signedInAt?: number) {
   return backendRequest({
     method: HttpMethod.Post,
     url: "/api/realtime/token",
     data: {
-      ...session,
+      userId: session.userId,
+      organizationId: session.organizationId || undefined,
       signedInAt:
         signedInAt === undefined
           ? undefined

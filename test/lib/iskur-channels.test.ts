@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { IskurChannelKind } from "@/interfaces/iskur-channels";
+import {
+  IskurChannelEventType,
+  IskurChannelKind,
+} from "@/interfaces/iskur-channels";
 import {
   announcementTime,
   canAnnounce,
@@ -11,12 +14,14 @@ import {
   ChannelSubtitle,
   channelSubtitle,
   EMPTY_DRAFT,
+  eventChangesMessages,
   firstSearchParam,
   groupChannels,
   isMutableKind,
   messageInput,
   needsAcknowledgement,
   newlyOpenedTeam,
+  parseIskurChannelEvent,
   pickChannel,
   readOnlyNote,
   toggleMuted,
@@ -207,5 +212,51 @@ describe("İŞKUR channels", () => {
     expect(firstSearchParam([])).toBeNull();
     expect(firstSearchParam("x")).toBe("x");
     expect(firstSearchParam(undefined)).toBeNull();
+  });
+});
+
+describe("İŞKUR channel live events", () => {
+  const posted = {
+    type: IskurChannelEventType.MessagePosted,
+    channelId: "team",
+    messageId: "m-1",
+  };
+
+  it("reads an event of the channel it arrived on, keeping only the known fields", () => {
+    expect(
+      parseIskurChannelEvent(
+        JSON.stringify({ ...posted, body: "should never be here" }),
+        "team",
+      ),
+    ).toEqual(posted);
+  });
+
+  it.each([
+    ["text that is not JSON", "{"],
+    ["a value that is not an object", JSON.stringify("MESSAGE_POSTED")],
+    ["null", "null"],
+    ["an unknown type", JSON.stringify({ ...posted, type: "DELETED" })],
+    ["a missing message", JSON.stringify({ ...posted, messageId: null })],
+    ["another channel's event", JSON.stringify({ ...posted, channelId: "x" })],
+  ])("ignores %s", (_case, body) => {
+    expect(parseIskurChannelEvent(body, "team")).toBeNull();
+  });
+
+  it("reloads the messages for a new message, and for a confirmation only where tallies show", () => {
+    const acknowledged = {
+      ...posted,
+      type: IskurChannelEventType.MessageAcknowledged,
+    };
+    const member = announcementsChannel();
+    const announcer = announcementsChannel({
+      canWrite: true,
+      coordinatorView: true,
+    });
+
+    expect(eventChangesMessages(posted, member)).toBe(true);
+    expect(eventChangesMessages(posted, null)).toBe(true);
+    expect(eventChangesMessages(acknowledged, member)).toBe(false);
+    expect(eventChangesMessages(acknowledged, null)).toBe(false);
+    expect(eventChangesMessages(acknowledged, announcer)).toBe(true);
   });
 });
