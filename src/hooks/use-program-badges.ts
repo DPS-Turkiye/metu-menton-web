@@ -10,7 +10,7 @@ import {
   postGateBadgeRevoke,
 } from "@/lib/client/badges";
 
-const rosterQueryKey = (programId: string) =>
+export const rosterQueryKey = (programId: string) =>
   ["coordinator-programs", programId, "badge-roster"] as const;
 
 /**

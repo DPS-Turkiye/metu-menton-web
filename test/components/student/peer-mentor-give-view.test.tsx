@@ -102,6 +102,8 @@ function training(state: TrainingState): StudentTraining {
     lastScore: null,
     passMark: 7,
     questionCount: 10,
+    prismUrl: null,
+    prismCompletedAt: null,
   };
 }
 
@@ -222,7 +224,13 @@ beforeEach(() => {
 });
 
 describe("PeerMentorGiveView", () => {
-  it.each([TrainingState.Video, TrainingState.Quiz])(
+  it.each([
+    TrainingState.Video,
+    TrainingState.Quiz,
+    TrainingState.PrismTodo,
+    TrainingState.PrismPending,
+    TrainingState.PrismRetake,
+  ])(
     "links a student without the badge to the training while it is takeable (%s)",
     async (state) => {
       session = student([UserRole.Mentee]);
@@ -251,6 +259,11 @@ describe("PeerMentorGiveView", () => {
       "the program has no published training",
       () => Promise.resolve(training(TrainingState.NotAvailable)),
       "Programının eğitimi henüz yayında değil.",
+    ],
+    [
+      "peer mentoring is for the program's İŞKUR interns",
+      () => Promise.resolve(training(TrainingState.InternsOnly)),
+      "Akran mentorluğu İŞKUR stajyerlerine açıktır.",
     ],
     [
       "the training endpoint is absent",

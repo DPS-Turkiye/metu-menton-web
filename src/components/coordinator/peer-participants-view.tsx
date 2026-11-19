@@ -13,14 +13,19 @@ import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { StatusTone } from "@/components/ia/status-badge";
 import { Tag } from "@/components/ia/tag";
 import { usePeerParticipants } from "@/hooks/use-peer-participants";
+import { usePrismDecisions } from "@/hooks/use-prism-decisions";
 import {
   GateBadgeState,
   inTraining,
+  PrismDecision,
+  PrismDecisionOutcome,
   type GateBadgeProfile,
   type GateBadgeRow,
+  type PrismDecisionResult,
 } from "@/interfaces/badges";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
 import { canAward, capacityOf } from "@/lib/peer-participants";
+import { prismRowStatus } from "@/lib/prism-decisions";
 import { errorMessage, formatLongDate } from "@/lib/utils";
 import { CapacityKind } from "@/types/peer-participants";
 
@@ -67,19 +72,28 @@ export function PeerParticipantsView({
         )
       }
     >
-      {() => <ParticipantsBody participants={participants} tab={tab} />}
+      {() => (
+        <ParticipantsBody
+          participants={participants}
+          programId={programId}
+          tab={tab}
+        />
+      )}
     </ProgramDetailFrame>
   );
 }
 
 function ParticipantsBody({
   participants,
+  programId,
   tab,
 }: {
   participants: Participants;
+  programId: string;
   tab: ProgramTab.Students | ProgramTab.PeerMentors;
 }) {
   const t = useTranslations("peerParticipants");
+  const prism = usePrismDecisions(programId);
 
   if (participants.isLoading) {
     return (
@@ -98,6 +112,24 @@ function ParticipantsBody({
 
   return (
     <div className="space-y-7">
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={prism.openDialog}
+          className="rounded-full border border-border-default px-4 py-2 type-label text-text-primary"
+        >
+          {t("prism.open")}
+        </button>
+      </div>
+      {!prism.open && prism.error ? (
+        <p role="alert" className="type-body-sm text-status-error-text">
+          {errorMessage(prism.error, t("prism.failed"))}
+        </p>
+      ) : null}
+      {!prism.open && prism.results ? (
+        <PrismResults results={prism.results} />
+      ) : null}
       {participants.actionError ? (
         <p role="alert" className="type-body-sm text-status-error-text">
           {errorMessage(participants.actionError, t("actionFailed"))}
@@ -114,11 +146,16 @@ function ParticipantsBody({
       ) : tab === ProgramTab.PeerMentors ? (
         <MentorsTable participants={participants} />
       ) : (
-        <StudentsTable participants={participants} />
+        <StudentsTable
+          participants={participants}
+          onPrismDecision={prism.decideRow}
+          prismBusy={prism.isSending}
+        />
       )}
       <Footnote icon="/ia/icons/lock-small.svg" iconSize={14}>
         {t("footnote")}
       </Footnote>
+      {prism.open ? <PrismDialog prism={prism} /> : null}
       {participants.revoking ? (
         <RevokeDialog
           row={participants.revoking}
@@ -206,7 +243,15 @@ function MentorsTable({ participants }: { participants: Participants }) {
 }
 
 // TEST UI: placeholder until the design team's screen; replace when it arrives.
-function StudentsTable({ participants }: { participants: Participants }) {
+function StudentsTable({
+  participants,
+  onPrismDecision,
+  prismBusy,
+}: {
+  participants: Participants;
+  onPrismDecision: (row: GateBadgeRow, decision: PrismDecision) => void;
+  prismBusy: boolean;
+}) {
   const t = useTranslations("peerParticipants");
   const locale = useLocale();
   return (
@@ -247,6 +292,7 @@ function StudentsTable({ participants }: { participants: Participants }) {
                   : t("trainingWatched")}
               </p>
             ) : null}
+            <PrismNote row={row} />
             {row.state === GateBadgeState.Revoked && row.reason ? (
               <p className="mt-1 type-caption text-status-warning-text">
                 {t("revokedBecause", { reason: row.reason })}
@@ -258,14 +304,35 @@ function StudentsTable({ participants }: { participants: Participants }) {
           </DataCell>
           <DataCell className="text-right">
             {canAward(row) ? (
-              <button
-                type="button"
-                disabled={participants.awardingUserId === row.userId}
-                onClick={() => participants.award(row.userId)}
-                className="rounded-full bg-action-primary-bg px-3 py-1.5 type-label-sm text-action-primary-fg disabled:opacity-60"
-              >
-                {t("award")}
-              </button>
+              <span className="inline-flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={participants.awardingUserId === row.userId}
+                  onClick={() => participants.award(row.userId)}
+                  className="rounded-full bg-action-primary-bg px-3 py-1.5 type-label-sm text-action-primary-fg disabled:opacity-60"
+                >
+                  {t("award")}
+                </button>
+                {prismBusy ? null : (
+                  <RowActionsMenu
+                    label={t("rowActions", { name: row.fullName })}
+                    actions={[
+                      {
+                        id: "prism-approve",
+                        label: t("prism.rowApprove"),
+                        onSelect: () =>
+                          onPrismDecision(row, PrismDecision.Approved),
+                      },
+                      {
+                        id: "prism-retake",
+                        label: t("prism.rowRetake"),
+                        onSelect: () =>
+                          onPrismDecision(row, PrismDecision.Retake),
+                      },
+                    ]}
+                  />
+                )}
+              </span>
             ) : null}
           </DataCell>
         </tr>
@@ -380,6 +447,141 @@ function RevokeDialog({
           className="rounded-full bg-action-destructive-bg px-4 py-2 type-label text-text-inverse disabled:opacity-60"
         >
           {t("confirmRevoke")}
+        </button>
+      </div>
+    </ModalDialog>
+  );
+}
+
+/** Öğrenciler's Prism line under the badge: waiting for a decision or retaking, and the score (staff only). */
+function PrismNote({ row }: { row: GateBadgeRow }) {
+  const t = useTranslations("peerParticipants");
+  const status = prismRowStatus(row);
+  const score = row.prism?.score;
+  if (!status && !score) return null;
+  return (
+    <p className="mt-1 type-caption text-text-muted">
+      {status ? t(`prism.status.${status}`) : null}
+      {status && score ? " · " : null}
+      {score ? t("prism.score", { score }) : null}
+    </p>
+  );
+}
+
+const OUTCOME_TONES: Record<PrismDecisionOutcome, StatusTone> = {
+  [PrismDecisionOutcome.Approved]: StatusTone.Success,
+  [PrismDecisionOutcome.Retake]: StatusTone.Warning,
+  [PrismDecisionOutcome.AlreadyMentor]: StatusTone.Neutral,
+  [PrismDecisionOutcome.NotFound]: StatusTone.Warning,
+  [PrismDecisionOutcome.NotEligible]: StatusTone.Warning,
+};
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function PrismResults({ results }: { results: PrismDecisionResult[] }) {
+  const t = useTranslations("peerParticipants");
+  return (
+    <section
+      role="status"
+      className="space-y-2 rounded-card border border-border-default p-4"
+    >
+      <h3 className="type-label text-text-primary">
+        {t("prism.resultsTitle")}
+      </h3>
+      <ul className="space-y-1.5">
+        {results.map((result) => (
+          <li
+            key={result.email}
+            className="flex flex-wrap items-center gap-2 type-body-sm"
+          >
+            <span className="text-text-primary">
+              {result.fullName
+                ? `${result.fullName} · ${result.email}`
+                : result.email}
+            </span>
+            <Tag tone={OUTCOME_TONES[result.outcome]}>
+              {t(`prism.outcomes.${result.outcome}`)}
+            </Tag>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function PrismDialog({
+  prism,
+}: {
+  prism: ReturnType<typeof usePrismDecisions>;
+}) {
+  const t = useTranslations("peerParticipants");
+  const titleId = useId();
+  const listId = useId();
+  return (
+    <ModalDialog labelledBy={titleId} onClose={prism.closeDialog}>
+      <h2 id={titleId} className="type-h4 text-text-primary">
+        {t("prism.title")}
+      </h2>
+      <p className="type-body-sm text-text-secondary">{t("prism.intro")}</p>
+      <label htmlFor={listId} className="block type-label text-text-primary">
+        {t("prism.listLabel")}
+      </label>
+      <textarea
+        id={listId}
+        value={prism.text}
+        onChange={(event) => prism.setText(event.target.value)}
+        className="h-40 w-full rounded-input border border-border-control p-3 font-mono type-body-sm"
+      />
+      <p className="type-caption text-text-muted">
+        {t("prism.parsed", { count: prism.entryCount })}
+      </p>
+      {prism.rejectedLines.length > 0 ? (
+        <p className="type-caption text-status-warning-text">
+          {t("prism.rejected", { lines: prism.rejectedLines.join(" | ") })}
+        </p>
+      ) : null}
+      {prism.tooMany ? (
+        <p className="type-caption text-status-error-text">
+          {t("prism.tooMany", { max: prism.maxEntries })}
+        </p>
+      ) : null}
+      <fieldset className="space-y-1.5">
+        <legend className="type-label text-text-primary">
+          {t("prism.decisionLegend")}
+        </legend>
+        {Object.values(PrismDecision).map((value) => (
+          <label key={value} className="flex items-center gap-2 type-body-sm">
+            <input
+              type="radio"
+              name={`${titleId}-decision`}
+              checked={prism.decision === value}
+              onChange={() => prism.setDecision(value)}
+            />
+            {t(`prism.decisions.${value}`)}
+          </label>
+        ))}
+      </fieldset>
+      {prism.error ? (
+        <p role="alert" className="type-body-sm text-status-error-text">
+          {errorMessage(prism.error, t("prism.failed"))}
+        </p>
+      ) : null}
+      {prism.results ? <PrismResults results={prism.results} /> : null}
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={prism.closeDialog}
+          className="rounded-full border border-border-default px-4 py-2 type-label"
+        >
+          {t("prism.close")}
+        </button>
+        <button
+          type="button"
+          disabled={!prism.canSend}
+          onClick={prism.send}
+          className="rounded-full bg-action-primary-bg px-4 py-2 type-label text-action-primary-fg disabled:opacity-60"
+        >
+          {prism.isSending ? t("prism.sending") : t("prism.send")}
         </button>
       </div>
     </ModalDialog>

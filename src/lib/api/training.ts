@@ -1,6 +1,7 @@
 import "server-only";
 
 import type {
+  PrismLink,
   SaveTrainingInput,
   StudentTraining,
   TrainingAttemptResult,
@@ -68,5 +69,29 @@ export function submitTrainingAttempt(
     method: HttpMethod.Post,
     url: `${STUDENT}/attempts`,
     data: { actorId, version, answers },
+  });
+}
+
+export function fetchPrismLink(actorId: string, programId: string) {
+  return backendRequest<PrismLink>({
+    method: HttpMethod.Get,
+    url: `${editorUrl(programId)}/prism`,
+    params: { actorId },
+  });
+}
+
+export function savePrismLink(actorId: string, programId: string, url: string) {
+  return backendRequest<PrismLink>({
+    method: HttpMethod.Put,
+    url: `${editorUrl(programId)}/prism`,
+    data: { actorId, url },
+  });
+}
+
+export function reportPrismCompleted(actorId: string) {
+  return backendRequest<StudentTraining>({
+    method: HttpMethod.Post,
+    url: `${STUDENT}/prism-completed`,
+    data: { actorId },
   });
 }

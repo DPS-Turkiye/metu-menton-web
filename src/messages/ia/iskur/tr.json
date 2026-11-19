@@ -11,12 +11,13 @@
     "loading": "Yükleniyor…",
     "noBadge": {
       "title": "Mentor olmak için eğitimi tamamla",
-      "body": "Akran mentoru olabilmek için programının mentorluk eğitimini (kısa bir video ve 10 soruluk bir sınav) tamamlayıp rozetini alman gerekiyor. Rozetin doğrulandığında bu alan otomatik açılır; ek onay beklemen gerekmez.",
+      "body": "Akran mentoru olabilmek için programının Prism'deki eğitimini ve testini tamamlaman, ardından koordinatörünün seni onaylaması gerekiyor. Onaylandığında bu alan otomatik açılır.",
       "training": "Eğitime Git",
       "trainingReason": {
         "loading": "Eğitim bilgisi yükleniyor…",
         "notAvailable": "Programının eğitimi henüz yayında değil.",
-        "unavailable": "Eğitim şu an açılamıyor."
+        "unavailable": "Eğitim şu an açılamıyor.",
+        "internsOnly": "Akran mentorluğu İŞKUR stajyerlerine açıktır."
       }
     },
     "journey": {
