@@ -30,6 +30,11 @@ import {
 import { getSessionUser } from "@/lib/session";
 import { itemAt } from "@test/fixtures/list-assertions";
 import {
+  MULTIPART_CONTENT_TYPE,
+  multipartBody,
+  type FilePart,
+} from "@test/fixtures/multipart";
+import {
   peerFileFixture,
   peerLinkFixture,
 } from "@test/fixtures/peer-mentor-documents";
@@ -57,50 +62,12 @@ function params<T extends string>(key: T, value: string) {
   return { params: Promise.resolve({ [key]: value } as Record<T, string>) };
 }
 
-/** A file part of the form, kept as bytes so no browser File from jsdom reaches the route's undici parser. */
-type FilePart = { filename: string; type: string; bytes: Uint8Array };
-
-const BOUNDARY = "peer-evidence-test-boundary";
-
-/** The multipart body written out by hand, so the request does not depend on jsdom's FormData or File. */
-function multipartBody(fields: Record<string, string | FilePart>) {
-  const encoder = new TextEncoder();
-  const chunks: Uint8Array[] = [];
-  for (const [name, value] of Object.entries(fields)) {
-    if (typeof value === "string") {
-      chunks.push(
-        encoder.encode(
-          `--${BOUNDARY}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`,
-        ),
-      );
-    } else {
-      chunks.push(
-        encoder.encode(
-          `--${BOUNDARY}\r\nContent-Disposition: form-data; name="${name}"; filename="${value.filename}"\r\nContent-Type: ${value.type}\r\n\r\n`,
-        ),
-        value.bytes,
-        encoder.encode("\r\n"),
-      );
-    }
-  }
-  chunks.push(encoder.encode(`--${BOUNDARY}--\r\n`));
-  const body = new Uint8Array(
-    chunks.reduce((sum, chunk) => sum + chunk.length, 0),
-  );
-  let offset = 0;
-  for (const chunk of chunks) {
-    body.set(chunk, offset);
-    offset += chunk.length;
-  }
-  return body;
-}
-
 function uploadRequest(
   fields: Record<string, string | FilePart>,
   token: string | null = "id-token",
 ) {
   const headers: Record<string, string> = {
-    "Content-Type": `multipart/form-data; boundary=${BOUNDARY}`,
+    "Content-Type": MULTIPART_CONTENT_TYPE,
   };
   if (token) headers.Authorization = `Bearer ${token}`;
   return new NextRequest(
