@@ -14,38 +14,27 @@ import {
 } from "@/lib/iskur-onboarding";
 
 const time = z.string().regex(ISKUR_TIME_PATTERN);
-const answer = z.string().max(ISKUR_ANSWER_MAX).nullable().default(null);
+const answer = z.string().max(ISKUR_ANSWER_MAX).nullable();
 
-// The same limits the backend checks; completeness is the backend's to judge on submit, so a draft may be partial.
+// The same limits the backend checks. Every key is required: the screen always sends the whole form, and a body
+// missing one would save blanks over the draft. Answers may still be empty: a draft is judged only on submit.
 export const iskurOnboardingSchema = z.object({
-  weeklyDays: z.number().int().min(1).max(3).nullable().default(null),
+  weeklyDays: z.number().int().min(1).max(3).nullable(),
   schedule: z
     .array(z.object({ day: z.enum(Weekday), start: time, end: time }))
-    .max(28)
-    .default([]),
-  priorIskurDays: z.number().int().min(0).max(140).nullable().default(null),
-  unitIds: z.array(z.uuid()).max(20).default([]),
+    .max(28),
+  priorIskurDays: z.number().int().min(0).max(140).nullable(),
+  unitIds: z.array(z.uuid()).max(20),
   skills: z
     .array(z.object({ skillId: z.uuid(), level: z.enum(IskurSkillLevel) }))
-    .max(200)
-    .default([]),
-  teamRoles: z
-    .array(z.enum(IskurTeamRolePreference))
-    .max(ISKUR_TEAM_ROLES_MAX)
-    .default([]),
-  leadership: z
-    .object({
-      wants: z.boolean(),
-      motivation: answer,
-      experience: answer,
-      conflict: answer,
-    })
-    .default({
-      wants: false,
-      motivation: null,
-      experience: null,
-      conflict: null,
-    }),
+    .max(200),
+  teamRoles: z.array(z.enum(IskurTeamRolePreference)).max(ISKUR_TEAM_ROLES_MAX),
+  leadership: z.object({
+    wants: z.boolean(),
+    motivation: answer,
+    experience: answer,
+    conflict: answer,
+  }),
 });
 
 export const iskurUnitSkillsSchema = z.object({

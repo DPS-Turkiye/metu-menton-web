@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
@@ -151,47 +151,63 @@ function Welcome({ wizard }: { wizard: Wizard }) {
 function Form({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("iskurOnboarding.actions");
   const last = wizard.step === IskurOnboardingStep.Preview;
+  const stepRef = useRef<HTMLDivElement>(null);
+  const shownStep = useRef(wizard.step);
+  // Devam et, Geri and the step list keep focus where they are otherwise; land the reader on the new step.
+  useEffect(() => {
+    if (shownStep.current === wizard.step) return;
+    shownStep.current = wizard.step;
+    stepRef.current?.focus();
+  }, [wizard.step]);
   return (
-    <form
-      className="flex flex-1 flex-col"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (last) wizard.submit();
-        else wizard.next();
-      }}
-    >
-      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-8 px-4 pt-10 pb-16 sm:px-8 lg:flex-row lg:items-start lg:px-20">
-        <OnboardingStepper steps={wizard.steps} onSelect={wizard.goTo} />
-        <fieldset
-          disabled={wizard.busy}
-          className="flex min-w-0 flex-1 flex-col gap-6"
-        >
-          <StepBody wizard={wizard} />
-        </fieldset>
-      </div>
-      <div className="sticky bottom-0 border-t border-border-subtle bg-background-surface">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-3 px-4 py-4 sm:px-8 lg:px-20">
-          <Button
-            variant={ButtonVariant.Secondary}
+    <main className="flex flex-1 flex-col">
+      <form
+        className="flex flex-1 flex-col"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (last) wizard.submit();
+          else wizard.next();
+        }}
+      >
+        <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-8 px-4 pt-10 pb-16 sm:px-8 lg:flex-row lg:items-start lg:px-20">
+          <OnboardingStepper steps={wizard.steps} onSelect={wizard.goTo} />
+          <fieldset
             disabled={wizard.busy}
-            onClick={wizard.back}
+            className="flex min-w-0 flex-1 flex-col gap-6"
           >
-            {t("back")}
-          </Button>
-          <span className="flex-1" />
-          <Button
-            variant={ButtonVariant.Tertiary}
-            disabled={wizard.busy}
-            onClick={wizard.saveDraft}
-          >
-            {wizard.busy ? t("saving") : t("saveDraft")}
-          </Button>
-          <Button type="submit" disabled={wizard.busy || !wizard.canContinue}>
-            {last ? (wizard.busy ? t("submitting") : t("submit")) : t("next")}
-          </Button>
+            <div
+              ref={stepRef}
+              tabIndex={-1}
+              className="flex flex-col gap-6 outline-none"
+            >
+              <StepBody wizard={wizard} />
+            </div>
+          </fieldset>
         </div>
-      </div>
-    </form>
+        <div className="sticky bottom-0 border-t border-border-subtle bg-background-surface">
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-3 px-4 py-4 sm:px-8 lg:px-20">
+            <Button
+              variant={ButtonVariant.Secondary}
+              disabled={wizard.busy}
+              onClick={wizard.back}
+            >
+              {t("back")}
+            </Button>
+            <span className="flex-1" />
+            <Button
+              variant={ButtonVariant.Tertiary}
+              disabled={wizard.busy}
+              onClick={wizard.saveDraft}
+            >
+              {wizard.busy ? t("saving") : t("saveDraft")}
+            </Button>
+            <Button type="submit" disabled={wizard.busy || !wizard.canContinue}>
+              {last ? (wizard.busy ? t("submitting") : t("submit")) : t("next")}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </main>
   );
 }
 
@@ -219,11 +235,11 @@ function Notice({
   children: ReactNode;
 }) {
   return (
-    <div
+    <main
       role={role}
       className="mx-auto mt-12 flex w-full max-w-xl flex-col items-start gap-4 rounded-card border border-border-subtle bg-background-surface p-6 type-body text-text-primary"
     >
       {children}
-    </div>
+    </main>
   );
 }

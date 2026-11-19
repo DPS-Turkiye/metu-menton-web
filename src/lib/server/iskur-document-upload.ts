@@ -33,8 +33,15 @@ async function refused(): Promise<IskurDocumentUpload> {
 export async function readIskurDocumentUpload(
   request: NextRequest,
 ): Promise<IskurDocumentUpload> {
-  const length = Number(request.headers.get("content-length") ?? "0");
-  if (length > ISKUR_DOCUMENT_MAX_BYTES + FORM_OVERHEAD_BYTES) return refused();
+  // A body without a length (chunked) would be read whole before the file's size could be checked.
+  const length = Number(request.headers.get("content-length") ?? Number.NaN);
+  if (
+    !Number.isFinite(length) ||
+    length <= 0 ||
+    length > ISKUR_DOCUMENT_MAX_BYTES + FORM_OVERHEAD_BYTES
+  ) {
+    return refused();
+  }
   const sent = await request.formData().catch(() => null);
   const file = sent?.get("file") ?? null;
   if (

@@ -107,6 +107,24 @@ describe("useIskurOnboarding", () => {
     expect(result.current.steps[0]?.state).toBe(IskurStepState.Done);
   });
 
+  it("keeps the rows' keys across renders and lands two changes made in one event", async () => {
+    vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(completeForm()));
+    const { result, rerender } = await renderLoaded();
+    const keys = result.current.rows.map((row) => row.key);
+    rerender();
+    expect(result.current.rows.map((row) => row.key)).toEqual(keys);
+
+    act(() => {
+      result.current.setWeeklyDays(2);
+      result.current.toggleTeamRole(IskurTeamRolePreference.Executor);
+    });
+    expect(result.current.form?.weeklyDays).toBe(2);
+    expect(result.current.form?.teamRoles).toEqual([
+      IskurTeamRolePreference.IdeaGenerator,
+    ]);
+    expect(result.current.rows.map((row) => row.key)).toEqual(keys);
+  });
+
   it("edits a day's ranges, at most four of them, and notices overlaps", async () => {
     const { result } = await renderLoaded();
     act(() => result.current.toggleDay(Weekday.Tuesday));

@@ -215,7 +215,7 @@ function LevelPicker({
   const t = useTranslations("iskurOnboarding.units.level");
   return (
     <div
-      role="radiogroup"
+      role="group"
       aria-label={label}
       className="inline-flex gap-1 self-start rounded-[10px] bg-background-subtle p-1"
     >
@@ -225,8 +225,7 @@ function LevelPicker({
           <button
             key={level}
             type="button"
-            role="radio"
-            aria-checked={active}
+            aria-pressed={active}
             onClick={() => onSelect(level)}
             className={`rounded-[8px] px-3 py-1.5 type-label-sm focus-visible:outline-2 focus-visible:outline-border-selected ${
               active

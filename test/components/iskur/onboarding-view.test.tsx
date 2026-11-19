@@ -83,7 +83,7 @@ describe("IskurOnboardingView", () => {
     const next = screen.getByRole("button", { name: "Devam et" });
     expect(next).toBeDisabled();
 
-    await user.click(screen.getByRole("radio", { name: /1 gün/ }));
+    await user.click(screen.getByRole("button", { name: /1 gün/ }));
     await user.click(screen.getByRole("button", { name: "Pazartesi" }));
     expect(screen.getByText("Toplam 7,5 sa = 1 tam gün ✓")).toBeInTheDocument();
     expect(screen.getByLabelText("Pazartesi başlangıç saati")).toHaveValue(
@@ -131,14 +131,14 @@ describe("IskurOnboardingView", () => {
       screen.getByRole("checkbox", { name: /Kreatif ve Dijital Üretim/ }),
     );
     expect(screen.getByText("1 / 2 seçildi")).toBeInTheDocument();
-    const visual = screen.getByRole("radiogroup", {
+    const visual = screen.getByRole("group", {
       name: "Görsel tasarım düzeyi",
     });
-    await user.click(within(visual).getByRole("radio", { name: "İyi" }));
+    await user.click(within(visual).getByRole("button", { name: "İyi" }));
     await user.click(
       within(
-        screen.getByRole("radiogroup", { name: "Video ve fotoğraf düzeyi" }),
-      ).getByRole("radio", { name: "Yok" }),
+        screen.getByRole("group", { name: "Video ve fotoğraf düzeyi" }),
+      ).getByRole("button", { name: "Yok" }),
     );
     await user.click(screen.getByRole("button", { name: "Planlayan" }));
     await user.click(screen.getByRole("button", { name: "Uygulayan" }));

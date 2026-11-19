@@ -103,17 +103,21 @@ const params = <T extends Record<string, string>>(value: T) => ({
 });
 
 function pdfUpload(bytes = 64) {
+  const body = multipartBody({
+    file: {
+      filename: "cv.pdf",
+      type: "application/pdf",
+      bytes: new Uint8Array(bytes),
+    },
+    actorId: "forged",
+  });
   return new NextRequest("http://x", {
     method: "POST",
-    headers: { "Content-Type": MULTIPART_CONTENT_TYPE },
-    body: multipartBody({
-      file: {
-        filename: "cv.pdf",
-        type: "application/pdf",
-        bytes: new Uint8Array(bytes),
-      },
-      actorId: "forged",
-    }),
+    headers: {
+      "Content-Type": MULTIPART_CONTENT_TYPE,
+      "Content-Length": String(body.length),
+    },
+    body,
   });
 }
 
@@ -169,23 +173,23 @@ describe("İŞKUR onboarding routes", () => {
     );
   });
 
-  it("fills in a partial draft and refuses one of the wrong shape", async () => {
-    await save(json({ weeklyDays: 2 }, "PUT"));
-    expect(saveIskurOnboardingDraft).toHaveBeenCalledWith("MENTEE-1", {
-      weeklyDays: 2,
+  it("saves an unfinished draft but refuses one missing a key or of the wrong shape", async () => {
+    const unfinished = {
+      ...validForm,
+      weeklyDays: null,
       schedule: [],
-      priorIskurDays: null,
       unitIds: [],
       skills: [],
       teamRoles: [],
-      leadership: {
-        wants: false,
-        motivation: null,
-        experience: null,
-        conflict: null,
-      },
-    });
+    };
+    await save(json(unfinished, "PUT"));
+    expect(saveIskurOnboardingDraft).toHaveBeenCalledWith(
+      "MENTEE-1",
+      unfinished,
+    );
     vi.mocked(saveIskurOnboardingDraft).mockClear();
+    expect((await save(json({ weeklyDays: 2 }, "PUT"))).status).toBe(400);
+    expect((await save(json({}, "PUT"))).status).toBe(400);
 
     const invalid = [
       { ...validForm, weeklyDays: 4 },

@@ -40,7 +40,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
       <Card className="flex flex-col gap-4">
         <h2 className="type-title-card text-text-primary">{t("countTitle")}</h2>
         <div
-          role="radiogroup"
+          role="group"
           aria-label={t("countTitle")}
           className="grid gap-3 sm:grid-cols-3"
         >
@@ -50,8 +50,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
               <button
                 key={days}
                 type="button"
-                role="radio"
-                aria-checked={selected}
+                aria-pressed={selected}
                 onClick={() => wizard.setWeeklyDays(days)}
                 className={`flex flex-col gap-1 rounded-[12px] p-4 text-left focus-visible:outline-2 focus-visible:outline-border-selected ${
                   selected

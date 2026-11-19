@@ -88,8 +88,10 @@ export function provisionalCount(
     .length;
 }
 
-/** The dialog's starting values: the person's placement, or the first team for someone new. */
-/** A new placement starts from the work days the intern chose on their onboarding form, when they sent one. */
+/**
+ * The dialog's starting values: the person's placement, or the first team for someone new, with the work days they
+ * chose on their onboarding form when they sent one.
+ */
 export function placementForm(
   workspace: IskurWorkspace,
   placement: IskurPlacement | null,

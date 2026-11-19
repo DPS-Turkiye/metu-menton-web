@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useSession } from "@/components/providers/session-provider";
 import { useOnboardingExit } from "@/hooks/use-onboarding-exit";
@@ -89,7 +89,12 @@ export function useIskurOnboarding() {
   const { session } = useSession();
 
   const onboarding = query.data ?? null;
-  const draft = edits ?? (onboarding ? draftOf(onboarding) : null);
+  // Keyed once per server answer, so the rows keep their keys (and inputs their focus) across renders.
+  const base = useMemo(
+    () => (onboarding ? draftOf(onboarding) : null),
+    [onboarding],
+  );
+  const draft = edits ?? base;
   const context = onboarding?.context ?? null;
 
   const replaceFromServer = (next: IskurOnboarding) => {
@@ -141,9 +146,12 @@ export function useIskurOnboarding() {
   const busy =
     save.isPending || submit.isPending || upload.isPending || remove.isPending;
 
-  const edit = (update: (current: Draft) => Draft) => {
-    if (draft) setEdits(update(draft));
-  };
+  // From the latest edits, so two changes in one event both land.
+  const edit = (update: (current: Draft) => Draft) =>
+    setEdits((current) => {
+      const from = current ?? base;
+      return from ? update(from) : current;
+    });
   const editForm = (
     update: (form: IskurOnboardingForm) => IskurOnboardingForm,
   ) => edit((current) => ({ ...current, form: update(current.form) }));
@@ -365,10 +373,12 @@ export function useIskurOnboarding() {
     // The action bar
     canContinue: complete(step),
     back: () => {
+      if (busy) return;
       const previous = ISKUR_FORM_STEPS[stepIndex - 1];
       go(previous ?? IskurOnboardingStep.Welcome);
     },
     goTo: (target: IskurOnboardingStep) => {
+      if (busy) return;
       const index = ISKUR_FORM_STEPS.findIndex((item) => item === target);
       // Back to any earlier step, or forward over steps that are already answered.
       const reachable = ISKUR_FORM_STEPS.slice(0, index).every((item) =>
@@ -388,7 +398,8 @@ export function useIskurOnboarding() {
       if (following && complete(step)) saveAndGo(following);
     },
     submit: () => {
-      if (!draft || busy) return;
+      if (!draft || busy || !ISKUR_FORM_STEPS.every((item) => complete(item)))
+        return;
       submit.mutate(draft);
     },
   };
