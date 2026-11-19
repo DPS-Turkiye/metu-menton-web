@@ -15,6 +15,13 @@ import {
 } from "@test/fixtures/iskur-tasks";
 import { renderWithQueryClient } from "@test/test-utils";
 
+vi.mock("@/lib/client/iskur-weeks", () => ({
+  getIskurLeaderQueue: vi.fn().mockResolvedValue({
+    weekStart: "2026-11-16",
+    people: [],
+  }),
+  getIskurWeek: vi.fn().mockRejectedValue(new Error("not placed")),
+}));
 vi.mock("@/lib/client/iskur-tasks", () => ({
   createIskurTask: vi.fn(),
   getIskurTeamTasks: vi.fn(),

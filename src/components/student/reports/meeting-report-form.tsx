@@ -7,6 +7,8 @@ import type { ReactNode } from "react";
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
+import { InlineAlert } from "@/components/ia/inline-alert";
+import { StatusTone } from "@/components/ia/status-badge";
 import {
   InitialsAvatar,
   ISKUR_FIELD_CLASS,
@@ -89,6 +91,9 @@ export function MeetingReportScreen({ meetingId }: { meetingId: string }) {
           <ReportPill report={report} />
         </div>
         <p className="type-body text-text-secondary">{t("intro")}</p>
+        <InlineAlert tone={StatusTone.Info} title={t("leaderPrivacy.title")}>
+          {t("leaderPrivacy.body")}
+        </InlineAlert>
         {view.showRevisionNote ? (
           <p className="rounded-card bg-status-error-bg p-4 type-body text-status-error-text">
             {t("revisionNote", { note: report.revisionNote ?? "" })}

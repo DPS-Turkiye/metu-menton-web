@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { IskurTaskKind, IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
+import { Weekday } from "@/interfaces/mentor";
 import {
   assignableMembers,
   assignInput,
   completeBlock,
+  dueOnWorkDay,
   emptyAssignForm,
   isHttpsLink,
   iskurTaskHref,
@@ -215,6 +217,17 @@ describe("İŞKUR task helpers", () => {
       "over",
       "done",
     ]);
+  });
+
+  it("tells whether the due date is one of the assignee's work days", () => {
+    const member = createIskurTeamMember({
+      workDays: [Weekday.Tuesday, Weekday.Thursday],
+    });
+    expect(dueOnWorkDay(member, "2026-11-17")).toBe(true);
+    expect(dueOnWorkDay(member, "2026-11-18")).toBe(false);
+    expect(dueOnWorkDay(member, "")).toBeNull();
+    expect(dueOnWorkDay(createIskurTeamMember(), "2026-11-18")).toBeNull();
+    expect(dueOnWorkDay(null, "2026-11-17")).toBeNull();
   });
 
   it("counts the week's tasks and links a task", () => {

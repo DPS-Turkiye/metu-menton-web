@@ -21,6 +21,7 @@ import {
   TabPanel,
   UnderlineTabs,
 } from "@/components/student/iskur-ui";
+import { WEEK_STATUS_TONES } from "@/components/student/iskur/week-status";
 import { useIskurTeam } from "@/hooks/use-iskur-team";
 import { useReportDuration } from "@/hooks/use-report-format";
 import {
@@ -113,6 +114,15 @@ export function IskurTeamView() {
             label: t("tabs.tasks"),
             count: team.taskCount,
           },
+          ...(leader
+            ? [
+                {
+                  id: IskurTeamTab.Weeks,
+                  label: t("tabs.weeks"),
+                  count: team.reviews.people.length,
+                },
+              ]
+            : []),
           {
             id: IskurTeamTab.Members,
             label: t("tabs.members"),
@@ -132,6 +142,15 @@ export function IskurTeamView() {
           {data.canAssign ? <AssignForm team={team} /> : null}
         </div>
       </TabPanel>
+      {leader ? (
+        <TabPanel
+          idPrefix={TABS_ID}
+          id={IskurTeamTab.Weeks}
+          selected={team.tab === IskurTeamTab.Weeks}
+        >
+          <WeekQueue team={team} />
+        </TabPanel>
+      ) : null}
       <TabPanel
         idPrefix={TABS_ID}
         id={IskurTeamTab.Members}
@@ -396,6 +415,15 @@ function AssignForm({ team }: { team: Team }) {
               onChange={(event) => team.setDueDate(event.target.value)}
               className={ISKUR_FIELD_CLASS}
             />
+            {team.onWorkDay == null ? null : (
+              <span
+                className={`block type-caption ${team.onWorkDay ? "text-text-muted" : "text-status-error-text"}`}
+              >
+                {t(team.onWorkDay ? "workDay" : "notWorkDay", {
+                  name: team.assigneeName,
+                })}
+              </span>
+            )}
           </label>
         </div>
         <p
@@ -485,6 +513,72 @@ function Chip({
     >
       {children}
     </button>
+  );
+}
+
+function WeekQueue({ team }: { team: Team }) {
+  const t = useTranslations("iskurTeam.weeks");
+  const tStatus = useTranslations("iskurReview.status");
+  const duration = useReportDuration();
+  const { people } = team.reviews;
+  return (
+    <Card labelledBy="iskur-team-weeks">
+      <h2 id="iskur-team-weeks" className="type-h3 text-text-primary">
+        {t("title", { week: team.weekLabel })}
+      </h2>
+      {team.reviews.failed ? (
+        <p role="alert" className="mt-3 type-body-sm text-status-error-text">
+          {t("failed")}
+        </p>
+      ) : team.reviews.loading ? (
+        <p role="status" className="mt-3 type-body-sm text-text-muted">
+          {t("loading")}
+        </p>
+      ) : people.length === 0 ? (
+        <p className="mt-3 type-body-sm text-text-muted">{t("empty")}</p>
+      ) : (
+        <ul className="mt-4 divide-y divide-border-subtle">
+          {people.map((row) => (
+            <li
+              key={row.userId}
+              className="flex flex-wrap items-center gap-3 py-3"
+            >
+              <InitialsAvatar initials={initials(row.fullName)} />
+              <span className="min-w-0 flex-1">
+                <span className="block type-body text-text-primary">
+                  {row.fullName}
+                </span>
+                <span className="block type-caption text-text-muted">
+                  {t("totals", {
+                    team: duration(row.teamMinutes),
+                    mentoring: duration(row.mentoringMinutes),
+                  })}
+                </span>
+              </span>
+              <StatusBadge
+                tone={
+                  row.status
+                    ? WEEK_STATUS_TONES[row.status]
+                    : StatusTone.Neutral
+                }
+              >
+                {row.status ? tStatus(row.status) : t("notStarted")}
+              </StatusBadge>
+              {row.weekId ? (
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Secondary}
+                  href={team.reviews.hrefOf(row.weekId)}
+                >
+                  {t("open")}
+                </Button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-4 type-caption text-text-muted">{t("privacy")}</p>
+    </Card>
   );
 }
 

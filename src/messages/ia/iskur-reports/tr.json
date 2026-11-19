@@ -122,7 +122,11 @@
     "sent": "Görüşme raporu gönderildi.",
     "sendFailed": "Rapor gönderilemedi.",
     "notFound": "Bu görüşmenin raporu bulunamadı.",
-    "missingSummary": "Rapor gönderilemedi. Zorunlu alanları eksik bölümler: {sections}"
+    "missingSummary": "Rapor gönderilemedi. Zorunlu alanları eksik bölümler: {sections}",
+    "leaderPrivacy": {
+      "title": "Bu rapor ekip liderine gösterilmez",
+      "body": "İçeriği yalnızca sen ve akran mentörlüğü koordinatörü görür. Haftalık çalışma kaydında yalnızca süre ve “rapor gönderildi” bilgisi Akran Mentörlüğü olarak geçer."
+    }
   },
   "skills": {
     "ACTIVE_LISTENING": "Aktif dinleme",

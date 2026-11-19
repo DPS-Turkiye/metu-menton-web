@@ -9,13 +9,16 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useIskurReviewQueue } from "@/hooks/use-iskur-review";
 import type { IskurTaskInput, IskurTeamTasks } from "@/interfaces/iskur-tasks";
+import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
 import { createIskurTask, getIskurTeamTasks } from "@/lib/client/iskur-tasks";
 import {
   assignableMembers,
   assignInput,
+  dueOnWorkDay,
   emptyAssignForm,
   planPreview,
   stepEstimate,
@@ -64,11 +67,18 @@ export function useIskurTeam() {
     placeholderData: keepPreviousData,
   });
   const team = query.data ?? null;
+  // "Haftalık kayıtlar" is a leader's tab: the weeks of the people they review, for the week shown.
+  const reviews = useIskurReviewQueue(
+    { programId: null },
+    weekStart,
+    team?.viewerRole === IskurTeamRole.Leader,
+  );
   const form = draft ?? emptyAssignForm(team, today);
   const people = assignableMembers(team);
   const assignee =
     people.find((member) => member.userId === form.assigneeId) ?? null;
   const input = assignInput(form);
+  const onWorkDay = dueOnWorkDay(assignee, form.dueDate);
 
   const assign = useMutation({
     mutationFn: (input: IskurTaskInput) => createIskurTask(input),
@@ -104,10 +114,14 @@ export function useIskurTeam() {
     setTab,
     taskCount: taskCount(team),
     memberCount: team?.roster.length ?? 0,
+    reviews,
     today,
     form,
     people,
     preview: planPreview(assignee, form.estimatedMinutes),
+    /** true / false once the assignee has given their work days; null before. */
+    onWorkDay,
+    assigneeName: assignee?.fullName ?? "",
     setTitle: (title: string) => update({ title }),
     setKind: (kind: IskurAssignForm["kind"]) => update({ kind }),
     setAssignee: (assigneeId: string) => update({ assigneeId }),
@@ -118,7 +132,7 @@ export function useIskurTeam() {
       update({ estimatedMinutes: stepEstimate(form.estimatedMinutes, -1) }),
     moreTime: () =>
       update({ estimatedMinutes: stepEstimate(form.estimatedMinutes, 1) }),
-    canSubmit: input != null && !assign.isPending,
+    canSubmit: input != null && onWorkDay !== false && !assign.isPending,
     submitting: assign.isPending,
     submit: () => {
       if (input && !assign.isPending) assign.mutate(input);

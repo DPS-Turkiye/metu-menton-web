@@ -44,13 +44,15 @@ const PEER_MENTORING_HREF = "/student/peer-mentoring";
 const APPOINTMENTS_HREF = "/student/appointments";
 
 /**
- * Ana Sayfa (Figma 80:2). `main` and `aside` are extension points: another student edition (İŞKUR) adds its own
- * blocks below the main column or the side column without changing this screen.
+ * Ana Sayfa (Figma 80:2). `top`, `main` and `aside` are extension points: another student edition (İŞKUR) adds its
+ * own blocks above both columns, below the main column or in the side column without changing this screen.
  */
 export function StudentHomeView({
+  top,
   main,
   aside,
 }: {
+  top?: ReactNode;
   main?: ReactNode;
   aside?: ReactNode;
 }) {
@@ -72,6 +74,7 @@ export function StudentHomeView({
         <>
           {home.next ? <NextAppointment appointment={home.next} /> : null}
           <QuickActions home={home} />
+          {top}
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
             <div className="flex min-w-0 flex-col gap-8">
               <section

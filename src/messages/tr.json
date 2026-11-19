@@ -4061,9 +4061,9 @@
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
       "ISKUR_TEAMS": "İŞKUR Ekipleri",
-      "ISKUR_CHANNELS": "İŞKUR Kanalları",
       "ACADEMICS": "Akademisyenler",
-      "REPORTS": "Raporlar"
+      "REPORTS": "Raporlar",
+      "ISKUR_CHANNELS": "İŞKUR Kanalları"
     },
     "phaseWeek": "{phase}, hafta {current}/{total}",
     "coordinators": "{count, plural, =1 {Koordinatör} other {Koordinatörler}}: {names}",
@@ -4150,8 +4150,8 @@
       "STUDENTS": "Öğrenciler",
       "PEER_MENTORS": "Akran Mentorları",
       "ISKUR_TEAMS": "İŞKUR Ekipleri",
-      "ISKUR_CHANNELS": "İŞKUR Kanalları",
-      "ACADEMICS": "Akademisyenler"
+      "ACADEMICS": "Akademisyenler",
+      "ISKUR_CHANNELS": "İŞKUR Kanalları"
     },
     "typeTabEmptyAdmin": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını koordinatörleri Program Ayarları’nda yapılandırır.",
     "typeTabEmpty": "Bu bölüm {type} programları için henüz hazır değil. Programın koşullarını Program Ayarları’nda yapılandırabilirsin.",
@@ -6291,6 +6291,9 @@
     "iskurDocumentUploadFailed": "Belge kaydedilemedi.",
     "iskurTeamLoadFailed": "Ekibin yüklenemedi.",
     "iskurApplicationsLoadFailed": "Yerleştirme formları yüklenemedi.",
+    "iskurWeekLoadFailed": "Haftalık kayıt yüklenemedi.",
+    "iskurWeekSaveFailed": "Haftalık kayıt kaydedilemedi.",
+    "iskurWeekInvalid": "Haftalık kayıt bilgileri geçersiz.",
     "iskurChannelsLoadFailed": "İŞKUR kanalları yüklenemedi.",
     "iskurMessageSendFailed": "Mesaj gönderilemedi.",
     "iskurChannelsInvalid": "Mesaj bilgileri geçersiz.",
@@ -7368,7 +7371,8 @@
     "tabsLabel": "Ekibim sekmeleri",
     "tabs": {
       "tasks": "Görevler",
-      "members": "Üyeler"
+      "members": "Üyeler",
+      "weeks": "Haftalık kayıtlar"
     },
     "tasksTitleLeader": "Bu haftanın ekip görevleri · üyeye göre",
     "tasksTitleMember": "Bu haftaki görevlerin",
@@ -7406,7 +7410,9 @@
       "description": "Açıklama",
       "cancel": "İptal",
       "submit": "Görevi ata",
-      "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır."
+      "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır.",
+      "workDay": "{name} için görev günü ✓",
+      "notWorkDay": "Bu gün {name} için görev günü değil."
     },
     "roster": {
       "title": "Ekipteki kişiler",
@@ -7415,6 +7421,16 @@
         "MEMBER": "Üye"
       },
       "privacy": "Burada yalnızca adlar ve ekip rolleri görünür."
+    },
+    "weeks": {
+      "title": "Haftalık kayıtlar · {week}",
+      "empty": "Bu hafta değerlendireceğin bir kayıt yok.",
+      "totals": "Ekip {team} · Mentörlük {mentoring}",
+      "notStarted": "Başlamadı",
+      "open": "İncele",
+      "privacy": "Mentörlük tarafında yalnızca süre, görüşme sayısı ve rapor durumu görünür.",
+      "loading": "Haftalık kayıtlar yükleniyor…",
+      "failed": "Haftalık kayıtlar yüklenemedi."
     }
   },
   "iskurTask": {
@@ -7820,6 +7836,218 @@
       "skillsSaveFailed": "Yetkinlikler kaydedilemedi.",
       "skillsInvalid": "En fazla 30 yetkinlik; her biri en fazla 80 karakter.",
       "loadFailed": "Yerleştirme formları yüklenemedi."
+    }
+  },
+  "iskurWeek": {
+    "loading": "Çalışma kaydın yükleniyor…",
+    "loadFailed": "Çalışma kaydı yüklenemedi.",
+    "saved": "Kaydedildi.",
+    "saveFailed": "Kaydedilemedi.",
+    "notPlaced": {
+      "title": "Henüz bir ekibe yerleştirilmedin",
+      "body": "Koordinatörün seni bir ekibe yerleştirdiğinde çalışma kaydın burada açılır."
+    },
+    "breadcrumb": "Konum",
+    "home": "Ana Sayfa",
+    "title": "Çalışma kaydı",
+    "intro": "Akran Mentörlüğü ve Ekip Çalışmaları aynı haftalık kayıtta birleşir ve ekip liderinin değerlendirmesine gider.",
+    "viewLabel": "Görünüm",
+    "daily": {
+      "days": "Haftanın günleri",
+      "today": "Bugün",
+      "title": "Günün faaliyetleri",
+      "mentoring": "Akran Mentörlüğü",
+      "mentoringHint": "Görüşmeler ve görüşme raporları Faaliyet Raporum’da; buraya yalnızca süreleri yansır.",
+      "openDailyReport": "Günlük raporu aç →",
+      "lines": "Ekip çalışmaları ve destek faaliyetleri",
+      "noLines": "Bu güne henüz satır eklemedin.",
+      "addTeam": "Ekip çalışması",
+      "freeLine": "Görevsiz satır",
+      "add": "Ekle",
+      "addSupport": "Destek faaliyeti",
+      "choose": "Seç",
+      "addSupportButton": "Faaliyeti ekle",
+      "dayOver": "Bu günün satırları bir iş gününü (7,5 sa) aşıyor.",
+      "summary": "Günün özeti",
+      "dayLogged": "Kayıtlı süre: {minutes}",
+      "dayLimit": "Bir günün kaydı en çok 7,5 saat olabilir.",
+      "weekTeam": "Bu hafta · Ekip Çalışmaları",
+      "logged": "Kaydedilen süre",
+      "officialNote": "Kayıtlı süre bilgilendirme amaçlıdır; resmî devam çizelgesi yetkili birimde tutulur."
+    },
+    "weekly": {
+      "summary": "Haftanın özeti",
+      "mentoring": "Akran Mentörlüğü",
+      "teamWork": "Ekip Çalışmaları",
+      "byTarget": "Hedefe göre",
+      "total": "Toplam kayıtlı süre: {logged} / {target}",
+      "totalNoTarget": "Toplam kayıtlı süre: {logged}",
+      "team": "Ekip çalışmaları",
+      "noTeam": "Bu hafta ekip çalışması kaydı yok.",
+      "lineWithOutput": "{day} · Çıktı: {output}",
+      "mentoringDetail": "Akran Mentörlüğü ayrıntısı",
+      "meetings": "Görüşmeler",
+      "reports": "Görüşme raporları",
+      "reportsValue": "{sent} / {due}",
+      "otherWork": "Diğer faaliyetler",
+      "supportWork": "Destek faaliyetleri",
+      "privacy": "Ekip liderin görüşme içeriklerini görmez; süre ve rapor durumu özete yansır.",
+      "openWeeklyReport": "Haftalık değerlendirmeni Faaliyet Raporum’da yaz →"
+    },
+    "previousWeek": "Önceki hafta",
+    "nextWeek": "Sonraki hafta",
+    "status": {
+      "DRAFT": "Taslak",
+      "SUBMITTED": "Onay bekliyor",
+      "APPROVED": "Onaylandı",
+      "REVISION_REQUESTED": "Revizyon istendi",
+      "REJECTED": "Reddedildi"
+    },
+    "reviewer": "Değerlendiren: {name}",
+    "discard": "Değişiklikleri at",
+    "saveDraft": "Taslak olarak kaydet",
+    "locked": "Bu hafta ekip liderine gönderildi; değiştirilemez.",
+    "progress": {
+      "of": "{logged} / {target}",
+      "percent": "%{percent}"
+    },
+    "card": {
+      "title": "Bu Haftam · {week}",
+      "team": "Ekibim",
+      "openLog": "Çalışma kaydını aç",
+      "hours": "Çalışma saati",
+      "mentoring": "Akran Mentörlüğü",
+      "teamWork": "Ekip Çalışmaları",
+      "logged": "Kaydedilen süre",
+      "todos": "Yapılacaklar",
+      "noTodos": "Bu hafta için bekleyen bir şey yok.",
+      "task": "Ekip görevi · {day}",
+      "taskWithOutput": "Ekip görevi · teslim edilecek çıktı · {day}",
+      "reports": "{count, plural, one {# görüşme raporu bekliyor} other {# görüşme raporu bekliyor}}",
+      "reportsHint": "Akran Mentörlüğü · Faaliyet Raporum’da doldur",
+      "support": "Mentörlük destek faaliyeti seç (isteğe bağlı)",
+      "supportHint": "Bu hafta planlı görüşmen yok. Havuzdan seçtiğin faaliyet Akran Mentörlüğü saatine yazılır.",
+      "supportPick": "Destek faaliyeti",
+      "supportAdd": "Bugüne 1 saat ekle",
+      "supportChoose": "Faaliyet seç",
+      "supportEmpty": "Koordinatör henüz destek faaliyeti havuzu oluşturmadı.",
+      "cancel": "Vazgeç",
+      "loadFailed": "Bu Haftam yüklenemedi."
+    },
+    "line": {
+      "remove": "{title} satırını sil",
+      "untitled": "Başlıksız",
+      "title": "Başlık",
+      "minutes": "Süre (dk)",
+      "output": "Çıktı (dosya adı veya bağlantı)",
+      "note": "Not",
+      "supportHint": "Destek faaliyetinin yalnızca adı ve süresi ekip liderine görünür.",
+      "teamHint": "Ekip satırları ekip liderine olduğu gibi görünür; buraya mentee adı veya görüşme bilgisi yazma.",
+      "kind": {
+        "support": "Destek faaliyeti",
+        "task": "Ekip görevi",
+        "team": "Ekip çalışması"
+      },
+      "problem": {
+        "minutes": "Süreyi 1 ile 450 dakika arasında, tam sayı olarak gir.",
+        "title": "Bir başlık yaz ya da bir görev seç.",
+        "activity": "Havuzdan bir destek faaliyeti seç."
+      }
+    },
+    "send": {
+      "title": "Ekip liderine gönder",
+      "decidedBy": "Değerlendiren: {name}",
+      "objected": "İtirazın: {text}",
+      "objection": "Karara itiraz et",
+      "objectionSend": "İtirazı gönder",
+      "submit": "Haftalık kaydı ekip liderine gönder",
+      "resend": "Düzeltilmiş kaydı yeniden gönder",
+      "saveFirst": "Önce değişikliklerini kaydet.",
+      "hint": "Gönderdikten sonra kayıt değiştirilemez; lider revizyon isterse yeniden açılır.",
+      "team": "Ekibim →",
+      "locked": {
+        "DRAFT": "Bu hafta henüz gönderilemez.",
+        "SUBMITTED": "Ekip liderinin değerlendirmesi bekleniyor.",
+        "APPROVED": "Hafta onaylandı: mesai tamamlandı.",
+        "REVISION_REQUESTED": "Revizyon istendi.",
+        "REJECTED": "Hafta reddedildi."
+      }
+    },
+    "decision": {
+      "APPROVE": "Onaylandı",
+      "REVISION": "Revizyon istendi",
+      "REJECT": "Reddedildi"
+    },
+    "dailyView": "Günlük kayıt",
+    "weeklyView": "Haftalık özet"
+  },
+  "iskurReview": {
+    "loading": "Haftalık kayıt yükleniyor…",
+    "loadFailed": "Haftalık kayıt yüklenemedi.",
+    "notFound": "Haftalık kayıt bulunamadı.",
+    "back": "← Haftalık kayıtlar",
+    "title": "{name} · {week}",
+    "days": "{days} görev günü",
+    "submittedAt": "gönderildi {at}",
+    "summary": "Haftanın özeti",
+    "mentoring": "Akran Mentörlüğü",
+    "teamWork": "Ekip Çalışmaları",
+    "byTarget": "Hedefe göre",
+    "officialNote": "Resmî devam çizelgesi yetkili birimde tutulur.",
+    "team": "Ekip çalışmaları",
+    "teamHint": "Görev, süre ve çıktılar ayrıntılı görünür.",
+    "noTeam": "Ekip çalışması kaydı yok.",
+    "output": "Çıktı: {output}",
+    "handedOver": "Devretti · gerekçe: {reason}",
+    "contentHidden": "İçerik gizli",
+    "mentoringHint": "Yalnızca süre, görüşme sayısı ve rapor durumu görünür.",
+    "noMentoring": "Bu hafta akran mentörlüğü kaydı yok.",
+    "meetings": "{count, plural, one {# görüşme} other {# görüşme}} · {sent}/{due} rapor gönderildi",
+    "supportActivity": "Destek faaliyeti: {title}",
+    "otherWork": "Görüşme dışı mentörlük çalışması",
+    "privacy": "Mentee adları, görüşme notları ve rapor içerikleri sana gösterilmez. Bir sorun görürsen akran mentörlüğü koordinatörüne danış.",
+    "queue": "Sıradaki kayıtlar",
+    "notStarted": "Başlamadı",
+    "status": {
+      "DRAFT": "Taslak",
+      "SUBMITTED": "Onay bekliyor",
+      "APPROVED": "Onaylandı",
+      "REVISION_REQUESTED": "Revizyon istendi",
+      "REJECTED": "Reddedildi"
+    },
+    "decided": "Karar gönderildi.",
+    "decideFailed": "Karar gönderilemedi.",
+    "decisionIncomplete": "Bir karar seç; revizyon ve ret için gerekçe yaz.",
+    "decision": {
+      "title": "Değerlendirme",
+      "checks": "Kontroller",
+      "timeMatchesWork": "Kaydedilen süre yapılan işle tutarlı",
+      "effortDocumented": "Emek belgelenmiş (çıktı, not, bağlantı)",
+      "outputsSufficient": "Raporlar ve çıktılar yeterli",
+      "choiceLabel": "Karar",
+      "choice": {
+        "APPROVE": "Onayla",
+        "REVISION": "Revizyon iste",
+        "REJECT": "Reddet"
+      },
+      "reason": "Gerekçe",
+      "reasonPlaceholder": "Revizyon ve retde zorunlu; onayda isteğe bağlı not",
+      "reasonHint": "Öğrenci gerekçeyi görür ve itiraz edebilir · {length} / {max}",
+      "submit": "Kararı gönder",
+      "footnote": "Onaylanınca öğrencinin haftası “Mesai tamamlandı” olur. Sponsor bulunamaması veya hedefe ulaşılamaması tek başına ret nedeni değildir.",
+      "notSent": "Bu hafta henüz gönderilmedi.",
+      "objection": "Öğrencinin itirazı: {text}"
+    },
+    "fallback": {
+      "back": "← İŞKUR ekipleri",
+      "title": "Ekip lideri olmayan haftalık kayıtlar",
+      "subtitle": "Tek liderli ekiplerin liderleri ve lideri olmayan üyelerin haftası koordinatöre düşer.",
+      "loading": "Yükleniyor…",
+      "empty": "Bu hafta koordinatöre düşen bir kayıt yok.",
+      "totals": "Ekip {team} · Mentörlük {mentoring}",
+      "notStarted": "Başlamadı",
+      "open": "Aç",
+      "failed": "Kayıtlar yüklenemedi."
     }
   },
   "iskurChannels": {
