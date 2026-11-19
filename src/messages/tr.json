@@ -7396,7 +7396,9 @@
       "description": "Açıklama",
       "cancel": "İptal",
       "submit": "Görevi ata",
-      "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır."
+      "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır.",
+      "workDay": "{name} için görev günü ✓",
+      "notWorkDay": "Bu gün {name} için görev günü değil."
     },
     "roster": {
       "title": "Ekipteki kişiler",

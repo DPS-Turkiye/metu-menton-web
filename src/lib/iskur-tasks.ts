@@ -8,6 +8,9 @@ import {
   type IskurTeamTasksMember,
 } from "@/interfaces/iskur-tasks";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
+import { Weekday } from "@/interfaces/mentor";
+import { fromIsoDay } from "@/lib/peer-reports";
+import { ISO_DAY_PATTERN } from "@/lib/utils";
 import {
   IskurCompleteBlock,
   type IskurAssignForm,
@@ -92,6 +95,35 @@ export function assignInput(form: IskurAssignForm): IskurTaskInput | null {
     needsOutput: form.needsOutput,
     description: description || null,
   };
+}
+
+const WEEKDAY_OF_JS_DAY: readonly Weekday[] = [
+  Weekday.Sunday,
+  Weekday.Monday,
+  Weekday.Tuesday,
+  Weekday.Wednesday,
+  Weekday.Thursday,
+  Weekday.Friday,
+  Weekday.Saturday,
+];
+
+/**
+ * Whether the due date ("yyyy-mm-dd") is one of the assignee's work days: null while they have not given their days,
+ * when any day is accepted.
+ */
+export function dueOnWorkDay(
+  member: IskurTeamTasksMember | null,
+  dueDate: string,
+): boolean | null {
+  if (
+    !member ||
+    member.workDays.length === 0 ||
+    !ISO_DAY_PATTERN.test(dueDate)
+  ) {
+    return null;
+  }
+  const weekday = WEEKDAY_OF_JS_DAY[fromIsoDay(dueDate).getDay()];
+  return weekday != null && member.workDays.includes(weekday);
 }
 
 /** "Mert: 12 → 14 sa / 16,5 sa": the assignee's planned time before and after this task, against their target. */

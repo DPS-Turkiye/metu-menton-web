@@ -152,8 +152,7 @@ export function useIskurWorkLog() {
     retry: (failures, error) => !isNotPlaced(error) && failures < 1,
   });
   // Only the week in the URL counts: while another week loads, nothing of the last one stays editable.
-  const week =
-    query.data?.weekStart === search.week ? query.data : null;
+  const week = query.data?.weekStart === search.week ? query.data : null;
   const [draft, setDraft] = useState<{
     weekStart: string;
     lines: IskurEntryDraft[];

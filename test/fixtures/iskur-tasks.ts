@@ -54,6 +54,7 @@ export function createIskurTeamMember(
     plannedMinutes: 720,
     overTarget: false,
     assignable: true,
+    workDays: [],
     tasks: [createIskurTask()],
     ...overrides,
   };

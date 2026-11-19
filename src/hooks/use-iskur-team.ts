@@ -18,6 +18,7 @@ import { createIskurTask, getIskurTeamTasks } from "@/lib/client/iskur-tasks";
 import {
   assignableMembers,
   assignInput,
+  dueOnWorkDay,
   emptyAssignForm,
   planPreview,
   stepEstimate,
@@ -77,6 +78,7 @@ export function useIskurTeam() {
   const assignee =
     people.find((member) => member.userId === form.assigneeId) ?? null;
   const input = assignInput(form);
+  const onWorkDay = dueOnWorkDay(assignee, form.dueDate);
 
   const assign = useMutation({
     mutationFn: (input: IskurTaskInput) => createIskurTask(input),
@@ -117,6 +119,9 @@ export function useIskurTeam() {
     form,
     people,
     preview: planPreview(assignee, form.estimatedMinutes),
+    /** true / false once the assignee has given their work days; null before. */
+    onWorkDay,
+    assigneeName: assignee?.fullName ?? "",
     setTitle: (title: string) => update({ title }),
     setKind: (kind: IskurAssignForm["kind"]) => update({ kind }),
     setAssignee: (assigneeId: string) => update({ assigneeId }),
@@ -127,7 +132,7 @@ export function useIskurTeam() {
       update({ estimatedMinutes: stepEstimate(form.estimatedMinutes, -1) }),
     moreTime: () =>
       update({ estimatedMinutes: stepEstimate(form.estimatedMinutes, 1) }),
-    canSubmit: input != null && !assign.isPending,
+    canSubmit: input != null && onWorkDay !== false && !assign.isPending,
     submitting: assign.isPending,
     submit: () => {
       if (input && !assign.isPending) assign.mutate(input);

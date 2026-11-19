@@ -7394,7 +7394,9 @@
       "description": "Description",
       "cancel": "Cancel",
       "submit": "Assign task",
-      "footnote": "The task appears in the person's This Week area on the home page and in their work log; they get a notification."
+      "footnote": "The task appears in the person's This Week area on the home page and in their work log; they get a notification.",
+      "workDay": "A work day for {name} ✓",
+      "notWorkDay": "This day is not a work day for {name}."
     },
     "roster": {
       "title": "People in the team",

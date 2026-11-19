@@ -1,4 +1,5 @@
 import type { IskurTeamRole } from "@/interfaces/iskur-workspace";
+import type { Weekday } from "@/interfaces/mentor";
 
 /** İŞKUR team tasks (backend `IskurTaskResponse`, `IskurTeamTasksResponse`): Ekibim (2.1) and "Görev detayı". */
 
@@ -58,6 +59,8 @@ export interface IskurTeamTasksMember {
   overTarget: boolean;
   /** The caller may assign to this person: themselves or their own sub-group. */
   assignable: boolean;
+  /** The days the person works, from their onboarding form; empty until they send it. */
+  workDays: Weekday[];
   tasks: IskurTask[];
 }
 

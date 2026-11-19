@@ -415,6 +415,15 @@ function AssignForm({ team }: { team: Team }) {
               onChange={(event) => team.setDueDate(event.target.value)}
               className={ISKUR_FIELD_CLASS}
             />
+            {team.onWorkDay == null ? null : (
+              <span
+                className={`block type-caption ${team.onWorkDay ? "text-text-muted" : "text-status-error-text"}`}
+              >
+                {t(team.onWorkDay ? "workDay" : "notWorkDay", {
+                  name: team.assigneeName,
+                })}
+              </span>
+            )}
           </label>
         </div>
         <p
