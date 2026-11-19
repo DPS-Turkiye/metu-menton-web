@@ -204,6 +204,51 @@ describe("useIskurMessages", () => {
   });
 });
 
+describe("useIskurMessages marking read", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getIskurChannels).mockResolvedValue({
+      channels: [team],
+      totalUnread: 2,
+    });
+    vi.mocked(getIskurMessages).mockResolvedValue({
+      channel: team,
+      messages: [iskurMessage()],
+      hasMore: false,
+    });
+    vi.mocked(getIskurChannelPreferences).mockResolvedValue({
+      programId: PROGRAM_ID,
+      mutedKinds: [],
+    });
+  });
+
+  it("tries a failed mark once per page instead of looping", async () => {
+    vi.mocked(markIskurChannelRead).mockRejectedValue(new Error("down"));
+    const { result } = renderHook(() => useIskurMessages(null, CHANNEL_ID), {
+      wrapper,
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    await waitFor(() => expect(markIskurChannelRead).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(markIskurChannelRead).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops the draft when a link opens another channel", async () => {
+    const { result, rerender } = renderHook(
+      ({ link }: { link: string | null }) => useIskurMessages(null, link),
+      { wrapper, initialProps: { link: CHANNEL_ID } },
+    );
+    await waitFor(() => expect(result.current.active?.id).toBe(CHANNEL_ID));
+    act(() => result.current.setBody("Yarım kalan"));
+    act(() => result.current.openReceipts("m1"));
+    rerender({ link: announcements.id });
+    expect(result.current.draft.body).toBe("");
+    expect(result.current.receiptsFor).toBeNull();
+  });
+});
+
 describe("useIskurChannelMenu", () => {
   it("counts the unread and names the team whose channels just opened", async () => {
     vi.mocked(getIskurChannels).mockResolvedValue({

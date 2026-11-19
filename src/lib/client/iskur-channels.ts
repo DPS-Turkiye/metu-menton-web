@@ -1,5 +1,4 @@
 import type {
-  IskurChannelKind,
   IskurChannelList,
   IskurChannelPreferences,
   IskurMessage,
@@ -9,6 +8,7 @@ import type {
 } from "@/interfaces/iskur-channels";
 import { requireSuccess } from "@/lib/client/api";
 import { httpClient } from "@/lib/http-client";
+import type { MutableChannelKind } from "@/lib/iskur-channels";
 
 const BASE = "/api/iskur";
 const channel = (id: string) => `${BASE}/channels/${encodeURIComponent(id)}`;
@@ -76,7 +76,7 @@ export async function getIskurChannelPreferences(programId: string) {
 
 export async function updateIskurChannelPreferences(
   programId: string,
-  mutedKinds: IskurChannelKind[],
+  mutedKinds: MutableChannelKind[],
 ) {
   return requireSuccess(
     await httpClient.put<IskurChannelPreferences>(

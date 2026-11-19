@@ -1,10 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type {
-  IskurChannelKind,
   IskurChannelPreferences,
   IskurMessage,
   IskurMessageInput,
@@ -79,10 +78,6 @@ export function useIskurMessages(
   const queryClient = useQueryClient();
   const [requestedId, setRequestedId] = useState(linkedChannelId);
   const [syncedLink, setSyncedLink] = useState(linkedChannelId);
-  if (syncedLink !== linkedChannelId) {
-    setSyncedLink(linkedChannelId);
-    setRequestedId(linkedChannelId);
-  }
   const [draft, setDraft] = useState<IskurDraft>(EMPTY_DRAFT);
   const [older, setOlder] = useState<{
     channelId: string;
@@ -90,6 +85,17 @@ export function useIskurMessages(
     hasMore: boolean;
   } | null>(null);
   const [receiptsFor, setReceiptsFor] = useState<string | null>(null);
+  // Switching channels starts clean: no half-written draft for the wrong channel, no other channel's receipts.
+  const openChannel = (channelId: string | null) => {
+    setRequestedId(channelId);
+    setDraft(EMPTY_DRAFT);
+    setReceiptsFor(null);
+    setOlder(null);
+  };
+  if (syncedLink !== linkedChannelId) {
+    setSyncedLink(linkedChannelId);
+    openChannel(linkedChannelId);
+  }
 
   const list = useQuery({
     queryKey: iskurChannelListQueryKey(programId),
@@ -112,16 +118,25 @@ export function useIskurMessages(
 
   const markRead = useMutation({
     mutationFn: (channelId: string) => markIskurChannelRead(channelId),
-    onSuccess: () => void refreshList(),
+    // Only the lists' counts change; refetching the open page would only mark it again.
+    onSuccess: () =>
+      void queryClient.invalidateQueries({
+        queryKey: [...ISKUR_CHANNELS_QUERY_KEY, "list"],
+      }),
   });
-  // Opening a channel with something unread marks it read once its messages are on screen.
+  // A channel with something unread is marked read once per page of messages actually on a visible screen; a
+  // failed mark waits for the next page rather than retrying in a loop.
   const unread = active?.unreadCount ?? 0;
-  const { mutate: markChannelRead, isPending: marking } = markRead;
+  const { mutate: markChannelRead } = markRead;
+  const markedFor = useRef<string | null>(null);
   useEffect(() => {
-    if (activeId && unread > 0 && page.dataUpdatedAt && !marking) {
-      markChannelRead(activeId);
-    }
-  }, [activeId, unread, page.dataUpdatedAt, marking, markChannelRead]);
+    if (!activeId || unread === 0 || !page.dataUpdatedAt) return;
+    if (document.visibilityState !== "visible") return;
+    const key = `${activeId}:${page.dataUpdatedAt}`;
+    if (markedFor.current === key) return;
+    markedFor.current = key;
+    markChannelRead(activeId);
+  }, [activeId, unread, page.dataUpdatedAt, markChannelRead]);
 
   const loadOlder = useMutation({
     mutationFn: ({
@@ -155,10 +170,11 @@ export function useIskurMessages(
   });
 
   const acknowledge = useMutation({
-    mutationFn: (messageId: string) => acknowledgeIskurMessage(messageId),
-    onSuccess: () =>
+    mutationFn: (variables: { messageId: string; channelId: string }) =>
+      acknowledgeIskurMessage(variables.messageId),
+    onSuccess: (_message, { channelId }) =>
       void queryClient.invalidateQueries({
-        queryKey: iskurMessagesQueryKey(activeId),
+        queryKey: iskurMessagesQueryKey(channelId),
       }),
   });
 
@@ -177,7 +193,7 @@ export function useIskurMessages(
   const savePreferences = useMutation({
     mutationFn: (variables: {
       programId: string;
-      mutedKinds: IskurChannelKind[];
+      mutedKinds: MutableChannelKind[];
     }) =>
       updateIskurChannelPreferences(variables.programId, variables.mutedKinds),
     onSuccess: (saved: IskurChannelPreferences) =>
@@ -196,11 +212,7 @@ export function useIskurMessages(
     isLoading: list.isLoading,
     error: list.error,
     active,
-    select: (channelId: string) => {
-      setRequestedId(channelId);
-      setDraft(EMPTY_DRAFT);
-      setReceiptsFor(null);
-    },
+    select: openChannel,
     messages,
     messagesLoading: page.isLoading,
     hasMore,
@@ -235,8 +247,12 @@ export function useIskurMessages(
       }
     },
     sendError: send.error,
-    acknowledge: (messageId: string) => acknowledge.mutate(messageId),
-    acknowledging: acknowledge.isPending ? acknowledge.variables : null,
+    acknowledge: (messageId: string) => {
+      if (activeId) acknowledge.mutate({ messageId, channelId: activeId });
+    },
+    acknowledging: acknowledge.isPending
+      ? acknowledge.variables.messageId
+      : null,
     receiptsFor,
     openReceipts: (messageId: string) => setReceiptsFor(messageId),
     closeReceipts: () => setReceiptsFor(null),

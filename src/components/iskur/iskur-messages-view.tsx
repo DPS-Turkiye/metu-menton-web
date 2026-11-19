@@ -39,7 +39,8 @@ export function IskurMessagesView({
 }) {
   const t = useTranslations("iskurChannels");
   const screen = useIskurMessages(programId, linkedChannelId);
-  const empty = !screen.isLoading && screen.groups.length === 0;
+  const empty =
+    !screen.isLoading && !screen.error && screen.groups.length === 0;
 
   return (
     <div
@@ -119,11 +120,11 @@ function ChannelList({ screen }: { screen: IskurMessagesScreen }) {
                       ) : null}
                     </span>
                     {channel.unreadCount > 0 ? (
-                      <span
-                        aria-label={t("unread", { count: channel.unreadCount })}
-                        className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong"
-                      >
-                        {channel.unreadCount}
+                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong">
+                        <span aria-hidden>{channel.unreadCount}</span>
+                        <span className="sr-only">
+                          {t("unread", { count: channel.unreadCount })}
+                        </span>
                       </span>
                     ) : null}
                   </button>
@@ -162,7 +163,8 @@ function ChannelPane({
         </p>
       </header>
       <div
-        className={`flex-1 overflow-y-auto ${announcements ? "" : "space-y-4 px-6 py-5"}`}
+        aria-live="polite"
+        className={`max-h-[60vh] flex-1 overflow-y-auto ${announcements ? "" : "space-y-4 px-6 py-5"}`}
       >
         {screen.hasMore ? (
           <div className="flex justify-center px-6 py-3">

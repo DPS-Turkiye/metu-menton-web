@@ -61,11 +61,11 @@ export function IskurChannelsCard() {
                 {channel.name}
               </span>
               {channel.unreadCount > 0 ? (
-                <span
-                  aria-label={t("unread", { count: channel.unreadCount })}
-                  className="grid size-6 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong"
-                >
-                  {channel.unreadCount}
+                <span className="grid size-6 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong">
+                  <span aria-hidden>{channel.unreadCount}</span>
+                  <span className="sr-only">
+                    {t("unread", { count: channel.unreadCount })}
+                  </span>
                 </span>
               ) : null}
             </Link>

@@ -173,7 +173,7 @@ export function toggleMuted(
   muted: readonly IskurChannelKind[],
   kind: MutableChannelKind,
   notify: boolean,
-): IskurChannelKind[] {
+): MutableChannelKind[] {
   return MUTABLE_CHANNEL_KINDS.filter((candidate) =>
     candidate === kind ? !notify : muted.includes(candidate),
   );

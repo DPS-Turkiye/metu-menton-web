@@ -1,7 +1,6 @@
 import "server-only";
 
 import type {
-  IskurChannelKind,
   IskurChannelList,
   IskurChannelPreferences,
   IskurMessage,
@@ -10,6 +9,7 @@ import type {
   IskurMessageReceipts,
 } from "@/interfaces/iskur-channels";
 import { HttpMethod } from "@/lib/http-method";
+import type { MutableChannelKind } from "@/lib/iskur-channels";
 import { backendRequest } from "@/lib/server/backend-client";
 
 const BASE = "/api/iskur";
@@ -86,7 +86,7 @@ export function fetchIskurChannelPreferences(
 export function updateIskurChannelPreferences(
   actorId: string,
   programId: string,
-  mutedKinds: IskurChannelKind[],
+  mutedKinds: MutableChannelKind[],
 ) {
   return backendRequest<IskurChannelPreferences>({
     method: HttpMethod.Put,

@@ -88,9 +88,7 @@ describe("IskurMessagesView", () => {
     expect(
       within(list).getByText("Zeynep Kaya · ekip liderin"),
     ).toBeInTheDocument();
-    expect(
-      within(list).getByLabelText("3 okunmamış mesaj"),
-    ).toBeInTheDocument();
+    expect(within(list).getByText("3 okunmamış mesaj")).toBeInTheDocument();
 
     expect(
       await screen.findByText(

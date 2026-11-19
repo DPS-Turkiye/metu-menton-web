@@ -1,20 +1,19 @@
 import { z } from "zod";
 
-import { IskurChannelKind } from "@/interfaces/iskur-channels";
 import {
   ISKUR_MESSAGE_MAX,
   ISKUR_TITLE_MAX,
-  isMutableKind,
   MUTABLE_CHANNEL_KINDS,
 } from "@/lib/iskur-channels";
 
-const optionalUuid = z.uuid().optional();
+// Any 8-4-4-4-12 id, like Java's UUID and readUuidParam; z.uuid() would refuse ids that are not RFC 4122 versions.
+const id = z.guid();
 
-export const iskurChannelsQuerySchema = z.object({ programId: optionalUuid });
+export const iskurChannelsQuerySchema = z.object({ programId: id.optional() });
 
-export const iskurMessagesQuerySchema = z.object({ before: optionalUuid });
+export const iskurMessagesQuerySchema = z.object({ before: id.optional() });
 
-export const iskurProgramQuerySchema = z.object({ programId: z.uuid() });
+export const iskurProgramQuerySchema = z.object({ programId: id });
 
 // The backend allows a title and the important mark only to coordinators in Genel Duyurular; it decides that.
 export const iskurMessageSchema = z.object({
@@ -26,13 +25,17 @@ export const iskurMessageSchema = z.object({
     .nullable()
     .default(null)
     .transform((title) => (title ? title : null)),
-  important: z.boolean().default(false),
+  important: z
+    .boolean()
+    .nullable()
+    .default(false)
+    .transform((important) => important === true),
 });
 
 export const iskurChannelPreferencesSchema = z.object({
-  programId: z.uuid(),
+  programId: id,
   mutedKinds: z
-    .array(z.enum(IskurChannelKind))
+    .array(z.enum(MUTABLE_CHANNEL_KINDS))
     .max(MUTABLE_CHANNEL_KINDS.length)
-    .refine((kinds) => kinds.every(isMutableKind)),
+    .refine((kinds) => new Set(kinds).size === kinds.length),
 });

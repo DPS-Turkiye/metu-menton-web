@@ -190,6 +190,46 @@ describe("İŞKUR channel routes", () => {
     },
   );
 
+  it("accepts any well-formed id, as the backend does, not only RFC 4122 versions", async () => {
+    const seeded = "00000000-0000-0000-0000-000000000001";
+    await channels(get(`/x?programId=${seeded}`));
+    expect(fetchIskurChannels).toHaveBeenCalledWith("intern-1", seeded);
+    await messages(get(`/x?before=${seeded}`), id(seeded));
+    expect(fetchIskurMessages).toHaveBeenCalledWith("intern-1", seeded, seeded);
+  });
+
+  it("ignores a forged actor on every read", async () => {
+    await read(json(withForgedActor({})), id(CHANNEL));
+    expect(markIskurChannelRead).toHaveBeenCalledWith("intern-1", CHANNEL);
+    await receipts(get("/x?actorId=forged"), id(MESSAGE));
+    expect(fetchIskurMessageReceipts).toHaveBeenCalledWith("intern-1", MESSAGE);
+    await preferences(get(`/x?programId=${PROGRAM}&actorId=forged`));
+    expect(fetchIskurChannelPreferences).toHaveBeenCalledWith(
+      "intern-1",
+      PROGRAM,
+    );
+    await messages(get("/x?actorId=forged"), id(CHANNEL));
+    expect(fetchIskurMessages).toHaveBeenCalledWith("intern-1", CHANNEL, null);
+  });
+
+  it("takes the length limits exactly and treats a null mark as not important", async () => {
+    await post(
+      json({ body: "x".repeat(4000), title: "t".repeat(160), important: null }),
+      id(CHANNEL),
+    );
+    expect(postIskurMessage).toHaveBeenCalledWith("intern-1", CHANNEL, {
+      body: "x".repeat(4000),
+      title: "t".repeat(160),
+      important: false,
+    });
+    await post(json({ body: "x", title: null }), id(CHANNEL));
+    expect(postIskurMessage).toHaveBeenLastCalledWith("intern-1", CHANNEL, {
+      body: "x",
+      title: null,
+      important: false,
+    });
+  });
+
   it("refuses bad query parameters and bodies before the backend", async () => {
     const answers = [
       await channels(get("/x?programId=..")),
@@ -213,6 +253,24 @@ describe("İŞKUR channel routes", () => {
         json({ programId: PROGRAM, mutedKinds: ["SPAM"] }, "PUT"),
       ),
       await savePreferences(json({ programId: "..", mutedKinds: [] }, "PUT")),
+      await savePreferences(
+        json(
+          {
+            programId: PROGRAM,
+            mutedKinds: [IskurChannelKind.Unit, IskurChannelKind.Unit],
+          },
+          "PUT",
+        ),
+      ),
+      await savePreferences(json({ programId: PROGRAM }, "PUT")),
+      await savePreferences(json({ mutedKinds: [] }, "PUT")),
+      await savePreferences(
+        json({ programId: PROGRAM, mutedKinds: "UNIT" }, "PUT"),
+      ),
+      await channels(get("/x?programId=")),
+      await messages(get("/x?before="), id(CHANNEL)),
+      await post(json({ body: "x", title: 123 }), id(CHANNEL)),
+      await post(json({ body: "   ", title: "Başlık" }), id(CHANNEL)),
     ];
     expect(answers.map((answer) => answer.status)).toEqual(
       answers.map(() => 400),

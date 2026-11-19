@@ -36,7 +36,8 @@ describe("İŞKUR Mesajlar panel and home card", () => {
     await user.click(
       await screen.findByRole("button", { name: "Mesajlar, 3 okunmamış" }),
     );
-    const panel = screen.getByRole("dialog", { name: "Mesajlar" });
+    const panel = screen.getByRole("region", { name: "Mesajlar" });
+    expect(screen.getByRole("link", { name: /Genel Duyurular/ })).toHaveFocus();
     expect(panel).toHaveTextContent("Yeni");
     expect(
       screen.getByRole("link", { name: /Medya ve Kreatif Üretim/ }),
@@ -45,7 +46,12 @@ describe("İŞKUR Mesajlar panel and home card", () => {
       screen.getByRole("link", { name: "Tüm mesajları aç →" }),
     ).toHaveAttribute("href", "/student/messages");
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "Mesajlar" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Mesajlar, 3 okunmamış" }),
+    ).toHaveFocus();
   });
 
   it("shows nothing to a student without İŞKUR channels", async () => {
@@ -97,6 +103,6 @@ describe("İŞKUR Mesajlar panel and home card", () => {
     expect(
       screen.getByRole("heading", { name: "Kanalların" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("2 okunmamış mesaj")).toBeInTheDocument();
+    expect(screen.getByText("2 okunmamış mesaj")).toBeInTheDocument();
   });
 });

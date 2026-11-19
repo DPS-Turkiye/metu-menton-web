@@ -19,9 +19,12 @@ export function IskurMessagesMenu() {
   const menu = useIskurChannelMenu();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    panelRef.current?.querySelector<HTMLElement>("a")?.focus();
     function closeOnOutsideClick(event: MouseEvent) {
       if (
         event.target instanceof Node &&
@@ -31,7 +34,9 @@ export function IskurMessagesMenu() {
       }
     }
     function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      buttonRef.current?.focus();
     }
     document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
@@ -51,8 +56,9 @@ export function IskurMessagesMenu() {
             ? t("menu.labelUnread", { count: menu.totalUnread })
             : t("menu.label")
         }
+        ref={buttonRef}
         aria-expanded={open}
-        aria-haspopup="dialog"
+        aria-controls="iskur-messages-panel"
         onClick={() => setOpen((current) => !current)}
         className="relative grid size-9 place-items-center rounded-lg text-text-secondary hover:bg-background-subtle"
       >
@@ -66,7 +72,9 @@ export function IskurMessagesMenu() {
       </button>
       {open ? (
         <div
-          role="dialog"
+          ref={panelRef}
+          id="iskur-messages-panel"
+          role="region"
           aria-label={t("title")}
           className="absolute right-0 top-12 z-50 w-[min(92vw,377px)] overflow-hidden rounded-2xl border border-border-default bg-background-surface shadow-lg"
         >
@@ -100,11 +108,11 @@ export function IskurMessagesMenu() {
                       {t("new")}
                     </span>
                   ) : channel.unreadCount > 0 ? (
-                    <span
-                      aria-label={t("unread", { count: channel.unreadCount })}
-                      className="grid size-6 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong"
-                    >
-                      {channel.unreadCount}
+                    <span className="grid size-6 place-items-center rounded-full bg-brand-mentor-bg type-label-sm text-brand-mentor-strong">
+                      <span aria-hidden>{channel.unreadCount}</span>
+                      <span className="sr-only">
+                        {t("unread", { count: channel.unreadCount })}
+                      </span>
                     </span>
                   ) : null}
                 </Link>
