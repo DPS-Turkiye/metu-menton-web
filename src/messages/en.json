@@ -6273,7 +6273,14 @@
     "officeHoursStudentsLoadFailed": "Could not load the students.",
     "iskurWorkspaceLoadFailed": "İŞKUR teams could not be loaded.",
     "iskurWorkspaceSaveFailed": "The İŞKUR team change could not be saved.",
-    "iskurWorkspaceInvalid": "The İŞKUR team details are not valid."
+    "iskurWorkspaceInvalid": "The İŞKUR team details are not valid.",
+    "iskurOnboardingLoadFailed": "The placement form could not be loaded.",
+    "iskurOnboardingSaveFailed": "The placement form could not be saved.",
+    "iskurOnboardingInvalid": "The placement form is not valid.",
+    "iskurDocumentInvalid": "Invalid document: choose a PDF of at most 10 MB.",
+    "iskurDocumentUploadFailed": "The document could not be saved.",
+    "iskurTeamLoadFailed": "Your team could not be loaded.",
+    "iskurApplicationsLoadFailed": "The placement forms could not be loaded."
   },
   "startupStart": {
     "title": "My startup",
@@ -7329,5 +7336,308 @@
     "deleteBody": "It is deleted only when nobody is placed in it.",
     "confirmFinalize": "Finalize",
     "confirmDelete": "Delete"
+  },
+  "iskurOnboarding": {
+    "loading": "Loading the placement form…",
+    "loadFailed": "The placement form could not be loaded.",
+    "retry": "Try again",
+    "notIntern": {
+      "title": "The placement form is not open to you",
+      "body": "This form is for interns of an İŞKUR program whose teams are set up.",
+      "home": "Back to home"
+    },
+    "saved": "Your draft is saved.",
+    "saveFailed": "The draft could not be saved.",
+    "submitFailed": "The form could not be sent.",
+    "welcome": {
+      "overline": "ODTÜ TEKNOKENT · İŞKUR YOUTH PROGRAM",
+      "title": "Welcome {name}, let’s place you in a team",
+      "intro": "You will work in {units} units and {teams} thematic teams. First fill in the roughly 10-minute form; your coordinator places you in a team by your preferences, work days and skills.",
+      "awaits": "What’s ahead?",
+      "journey": {
+        "form": {
+          "title": "Fill in the form",
+          "hint": "Work days, preferences, skills, CV"
+        },
+        "provisional": {
+          "title": "Provisional placement",
+          "hint": "The coordinator picks your team and leader"
+        },
+        "trial": {
+          "title": "4-week trial",
+          "hint": "Your weekly list and deliverables start"
+        },
+        "final": {
+          "title": "Confirmation",
+          "hint": "The coordinator confirms at the end of week 4"
+        }
+      },
+      "prepare": "Have these at hand",
+      "prepareItems": [
+        "This term’s timetable (to pick your work days)",
+        "Your current CV (PDF, at most 10 MB)",
+        "Portfolio or project links, if any",
+        "The days you used in earlier İŞKUR programs"
+      ],
+      "later": "Remind me later",
+      "start": "Start the form"
+    },
+    "steps": {
+      "label": "Steps",
+      "done": "Done",
+      "DAYS": {
+        "title": "Work days",
+        "hint": "How many days, which days"
+      },
+      "UNITS": {
+        "title": "Units and skills",
+        "hint": "Your team preferences and skills"
+      },
+      "DOCUMENTS": {
+        "title": "Documents",
+        "hint": "CV required, transcript optional"
+      },
+      "LEADERSHIP": {
+        "title": "Leadership",
+        "hint": "Optional application"
+      },
+      "PREVIEW": {
+        "title": "Preview",
+        "hint": "Send and wait for placement"
+      },
+      "notEliminating": {
+        "title": "This form does not eliminate you",
+        "body": "Participants are chosen by lot. The form is only used to place you in a team and a role."
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "saveDraft": "Save as draft",
+      "next": "Continue",
+      "submit": "Send the form",
+      "saving": "Saving…",
+      "submitting": "Sending…"
+    },
+    "days": {
+      "title": "How many days a week can you come?",
+      "intro": "In İŞKUR you choose days, not hours. Pick 1, 2 or 3 days a week around your timetable.",
+      "countTitle": "Days per week",
+      "option": "{days} days",
+      "optionHours": "{hours} hours / week",
+      "leaderHint": "To be a team leader you need at least 2 days; leaders run the weekly review and team meeting.",
+      "hoursTitle": "Which days, which hours?",
+      "tally": "{done} / {target} h",
+      "tallyOk": "{done} / {target} h ✓",
+      "hoursIntro": "Write your own hours. You can spread one day over several days (e.g. Mon 10:00–14:00 + Tue 10:00–13:30 = 1 full day). The total must equal the days you chose.",
+      "entryTitle": "Write the hours you will work",
+      "noDays": "First pick the days you will work above.",
+      "short": {
+        "MONDAY": "Mon",
+        "TUESDAY": "Tue",
+        "WEDNESDAY": "Wed",
+        "THURSDAY": "Thu",
+        "FRIDAY": "Fri",
+        "SATURDAY": "Sat",
+        "SUNDAY": "Sun"
+      },
+      "long": {
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
+      },
+      "dayHours": "{hours} h",
+      "dayEmpty": "—",
+      "start": "{day} start time",
+      "end": "{day} end time",
+      "removeRange": "Remove the {day} range",
+      "addRange": "+ Add a range",
+      "totalOk": "Total {hours} h = {days} full days ✓",
+      "totalOff": "Total {hours} h",
+      "target": "Target: {days} days · {hours} h",
+      "totalHint": "If the total does not match, the missing or extra time shows here and “Continue” stays off. Lunch and breaks do not count.",
+      "overlap": "Time ranges on the same day overlap.",
+      "alertTitle": "Your hours are confirmed by the authorised unit",
+      "alertBody": "Make sure they match the work schedule you filled in before.",
+      "rightsTitle": "Your İŞKUR days",
+      "priorLabel": "Days you used in earlier İŞKUR programs",
+      "priorHelp": "A participant can use at most {max} actual days across all programs.",
+      "remaining": "Days left: {days}",
+      "enough": "Enough for this term (about {needed} days needed)",
+      "notEnough": "May not be enough for this term (about {needed} days needed)"
+    },
+    "units": {
+      "title": "Which unit, which skills?",
+      "intro": "Your units and skills are used to build balanced teams. Your coordinator picks your team.",
+      "department": "Department",
+      "classYear": "Year",
+      "classValue": "Year {year}",
+      "fromRecords": "From ODTÜ records",
+      "unknown": "—",
+      "unitsTitle": "Which units would you like to work in?",
+      "unitsCount": "{selected} / {total} chosen",
+      "unitsIntro": "Choose regardless of your department; you can tick more than one. The skill questions follow the units you choose.",
+      "skillsTitle": "Your skills",
+      "skillsIntro": "Rate yourself honestly; the first two weeks review it with a small starter task.",
+      "skillCount": "{count, plural, one {# skill} other {# skills}}",
+      "hidden": "Not chosen · questions hidden",
+      "noSkills": "This unit asks no skills",
+      "shared": "Skills two units share (e.g. Event organisation) are asked once.",
+      "levelLabel": "{skill} level",
+      "level": {
+        "NONE": "None",
+        "BEGINNER": "Beginner",
+        "GOOD": "Good",
+        "EXPERT": "Expert"
+      },
+      "rolesTitle": "Which role do you play most in a team? (at most {max})",
+      "role": {
+        "IDEA_GENERATOR": "Idea generator",
+        "PLANNER": "Planner",
+        "EXECUTOR": "Executor",
+        "CONNECTOR": "Connector"
+      }
+    },
+    "documents": {
+      "title": "Your documents",
+      "intro": "Your CV is required, your transcript optional. PDF, at most 10 MB. Only your program’s coordinators see them.",
+      "off": "Document upload is turned off for now",
+      "offBody": "You can send the form without documents. When upload opens, your coordinator may ask for your CV.",
+      "CV": "CV",
+      "TRANSCRIPT": "Transcript",
+      "required": "Required",
+      "optional": "Optional",
+      "choose": "Choose a PDF",
+      "replace": "Replace",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "file": "{name} · {size}",
+      "empty": "Not uploaded yet",
+      "uploadFailed": "The document could not be uploaded.",
+      "removeFailed": "The document could not be removed.",
+      "tooLarge": "The file is larger than 10 MB.",
+      "notPdf": "Only PDF files can be uploaded."
+    },
+    "leadership": {
+      "title": "Would you like to lead a team?",
+      "intro": "Each thematic team has 2 leaders; each leader works with 3–4 members. This step is optional; you can send the form without applying.",
+      "toggle": "I want to be a team leader",
+      "eligibilityTitle": "Eligibility",
+      "minDays": "At least {days} work days a week",
+      "daysChosen": "You chose {days} days",
+      "daysLeft": "Your İŞKUR days left cover the term",
+      "daysLeftValue": "{days} days left",
+      "cv": "CV uploaded",
+      "cvMissing": "No CV uploaded yet",
+      "cvOff": "Document upload is off",
+      "met": "Met",
+      "notMet": "Not met",
+      "notEligible": "A leadership application needs all of the conditions above.",
+      "weekTitle": "A leader’s week",
+      "week": [
+        "Weekly team meeting (30 min) on the first work day",
+        "Approving your members’ weekly work (about 20–30 min a week)",
+        "Weekly unit meeting with the coordinator in the leaders’ room (30 min)",
+        "Creating and assigning event tasks"
+      ],
+      "answersTitle": "In your own words",
+      "motivation": "Why do you want to lead a team, and what do you expect from the role?",
+      "experience": "Have you led a team, project or event before? What happened, what did you learn?",
+      "conflict": "What do you do when someone in your team falls behind?",
+      "limit": "At most {max} characters",
+      "counter": "{count} / {max}"
+    },
+    "preview": {
+      "title": "Review your form",
+      "intro": "You cannot change it after sending; your coordinator places you in a team from it.",
+      "days": "Work days",
+      "daysValue": "{days} days · {hours} h",
+      "prior": "İŞKUR days left: {days}",
+      "units": "Units",
+      "skills": "Skills",
+      "roles": "Team roles",
+      "documents": "Documents",
+      "leadership": "Leadership application",
+      "leadershipYes": "Applying",
+      "leadershipNo": "Not applying",
+      "edit": "Edit",
+      "none": "—"
+    },
+    "submitted": {
+      "title": "Your form is sent",
+      "body": "When your coordinator places you in a team provisionally, you will see it on your home page.",
+      "home": "Go to home"
+    },
+    "reveal": {
+      "provisional": "Provisional placement · Trial week {week}/4",
+      "provisionalNoWeek": "Provisional placement",
+      "final": "Confirmed placement",
+      "unitChip": "{unit} unit",
+      "title": "Your team is set: {team}",
+      "introMember": "Your leader is {leader}. After the 4-week trial your coordinator confirms your team and role; if you want to change teams, say so in week 4.",
+      "introLeader": "You lead this team. After the 4-week trial your coordinator confirms your team and role.",
+      "introNoLeader": "Your leader is not set yet. After the 4-week trial your coordinator confirms your team and role.",
+      "introFinal": "Your team and role are confirmed.",
+      "teamTitle": "Your team · {count} people",
+      "commonDays": "Team days: {days} in common",
+      "leaderLine": "Team leader · {count} members",
+      "unled": "No leader yet",
+      "me": "{name} (you)",
+      "ask": "Who do I ask?",
+      "askDaily": "My daily work, tasks and hours",
+      "askDailyWho": "Your team leader · {name}",
+      "askOtherTeam": "I need help from another team",
+      "askOtherTeamWho": "Your leader opens the request · {name}",
+      "askAttendance": "Attendance, leave, payment",
+      "askAttendanceWho": "Your unit coordinator · {name}",
+      "askPersonal": "A personal or urgent matter",
+      "askPersonalWho": "Straight to your coordinator · {name}",
+      "noLeader": "Shows here once your leader is set",
+      "noCoordinator": "Shows here once your unit coordinator is set",
+      "channels": "Your channels",
+      "channelsLater": "Channels open once your team is confirmed.",
+      "waitingTitle": "Waiting for placement",
+      "waitingBody": "Your form reached your coordinator. Your team shows here once they place you.",
+      "reminderTitle": "Fill in the placement form",
+      "reminderBody": "Your coordinator needs your work days, preferences and skills to place you in a team.",
+      "reminderAction": "Continue the form"
+    },
+    "coordinator": {
+      "preferences": "Preferences",
+      "noApplication": "This person has not sent the placement form yet.",
+      "submittedAt": "Sent: {date}",
+      "days": "Work days",
+      "daysValue": "{days} days · {hours} h",
+      "remaining": "İŞKUR days left",
+      "remainingValue": "{days} days",
+      "units": "Unit preferences",
+      "roles": "Team roles",
+      "skills": "Skills",
+      "leadership": "Leadership application",
+      "leadershipYes": "Wants to lead",
+      "leadershipNo": "Did not apply",
+      "motivation": "Why",
+      "experience": "Experience",
+      "conflict": "A member falling behind",
+      "documents": "Documents",
+      "open": "Open {document}",
+      "noFile": "No {document}",
+      "applications": "Placement forms",
+      "applicationsSummary": "{submitted} sent · {drafts} drafts",
+      "skillsTitle": "Unit skills",
+      "skillsHint": "One skill per line; the same name in two units is asked once.",
+      "skillsLabel": "{unit} skills",
+      "editSkills": "Edit skills",
+      "noUnitSkills": "No skills asked",
+      "saveSkills": "Save",
+      "cancel": "Cancel",
+      "skillsSaved": "Skills saved.",
+      "skillsSaveFailed": "The skills could not be saved.",
+      "skillsInvalid": "At most 30 skills, each at most 80 characters.",
+      "loadFailed": "The placement forms could not be loaded."
+    }
   }
 }

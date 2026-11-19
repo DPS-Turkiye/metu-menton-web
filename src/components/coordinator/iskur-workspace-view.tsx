@@ -2,14 +2,20 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
+import { IskurPreferencesPanel } from "@/components/coordinator/iskur-preferences-panel";
+import { IskurUnitSkillsCard } from "@/components/coordinator/iskur-unit-skills-card";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import {
+  useIskurApplications,
+  type IskurApplicationsState,
+} from "@/hooks/use-iskur-applications";
 import {
   useIskurWorkspace,
   type IskurWorkspaceState,
@@ -39,15 +45,30 @@ import { IskurDialogKind } from "@/types/iskur-workspace";
 
 /** Katılımcılar › İŞKUR Ekipleri: units, thematic teams, leaders with their sub-groups, and who is not placed yet. */
 export function IskurWorkspaceView({ programId }: { programId: string }) {
-  const state = useIskurWorkspace(programId);
+  const applications = useIskurApplications(programId);
+  const state = useIskurWorkspace(programId, applications.weeklyDaysOf);
   return (
     <ProgramDetailFrame programId={programId} tab={ProgramTab.IskurTeams}>
-      {() => <WorkspaceBody state={state} />}
+      {() => (
+        <WorkspaceBody
+          state={state}
+          applications={applications}
+          programId={programId}
+        />
+      )}
     </ProgramDetailFrame>
   );
 }
 
-function WorkspaceBody({ state }: { state: IskurWorkspaceState }) {
+function WorkspaceBody({
+  state,
+  applications,
+  programId,
+}: {
+  state: IskurWorkspaceState;
+  applications: IskurApplicationsState;
+  programId: string;
+}) {
   const t = useTranslations("iskurWorkspace");
   if (state.isLoading) {
     return (
@@ -67,6 +88,7 @@ function WorkspaceBody({ state }: { state: IskurWorkspaceState }) {
   return (
     <div className="space-y-6">
       <Summary state={state} workspace={workspace} />
+      <IskurUnitSkillsCard applications={applications} />
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <Pool state={state} pool={workspace.pool} />
         <div className="space-y-6">
@@ -81,7 +103,12 @@ function WorkspaceBody({ state }: { state: IskurWorkspaceState }) {
           )}
         </div>
       </div>
-      <Dialogs state={state} workspace={workspace} />
+      <Dialogs
+        state={state}
+        workspace={workspace}
+        applications={applications}
+        programId={programId}
+      />
     </div>
   );
 }
@@ -422,9 +449,13 @@ function PlacementRow({
 function Dialogs({
   state,
   workspace,
+  applications,
+  programId,
 }: {
   state: IskurWorkspaceState;
   workspace: IskurWorkspace;
+  applications: IskurApplicationsState;
+  programId: string;
 }) {
   const dialog = state.dialog;
   if (!dialog) return null;
@@ -436,6 +467,13 @@ function Dialogs({
           workspace={workspace}
           person={dialog.person}
           placed={dialog.placed}
+          preferences={
+            <IskurPreferencesPanel
+              application={applications.applicationOf(dialog.person.userId)}
+              applications={applications}
+              programId={programId}
+            />
+          }
         />
       );
     case IskurDialogKind.Unit:
@@ -451,11 +489,13 @@ function PlacementDialog({
   workspace,
   person,
   placed,
+  preferences,
 }: {
   state: IskurWorkspaceState;
   workspace: IskurWorkspace;
   person: IskurPerson;
   placed: boolean;
+  preferences: ReactNode;
 }) {
   const t = useTranslations("iskurWorkspace");
   const titleId = useId();
@@ -471,6 +511,7 @@ function PlacementDialog({
       <h2 id={titleId} className="type-h4 text-text-primary">
         {t(placed ? "editTitle" : "placeTitle", { name: person.fullName })}
       </h2>
+      {preferences}
       <label htmlFor={teamId} className="block type-label text-text-primary">
         {t("team")}
       </label>

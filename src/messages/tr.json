@@ -6275,7 +6275,14 @@
     "officeHoursStudentsLoadFailed": "Öğrenciler yüklenemedi.",
     "iskurWorkspaceLoadFailed": "İŞKUR ekipleri yüklenemedi.",
     "iskurWorkspaceSaveFailed": "İŞKUR ekip değişikliği kaydedilemedi.",
-    "iskurWorkspaceInvalid": "İŞKUR ekip bilgileri geçersiz."
+    "iskurWorkspaceInvalid": "İŞKUR ekip bilgileri geçersiz.",
+    "iskurOnboardingLoadFailed": "Yerleştirme formu yüklenemedi.",
+    "iskurOnboardingSaveFailed": "Yerleştirme formu kaydedilemedi.",
+    "iskurOnboardingInvalid": "Yerleştirme formu bilgileri geçersiz.",
+    "iskurDocumentInvalid": "Belge geçersiz: en fazla 10 MB'lık bir PDF seçin.",
+    "iskurDocumentUploadFailed": "Belge kaydedilemedi.",
+    "iskurTeamLoadFailed": "Ekibin yüklenemedi.",
+    "iskurApplicationsLoadFailed": "Yerleştirme formları yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -7331,5 +7338,308 @@
     "deleteBody": "Yalnızca içinde kimse yerleştirilmemişse silinir.",
     "confirmFinalize": "Kesinleştir",
     "confirmDelete": "Sil"
+  },
+  "iskurOnboarding": {
+    "loading": "Yerleştirme formu yükleniyor…",
+    "loadFailed": "Yerleştirme formu yüklenemedi.",
+    "retry": "Yeniden dene",
+    "notIntern": {
+      "title": "Yerleştirme formu sana açık değil",
+      "body": "Bu form, ekipleri kurulmuş bir İŞKUR programının stajyerleri içindir.",
+      "home": "Ana Sayfa'ya dön"
+    },
+    "saved": "Taslağın kaydedildi.",
+    "saveFailed": "Taslak kaydedilemedi.",
+    "submitFailed": "Form gönderilemedi.",
+    "welcome": {
+      "overline": "ODTÜ TEKNOKENT · İŞKUR GENÇLİK PROGRAMI",
+      "title": "Hoş geldin {name}, seni ekibine yerleştirelim",
+      "intro": "{units} birim ve {teams} tematik ekipte çalışacaksın. Önce yaklaşık 10 dakikalık formu doldur; koordinatörün tercihlerine, görev günlerine ve yetkinliklerine göre seni bir ekibe yerleştirsin.",
+      "awaits": "Seni neler bekliyor?",
+      "journey": {
+        "form": {
+          "title": "Formu doldur",
+          "hint": "Görev günleri, tercihler, yetkinlikler, CV"
+        },
+        "provisional": {
+          "title": "Geçici atama",
+          "hint": "Koordinatör ekibini ve liderini belirler"
+        },
+        "trial": {
+          "title": "4 hafta deneme",
+          "hint": "Haftalık listen ve teslimlerin başlar"
+        },
+        "final": {
+          "title": "Kesinleşme",
+          "hint": "4. haftanın sonunda koordinatör onaylar"
+        }
+      },
+      "prepare": "Başlamadan önce yanında olsun",
+      "prepareItems": [
+        "Bu dönemin ders programın (görev günlerini seçmek için)",
+        "Güncel CV’n (PDF, en fazla 10 MB)",
+        "Varsa portfolyo veya proje bağlantıların",
+        "Daha önce İŞKUR programında kullandığın gün sayısı"
+      ],
+      "later": "Sonra hatırlat",
+      "start": "Forma başla"
+    },
+    "steps": {
+      "label": "Adımlar",
+      "done": "Tamamlandı",
+      "DAYS": {
+        "title": "Görev günleri",
+        "hint": "Haftada kaç gün, hangi günler"
+      },
+      "UNITS": {
+        "title": "Birimler ve yetkinlikler",
+        "hint": "Ekip tercihlerin ve becerilerin"
+      },
+      "DOCUMENTS": {
+        "title": "Belgeler",
+        "hint": "CV zorunlu, transkript isteğe bağlı"
+      },
+      "LEADERSHIP": {
+        "title": "Liderlik",
+        "hint": "İsteğe bağlı başvuru"
+      },
+      "PREVIEW": {
+        "title": "Önizle",
+        "hint": "Gönder ve yerleştirmeyi bekle"
+      },
+      "notEliminating": {
+        "title": "Bu form seni elemez",
+        "body": "Program katılımcıları kurayla belirlenir. Form yalnızca ekip ve rol yerleştirmesi için kullanılır."
+      }
+    },
+    "actions": {
+      "back": "Geri",
+      "saveDraft": "Taslak olarak kaydet",
+      "next": "Devam et",
+      "submit": "Formu gönder",
+      "saving": "Kaydediliyor…",
+      "submitting": "Gönderiliyor…"
+    },
+    "days": {
+      "title": "Haftada kaç gün gelebilirsin?",
+      "intro": "İŞKUR’da görev saat olarak değil gün olarak seçilir. Ders programına göre haftada 1, 2 veya 3 gün seçebilirsin.",
+      "countTitle": "Haftalık gün sayısı",
+      "option": "{days} gün",
+      "optionHours": "{hours} saat / hafta",
+      "leaderHint": "Ekip lideri olmak istiyorsan en az 2 gün seçmelisin; liderler haftalık onay ve ekip toplantısını yürütür.",
+      "hoursTitle": "Hangi günler, hangi saatler?",
+      "tally": "{done} / {target} sa",
+      "tallyOk": "{done} / {target} sa ✓",
+      "hoursIntro": "Saatlerini kendin yaz. Bir günü birden fazla güne bölebilirsin (ör. Pzt 10:00–14:00 + Sal 10:00–13:30 = 1 tam gün). Toplam süre seçtiğin gün sayısına eşit olmalı.",
+      "entryTitle": "Çalışacağın saat aralıklarını yaz",
+      "noDays": "Önce yukarıdan çalışacağın günleri seç.",
+      "short": {
+        "MONDAY": "Pzt",
+        "TUESDAY": "Sal",
+        "WEDNESDAY": "Çar",
+        "THURSDAY": "Per",
+        "FRIDAY": "Cum",
+        "SATURDAY": "Cmt",
+        "SUNDAY": "Paz"
+      },
+      "long": {
+        "MONDAY": "Pazartesi",
+        "TUESDAY": "Salı",
+        "WEDNESDAY": "Çarşamba",
+        "THURSDAY": "Perşembe",
+        "FRIDAY": "Cuma",
+        "SATURDAY": "Cumartesi",
+        "SUNDAY": "Pazar"
+      },
+      "dayHours": "{hours} sa",
+      "dayEmpty": "—",
+      "start": "{day} başlangıç saati",
+      "end": "{day} bitiş saati",
+      "removeRange": "{day} aralığını kaldır",
+      "addRange": "+ Aralık ekle",
+      "totalOk": "Toplam {hours} sa = {days} tam gün ✓",
+      "totalOff": "Toplam {hours} sa",
+      "target": "Hedef: {days} gün · {hours} sa",
+      "totalHint": "Toplam tutmazsa eksik veya fazla süre burada gösterilir ve “Devam et” kapalı kalır. Öğle arası ve molalar süreye dahil edilmez.",
+      "overlap": "Aynı gündeki saat aralıkları çakışıyor.",
+      "alertTitle": "Saatlerin yetkili birimin onayıyla kesinleşir",
+      "alertBody": "Daha önce doldurduğunuz çalışma takviminiz ile paralel olmasına dikkat ediniz.",
+      "rightsTitle": "İŞKUR hakkın",
+      "priorLabel": "Daha önce İŞKUR programlarında kullandığın gün sayısı",
+      "priorHelp": "Bir katılımcı tüm programlardan toplam en fazla {max} fiili gün yararlanabilir.",
+      "remaining": "Kalan hakkın: {days} gün",
+      "enough": "Bu dönem için yeterli (yaklaşık {needed} gün gerekir)",
+      "notEnough": "Bu dönem için yetmeyebilir (yaklaşık {needed} gün gerekir)"
+    },
+    "units": {
+      "title": "Hangi birimde, hangi becerilerle?",
+      "intro": "Seçtiğin birimler ve yetkinliklerin ekiplerin dengeli kurulması için kullanılır. Ekibini koordinatör belirler.",
+      "department": "Bölüm",
+      "classYear": "Sınıf",
+      "classValue": "{year}. sınıf",
+      "fromRecords": "ODTÜ kayıtlarından alındı",
+      "unknown": "—",
+      "unitsTitle": "Hangi birimlerde çalışmak istersin?",
+      "unitsCount": "{selected} / {total} seçildi",
+      "unitsIntro": "Bölümünden bağımsız seçebilirsin, birden fazla birim işaretleyebilirsin. Yetkinlik soruları seçtiğin birimlere göre değişir.",
+      "skillsTitle": "Yetkinliklerin",
+      "skillsIntro": "Kendini dürüstçe değerlendir; ilk iki hafta küçük bir başlangıç göreviyle birlikte gözden geçirilir.",
+      "skillCount": "{count, plural, one {# yetkinlik} other {# yetkinlik}}",
+      "hidden": "Seçilmedi · sorular gizli",
+      "noSkills": "Bu birim yetkinlik sormuyor",
+      "shared": "İki birimde de geçen yetkinlikler (ör. Etkinlik organizasyonu) bir kez sorulur.",
+      "levelLabel": "{skill} düzeyi",
+      "level": {
+        "NONE": "Yok",
+        "BEGINNER": "Başlangıç",
+        "GOOD": "İyi",
+        "EXPERT": "Uzman"
+      },
+      "rolesTitle": "Ekipte en çok hangi roldesin? (en fazla {max})",
+      "role": {
+        "IDEA_GENERATOR": "Fikir üreten",
+        "PLANNER": "Planlayan",
+        "EXECUTOR": "Uygulayan",
+        "CONNECTOR": "Bağlantı kuran"
+      }
+    },
+    "documents": {
+      "title": "Belgelerin",
+      "intro": "CV’n zorunlu, transkriptin isteğe bağlı. PDF, en fazla 10 MB. Belgelerini yalnızca program koordinatörlerin görür.",
+      "off": "Belge yükleme şu an kapalı",
+      "offBody": "Formu belgesiz gönderebilirsin. Yükleme açıldığında koordinatörün CV’ni ayrıca isteyebilir.",
+      "CV": "CV",
+      "TRANSCRIPT": "Transkript",
+      "required": "Zorunlu",
+      "optional": "İsteğe bağlı",
+      "choose": "PDF seç",
+      "replace": "Değiştir",
+      "remove": "Kaldır",
+      "uploading": "Yükleniyor…",
+      "file": "{name} · {size}",
+      "empty": "Henüz yüklenmedi",
+      "uploadFailed": "Belge yüklenemedi.",
+      "removeFailed": "Belge kaldırılamadı.",
+      "tooLarge": "Dosya 10 MB’tan büyük.",
+      "notPdf": "Yalnızca PDF yüklenebilir."
+    },
+    "leadership": {
+      "title": "Ekip lideri olmak ister misin?",
+      "intro": "Her tematik ekipte 2 lider var; her lider 3–4 üyeyle çalışır. Bu adım isteğe bağlı. Başvurmasan da formu gönderebilirsin.",
+      "toggle": "Ekip lideri olmak istiyorum",
+      "eligibilityTitle": "Uygunluk",
+      "minDays": "Haftada en az {days} görev günü",
+      "daysChosen": "{days} gün seçtin",
+      "daysLeft": "Kalan İŞKUR hakkın dönemi tamamlamaya yetiyor",
+      "daysLeftValue": "{days} gün kaldı",
+      "cv": "CV yüklendi",
+      "cvMissing": "Henüz CV yüklemedin",
+      "cvOff": "Belge yükleme kapalı",
+      "met": "Uygun",
+      "notMet": "Uygun değil",
+      "notEligible": "Liderlik başvurusu için yukarıdaki koşulların hepsi gerekir.",
+      "weekTitle": "Liderin haftası",
+      "week": [
+        "Haftalık ekip toplantısı (30 dk), ilk görev gününde",
+        "Üyelerinin haftalık teslimlerini onaylamak (haftada yaklaşık 20–30 dk)",
+        "Liderler odasında koordinatörle haftalık birim toplantısı (30 dk)",
+        "Etkinlik görevlerini oluşturmak ve atamak"
+      ],
+      "answersTitle": "Kendi sözlerinle anlat",
+      "motivation": "Neden ekip lideri olmak istiyorsun, bu rolden ne bekliyorsun?",
+      "experience": "Daha önce bir ekibi, projeyi veya etkinliği yürüttün mü? Ne oldu, ne öğrendin?",
+      "conflict": "Ekibinden biri görevini aksattığında ne yaparsın?",
+      "limit": "En fazla {max} karakter",
+      "counter": "{count} / {max}"
+    },
+    "preview": {
+      "title": "Formunu gözden geçir",
+      "intro": "Gönderdikten sonra değiştiremezsin; koordinatörün seni bu bilgilere göre bir ekibe yerleştirir.",
+      "days": "Görev günleri",
+      "daysValue": "{days} gün · {hours} sa",
+      "prior": "Kalan İŞKUR hakkın: {days} gün",
+      "units": "Birimler",
+      "skills": "Yetkinlikler",
+      "roles": "Ekip rolleri",
+      "documents": "Belgeler",
+      "leadership": "Liderlik başvurusu",
+      "leadershipYes": "Başvuruyorum",
+      "leadershipNo": "Başvurmuyorum",
+      "edit": "Düzenle",
+      "none": "—"
+    },
+    "submitted": {
+      "title": "Formun gönderildi",
+      "body": "Koordinatörün seni geçici olarak bir ekibe yerleştirdiğinde ekibini Ana Sayfa’nda göreceksin.",
+      "home": "Ana Sayfa’ya git"
+    },
+    "reveal": {
+      "provisional": "Geçici atama · Deneme {week}/4. hafta",
+      "provisionalNoWeek": "Geçici atama",
+      "final": "Kesin atama",
+      "unitChip": "{unit} birimi",
+      "title": "Ekibin belli oldu: {team}",
+      "introMember": "Lideriniz {leader}. 4 haftalık deneme döneminden sonra koordinatörün ekibini ve rolünü kesinleştirecek; bu sürede ekip değiştirmek istersen 4. haftada belirtebilirsin.",
+      "introLeader": "Bu ekipte ekip liderisin. 4 haftalık deneme döneminden sonra koordinatörün ekibini ve rolünü kesinleştirecek.",
+      "introNoLeader": "Liderin henüz belli değil. 4 haftalık deneme döneminden sonra koordinatörün ekibini ve rolünü kesinleştirecek.",
+      "introFinal": "Ekibin ve rolün kesinleşti.",
+      "teamTitle": "Ekibin · {count} kişi",
+      "commonDays": "Ekip günleri: {days} ortak",
+      "leaderLine": "Ekip lideri · {count} üye",
+      "unled": "Lideri henüz belli olmayanlar",
+      "me": "{name} (sen)",
+      "ask": "Kime sorarım?",
+      "askDaily": "Günlük işim, görevlerim, saatlerim",
+      "askDailyWho": "Ekip liderin · {name}",
+      "askOtherTeam": "Başka ekipten destek lazım",
+      "askOtherTeamWho": "Liderin talebi açar · {name}",
+      "askAttendance": "Devam, izin, ödeme",
+      "askAttendanceWho": "Birim koordinatörün · {name}",
+      "askPersonal": "Kişisel veya acil bir durum",
+      "askPersonalWho": "Doğrudan koordinatörün · {name}",
+      "noLeader": "Liderin belli olunca burada görünür",
+      "noCoordinator": "Birim koordinatörü belli olunca burada görünür",
+      "channels": "Kanalların",
+      "channelsLater": "Kanallar ekip kesinleşince açılır.",
+      "waitingTitle": "Yerleştirme bekleniyor",
+      "waitingBody": "Formun koordinatörüne ulaştı. Seni bir ekibe yerleştirdiğinde ekibin burada görünür.",
+      "reminderTitle": "Yerleştirme formunu doldur",
+      "reminderBody": "Koordinatörün seni bir ekibe yerleştirebilmesi için görev günlerini, tercihlerini ve yetkinliklerini bekliyor.",
+      "reminderAction": "Forma devam et"
+    },
+    "coordinator": {
+      "preferences": "Tercihler",
+      "noApplication": "Bu kişi yerleştirme formunu henüz göndermedi.",
+      "submittedAt": "Gönderildi: {date}",
+      "days": "Görev günleri",
+      "daysValue": "{days} gün · {hours} sa",
+      "remaining": "Kalan İŞKUR hakkı",
+      "remainingValue": "{days} gün",
+      "units": "Birim tercihleri",
+      "roles": "Ekip rolleri",
+      "skills": "Yetkinlikler",
+      "leadership": "Liderlik başvurusu",
+      "leadershipYes": "Lider olmak istiyor",
+      "leadershipNo": "Başvurmadı",
+      "motivation": "Neden",
+      "experience": "Deneyim",
+      "conflict": "Aksayan üye",
+      "documents": "Belgeler",
+      "open": "{document} aç",
+      "noFile": "{document} yok",
+      "applications": "Yerleştirme formları",
+      "applicationsSummary": "{submitted} gönderildi · {drafts} taslak",
+      "skillsTitle": "Birim yetkinlikleri",
+      "skillsHint": "Her satıra bir yetkinlik yazın; iki birimde aynı ad bir kez sorulur.",
+      "skillsLabel": "{unit} yetkinlikleri",
+      "editSkills": "Yetkinlikleri düzenle",
+      "noUnitSkills": "Yetkinlik sorulmuyor",
+      "saveSkills": "Kaydet",
+      "cancel": "Vazgeç",
+      "skillsSaved": "Yetkinlikler kaydedildi.",
+      "skillsSaveFailed": "Yetkinlikler kaydedilemedi.",
+      "skillsInvalid": "En fazla 30 yetkinlik; her biri en fazla 80 karakter.",
+      "loadFailed": "Yerleştirme formları yüklenemedi."
+    }
   }
 }

@@ -88,10 +88,14 @@ export function provisionalCount(
     .length;
 }
 
-/** The dialog's starting values: the person's placement, or the first team for someone new. */
+/**
+ * The dialog's starting values: the person's placement, or the first team for someone new, with the work days they
+ * chose on their onboarding form when they sent one.
+ */
 export function placementForm(
   workspace: IskurWorkspace,
   placement: IskurPlacement | null,
+  preferredDays: number | null = null,
 ): IskurPlacementForm {
   if (placement) {
     const split = placement.split;
@@ -110,7 +114,7 @@ export function placementForm(
     teamId: workspace.units.flatMap((unit) => unit.teams)[0]?.id ?? "",
     role: IskurTeamRole.Member,
     leaderId: null,
-    weeklyDays: null,
+    weeklyDays: preferredDays,
     mentoringHours: "",
   };
 }

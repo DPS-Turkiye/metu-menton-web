@@ -49,7 +49,10 @@ export const iskurWorkspaceQueryKey = (programId: string) =>
  * The coordinator's İŞKUR placement screen: one query for the whole workspace, and every change answers with the
  * new workspace, which replaces the cached one.
  */
-export function useIskurWorkspace(programId: string) {
+export function useIskurWorkspace(
+  programId: string,
+  preferredDays: (userId: string) => number | null = () => null,
+) {
   const t = useTranslations("iskurWorkspace");
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -100,7 +103,9 @@ export function useIskurWorkspace(programId: string) {
     openPlacement: (person: IskurPerson) => {
       if (!workspace) return;
       const placement = findPlacement(workspace, person.userId);
-      setForm(placementForm(workspace, placement));
+      setForm(
+        placementForm(workspace, placement, preferredDays(person.userId)),
+      );
       setDialog({
         kind: IskurDialogKind.Place,
         person,
