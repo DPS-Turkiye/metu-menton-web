@@ -196,7 +196,7 @@ export function participantTabs(
           href: `${base}/academics`,
           count: null,
         },
-        { id: ParticipantTab.Students, href: null, count: null },
+        { id: ParticipantTab.Students, href: `${base}/students`, count: null },
       ];
     default:
       return [
@@ -241,7 +241,6 @@ export function misplacedTabHref(
       if (
         tab === ProgramTab.Teams ||
         tab === ProgramTab.MentorPool ||
-        tab === ProgramTab.Students ||
         tab === ProgramTab.PeerMentors ||
         tab === ProgramTab.Participants
       )
@@ -273,7 +272,9 @@ export function hasTabContent(type: ProgramType, tab: ProgramTab) {
     (type === ProgramType.PeerMentoring &&
       (tab === ProgramTab.Students || tab === ProgramTab.PeerMentors)) ||
     (type === ProgramType.OfficeHours &&
-      (tab === ProgramTab.Academics || tab === ProgramTab.Appointments))
+      (tab === ProgramTab.Academics ||
+        tab === ProgramTab.Students ||
+        tab === ProgramTab.Appointments))
   );
 }
 

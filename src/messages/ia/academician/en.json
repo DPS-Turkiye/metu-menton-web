@@ -256,6 +256,7 @@
     "errors": {
       "needFields": "Fill in the date and the times.",
       "endAfterStart": "The end has to be after the start.",
+      "tooShort": "One-off hours have to last at least 15 minutes.",
       "overlap": "These hours overlap an existing entry.",
       "past": "You can't add hours in the past.",
       "insideDayOff": "This day is marked unavailable; remove that day first.",

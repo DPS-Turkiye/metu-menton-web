@@ -6,6 +6,7 @@ import type {
   OfficeHoursRequest,
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
+import { upcomingOneOffs } from "@/lib/academician-availability";
 import {
   toAcademicianAppointment,
   toAcademicianAvailability,
@@ -25,9 +26,6 @@ import {
 
 // The academician's Office Hours through /api/office-hours/me (ODTÜ-signed-in accounts, Moodle course requests
 // included once their person is linked). The screens keep their own shapes; lib/academician-office-hours-me maps.
-
-/** One-off hours (G5) have no backend yet; the screens keep that control unavailable. */
-export class OfficeHoursFeatureUnavailableError extends Error {}
 
 export async function getAcademicianRequests(): Promise<OfficeHoursRequest[]> {
   return (await getOfficeHoursInbox())
@@ -65,18 +63,15 @@ export async function getAcademicianAvailability(): Promise<AcademicianAvailabil
   return toAcademicianAvailability(await getMyOfficeHoursAvailability());
 }
 
-/** Weekly ranges, days off and the numbers; one-off hours wait for their backend (G5) and are refused here. */
+/** Weekly ranges, one-off hours still ahead, days off and the numbers, saved as a whole. */
 export async function saveAcademicianAvailability(
   payload: UpdateAcademicianAvailabilityPayload,
 ): Promise<AcademicianAvailability> {
-  const { oneOffs, ...settings } = payload;
-  if (oneOffs.length > 0) {
-    throw new OfficeHoursFeatureUnavailableError(
-      "One-off Office Hours are not available yet.",
-    );
-  }
   return toAcademicianAvailability(
-    await saveMyOfficeHoursAvailability(settings),
+    await saveMyOfficeHoursAvailability({
+      ...payload,
+      oneOffs: upcomingOneOffs(payload.oneOffs, new Date()),
+    }),
   );
 }
 

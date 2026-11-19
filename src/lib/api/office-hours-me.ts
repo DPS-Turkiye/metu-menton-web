@@ -21,7 +21,7 @@ const BASE = "/api/office-hours/me";
 
 type AvailabilityPayload = Omit<
   BackendOfficeHoursAvailability,
-  "rules" | "exceptions"
+  "rules" | "exceptions" | "oneOffs"
 > & {
   rules: Omit<BackendOfficeHoursAvailability["rules"][number], "id">[];
   exceptions: Omit<
