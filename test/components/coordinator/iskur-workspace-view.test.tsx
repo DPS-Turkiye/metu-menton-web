@@ -6,6 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { IskurWorkspaceView } from "@/components/coordinator/iskur-workspace-view";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import {
+  getIskurApplications,
+  replaceIskurUnitSkills,
+} from "@/lib/client/iskur-onboarding";
+import {
   createDefaultIskurStructure,
   createIskurTeam,
   createIskurUnit,
@@ -18,6 +22,7 @@ import {
   updateIskurTeam,
   updateIskurUnit,
 } from "@/lib/client/iskur-workspace";
+import { applications, KREATIF } from "@test/fixtures/iskur-onboarding";
 import { iskurWorkspace } from "@test/fixtures/iskur-workspace";
 import { renderWithQueryClient } from "@test/test-utils";
 
@@ -42,7 +47,29 @@ vi.mock("@/lib/client/iskur-workspace", () => ({
   updateIskurUnit: vi.fn(),
 }));
 
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurApplications: vi.fn(),
+  replaceIskurUnitSkills: vi.fn(),
+  iskurApplicationDocumentHref: (
+    programId: string,
+    userId: string,
+    slot: string,
+  ) => `/files/${programId}/${userId}/${slot}`,
+}));
+
 const workspace = iskurWorkspace();
+const noForms = { ...applications(), applications: [], drafts: 0 };
+
+/** Deniz from the pool has sent the onboarding form. */
+function denizSent() {
+  const base = applications();
+  const [form] = base.applications;
+  if (!form) throw new Error("fixture has no application");
+  return {
+    ...base,
+    applications: [{ ...form, userId: "u-pool", fullName: "Deniz Arslan" }],
+  };
+}
 
 async function renderView() {
   renderWithQueryClient(<IskurWorkspaceView programId="p1" />);
@@ -53,6 +80,7 @@ describe("IskurWorkspaceView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getIskurWorkspace).mockResolvedValue(workspace);
+    vi.mocked(getIskurApplications).mockResolvedValue(noForms);
     for (const change of [
       createDefaultIskurStructure,
       createIskurTeam,
@@ -365,5 +393,77 @@ describe("IskurWorkspaceView", () => {
     expect(
       await within(dialog).findByText("Bu ekibin zaten iki lideri var."),
     ).toBeInTheDocument();
+  });
+
+  it("pre-fills a new placement with the intern's work days and shows their preferences", async () => {
+    vi.mocked(getIskurApplications).mockResolvedValue(denizSent());
+    const user = userEvent.setup();
+    await renderView();
+    await screen.findByText("Yerleştirme formları: 1 gönderildi · 2 taslak");
+
+    await user.click(
+      screen.getByRole("button", { name: "Deniz Arslan kişisini yerleştir" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByLabelText("Haftalık görev günü"),
+    ).toHaveDisplayValue("3 gün");
+    const panel = within(dialog).getByRole("region", { name: "Tercihler" });
+    expect(
+      within(panel).getByText(/Kreatif ve Dijital Üretim/),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).getByText(/Fikir üreten · Uygulayan/),
+    ).toBeInTheDocument();
+    expect(within(panel).getByText(/Görsel tasarım: İyi/)).toBeInTheDocument();
+    expect(within(panel).getByText("Lider olmak istiyor")).toBeInTheDocument();
+    expect(within(panel).getByText("Çatışma")).toBeInTheDocument();
+    expect(within(panel).getByRole("link", { name: "CV aç" })).toHaveAttribute(
+      "href",
+      "/files/p1/u-pool/CV",
+    );
+    expect(within(panel).getByText("Transkript yok")).toBeInTheDocument();
+  });
+
+  it("says when someone has not sent the form yet", async () => {
+    const user = userEvent.setup();
+    await renderView();
+    await user.click(
+      screen.getByRole("button", { name: "Deniz Arslan kişisini yerleştir" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText("Bu kişi yerleştirme formunu henüz göndermedi."),
+    ).toBeInTheDocument();
+  });
+
+  it("edits a unit's skills one per line", async () => {
+    vi.mocked(replaceIskurUnitSkills).mockResolvedValue(noForms);
+    const user = userEvent.setup();
+    await renderView();
+    const card =
+      (
+        await screen.findByRole("heading", { name: "Birim yetkinlikleri" })
+      ).closest("section") ?? document.body;
+    const editButtons = within(card).getAllByRole("button", {
+      name: "Yetkinlikleri düzenle",
+    });
+    const first = editButtons[0];
+    if (!first) throw new Error("no editor");
+    await user.click(first);
+    const editor = within(card).getByLabelText(
+      "Kreatif ve Dijital Üretim yetkinlikleri",
+    );
+    expect(editor).toHaveValue("Görsel tasarım\nVideo ve fotoğraf");
+    await user.clear(editor);
+    await user.type(
+      editor,
+      "Görsel tasarım{Enter}{Enter}görsel tasarım{Enter}Web ve UX",
+    );
+    await user.click(within(card).getByRole("button", { name: "Kaydet" }));
+    expect(replaceIskurUnitSkills).toHaveBeenCalledWith("p1", KREATIF, [
+      "Görsel tasarım",
+      "Web ve UX",
+    ]);
   });
 });

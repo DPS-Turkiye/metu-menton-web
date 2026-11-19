@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { readIsoDayParam, readUuidParam } from "@/lib/server/path-params";
+import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
+import {
+  readEnumParam,
+  readIsoDayParam,
+  readUuidParam,
+} from "@/lib/server/path-params";
 
 describe("readUuidParam", () => {
   it("passes a uuid through unchanged", async () => {
@@ -49,4 +54,31 @@ describe("readIsoDayParam", () => {
       });
     },
   );
+});
+
+describe("readEnumParam", () => {
+  it("passes a known value through as the enum member", async () => {
+    expect(
+      await readEnumParam("CV", IskurDocumentSlot, "invalidRequestFields"),
+    ).toEqual({
+      ok: true,
+      value: IskurDocumentSlot.Cv,
+    });
+  });
+
+  it("answers 400 for anything else, so it never reaches a backend path", async () => {
+    for (const value of ["cv", "..", "CV/../x", ""]) {
+      const result = await readEnumParam(
+        value,
+        IskurDocumentSlot,
+        "invalidRequestFields",
+      );
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.response.status).toBe(400);
+      await expect(result.response.json()).resolves.toMatchObject({
+        code: "INVALID_REQUEST",
+      });
+    }
+  });
 });
