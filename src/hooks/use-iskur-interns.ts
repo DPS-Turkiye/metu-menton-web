@@ -51,11 +51,16 @@ export function useIskurInterns(programId: string) {
   const add = useMutation({
     mutationFn: (emails: string[]) => addIskurInterns(programId, emails),
     onSuccess: (list) => {
+      const before = query.data?.counts.listed ?? 0;
       settle(list);
-      // The unreadable entries stay in the box, so the coordinator can fix them and add them again.
+      // The unreadable entries stay in the box (locked while saving), so the coordinator can fix and add them again.
       setRejected(list.rejected);
       setText(list.rejected.join("\n"));
-      showToast({ message: t("added"), tone: ToastTone.Success });
+      showToast(
+        list.counts.listed > before
+          ? { message: t("added"), tone: ToastTone.Success }
+          : { message: t("nothingAdded"), tone: ToastTone.Info },
+      );
     },
     onError: (failure: Error) =>
       showToast({
@@ -70,11 +75,16 @@ export function useIskurInterns(programId: string) {
       settle(list);
       showToast({ message: t("removed"), tone: ToastTone.Success });
     },
-    onError: (failure: Error) =>
+    onError: (failure: Error) => {
+      // The entry may have changed elsewhere (removed, or its owner placed): show the list as it is now.
+      void queryClient.invalidateQueries({
+        queryKey: iskurInternsQueryKey(programId),
+      });
       showToast({
         message: errorMessage(failure, t("removeFailed")),
         tone: ToastTone.Error,
-      }),
+      });
+    },
   });
 
   const emails = internEmailsFromText(text);
@@ -86,7 +96,11 @@ export function useIskurInterns(programId: string) {
     loadError: query.error,
     list: query.data ?? null,
     text,
-    setText,
+    setText: (next: string) => {
+      setText(next);
+      setRejected([]);
+    },
+    adding: add.isPending,
     tooMany,
     rejected,
     busy,

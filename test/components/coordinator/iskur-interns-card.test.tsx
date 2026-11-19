@@ -87,29 +87,33 @@ describe("IskurInternsCard", () => {
   });
 
   it("adds the pasted addresses and keeps the unreadable ones in the box", async () => {
+    vi.mocked(getIskurInterns).mockResolvedValue(iskurInternList([ayse]));
     vi.mocked(addIskurInterns).mockResolvedValue(
-      iskurInternList([ayse, yeni], ["adres-degil"]),
+      iskurInternList([ayse, yeni], ["adres@degil"]),
     );
     await renderCard();
     const box = screen.getByLabelText("Eklenecek e-posta adresleri");
 
     fireEvent.change(box, {
-      target: { value: "Yeni@Example.test, yeni@example.test\nadres-degil" },
+      target: {
+        value: "Yeni Kişi <Yeni@Example.test>, yeni@example.test\nadres@degil",
+      },
     });
     await userEvent.click(screen.getByRole("button", { name: "Listeye ekle" }));
 
     await waitFor(() =>
       expect(addIskurInterns).toHaveBeenCalledWith("p1", [
         "yeni@example.test",
-        "adres-degil",
+        "adres@degil",
       ]),
     );
     expect(
       await screen.findByText(
-        "Şu girişler e-posta adresi olarak okunamadı ve eklenmedi: adres-degil",
+        "Şu girişler e-posta adresi olarak okunamadı ve eklenmedi: adres@degil",
       ),
     ).toBeInTheDocument();
-    expect(box).toHaveValue("adres-degil");
+    expect(box).toHaveValue("adres@degil");
+    expect(box).toHaveAttribute("aria-invalid", "true");
     expect(
       await screen.findByText("Stajyer listesi güncellendi."),
     ).toBeInTheDocument();
@@ -158,6 +162,74 @@ describe("IskurInternsCard", () => {
     );
 
     expect(await screen.findByText(PLACED_REFUSAL)).toBeInTheDocument();
+    // The list is read again, since the entry changed elsewhere.
+    await waitFor(() => expect(getIskurInterns).toHaveBeenCalledTimes(2));
+  });
+
+  it("clears the unreadable-entries warning once the box is edited", async () => {
+    vi.mocked(addIskurInterns).mockResolvedValue(
+      iskurInternList([ayse, dis, yeni], ["adres@degil"]),
+    );
+    await renderCard();
+    const box = screen.getByLabelText("Eklenecek e-posta adresleri");
+    fireEvent.change(box, { target: { value: "adres@degil" } });
+    await userEvent.click(screen.getByRole("button", { name: "Listeye ekle" }));
+    expect(
+      await screen.findByText(
+        "Yeni adres eklenmedi; listede zaten vardı ya da okunamadı.",
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(box).toHaveAttribute("aria-invalid", "true"));
+
+    fireEvent.change(box, { target: { value: "adres@degil.example.test" } });
+
+    expect(box).toHaveAttribute("aria-invalid", "false");
+    expect(
+      screen.queryByText(/okunamadı ve eklenmedi/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("locks the box while adding, so typing is not lost", async () => {
+    let answer: (list: ReturnType<typeof iskurInternList>) => void = () => {};
+    vi.mocked(addIskurInterns).mockReturnValue(
+      new Promise((resolve) => {
+        answer = resolve;
+      }),
+    );
+    await renderCard();
+    const box = screen.getByLabelText("Eklenecek e-posta adresleri");
+    fireEvent.change(box, { target: { value: "yeni@example.test" } });
+    await userEvent.click(screen.getByRole("button", { name: "Listeye ekle" }));
+
+    await waitFor(() => expect(box).toHaveAttribute("readonly"));
+    expect(screen.getByRole("button", { name: "Listeye ekle" })).toBeDisabled();
+
+    answer(iskurInternList([ayse, dis, yeni]));
+    await waitFor(() => expect(box).not.toHaveAttribute("readonly"));
+    expect(box).toHaveValue("");
+  });
+
+  it("shows why adding failed", async () => {
+    vi.mocked(addIskurInterns).mockRejectedValue(
+      new ClientApiError(
+        "İŞKUR stajyer listesi en fazla 2000 adres tutabilir.",
+        400,
+      ),
+    );
+    await renderCard();
+    fireEvent.change(screen.getByLabelText("Eklenecek e-posta adresleri"), {
+      target: { value: "yeni@example.test" },
+    });
+    await userEvent.click(screen.getByRole("button", { name: "Listeye ekle" }));
+
+    expect(
+      await screen.findByText(
+        "İŞKUR stajyer listesi en fazla 2000 adres tutabilir.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Eklenecek e-posta adresleri")).toHaveValue(
+      "yeni@example.test",
+    );
   });
 
   it("refuses a paste over the limit and an empty one", async () => {
@@ -197,8 +269,8 @@ describe("IskurInternsCard", () => {
     );
     renderWithQueryClient(<IskurInternsCard programId="p1" />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Stajyer listesi yüklenemedi.",
-    );
+    expect(
+      await screen.findByText("Stajyer listesi yüklenemedi."),
+    ).toHaveAttribute("role", "alert");
   });
 });

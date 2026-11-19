@@ -8132,6 +8132,7 @@
     "add": "Listeye ekle",
     "tooMany": "Bir seferde en fazla {max} adres eklenebilir.",
     "added": "Stajyer listesi güncellendi.",
+    "nothingAdded": "Yeni adres eklenmedi; listede zaten vardı ya da okunamadı.",
     "addFailed": "Adresler eklenemedi.",
     "rejected": "Şu girişler e-posta adresi olarak okunamadı ve eklenmedi: {entries}",
     "empty": "Listede henüz adres yok.",

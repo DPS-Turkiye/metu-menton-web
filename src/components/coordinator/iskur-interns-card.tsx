@@ -35,7 +35,9 @@ export function IskurInternsCard({ programId }: { programId: string }) {
   const titleId = useId();
   const fieldId = useId();
   const hintId = useId();
+  const problemId = useId();
   const list = state.list;
+  const problem = state.tooMany || state.rejected.length > 0;
   return (
     <Card labelledBy={titleId} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline gap-3">
@@ -61,23 +63,27 @@ export function IskurInternsCard({ programId }: { programId: string }) {
         <textarea
           id={fieldId}
           value={state.text}
-          aria-describedby={hintId}
+          readOnly={state.adding}
+          aria-busy={state.adding}
+          aria-invalid={problem}
+          aria-describedby={problem ? `${hintId} ${problemId}` : hintId}
           onChange={(event) => state.setText(event.target.value)}
           className={`${ISKUR_FIELD_CLASS} min-h-[120px]`}
         />
         <p id={hintId} className="type-caption text-text-muted">
           {t("pasteHint")}
         </p>
-        {state.tooMany ? (
-          <p role="alert" className="type-caption text-status-error-text">
-            {t("tooMany", { max: ISKUR_INTERN_PASTE_MAX })}
-          </p>
-        ) : null}
-        {state.rejected.length > 0 ? (
-          <p role="alert" className="type-caption text-status-error-text">
-            {t("rejected", { entries: state.rejected.join(", ") })}
-          </p>
-        ) : null}
+        <p
+          id={problemId}
+          role="alert"
+          className="type-caption text-status-error-text empty:hidden"
+        >
+          {state.tooMany
+            ? t("tooMany", { max: ISKUR_INTERN_PASTE_MAX })
+            : state.rejected.length > 0
+              ? t("rejected", { entries: state.rejected.join(", ") })
+              : null}
+        </p>
         <div>
           <Button
             size={ButtonSize.Small}
@@ -118,9 +124,11 @@ function InternList({ state }: { state: IskurInternsState }) {
     );
   }
   return (
+    // Focusable so a keyboard can scroll a long list.
     <ul
+      tabIndex={0}
       aria-label={t("listLabel")}
-      className="flex max-h-[420px] flex-col divide-y divide-border-subtle overflow-y-auto rounded-[12px] border border-border-subtle"
+      className="flex max-h-[420px] flex-col focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-selected divide-y divide-border-subtle overflow-y-auto rounded-[12px] border border-border-subtle"
     >
       {state.list.entries.map((entry) => (
         <InternRow key={entry.id} entry={entry} state={state} />

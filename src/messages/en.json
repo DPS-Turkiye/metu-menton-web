@@ -8130,6 +8130,7 @@
     "add": "Add to the list",
     "tooMany": "At most {max} addresses can be added at once.",
     "added": "The intern list was updated.",
+    "nothingAdded": "No new addresses were added; they were already listed or could not be read.",
     "addFailed": "The addresses could not be added.",
     "rejected": "These entries could not be read as e-mail addresses and were not added: {entries}",
     "empty": "No addresses on the list yet.",

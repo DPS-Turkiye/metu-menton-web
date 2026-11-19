@@ -25,8 +25,22 @@ describe("internEmailsFromText", () => {
     ).toEqual(["ayse@example.test", "burak@example.test"]);
   });
 
-  it("keeps entries that are not addresses for the backend to report", () => {
-    expect(internEmailsFromText("adres-degil")).toEqual(["adres-degil"]);
+  it("keeps only the address from a mail client's name and address form", () => {
+    expect(
+      internEmailsFromText(
+        'Ayşe Yıldız <Ayse@example.test>, "Burak Tan" <burak@example.test>; (ceren@example.test)',
+      ),
+    ).toEqual([
+      "ayse@example.test",
+      "burak@example.test",
+      "ceren@example.test",
+    ]);
+  });
+
+  it("leaves a malformed address for the backend to report, and drops words without an @", () => {
+    expect(internEmailsFromText("adres@degil not-an-address")).toEqual([
+      "adres@degil",
+    ]);
   });
 
   it("finds nothing in an empty paste", () => {
