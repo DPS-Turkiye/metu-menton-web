@@ -126,6 +126,16 @@
     "leaderPrivacy": {
       "title": "Bu rapor ekip liderine gösterilmez",
       "body": "İçeriği yalnızca sen ve akran mentörlüğü koordinatörü görür. Haftalık çalışma kaydında yalnızca süre ve “rapor gönderildi” bilgisi Akran Mentörlüğü olarak geçer."
+    },
+    "timeRecord": {
+      "title": "Süre kaydı",
+      "preparation": "Hazırlık",
+      "meeting": "Görüşme",
+      "followUp": "Rapor ve takip",
+      "meetingValue": "{minutes} dk",
+      "meetingEmpty": "—",
+      "total": "Akran Mentörlüğü’ne eklenecek: {hours, plural, =0 {} other {# sa }}{minutes} dk",
+      "hint": "Süreler takvimden önerilir; gerçek süreyi düzeltebilirsin."
     }
   },
   "skills": {

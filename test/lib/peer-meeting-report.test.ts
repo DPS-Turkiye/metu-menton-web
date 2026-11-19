@@ -6,16 +6,20 @@ import {
   PeerReportStatus,
 } from "@/interfaces/peer-reports";
 import {
+  hoursAndMinutes,
   meetingDayLabel,
   meetingReportForm,
   meetingReportInput,
   meetingReportShownStatus,
   meetingSlotLabel,
+  minutesInput,
   missingMeetingReportSections,
   newActionRow,
   parseDuration,
+  parseExtraMinutes,
   productivityChoice,
   productivityValue,
+  reportMentoringMinutes,
   supportChoice,
   supportValue,
   toggled,
@@ -213,5 +217,56 @@ describe("one missing answer names its own section", () => {
         followUpAt: "2026-11-19T14:00",
       }),
     ).toEqual([]);
+  });
+});
+
+describe("the time record (Figma 7.1)", () => {
+  it("reads optional minutes: empty is none, 0 to 600 are kept, anything else is dropped", () => {
+    expect(parseExtraMinutes("")).toBeNull();
+    expect(parseExtraMinutes(" 0 ")).toBe(0);
+    expect(parseExtraMinutes("20")).toBe(20);
+    expect(parseExtraMinutes("600")).toBe(600);
+    expect(parseExtraMinutes("601")).toBeNull();
+    expect(parseExtraMinutes("2a")).toBeNull();
+  });
+
+  it("keeps only up to three digits while typing", () => {
+    expect(minutesInput("1a2b3c4")).toBe("123");
+    expect(minutesInput("")).toBe("");
+  });
+
+  it("adds preparation, the meeting and the follow-up, counting what is missing as nothing", () => {
+    expect(
+      reportMentoringMinutes({
+        actualDurationMinutes: "45",
+        preparationMinutes: "20",
+        followUpMinutes: "15",
+      }),
+    ).toBe(80);
+    expect(
+      reportMentoringMinutes({
+        actualDurationMinutes: "",
+        preparationMinutes: "",
+        followUpMinutes: "x",
+      }),
+    ).toBe(0);
+    expect(hoursAndMinutes(80)).toEqual({ hours: 1, minutes: 20 });
+    expect(hoursAndMinutes(45)).toEqual({ hours: 0, minutes: 45 });
+  });
+
+  it("carries the two times between the report and the form", () => {
+    const form = meetingReportForm(
+      peerMeetingReportFixture({ preparationMinutes: 20, followUpMinutes: 0 }),
+    );
+    expect(form.preparationMinutes).toBe("20");
+    expect(form.followUpMinutes).toBe("0");
+    expect(meetingReportInput(form)).toMatchObject({
+      preparationMinutes: 20,
+      followUpMinutes: 0,
+    });
+    expect(
+      meetingReportInput({ ...form, preparationMinutes: "" })
+        .preparationMinutes,
+    ).toBeNull();
   });
 });

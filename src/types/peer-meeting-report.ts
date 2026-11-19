@@ -33,6 +33,8 @@ export type MeetingReportForm = {
   meetingType: PeerMeetingType | null;
   meetingFormat: PeerMeetingFormat | null;
   actualDurationMinutes: string;
+  preparationMinutes: string;
+  followUpMinutes: string;
   topics: PeerMeetingTopic[];
   menteeNeed: string;
   discussion: string;

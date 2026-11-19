@@ -30,6 +30,8 @@ export function peerMeetingReportFixture(
     meetingType: PeerMeetingType.First,
     meetingFormat: PeerMeetingFormat.InPerson,
     actualDurationMinutes: 30,
+    preparationMinutes: null,
+    followUpMinutes: null,
     topics: [],
     menteeNeed: null,
     discussion: null,
