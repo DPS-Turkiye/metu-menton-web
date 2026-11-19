@@ -11,8 +11,8 @@ export type LoginChoices = {
 };
 
 /**
- * Which ways in /login shows. The ODTÜ button also needs a working institution login behind it: until ODTÜ's real
- * protocol is wired, that is the local dev persona login, so without it the page falls back to e-mail only.
+ * Which ways in /login shows. The ODTÜ button also needs a working institution login behind it: ODTÜ's CAS once
+ * the backend has it on, or the local dev persona login; without either the page falls back to e-mail only.
  */
 export function loginChoices(
   edition: Edition,

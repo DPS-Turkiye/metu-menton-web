@@ -13,6 +13,7 @@ const ODTU_PAGES = [
   "/lti/launch",
   "/lti/login",
   "/login/odtu/dev",
+  "/login/odtu/callback",
   "/%73tudent",
 ];
 const TEKNOKENT_PAGES = [

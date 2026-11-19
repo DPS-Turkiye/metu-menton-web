@@ -1,5 +1,6 @@
 import type { AppSession, SessionData } from "@/interfaces/session";
 import { isMobilePath, MOBILE_LOGIN } from "@/lib/mobile";
+import { ODTU_CAS_CALLBACK_PATH } from "@/lib/odtu-cas-login";
 import { OTG_CALLBACK_PATH, OTG_START_PATH } from "@/lib/otg-login";
 
 export const SESSION_COOKIE = "teknokent_session";
@@ -31,6 +32,7 @@ const PUBLIC_PATHS = new Set([
   "/invite",
   "/application-status",
   "/login/odtu/dev",
+  ODTU_CAS_CALLBACK_PATH,
   OTG_START_PATH,
   OTG_CALLBACK_PATH,
   MOBILE_LOGIN,
