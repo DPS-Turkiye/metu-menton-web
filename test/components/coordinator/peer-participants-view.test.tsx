@@ -426,10 +426,16 @@ describe("PeerParticipantsView", () => {
         ],
       }),
     );
-    const results = await within(dialog).findByRole("status");
-    expect(results).toHaveTextContent(
-      "Zeynep Öğrenci · zeynep@example.testOnaylandı, rozet verildi",
+    const results = within(dialog).getByRole("status");
+    await waitFor(() =>
+      expect(results).toHaveTextContent(
+        "Zeynep Öğrencizeynep@example.testOnaylandı, rozet verildi",
+      ),
     );
+    expect(within(dialog).getByLabelText("E-postalar ve puanlar")).toHaveValue(
+      "",
+    );
+    expect(send).toBeDisabled();
     expect(results).toHaveTextContent(
       "yok@example.testBu programda bulunamadı",
     );
@@ -439,6 +445,45 @@ describe("PeerParticipantsView", () => {
     await user.click(within(dialog).getByRole("button", { name: "Kapat" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("Onaylandı");
+
+    await user.click(screen.getByRole("button", { name: "Prism sonuçları" }));
+    expect(
+      within(await screen.findByRole("dialog")).getByRole("status"),
+    ).toBeEmptyDOMElement();
+  });
+
+  it("says how many addresses a paste has and refuses more than the backend takes", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.Students} />,
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Prism sonuçları" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const list = within(dialog).getByLabelText("E-postalar ve puanlar");
+    await user.click(list);
+    await user.paste(
+      Array.from(
+        { length: 501 },
+        (_, index) => `kisi${index}@example.test`,
+      ).join("\n"),
+    );
+
+    expect(dialog).toHaveTextContent("501 adres okundu");
+    expect(dialog).toHaveTextContent(
+      "Tek seferde en fazla 500 adres gönderebilirsin.",
+    );
+    expect(
+      within(dialog).getByRole("button", { name: "Uygula" }),
+    ).toBeDisabled();
+    expect(list).toHaveAccessibleDescription("501 adres okundu");
+
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    expect(postPrismDecisions).not.toHaveBeenCalled();
   });
 
   it("asks one student on Öğrenciler to retake the test from the row menu", async () => {
@@ -469,8 +514,10 @@ describe("PeerParticipantsView", () => {
         entries: [{ email: "zeynep@odtu-dev.invalid", score: null }],
       }),
     );
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "Testi tekrar alacak, bildirim gönderildi",
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Testi tekrar alacak, bildirim gönderildi",
+      ),
     );
   });
 
@@ -504,9 +551,10 @@ describe("PeerParticipantsView", () => {
     );
 
     const zeynep = (await screen.findByText("Zeynep Öğrenci")).closest("tr")!;
-    expect(zeynep).toHaveTextContent(
-      "Prism: değerlendirme bekliyor · Prism puanı: 62/100",
-    );
+    expect(
+      within(zeynep).getByText("Prism: değerlendirme bekliyor"),
+    ).toBeInTheDocument();
+    expect(within(zeynep).getByText("Prism puanı: 62/100")).toBeInTheDocument();
     expect(screen.getByText("Ali Tekrar").closest("tr")).toHaveTextContent(
       "Prism: testi tekrar alacak",
     );

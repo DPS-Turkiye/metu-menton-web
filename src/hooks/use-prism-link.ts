@@ -37,7 +37,10 @@ export function usePrismLink(programId: string) {
       save.reset();
       setEdited(value);
     },
-    canSave: url.trim().length > 0 && edited !== null && !save.isPending,
+    canSave:
+      url.trim().length > 0 &&
+      url.trim() !== (query.data?.url ?? "") &&
+      !save.isPending,
     save: () => {
       if (url.trim()) save.mutate(url);
     },

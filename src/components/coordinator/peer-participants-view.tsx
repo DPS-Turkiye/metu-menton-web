@@ -127,9 +127,11 @@ function ParticipantsBody({
           {errorMessage(prism.error, t("prism.failed"))}
         </p>
       ) : null}
-      {!prism.open && prism.results ? (
-        <PrismResults results={prism.results} />
-      ) : null}
+      <div role="status">
+        {!prism.open && prism.results ? (
+          <PrismResults results={prism.results} />
+        ) : null}
+      </div>
       {participants.actionError ? (
         <p role="alert" className="type-body-sm text-status-error-text">
           {errorMessage(participants.actionError, t("actionFailed"))}
@@ -149,7 +151,6 @@ function ParticipantsBody({
         <StudentsTable
           participants={participants}
           onPrismDecision={prism.decideRow}
-          prismBusy={prism.isSending}
         />
       )}
       <Footnote icon="/ia/icons/lock-small.svg" iconSize={14}>
@@ -246,11 +247,9 @@ function MentorsTable({ participants }: { participants: Participants }) {
 function StudentsTable({
   participants,
   onPrismDecision,
-  prismBusy,
 }: {
   participants: Participants;
   onPrismDecision: (row: GateBadgeRow, decision: PrismDecision) => void;
-  prismBusy: boolean;
 }) {
   const t = useTranslations("peerParticipants");
   const locale = useLocale();
@@ -313,25 +312,23 @@ function StudentsTable({
                 >
                   {t("award")}
                 </button>
-                {prismBusy ? null : (
-                  <RowActionsMenu
-                    label={t("rowActions", { name: row.fullName })}
-                    actions={[
-                      {
-                        id: "prism-approve",
-                        label: t("prism.rowApprove"),
-                        onSelect: () =>
-                          onPrismDecision(row, PrismDecision.Approved),
-                      },
-                      {
-                        id: "prism-retake",
-                        label: t("prism.rowRetake"),
-                        onSelect: () =>
-                          onPrismDecision(row, PrismDecision.Retake),
-                      },
-                    ]}
-                  />
-                )}
+                <RowActionsMenu
+                  label={t("rowActions", { name: row.fullName })}
+                  actions={[
+                    {
+                      id: "prism-approve",
+                      label: t("prism.rowApprove"),
+                      onSelect: () =>
+                        onPrismDecision(row, PrismDecision.Approved),
+                    },
+                    {
+                      id: "prism-retake",
+                      label: t("prism.rowRetake"),
+                      onSelect: () =>
+                        onPrismDecision(row, PrismDecision.Retake),
+                    },
+                  ]}
+                />
               </span>
             ) : null}
           </DataCell>
@@ -460,10 +457,9 @@ function PrismNote({ row }: { row: GateBadgeRow }) {
   const score = row.prism?.score;
   if (!status && !score) return null;
   return (
-    <p className="mt-1 type-caption text-text-muted">
-      {status ? t(`prism.status.${status}`) : null}
-      {status && score ? " · " : null}
-      {score ? t("prism.score", { score }) : null}
+    <p className="mt-1 flex flex-wrap gap-x-2 type-caption text-text-muted">
+      {status ? <span>{t(`prism.status.${status}`)}</span> : null}
+      {score ? <span>{t("prism.score", { score })}</span> : null}
     </p>
   );
 }
@@ -480,10 +476,7 @@ const OUTCOME_TONES: Record<PrismDecisionOutcome, StatusTone> = {
 function PrismResults({ results }: { results: PrismDecisionResult[] }) {
   const t = useTranslations("peerParticipants");
   return (
-    <section
-      role="status"
-      className="space-y-2 rounded-card border border-border-default p-4"
-    >
+    <section className="space-y-2 rounded-card border border-border-default p-4">
       <h3 className="type-label text-text-primary">
         {t("prism.resultsTitle")}
       </h3>
@@ -493,11 +486,10 @@ function PrismResults({ results }: { results: PrismDecisionResult[] }) {
             key={result.email}
             className="flex flex-wrap items-center gap-2 type-body-sm"
           >
-            <span className="text-text-primary">
-              {result.fullName
-                ? `${result.fullName} · ${result.email}`
-                : result.email}
-            </span>
+            {result.fullName ? (
+              <span className="text-text-primary">{result.fullName}</span>
+            ) : null}
+            <span className="text-text-secondary">{result.email}</span>
             <Tag tone={OUTCOME_TONES[result.outcome]}>
               {t(`prism.outcomes.${result.outcome}`)}
             </Tag>
@@ -528,11 +520,12 @@ function PrismDialog({
       </label>
       <textarea
         id={listId}
+        aria-describedby={`${listId}-count`}
         value={prism.text}
         onChange={(event) => prism.setText(event.target.value)}
         className="h-40 w-full rounded-input border border-border-control p-3 font-mono type-body-sm"
       />
-      <p className="type-caption text-text-muted">
+      <p id={`${listId}-count`} className="type-caption text-text-muted">
         {t("prism.parsed", { count: prism.entryCount })}
       </p>
       {prism.rejectedLines.length > 0 ? (
@@ -566,7 +559,9 @@ function PrismDialog({
           {errorMessage(prism.error, t("prism.failed"))}
         </p>
       ) : null}
-      {prism.results ? <PrismResults results={prism.results} /> : null}
+      <div role="status">
+        {prism.results ? <PrismResults results={prism.results} /> : null}
+      </div>
       <div className="flex justify-end gap-2">
         <button
           type="button"

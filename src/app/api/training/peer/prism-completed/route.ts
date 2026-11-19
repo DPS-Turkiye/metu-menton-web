@@ -14,7 +14,7 @@ export async function POST() {
     return backendResponse(await reportPrismCompleted(session.userId));
   } catch (error) {
     return apiErrorResponse(error, {
-      message: await apiText("trainingLoadFailed"),
+      message: await apiText("trainingSaveFailed"),
     });
   }
 }

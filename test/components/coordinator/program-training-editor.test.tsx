@@ -117,6 +117,10 @@ describe("ProgramTrainingEditor", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Eğitim yüklenemedi.",
     );
+    expect(
+      screen.queryByText(/Uygulama içi sınav bu sistemde kapalı/),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Prism bağlantısı")).not.toBeInTheDocument();
   });
 
   it("starts from the marked example and publishes what the coordinator wrote", async () => {

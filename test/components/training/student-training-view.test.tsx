@@ -195,9 +195,10 @@ describe("StudentTrainingView", () => {
     await user.click(
       screen.getByRole("button", { name: "Prism eğitimini tamamladım" }),
     );
-    expect(
-      await screen.findByRole("heading", { name: "Sonucun değerlendiriliyor" }),
-    ).toBeInTheDocument();
+    const waiting = await screen.findByRole("heading", {
+      name: "Sonucun değerlendiriliyor",
+    });
+    await waitFor(() => expect(waiting).toHaveFocus());
     expect(postPrismCompleted).toHaveBeenCalledOnce();
     expect(screen.getByText(/Tamamladığını bildirdin/)).toBeInTheDocument();
     expect(

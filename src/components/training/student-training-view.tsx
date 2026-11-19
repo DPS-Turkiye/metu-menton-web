@@ -3,12 +3,14 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
+import { useEffect, useId, useRef } from "react";
 
 import { TrainingVideo } from "@/components/training/training-video";
 import { useStudentTraining } from "@/hooks/use-student-training";
 import { AppointmentSide } from "@/interfaces/appointment";
 import { TrainingState } from "@/interfaces/training";
 import { PEER_MENTORING_SIDE_PARAM } from "@/lib/peer-mentoring";
+import { prismStepOf, type PrismStep } from "@/lib/prism-training";
 import { errorMessage, formatDateTime } from "@/lib/utils";
 
 const MENTORLUK_VER = `/student/peer-mentoring?${PEER_MENTORING_SIDE_PARAM}=${AppointmentSide.Mentor}`;
@@ -23,6 +25,7 @@ export function StudentTrainingView() {
   const locale = useLocale();
   const flow = useStudentTraining();
   const training = flow.training;
+  const prismStep = training ? prismStepOf(training.state) : null;
 
   if (flow.isLoading) {
     return (
@@ -75,11 +78,7 @@ export function StudentTrainingView() {
         </p>
       ) : null}
 
-      {training.state === TrainingState.PrismTodo ||
-      training.state === TrainingState.PrismPending ||
-      training.state === TrainingState.PrismRetake ? (
-        <PrismSteps flow={flow} />
-      ) : null}
+      {prismStep ? <PrismSteps flow={flow} step={prismStep} /> : null}
 
       {training.state === TrainingState.Blocked ? (
         <p className="text-sm text-[#676e78]">{t("blocked")}</p>
@@ -208,35 +207,42 @@ export function StudentTrainingView() {
 }
 
 // TEST UI: placeholder until the design team's screen; replace when it arrives.
-function PrismSteps({ flow }: { flow: ReturnType<typeof useStudentTraining> }) {
+function PrismSteps({
+  flow,
+  step,
+}: {
+  flow: ReturnType<typeof useStudentTraining>;
+  step: PrismStep;
+}) {
   const t = useTranslations("studentTraining");
   const locale = useLocale();
-  const training = flow.training;
-  if (!training) return null;
-  const pending = training.state === TrainingState.PrismPending;
-  const retake = training.state === TrainingState.PrismRetake;
+  const titleId = useId();
+  const completedAt = flow.training?.prismCompletedAt ?? null;
+  // "Tamamladım" disappears once it worked, so focus moves to the new heading instead of falling to the page.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const shownTitle = useRef(step.title);
+  useEffect(() => {
+    if (shownTitle.current !== step.title) headingRef.current?.focus();
+    shownTitle.current = step.title;
+  }, [step.title]);
   return (
     <section
-      className={`space-y-3 rounded-2xl px-5 py-4 ${retake ? "bg-[#fff6e5]" : "bg-[#f8f9fa]"}`}
+      aria-labelledby={titleId}
+      className={`space-y-3 rounded-2xl px-5 py-4 ${step.retake ? "bg-[#fff6e5]" : "bg-[#f8f9fa]"}`}
     >
-      <h2 className="text-base font-semibold text-[#22262b]">
-        {pending
-          ? t("prismPendingTitle")
-          : retake
-            ? t("prismRetakeTitle")
-            : t("prismTodoTitle")}
+      <h2
+        id={titleId}
+        tabIndex={-1}
+        ref={headingRef}
+        className="text-base font-semibold text-[#22262b]"
+      >
+        {t(step.title)}
       </h2>
-      <p className="text-sm text-[#676e78]">
-        {pending
-          ? t("prismPendingBody")
-          : retake
-            ? t("prismRetakeBody")
-            : t("prismTodoBody")}
-      </p>
-      {pending && training.prismCompletedAt ? (
+      <p className="text-sm text-[#676e78]">{t(step.body)}</p>
+      {!step.canMarkDone && completedAt ? (
         <p className="text-xs text-[#858c96]">
           {t("prismPendingSince", {
-            date: formatDateTime(training.prismCompletedAt, locale),
+            date: formatDateTime(completedAt, locale),
           })}
         </p>
       ) : null}
@@ -251,7 +257,7 @@ function PrismSteps({ flow }: { flow: ReturnType<typeof useStudentTraining> }) {
             {t("prismOpen")}
           </a>
         ) : null}
-        {pending ? null : (
+        {step.canMarkDone ? (
           <button
             type="button"
             onClick={flow.markPrismCompleted}
@@ -260,7 +266,7 @@ function PrismSteps({ flow }: { flow: ReturnType<typeof useStudentTraining> }) {
           >
             {flow.isMarkingPrism ? t("prismMarking") : t("prismMarkDone")}
           </button>
-        )}
+        ) : null}
       </div>
       {flow.prismError ? (
         <p role="alert" className="text-sm text-red-700">

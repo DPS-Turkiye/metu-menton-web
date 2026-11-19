@@ -33,6 +33,13 @@ export function ProgramTrainingEditor({
       </p>
     );
   }
+  if (prism.loadError) {
+    return (
+      <p role="alert" className="text-sm text-red-700">
+        {errorMessage(prism.loadError, t("loadFailed"))}
+      </p>
+    );
+  }
   return (
     <div className="space-y-8">
       <PrismLinkSection prism={prism} archived={archived} />
@@ -56,13 +63,6 @@ function PrismLinkSection({
   const t = useTranslations("trainingEditor");
   const locale = useLocale();
   const fieldId = useId();
-  if (prism.loadError) {
-    return (
-      <p role="alert" className="text-sm text-red-700">
-        {errorMessage(prism.loadError, t("loadFailed"))}
-      </p>
-    );
-  }
   return (
     <section className="space-y-3">
       <h3 className="text-base font-semibold text-[#22262b]">
@@ -97,11 +97,9 @@ function PrismLinkSection({
           {errorMessage(prism.saveError, t("prismSaveFailed"))}
         </p>
       ) : null}
-      {prism.saved ? (
-        <p role="status" className="text-sm text-[#008236]">
-          {t("prismSaved")}
-        </p>
-      ) : null}
+      <p role="status" className="text-sm text-[#008236]">
+        {prism.saved ? t("prismSaved") : null}
+      </p>
       {archived ? null : (
         <div className="flex justify-end">
           <button

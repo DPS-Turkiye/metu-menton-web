@@ -15,26 +15,47 @@ export type ParsedPrismList = {
   rejectedLines: string[];
 };
 
+/** Quotes, angle brackets and trailing punctuation that pasted CSV or "Name <address>" leave around an address. */
+function cleanToken(token: string) {
+  return token
+    .trim()
+    .replace(/^["'<(]+/, "")
+    .replace(/[">)'.,;:]+$/, "");
+}
+
+/** Spreadsheets paste with tabs, CSV exports with semicolons; only a plain list separates with commas. */
+function cellsOf(line: string) {
+  const separator = /[\t;]/.test(line) ? /[\t;]+/ : /,+/;
+  return line
+    .split(separator)
+    .flatMap((cell) =>
+      cell.includes("@") ? cell.trim().split(/\s+/) : [cell.trim()],
+    )
+    .map(cleanToken)
+    .filter(Boolean);
+}
+
 /**
- * Reads the list the Prism admin sent, pasted as text or from a spreadsheet: one person per line, cells split by
- * tabs, commas or semicolons. The cell with an address is the person; the last other cell, when there is one, is the
- * score (free text). A name column before the address is therefore ignored. Each address counts once.
+ * Reads the list the Prism admin sent, pasted as text or from a spreadsheet: one person per line. The cell with an
+ * address is the person; the first cell after it with a digit in it is the score (free text, so "85", "85,5" and
+ * "8/10" all stay as written). Names before or after the address are not scores. Each address counts once; a later
+ * line can still add a score the first one lacked.
  */
 export function parsePrismList(text: string): ParsedPrismList {
   const entries = new Map<string, PrismDecisionEntry>();
   const rejectedLines: string[] = [];
-  for (const raw of text.split(/\r?\n/)) {
+  for (const raw of text.split(/\r\n|\r|\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const cells = line
-      .split(/[\t,;]+/)
-      .flatMap((cell) =>
-        cell.includes("@") ? cell.trim().split(/\s+/) : [cell.trim()],
-      )
-      .filter(Boolean);
+    const cells = cellsOf(line);
     const emails = cells.filter((cell) => cell.includes("@"));
-    const others = cells.filter((cell) => !cell.includes("@"));
-    const score = emails.length === 1 ? (others.at(-1) ?? null) : null;
+    const after = cells.slice(
+      cells.findIndex((cell) => cell.includes("@")) + 1,
+    );
+    const score =
+      emails.length === 1
+        ? (after.find((cell) => !cell.includes("@") && /\d/.test(cell)) ?? null)
+        : null;
     if (
       emails.length === 0 ||
       !emails.every(isEmailAddress) ||
@@ -45,7 +66,9 @@ export function parsePrismList(text: string): ParsedPrismList {
     }
     for (const email of emails) {
       const key = email.toLowerCase();
-      if (!entries.has(key)) entries.set(key, { email: key, score });
+      const known = entries.get(key);
+      if (!known) entries.set(key, { email: key, score });
+      else if (known.score === null && score !== null) known.score = score;
     }
   }
   return { entries: [...entries.values()], rejectedLines };

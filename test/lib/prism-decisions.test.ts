@@ -40,6 +40,40 @@ describe("parsePrismList", () => {
     ).toEqual([{ email: "ali@example.test", score: "40" }]);
   });
 
+  it("keeps a decimal-comma score whole and never takes a name for a score", () => {
+    expect(
+      parsePrismList(
+        [
+          "ali@example.test;85,5",
+          "veli@example.test, Veli Can",
+          "Ayşe Kaya can@example.test 92",
+        ].join("\n"),
+      ).entries,
+    ).toEqual([
+      { email: "ali@example.test", score: "85,5" },
+      { email: "veli@example.test", score: null },
+      { email: "can@example.test", score: "92" },
+    ]);
+  });
+
+  it("cleans quotes, brackets and trailing dots off pasted addresses, on any line ending", () => {
+    expect(
+      parsePrismList(
+        '"ali@example.test";"70"\rAyşe Kaya <ayse@example.test>\r\nveli@example.test.',
+      ).entries,
+    ).toEqual([
+      { email: "ali@example.test", score: "70" },
+      { email: "ayse@example.test", score: null },
+      { email: "veli@example.test", score: null },
+    ]);
+  });
+
+  it("lets a later line add the score the first one lacked", () => {
+    expect(
+      parsePrismList("ali@example.test\nali@example.test, 77").entries,
+    ).toEqual([{ email: "ali@example.test", score: "77" }]);
+  });
+
   it("takes several addresses on one line without a score", () => {
     expect(
       parsePrismList("a@example.test, b@example.test, 70").entries,
