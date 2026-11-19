@@ -7,13 +7,17 @@ import { ClientApiError } from "@/lib/client/api";
 import {
   deleteIskurTask,
   getIskurTask,
+  removeIskurTaskOutput,
   updateIskurTask,
+  uploadIskurTaskOutput,
 } from "@/lib/client/iskur-tasks";
 import { useToastStore } from "@/stores/toast-store";
 import { IskurCompleteBlock } from "@/types/iskur-tasks";
 import {
   createIskurTask,
+  createIskurTaskOutputFile,
   createIskurTeamTasks,
+  OUTPUT_ID,
   TASK_ID,
 } from "@test/fixtures/iskur-tasks";
 import { queryWrapper } from "@test/fixtures/query-wrapper";
@@ -23,8 +27,16 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("@/lib/client/iskur-tasks", () => ({
   deleteIskurTask: vi.fn(),
   getIskurTask: vi.fn(),
+  iskurTaskOutputHref: (taskId: string, outputId: string) =>
+    `/files/${taskId}/${outputId}`,
+  removeIskurTaskOutput: vi.fn(),
   updateIskurTask: vi.fn(),
+  uploadIskurTaskOutput: vi.fn(),
 }));
+
+const pdf = (name = "rapor.pdf", size = 8) =>
+  new File([new Uint8Array(size)], name, { type: "application/pdf" });
+const lastToast = () => useToastStore.getState().toasts.at(-1)?.message;
 
 async function renderLoaded() {
   const { queryClient, wrapper } = queryWrapper();
@@ -150,5 +162,83 @@ describe("useIskurTask", () => {
     const view = renderHook(() => useIskurTask(TASK_ID), { wrapper });
     await waitFor(() => expect(view.result.current.notFound).toBe(true));
     expect(view.result.current.form).toBeNull();
+  });
+
+  it("hands in a file, which then counts as the output, and keeps what is typed", async () => {
+    const withFile = createIskurTask({
+      needsOutput: true,
+      outputFiles: [createIskurTaskOutputFile()],
+    });
+    vi.mocked(uploadIskurTaskOutput).mockResolvedValue(withFile);
+    const { result } = await renderLoaded();
+    act(() => result.current.setActualMinutes("60"));
+    expect(result.current.completeBlock).toBe(IskurCompleteBlock.OutputMissing);
+    expect(result.current.canAttach).toBe(true);
+
+    const file = pdf();
+    act(() => result.current.attachFile(file));
+    await waitFor(() => expect(result.current.outputFiles).toHaveLength(1));
+    expect(uploadIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, file);
+    expect(lastToast()).toBe("Dosya eklendi.");
+    expect(result.current.form?.actualMinutes).toBe("60");
+    expect(result.current.completeBlock).toBeNull();
+    expect(result.current.outputHref(OUTPUT_ID)).toBe(
+      `/files/${TASK_ID}/${OUTPUT_ID}`,
+    );
+  });
+
+  it("refuses a file it can tell is wrong before sending it", async () => {
+    const { result } = await renderLoaded();
+    act(() => result.current.attachFile(pdf("betik.js")));
+    expect(lastToast()).toBe(
+      "PDF, PNG, JPG, DOCX, XLSX, PPTX ya da ZIP dosyası seç.",
+    );
+    act(() => result.current.attachFile(pdf("rapor.pdf", 0)));
+    expect(lastToast()).toBe("Dosya boş.");
+    act(() =>
+      result.current.attachFile(pdf("rapor.pdf", 10 * 1024 * 1024 + 1)),
+    );
+    expect(lastToast()).toBe("Dosya en fazla 10 MB olabilir.");
+    expect(uploadIskurTaskOutput).not.toHaveBeenCalled();
+  });
+
+  it("sends nothing when the task takes no more files", async () => {
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({ canAttach: false, outputFilesEnabled: false }),
+    );
+    const { result } = await renderLoaded();
+    expect(result.current.canAttach).toBe(false);
+    expect(result.current.outputFilesEnabled).toBe(false);
+    act(() => result.current.attachFile(pdf()));
+    expect(uploadIskurTaskOutput).not.toHaveBeenCalled();
+  });
+
+  it("shows the server's reason when an upload or a removal is refused", async () => {
+    vi.mocked(uploadIskurTaskOutput).mockRejectedValue(
+      new ClientApiError("Dosya yükleme şu an kapalı.", 503),
+    );
+    // Not an Error: the hook falls back to its own text.
+    vi.mocked(removeIskurTaskOutput).mockRejectedValue("down");
+    const { result } = await renderLoaded();
+    act(() => result.current.attachFile(pdf()));
+    await waitFor(() =>
+      expect(lastToast()).toBe("Dosya yükleme şu an kapalı."),
+    );
+    await waitFor(() => expect(result.current.busy).toBe(false));
+    act(() => result.current.removeFile(OUTPUT_ID));
+    await waitFor(() => expect(lastToast()).toBe("Dosya kaldırılamadı."));
+  });
+
+  it("takes a file back", async () => {
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({ outputFiles: [createIskurTaskOutputFile()] }),
+    );
+    vi.mocked(removeIskurTaskOutput).mockResolvedValue(createIskurTask());
+    const { result } = await renderLoaded();
+    expect(result.current.outputFiles).toHaveLength(1);
+    act(() => result.current.removeFile(OUTPUT_ID));
+    await waitFor(() => expect(result.current.outputFiles).toHaveLength(0));
+    expect(removeIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, OUTPUT_ID);
+    expect(lastToast()).toBe("Dosya kaldırıldı.");
   });
 });

@@ -6281,6 +6281,10 @@
     "iskurTasksLoadFailed": "Ekip görevleri yüklenemedi.",
     "iskurTaskInvalid": "Görev bilgileri geçersiz.",
     "iskurTaskSaveFailed": "Görev kaydedilemedi.",
+    "iskurTaskOutputInvalid": "Dosya geçersiz: en fazla 10 MB’lık bir dosya seçin.",
+    "iskurTaskOutputUploadFailed": "Dosya yüklenemedi.",
+    "iskurTaskOutputRemoveFailed": "Dosya kaldırılamadı.",
+    "iskurTaskOutputsLoadFailed": "Görev çıktıları yüklenemedi.",
     "iskurSupportLoadFailed": "Destek faaliyetleri yüklenemedi.",
     "iskurSupportInvalid": "Destek faaliyeti bilgileri geçersiz.",
     "iskurSupportSaveFailed": "Destek faaliyeti kaydedilemedi.",
@@ -7276,6 +7280,17 @@
     "footnote": "Son altı ayda Office Hours talebi gönderen öğrenciler. Talep başlıkları ve açıklamaları burada görünmez; ayrıntılar Randevular'da."
   },
   "iskurWorkspace": {
+    "taskOutputs": {
+      "title": "Görev çıktıları",
+      "count": "{count} dosya",
+      "hint": "Stajyerlerin görevleriyle teslim ettiği dosyalar. Yalnızca görevin ekip liderleri ve program koordinatörleri görür.",
+      "off": "Dosya yükleme şu an kapalı; yeni dosya eklenemez ve dosyalar indirilemez.",
+      "empty": "Henüz teslim edilen dosya yok.",
+      "loadFailed": "Görev çıktıları yüklenemedi.",
+      "taskMeta": "{team} · {assignee} · son tarih {date}",
+      "fileMeta": "{size} · {date}",
+      "download": "{name} dosyasını indir"
+    },
     "loading": "İŞKUR ekipleri yükleniyor…",
     "loadFailed": "İŞKUR ekipleri yüklenemedi.",
     "saved": "Kaydedildi.",
@@ -7503,7 +7518,29 @@
     "block": {
       "actualMissing": "Tamamlamak için gerçekleşen süreyi gir.",
       "linkInvalid": "Bağlantı https:// ile başlamalı.",
-      "outputMissing": "Bu görevin çıktısı var; bağlantıyı ya da notu ekle."
+      "outputMissing": "Bu görevin çıktısı var; bağlantıyı, notu ya da bir dosyayı ekle."
+    },
+    "files": {
+      "title": "Dosyalar",
+      "empty": "Henüz dosya eklenmedi.",
+      "choose": "Dosya ekle",
+      "uploading": "Yükleniyor…",
+      "hint": "PDF, PNG, JPG, DOCX, XLSX, PPTX ya da ZIP · en fazla 10 MB · {count}/{max} dosya",
+      "full": "Bu göreve en fazla {max} dosya eklenebilir; yenisi için birini kaldır.",
+      "privacy": "Dosyaları ekip liderlerin ve program koordinatörlerin görür. Danışan adı ya da görüşme notu içeren dosya ekleme.",
+      "meta": "{size} · {date}",
+      "download": "{name} dosyasını indir",
+      "remove": "Kaldır",
+      "removeLabel": "{name} dosyasını kaldır",
+      "uploaded": "Dosya eklendi.",
+      "removed": "Dosya kaldırıldı.",
+      "uploadFailed": "Dosya yüklenemedi.",
+      "removeFailed": "Dosya kaldırılamadı.",
+      "problems": {
+        "empty": "Dosya boş.",
+        "tooLarge": "Dosya en fazla 10 MB olabilir.",
+        "wrongType": "PDF, PNG, JPG, DOCX, XLSX, PPTX ya da ZIP dosyası seç."
+      }
     }
   },
   "iskurSupport": {

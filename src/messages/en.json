@@ -6279,6 +6279,10 @@
     "iskurTasksLoadFailed": "Team tasks could not be loaded.",
     "iskurTaskInvalid": "The task details are invalid.",
     "iskurTaskSaveFailed": "The task could not be saved.",
+    "iskurTaskOutputInvalid": "The file is not valid: choose a file of at most 10 MB.",
+    "iskurTaskOutputUploadFailed": "The file could not be uploaded.",
+    "iskurTaskOutputRemoveFailed": "The file could not be removed.",
+    "iskurTaskOutputsLoadFailed": "The task outputs could not be loaded.",
     "iskurSupportLoadFailed": "Support activities could not be loaded.",
     "iskurSupportInvalid": "The support activity details are invalid.",
     "iskurSupportSaveFailed": "The support activity could not be saved.",
@@ -7274,6 +7278,17 @@
     "footnote": "Students who sent an Office Hours request in the last six months. Request titles and descriptions are not shown here; see Appointments for details."
   },
   "iskurWorkspace": {
+    "taskOutputs": {
+      "title": "Task outputs",
+      "count": "{count} files",
+      "hint": "The files interns handed in with their tasks. Only the task’s team leaders and the program coordinators see them.",
+      "off": "File upload is turned off for now; no file can be added or downloaded.",
+      "empty": "No files handed in yet.",
+      "loadFailed": "The task outputs could not be loaded.",
+      "taskMeta": "{team} · {assignee} · due {date}",
+      "fileMeta": "{size} · {date}",
+      "download": "Download {name}"
+    },
     "loading": "Loading İŞKUR teams…",
     "loadFailed": "İŞKUR teams could not be loaded.",
     "saved": "Saved.",
@@ -7501,7 +7516,29 @@
     "block": {
       "actualMissing": "Enter the actual time to complete it.",
       "linkInvalid": "The link must start with https://.",
-      "outputMissing": "This task has an output; add the link or a note."
+      "outputMissing": "This task has an output; add the link, a note or a file."
+    },
+    "files": {
+      "title": "Files",
+      "empty": "No files added yet.",
+      "choose": "Add a file",
+      "uploading": "Uploading…",
+      "hint": "PDF, PNG, JPG, DOCX, XLSX, PPTX or ZIP · at most 10 MB · {count}/{max} files",
+      "full": "A task takes at most {max} files; remove one to add another.",
+      "privacy": "Your team leaders and the program coordinators see these files. Do not add a file with a mentee’s name or meeting notes.",
+      "meta": "{size} · {date}",
+      "download": "Download {name}",
+      "remove": "Remove",
+      "removeLabel": "Remove {name}",
+      "uploaded": "File added.",
+      "removed": "File removed.",
+      "uploadFailed": "The file could not be uploaded.",
+      "removeFailed": "The file could not be removed.",
+      "problems": {
+        "empty": "The file is empty.",
+        "tooLarge": "A file can be at most 10 MB.",
+        "wrongType": "Choose a PDF, PNG, JPG, DOCX, XLSX, PPTX or ZIP file."
+      }
     }
   },
   "iskurSupport": {

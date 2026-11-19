@@ -22,6 +22,17 @@ export interface IskurTaskPerson {
   fullName: string;
 }
 
+/** A file handed in with a task (backend `IskurTaskResponse.OutputFile`). */
+export interface IskurTaskOutputFile {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+  /** The caller uploaded it and the task is not done. */
+  canRemove: boolean;
+}
+
 export interface IskurTask {
   id: string;
   teamId: string;
@@ -46,6 +57,11 @@ export interface IskurTask {
   canWork: boolean;
   /** The caller leads the task's team: they may reopen or delete it. */
   canManage: boolean;
+  outputFiles: IskurTaskOutputFile[];
+  /** False while file storage is not set up: the upload control stays hidden. */
+  outputFilesEnabled: boolean;
+  /** The caller may add one more file now. */
+  canAttach: boolean;
 }
 
 export interface IskurTeamTasksMember {
@@ -79,6 +95,24 @@ export interface IskurTeamTasks {
   canAssign: boolean;
   members: IskurTeamTasksMember[];
   roster: IskurRosterPerson[];
+}
+
+/** The files handed in with a program's tasks, as its coordinators read them (backend `IskurTaskOutputsResponse`). */
+export interface IskurTaskOutputs {
+  programId: string;
+  enabled: boolean;
+  tasks: IskurTaskOutputsTask[];
+}
+
+export interface IskurTaskOutputsTask {
+  taskId: string;
+  title: string;
+  teamName: string;
+  assignee: IskurTaskPerson;
+  status: IskurTaskStatus;
+  /** "yyyy-mm-dd". */
+  dueDate: string;
+  files: Omit<IskurTaskOutputFile, "canRemove">[];
 }
 
 export interface IskurTaskInput {

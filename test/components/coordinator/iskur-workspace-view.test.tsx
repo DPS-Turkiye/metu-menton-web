@@ -55,6 +55,15 @@ vi.mock("@/lib/client/iskur-interns", () => ({
   removeIskurIntern: vi.fn(),
 }));
 
+vi.mock("@/lib/client/iskur-tasks", () => ({
+  getIskurTaskOutputs: vi.fn().mockResolvedValue({
+    programId: "p1",
+    enabled: true,
+    tasks: [],
+  }),
+  iskurProgramTaskOutputHref: () => "/files",
+}));
+
 vi.mock("@/lib/client/iskur-onboarding", () => ({
   getIskurApplications: vi.fn(),
   replaceIskurUnitSkills: vi.fn(),
