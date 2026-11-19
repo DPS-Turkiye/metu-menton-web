@@ -81,7 +81,10 @@ export function AppointmentDayGrid({
       <div className="relative" style={{ height }}>
         <ul
           aria-label={formatDayMonth(day, locale)}
-          className="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,var(--color-border-subtle)_0_1px,transparent_1px_60px)]"
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `repeating-linear-gradient(to bottom, var(--color-border-subtle) 0 1px, transparent 1px ${DAY_HOUR_HEIGHT}px)`,
+          }}
         >
           {items.map((item) => {
             const place = gridPlacement(item);

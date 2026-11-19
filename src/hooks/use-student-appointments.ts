@@ -101,9 +101,11 @@ export function useStudentAppointments({
   };
 
   const toggleGroup = (group: AppointmentRequestGroup) => {
-    const next = new Set(open);
-    if (!next.delete(group)) next.add(group);
-    setOpenGroups(next);
+    setOpenGroups((current) => {
+      const next = new Set(current ?? open);
+      if (!next.delete(group)) next.add(group);
+      return next;
+    });
   };
 
   // A Taleplerim row: the calendar moves to the day the session sits on and the side panel opens it.

@@ -618,10 +618,7 @@ function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
 function ColorLegend() {
   const t = useTranslations("iaStudent.appointments.colors");
   return (
-    <section
-      aria-labelledby="appointments-colors"
-      className="mt-4 rounded-card border border-border-subtle bg-background-surface p-5"
-    >
+    <Card compact labelledBy="appointments-colors" className="mt-4">
       <h3 id="appointments-colors" className="sr-only">
         {t("title")}
       </h3>
@@ -640,7 +637,7 @@ function ColorLegend() {
           body={t("dashed.body")}
         />
       </ul>
-    </section>
+    </Card>
   );
 }
 

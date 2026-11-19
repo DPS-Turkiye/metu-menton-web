@@ -600,6 +600,45 @@ describe("StudentAppointmentsView", () => {
       );
     });
 
+    it("shows four requests and sends the rest to Talepler", async () => {
+      vi.mocked(getStudentAppointments).mockResolvedValue(
+        Array.from({ length: 5 }, (_, index) =>
+          peerAppointment({
+            id: `asked-${index}`,
+            status: AppointmentStatus.Pending,
+            counterpart: {
+              userId: `mentor-${index}`,
+              fullName: `Mentor ${index}`,
+              title: null,
+              department: null,
+            },
+            startsAt: `2026-11-1${index}T10:00:00.000Z`,
+            endsAt: `2026-11-1${index}T10:30:00.000Z`,
+          }),
+        ),
+      );
+      const requests = await openWeek();
+      const waiting = within(requests).getByRole("region", {
+        name: /Onay bekleyen taleplerim/,
+      });
+      expect(
+        within(waiting).getByText(
+          "Akademisyen ya da mentor yanıtlayana kadar kesinleşmez.",
+        ),
+      ).toBeVisible();
+      expect(within(waiting).getAllByRole("listitem")).toHaveLength(4);
+      await userEvent.click(
+        within(waiting).getByRole("button", {
+          name: "Tüm talepleri listede gör",
+        }),
+      );
+      expect(screen.getByRole("tab", { name: /Talepler/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      expect(within(await panel()).getAllByRole("article")).toHaveLength(5);
+    });
+
     it("says what nothing in a group means", async () => {
       const requests = await openWeek();
       await userEvent.click(group(requests, /^Onay bekleyen taleplerim/));

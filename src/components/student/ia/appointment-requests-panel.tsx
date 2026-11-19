@@ -19,8 +19,8 @@ import { AppointmentStatusBadge } from "@/components/student/ia/ui";
 import type { Appointment } from "@/interfaces/appointment";
 import { titledName } from "@/lib/profile-completion";
 import {
-  REQUEST_GROUP_LIST_TAB,
   REQUEST_GROUP_PREVIEW,
+  requestGroupListTab,
   requestRowTime,
   wasHeld,
 } from "@/lib/student-appointments";
@@ -142,7 +142,7 @@ function RequestGroup({
   const t = useTranslations("iaStudent.appointments.requests");
   const { icon: Icon, className: iconClass } = GROUP_ICON[group];
   const hint = hintKey(group);
-  const listTab = REQUEST_GROUP_LIST_TAB[group];
+  const listTab = requestGroupListTab(group, items.length);
   const headerId = `appointment-requests-${group}`;
   const panelId = `${headerId}-panel`;
   const Chevron = open ? ChevronUp : ChevronDown;
@@ -183,51 +183,51 @@ function RequestGroup({
           />
         </button>
       </h3>
-      {open ? (
-        <div
-          id={panelId}
-          role="region"
-          aria-labelledby={headerId}
-          className="flex flex-col gap-2 pb-4"
-        >
-          {hint ? (
-            <p className="flex items-center gap-1 type-caption text-text-secondary">
-              <Info
-                aria-hidden
-                className="size-4 shrink-0 text-icon-muted"
-                strokeWidth={1.5}
-              />
-              {t(hint)}
-            </p>
-          ) : null}
-          {items.length === 0 ? (
-            <p className="type-caption text-text-muted">{t("empty")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {items.slice(0, REQUEST_GROUP_PREVIEW).map((item) => (
-                <li key={item.id}>
-                  <RequestRow
-                    appointment={item}
-                    group={group}
-                    selected={selectedId === item.id}
-                    onSelect={() => onSelect(item)}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-          {listTab && items.length > 0 ? (
-            <button
-              type="button"
-              onClick={() => onShowList(listTab)}
-              className="inline-flex w-fit items-center gap-1 type-label-sm text-text-link hover:underline"
-            >
-              {t(`seeInList.${listTab}`)}
-              <ArrowRight aria-hidden className="size-4" strokeWidth={1.5} />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      {/* Kept in the DOM while closed, so the heading's aria-controls always points at it. */}
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={headerId}
+        hidden={!open}
+        className="flex flex-col gap-2 pb-4"
+      >
+        {hint ? (
+          <p className="flex items-center gap-1 type-caption text-text-secondary">
+            <Info
+              aria-hidden
+              className="size-4 shrink-0 text-icon-muted"
+              strokeWidth={1.5}
+            />
+            {t(hint)}
+          </p>
+        ) : null}
+        {items.length === 0 ? (
+          <p className="type-caption text-text-muted">{t("empty")}</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {items.slice(0, REQUEST_GROUP_PREVIEW).map((item) => (
+              <li key={item.id}>
+                <RequestRow
+                  appointment={item}
+                  group={group}
+                  selected={selectedId === item.id}
+                  onSelect={() => onSelect(item)}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+        {listTab ? (
+          <button
+            type="button"
+            onClick={() => onShowList(listTab)}
+            className="inline-flex w-fit items-center gap-1 type-label-sm text-text-link hover:underline"
+          >
+            {t(`seeInList.${listTab}`)}
+            <ArrowRight aria-hidden className="size-4" strokeWidth={1.5} />
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

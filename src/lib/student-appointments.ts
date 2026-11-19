@@ -72,13 +72,33 @@ export function appointmentRequestGroups(
 /** A group shows this many rows; "Tümünü listede gör" opens the rest in the list. */
 export const REQUEST_GROUP_PREVIEW = 4;
 
-/** The list tab a group's "listede gör" link opens; the request groups have none, they fit the panel. */
-export const REQUEST_GROUP_LIST_TAB: Partial<
-  Record<AppointmentRequestGroup, AppointmentsTab>
-> = {
-  [AppointmentRequestGroup.Confirmed]: AppointmentsTab.Upcoming,
-  [AppointmentRequestGroup.Past]: AppointmentsTab.Past,
-};
+const REQUEST_GROUP_LIST_TAB: Record<AppointmentRequestGroup, AppointmentsTab> =
+  {
+    [AppointmentRequestGroup.AwaitingYou]: AppointmentsTab.Requests,
+    [AppointmentRequestGroup.AwaitingThem]: AppointmentsTab.Requests,
+    [AppointmentRequestGroup.Confirmed]: AppointmentsTab.Upcoming,
+    [AppointmentRequestGroup.Past]: AppointmentsTab.Past,
+  };
+
+/**
+ * The list tab a group's "listede gör" link opens, or null for no link. Onaylanan and Geçmiş always link (Figma
+ * 258:3830 / 258:3907); the request groups only once they hold more rows than the panel shows.
+ */
+export function requestGroupListTab(
+  group: AppointmentRequestGroup,
+  count: number,
+): AppointmentsTab | null {
+  switch (group) {
+    case AppointmentRequestGroup.AwaitingYou:
+    case AppointmentRequestGroup.AwaitingThem:
+      return count > REQUEST_GROUP_PREVIEW
+        ? REQUEST_GROUP_LIST_TAB[group]
+        : null;
+    case AppointmentRequestGroup.Confirmed:
+    case AppointmentRequestGroup.Past:
+      return count > 0 ? REQUEST_GROUP_LIST_TAB[group] : null;
+  }
+}
 
 /** The groups open on arrival: whatever waits for an answer, else the confirmed sessions ahead. */
 export function defaultOpenGroups(
@@ -126,7 +146,9 @@ export function nowLineOffset(
   day: Date,
   hours: readonly number[] = APPOINTMENT_GRID_HOURS,
 ) {
-  if (!isSameDay(now.toISOString(), day)) return null;
+  if (hours.length === 0 || now.toDateString() !== day.toDateString()) {
+    return null;
+  }
   const offset = now.getHours() + now.getMinutes() / 60 - (hours[0] ?? 0);
   return offset >= 0 && offset <= hours.length ? offset : null;
 }
@@ -200,14 +222,8 @@ export function calendarTitle(
   locale: string,
 ) {
   switch (view) {
-    case AppointmentsView.Day: {
-      const date = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(anchor);
-      return `${date}, ${weekdayName(anchor, locale)}`;
-    }
+    case AppointmentsView.Day:
+      return withWeekday(anchor, locale, { year: "numeric" });
     case AppointmentsView.Week: {
       const days = weekDays(startOfWeek(anchor), 7);
       const first = days[0] ?? anchor;
@@ -220,13 +236,23 @@ export function calendarTitle(
   }
 }
 
-/** "13 Kasım, Cuma": the "Seçili gün" panel's heading. */
-export function selectedDayTitle(day: Date, locale: string) {
-  const date = new Intl.DateTimeFormat(locale, {
+/** "13 Kasım, Cuma" (or with the year): the frames put the weekday after the date, unlike `formatWeekdayDate`. */
+function withWeekday(
+  date: Date,
+  locale: string,
+  extra: Intl.DateTimeFormatOptions = {},
+) {
+  const day = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
-  }).format(day);
-  return `${date}, ${weekdayName(day, locale)}`;
+    ...extra,
+  }).format(date);
+  return `${day}, ${weekdayName(date, locale)}`;
+}
+
+/** "13 Kasım, Cuma": the "Seçili gün" panel's heading. */
+export function selectedDayTitle(day: Date, locale: string) {
+  return withWeekday(day, locale);
 }
 
 /** "Elif Karaca" → "E. Karaca", as a calendar chip names the other side; one word stays as it is. */

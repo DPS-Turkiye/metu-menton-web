@@ -10,6 +10,8 @@ import {
   defaultOpenGroups,
   gridPlacement,
   nowLineOffset,
+  REQUEST_GROUP_PREVIEW,
+  requestGroupListTab,
   requestRowTime,
   selectedDayTitle,
   sentToParam,
@@ -274,6 +276,7 @@ describe("nowLineOffset", () => {
     expect(nowLineOffset(new Date(2026, 10, 12, 12), day)).toBeNull();
     expect(nowLineOffset(new Date(2026, 10, 13, 8, 59), day)).toBeNull();
     expect(nowLineOffset(new Date(2026, 10, 13, 19, 1), day)).toBeNull();
+    expect(nowLineOffset(new Date(2026, 10, 13, 12), day, [])).toBeNull();
   });
 });
 
@@ -322,5 +325,32 @@ describe("wasHeld", () => {
     expect(
       wasHeld(peerAppointment({ status: AppointmentStatus.Cancelled })),
     ).toBe(false);
+  });
+});
+
+describe("requestGroupListTab", () => {
+  it("always links Onaylanan and Geçmiş to their tabs once they hold a row", () => {
+    expect(requestGroupListTab(AppointmentRequestGroup.Confirmed, 1)).toBe(
+      AppointmentsTab.Upcoming,
+    );
+    expect(requestGroupListTab(AppointmentRequestGroup.Past, 3)).toBe(
+      AppointmentsTab.Past,
+    );
+    expect(requestGroupListTab(AppointmentRequestGroup.Past, 0)).toBeNull();
+  });
+
+  it("links a request group to Talepler only when it overflows the panel", () => {
+    expect(
+      requestGroupListTab(
+        AppointmentRequestGroup.AwaitingThem,
+        REQUEST_GROUP_PREVIEW,
+      ),
+    ).toBeNull();
+    expect(
+      requestGroupListTab(
+        AppointmentRequestGroup.AwaitingYou,
+        REQUEST_GROUP_PREVIEW + 1,
+      ),
+    ).toBe(AppointmentsTab.Requests);
   });
 });
