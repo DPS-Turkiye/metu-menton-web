@@ -68,10 +68,14 @@ const calls = [
   updateIskurUnit,
 ] as const;
 
-const program = { params: Promise.resolve({ id: "p1" }) };
-const unit = { params: Promise.resolve({ id: "p1", unitId: "u1" }) };
-const team = { params: Promise.resolve({ id: "p1", teamId: "t1" }) };
-const intern = { params: Promise.resolve({ id: "p1", userId: "s1" }) };
+const PROGRAM = "00000000-0000-4000-8000-0000000000a1";
+const UNIT = "00000000-0000-4000-8000-0000000000a2";
+const PATH_TEAM = "00000000-0000-4000-8000-0000000000a3";
+const INTERN = "00000000-0000-4000-8000-0000000000a4";
+const program = { params: Promise.resolve({ id: PROGRAM }) };
+const unit = { params: Promise.resolve({ id: PROGRAM, unitId: UNIT }) };
+const team = { params: Promise.resolve({ id: PROGRAM, teamId: PATH_TEAM }) };
+const intern = { params: Promise.resolve({ id: PROGRAM, userId: INTERN }) };
 const TEAM = "00000000-0000-4000-8000-000000000001";
 const LEADER = "00000000-0000-4000-8000-000000000002";
 const COORDINATOR = "00000000-0000-4000-8000-000000000003";
@@ -130,16 +134,16 @@ describe("İŞKUR workspace routes", () => {
 
   it("acts as the session user and ignores a forged actor", async () => {
     await workspace(new Request("http://x"), program);
-    expect(fetchIskurWorkspace).toHaveBeenCalledWith("COORDINATOR-1", "p1");
+    expect(fetchIskurWorkspace).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM);
 
     await createDefault(new Request("http://x"), program);
     expect(createDefaultIskurStructure).toHaveBeenCalledWith(
       "COORDINATOR-1",
-      "p1",
+      PROGRAM,
     );
 
     await createUnit(json(withForgedActor({ name: " Etki " })), program);
-    expect(createIskurUnit).toHaveBeenCalledWith("COORDINATOR-1", "p1", {
+    expect(createIskurUnit).toHaveBeenCalledWith("COORDINATOR-1", PROGRAM, {
       name: "Etki",
       coordinatorId: null,
     });
@@ -148,40 +152,63 @@ describe("İŞKUR workspace routes", () => {
       json({ name: "Etki", coordinatorId: COORDINATOR }, "PUT"),
       unit,
     );
-    expect(updateIskurUnit).toHaveBeenCalledWith("COORDINATOR-1", "p1", "u1", {
-      name: "Etki",
-      coordinatorId: COORDINATOR,
-    });
+    expect(updateIskurUnit).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      UNIT,
+      {
+        name: "Etki",
+        coordinatorId: COORDINATOR,
+      },
+    );
 
     await deleteUnit(new Request("http://x"), unit);
-    expect(deleteIskurUnit).toHaveBeenCalledWith("COORDINATOR-1", "p1", "u1");
+    expect(deleteIskurUnit).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      UNIT,
+    );
 
     await createTeam(json({ name: "Etkinlik" }), unit);
-    expect(createIskurTeam).toHaveBeenCalledWith("COORDINATOR-1", "p1", "u1", {
-      name: "Etkinlik",
-    });
+    expect(createIskurTeam).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      UNIT,
+      {
+        name: "Etkinlik",
+      },
+    );
 
     await renameTeam(json({ name: "Sosyal Etki" }, "PUT"), team);
-    expect(updateIskurTeam).toHaveBeenCalledWith("COORDINATOR-1", "p1", "t1", {
-      name: "Sosyal Etki",
-    });
+    expect(updateIskurTeam).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      PATH_TEAM,
+      {
+        name: "Sosyal Etki",
+      },
+    );
 
     await deleteTeam(new Request("http://x"), team);
-    expect(deleteIskurTeam).toHaveBeenCalledWith("COORDINATOR-1", "p1", "t1");
+    expect(deleteIskurTeam).toHaveBeenCalledWith(
+      "COORDINATOR-1",
+      PROGRAM,
+      PATH_TEAM,
+    );
 
     await place(json(withForgedActor(validPlacement), "PUT"), intern);
     expect(placeIskurIntern).toHaveBeenCalledWith(
       "COORDINATOR-1",
-      "p1",
-      "s1",
+      PROGRAM,
+      INTERN,
       validPlacement,
     );
 
     await unplace(new Request("http://x"), intern);
     expect(unplaceIskurIntern).toHaveBeenCalledWith(
       "COORDINATOR-1",
-      "p1",
-      "s1",
+      PROGRAM,
+      INTERN,
     );
   });
 
@@ -189,13 +216,13 @@ describe("İŞKUR workspace routes", () => {
     await finalize(new Request("http://x", { method: "POST" }), program);
     expect(finalizeIskurPlacements).toHaveBeenLastCalledWith(
       "COORDINATOR-1",
-      "p1",
+      PROGRAM,
       { teamId: null, unitId: null },
     );
     await finalize(json({ teamId: TEAM }), program);
     expect(finalizeIskurPlacements).toHaveBeenLastCalledWith(
       "COORDINATOR-1",
-      "p1",
+      PROGRAM,
       { teamId: TEAM, unitId: null },
     );
   });
