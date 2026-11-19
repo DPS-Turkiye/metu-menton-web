@@ -75,7 +75,10 @@
     "otg": "ODTÜ TEKNOKENT Girişimcilik ile giriş yap",
     "odtuStudentIntro": "ODTÜ e-posta adresin (@metu.edu.tr) ve şifrenle giriş yap. Hesabın yoksa aşağıdan kayıt ol.",
     "or": "veya",
-    "help": "Giriş yapamıyor musun? Yardım al"
+    "help": "Giriş yapamıyor musun? Yardım al",
+    "odtuIntro": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yap. Ayrı bir kayıt gerekmez.",
+    "staffQuestion": "Koordinatör, admin veya girişim programı hesabın mı var?",
+    "emailLogin": "E-posta ile giriş yap"
   },
   "otgLogin": {
     "signingIn": "ODTÜ TEKNOKENT Girişimcilik hesabınla giriş yapılıyor…",
@@ -6296,7 +6299,10 @@
     "iskurMessageSendFailed": "Mesaj gönderilemedi.",
     "iskurChannelsInvalid": "Mesaj bilgileri geçersiz.",
     "iskurAcknowledgeFailed": "Okundu onayı kaydedilemedi.",
-    "iskurPreferencesSaveFailed": "Bildirim tercihi kaydedilemedi."
+    "iskurPreferencesSaveFailed": "Bildirim tercihi kaydedilemedi.",
+    "iskurInternsLoadFailed": "İŞKUR stajyer listesi yüklenemedi.",
+    "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
+    "iskurInternsInvalid": "Eklenecek adresler geçersiz."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -8141,5 +8147,33 @@
     "submitting": "Kaydediliyor…",
     "haveAccount": "Zaten hesabın var mı?",
     "checking": "Oturum kontrol ediliyor…"
+  },
+  "iskurInterns": {
+    "title": "İŞKUR stajyerleri",
+    "hint": "Yalnızca bu listedeki e-posta adreslerinin hesapları İŞKUR stajyeri sayılır; diğer öğrenciler İŞKUR ekranlarını görmez. Bir adres, kişi kaydolmadan önce de eklenebilir.",
+    "summary": "{listed} adres · {interns} stajyer · {notSignedUp} henüz kaydolmadı",
+    "loading": "Stajyer listesi yükleniyor…",
+    "loadFailed": "Stajyer listesi yüklenemedi.",
+    "pasteLabel": "Eklenecek e-posta adresleri",
+    "pasteHint": "Her satıra bir adres yazın ya da adresleri virgülle ayırın. Adresler küçük harfe çevrilir.",
+    "add": "Listeye ekle",
+    "tooMany": "Bir seferde en fazla {max} adres eklenebilir.",
+    "added": "Stajyer listesi güncellendi.",
+    "nothingAdded": "Yeni adres eklenmedi; listede zaten vardı ya da okunamadı.",
+    "addFailed": "Adresler eklenemedi.",
+    "rejected": "Şu girişler e-posta adresi olarak okunamadı ve eklenmedi: {entries}",
+    "empty": "Listede henüz adres yok.",
+    "listLabel": "Listedeki adresler",
+    "states": {
+      "INTERN": "Kayıtlı",
+      "NOT_SIGNED_UP": "Henüz kaydolmadı",
+      "OUTSIDE_PROGRAM": "Hesap var, programda değil"
+    },
+    "placed": "Ekibe yerleştirildi",
+    "remove": "Çıkar",
+    "removeNamed": "{email} adresini listeden çıkar",
+    "removePlacedHint": "Önce yerleşimden çıkar.",
+    "removed": "Adres listeden çıkarıldı.",
+    "removeFailed": "Adres listeden çıkarılamadı."
   }
 }

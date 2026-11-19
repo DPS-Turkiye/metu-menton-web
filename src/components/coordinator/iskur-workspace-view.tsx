@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useId, type ReactNode } from "react";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
+import { IskurInternsCard } from "@/components/coordinator/iskur-interns-card";
 import { IskurPreferencesPanel } from "@/components/coordinator/iskur-preferences-panel";
 import { IskurUnitSkillsCard } from "@/components/coordinator/iskur-unit-skills-card";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
@@ -89,6 +90,7 @@ function WorkspaceBody({
   return (
     <div className="space-y-6">
       <Summary state={state} workspace={workspace} />
+      <IskurInternsCard programId={programId} />
       <IskurUnitSkillsCard applications={applications} />
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <Pool state={state} pool={workspace.pool} />
