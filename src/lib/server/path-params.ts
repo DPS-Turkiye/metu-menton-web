@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import "server-only";
 import { z } from "zod";
 
+import { isEnumValue } from "@/lib/enum";
 import {
   apiText,
   type ApiErrorCode,
@@ -41,6 +42,28 @@ export async function readIsoDayParam(
   message: ApiTextKey = "dateInvalid",
 ): Promise<PathDay> {
   if (z.iso.date().safeParse(value).success) return { ok: true, day: value };
+  return {
+    ok: false,
+    response: NextResponse.json(
+      { code: INVALID_REQUEST, message: await apiText(message), fields: [] },
+      { status: 400 },
+    ),
+  };
+}
+
+export type PathEnum<T extends string> =
+  { ok: true; value: T } | { ok: false; response: NextResponse };
+
+/**
+ * One of a fixed set of values from the URL (a document slot, say). Anything else answers 400 before the value can
+ * be built into a backend path.
+ */
+export async function readEnumParam<T extends Record<string, string>>(
+  value: string,
+  enumObject: T,
+  message: ApiTextKey,
+): Promise<PathEnum<T[keyof T]>> {
+  if (isEnumValue(enumObject, value)) return { ok: true, value };
   return {
     ok: false,
     response: NextResponse.json(
