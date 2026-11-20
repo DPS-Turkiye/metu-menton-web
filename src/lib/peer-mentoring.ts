@@ -24,6 +24,7 @@ import {
   IskurHomeMode,
   PeerCapacityNote,
   PeerRequestAvailability,
+  PeerTakeTab,
   type ExperienceCardForm,
 } from "@/types/iskur-student";
 
@@ -54,6 +55,22 @@ export const PEER_MENTORING_SIDE_PARAM = "as";
 
 /** Mentorluk Ver: where the wizard returns and the home's mentor blocks link to. */
 export const PEER_MENTOR_GIVE_HREF = `/student/peer-mentoring?${PEER_MENTORING_SIDE_PARAM}=${AppointmentSide.Mentor}`;
+
+/** `/student/peer-mentoring?tab=mine` opens Mentorluklarım, so "Mentorluklarım'a git" works from any page. */
+export const PEER_TAKE_TAB_PARAM = "tab";
+
+export const PEER_MENTORSHIPS_HREF = `/student/peer-mentoring?${PEER_TAKE_TAB_PARAM}=${PeerTakeTab.Mine}`;
+
+export function peerTakeTab(value: string | null): PeerTakeTab {
+  return value === PeerTakeTab.Mine ? PeerTakeTab.Mine : PeerTakeTab.Discover;
+}
+
+/** The backend lets the student withdraw a request until the mentor accepts or declines it. */
+export function canWithdrawPeerRequest(request: {
+  status: MentorshipRequestStatus;
+}): boolean {
+  return OPEN_PEER_REQUEST_STATUSES.includes(request.status);
+}
 
 export function peerMentoringSide(value: string | null): AppointmentSide {
   return value === AppointmentSide.Mentor

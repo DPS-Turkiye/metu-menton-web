@@ -59,7 +59,7 @@ describe("OfficeHoursBookingView", () => {
     expect(screen.getByRole("button", { name: "Devam Et" })).toBeDisabled();
   });
 
-  it("asks for both fields before sending (Konu boş)", async () => {
+  it("asks only for the title before sending (Konu boş); the description is optional", async () => {
     const { container } = renderWithQueryClient(
       <OfficeHoursBookingView academicianId="sample-academician-kaya" />,
     );
@@ -78,10 +78,34 @@ describe("OfficeHoursBookingView", () => {
       within(dialog).getByRole("button", { name: "Randevu Talebi Gönder" }),
     );
     expect(within(dialog).getByText("Görüşme başlığını yaz.")).toBeVisible();
-    expect(
-      within(dialog).getByText("Görüşmek istediğin konuyu kısaca anlat."),
-    ).toBeVisible();
+    const description = within(dialog).getByLabelText(
+      "Kısa açıklama (isteğe bağlı)",
+    );
+    expect(description).not.toHaveAttribute("aria-required");
+    expect(description).not.toHaveAttribute("aria-invalid");
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("sends a request without a description", async () => {
+    renderWithQueryClient(
+      <OfficeHoursBookingView academicianId="sample-academician-kaya" />,
+    );
+    await pickFirstFreeTime();
+    await userEvent.click(screen.getByRole("button", { name: "Devam Et" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByLabelText(/Görüşme başlığı/),
+      "Yüksek lisans",
+    );
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Randevu Talebi Gönder" }),
+    );
+
+    await waitFor(() => expect(push).toHaveBeenCalled());
+    const sent = (await getStudentOfficeHoursAppointments()).filter(
+      (item) => item.status === AppointmentStatus.Pending,
+    );
+    expect(sent.map((item) => item.topic)).toEqual(["Yüksek lisans"]);
   });
 
   it("sends the request and opens Randevularım with the sent banner", async () => {
@@ -96,7 +120,7 @@ describe("OfficeHoursBookingView", () => {
       "CV ve yüksek lisans seçenekleri",
     );
     await userEvent.type(
-      within(dialog).getByLabelText(/Açıklama/),
+      within(dialog).getByLabelText(/Kısa açıklama/),
       "Staj başvurusu için CV'mi değerlendirmek istiyorum.",
     );
     await userEvent.click(

@@ -111,19 +111,13 @@ export function officeHoursWeek(slots: StudentOfficeHoursSlot[], anchor: Date) {
 
 export type OfficeHoursRequestErrors = {
   title: boolean;
-  description: boolean;
 };
 
-/** Both fields are required (Figma 82:345: "Konu boş" shows the error under the empty one). */
+/** Only the title is required; the description is optional (Figma 3.5 / 3.5b, "Kısa açıklama (isteğe bağlı)"). */
 export function officeHoursRequestErrors(
   title: string,
-  description: string,
 ): OfficeHoursRequestErrors | null {
-  const errors = {
-    title: title.trim() === "",
-    description: description.trim() === "",
-  };
-  return errors.title || errors.description ? errors : null;
+  return title.trim() === "" ? { title: true } : null;
 }
 
 /**

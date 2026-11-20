@@ -395,8 +395,28 @@
       "cancel": "Cancel",
       "send": "Send a mentoring request",
       "sending": "Sending…",
-      "sent": "Your request was sent.",
       "failed": "The request couldn't be sent."
+    },
+    "sent": {
+      "title": "Your request was sent",
+      "topic": "Topic",
+      "nextTitle": "What happens next?",
+      "next": {
+        "answer": "You'll get a notification when {name} answers.",
+        "accepted": "If they accept, your mentorship starts and you plan the meetings together.",
+        "declined": "If they decline, you can send a request to another mentor."
+      },
+      "close": "Close",
+      "goToMine": "Go to My mentorships"
+    },
+    "withdraw": {
+      "title": "Withdraw this request?",
+      "body": "The request closes and {name} can no longer answer it. You can send a new request later.",
+      "keep": "Cancel",
+      "confirm": "Withdraw request",
+      "confirming": "Withdrawing…",
+      "done": "You withdrew your request.",
+      "failed": "Couldn't withdraw the request. Try again."
     },
     "mine": {
       "activeTitle": "Active mentorship",
@@ -425,7 +445,8 @@
         "oct": "October",
         "nov": "November",
         "dec": "December"
-      }
+      },
+      "withdraw": "Withdraw request"
     }
   },
   "home": {

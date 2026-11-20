@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -19,6 +24,7 @@ import type {
   PeerTopicCategory,
 } from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
+import { withdrawMentorRequest } from "@/lib/client/mentor-requests";
 import {
   createPeerMentoringRequest,
   getPeerMentor,
@@ -31,14 +37,17 @@ import {
   getStudentProfileCompletion,
 } from "@/lib/client/student-profile-completion";
 import {
+  canWithdrawPeerRequest,
   CLOSED_PEER_REQUEST_STATUSES,
   offeredSubTopics,
   OPEN_PEER_REQUEST_STATUSES,
   PEER_MENTORING_SIDE_PARAM,
   PEER_REQUEST_MESSAGE_MAX,
   PEER_REQUEST_MESSAGE_MIN,
+  PEER_TAKE_TAB_PARAM,
   peerMentoringSide,
   peerRequestAvailability,
+  peerTakeTab,
   sharedInterests,
   splitPeerRequests,
   splitRecommended,
@@ -57,27 +66,34 @@ export const PEER_MENTORING_REQUESTS_QUERY_KEY = [
   "requests",
 ] as const;
 
-/** Mentorluk Al | Mentorluk Ver, kept in the URL so a link can open either side. */
-export function usePeerMentoringSide() {
+/** One query parameter of this page: read it, or replace it (null drops it) without scrolling. */
+function useQueryParam(name: string) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const side = peerMentoringSide(params.get(PEER_MENTORING_SIDE_PARAM));
-
-  const setSide = (next: AppointmentSide) => {
+  const replace = (value: string | null) => {
     const query = new URLSearchParams(params.toString());
-    if (next === AppointmentSide.Mentor) {
-      query.set(PEER_MENTORING_SIDE_PARAM, next);
+    if (value === null) {
+      query.delete(name);
     } else {
-      query.delete(PEER_MENTORING_SIDE_PARAM);
+      query.set(name, value);
     }
     const search = query.toString();
     router.replace(search ? `${pathname}?${search}` : pathname, {
       scroll: false,
     });
   };
+  return { value: params.get(name), replace };
+}
 
-  return { side, setSide };
+/** Mentorluk Al | Mentorluk Ver, kept in the URL so a link can open either side. */
+export function usePeerMentoringSide() {
+  const param = useQueryParam(PEER_MENTORING_SIDE_PARAM);
+  return {
+    side: peerMentoringSide(param.value),
+    setSide: (next: AppointmentSide) =>
+      param.replace(next === AppointmentSide.Mentor ? next : null),
+  };
 }
 
 export function usePeerMentoringRequests() {
@@ -265,10 +281,14 @@ export function usePeerMentor(mentorId: string) {
   };
 }
 
-/** Which Mentorluk Al tab is open; Keşfet first. */
+/** Which Mentorluk Al tab is open; Keşfet first. In the URL, so "Mentorluklarım'a git" can open the other one. */
 export function usePeerTakeTab() {
-  const [tab, setTab] = useState(PeerTakeTab.Discover);
-  return { tab, setTab };
+  const param = useQueryParam(PEER_TAKE_TAB_PARAM);
+  return {
+    tab: peerTakeTab(param.value),
+    setTab: (next: PeerTakeTab) =>
+      param.replace(next === PeerTakeTab.Mine ? next : null),
+  };
 }
 
 /** Mentorluklarım's tab count: every request the student sent; undefined until they load. */
@@ -276,10 +296,70 @@ export function usePeerMentorshipCount() {
   return usePeerMentoringRequests().data?.length;
 }
 
+/** The mentor's places and free slots change with every request sent or withdrawn. */
+function invalidatePeerRequests(queryClient: QueryClient) {
+  return Promise.all(
+    [
+      PEER_MENTORING_REQUESTS_QUERY_KEY,
+      PEER_MENTOR_QUERY_KEY,
+      PEER_MENTORS_QUERY_KEY,
+    ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+  );
+}
+
+/** "Talebi geri çek" on an unanswered request, behind a confirmation. */
+export function usePeerRequestWithdrawal() {
+  const t = useTranslations("iaIskur.take.withdraw");
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const [pending, setPending] = useState<PeerMentoringRequest | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const withdraw = useMutation({
+    mutationFn: (id: string) => withdrawMentorRequest(id),
+    onSuccess: () => invalidatePeerRequests(queryClient),
+  });
+
+  const close = () => {
+    setPending(null);
+    setError(null);
+  };
+
+  const confirm = async () => {
+    if (!pending || withdraw.isPending) return;
+    setError(null);
+    try {
+      await withdraw.mutateAsync(pending.id);
+      showToast({ message: t("done"), tone: ToastTone.Success });
+      close();
+    } catch (withdrawError) {
+      setError(errorMessage(withdrawError, t("failed")));
+    }
+  };
+
+  return {
+    canWithdraw: canWithdrawPeerRequest,
+    /** The request whose confirmation is open. */
+    pending,
+    ask: (request: PeerMentoringRequest) => {
+      setError(null);
+      setPending(request);
+    },
+    close,
+    /** Escape or Vazgeç while the request is on its way would hide its outcome. */
+    dismiss: () => {
+      if (!withdraw.isPending) close();
+    },
+    confirm,
+    error,
+    isWithdrawing: withdraw.isPending,
+  };
+}
+
 /** Mentorluklarım: active mentorships (accepted requests) with their next session, and the other requests. */
 export function useMyPeerMentorships() {
   const requests = usePeerMentoringRequests();
   const sessions = usePeerRequestSessions();
+  const withdrawal = usePeerRequestWithdrawal();
   const [booking, setBooking] = useState<PeerMentoringRequest | null>(null);
   const split = splitPeerRequests(requests.data ?? []);
   return {
@@ -296,16 +376,16 @@ export function useMyPeerMentorships() {
     others: split.others,
     sessionOf: (requestId: string) => sessions.byRequest.get(requestId) ?? null,
     sessionsLoading: sessions.isLoading,
+    withdrawal,
   };
 }
 
-/** The "Talep gönder" dialog: one of the mentor's categories and a short message. */
-export function usePeerMentorRequestForm(
-  mentor: PeerMentorCard,
-  onSent: () => void,
-) {
+/**
+ * The "Talep gönder" dialog: one of the mentor's categories and a short message. Once sent, the dialog shows the
+ * request it created ("Talebin iletildi") instead of the form.
+ */
+export function usePeerMentorRequestForm(mentor: PeerMentorCard) {
   const t = useTranslations("iaIskur.take.dialog");
-  const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [category, setCategory] = useState<PeerTopicCategory | null>(
     mentor.categories[0] ?? null,
@@ -315,15 +395,7 @@ export function usePeerMentorRequestForm(
   const send = useMutation({
     mutationFn: (input: CreatePeerMentoringRequestInput) =>
       createPeerMentoringRequest(input),
-    // The mentor's places and free slots may have changed with this request.
-    onSuccess: () =>
-      Promise.all(
-        [
-          PEER_MENTORING_REQUESTS_QUERY_KEY,
-          PEER_MENTOR_QUERY_KEY,
-          PEER_MENTORS_QUERY_KEY,
-        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-      ),
+    onSuccess: () => invalidatePeerRequests(queryClient),
   });
 
   const changeMessage = (value: string) => {
@@ -332,6 +404,7 @@ export function usePeerMentorRequestForm(
   };
 
   const submit = async () => {
+    if (send.isPending) return;
     const text = message.trim();
     if (text.length < PEER_REQUEST_MESSAGE_MIN) {
       setError(t("messageTooShort", { min: PEER_REQUEST_MESSAGE_MIN }));
@@ -344,8 +417,6 @@ export function usePeerMentorRequestForm(
         category,
         message: text,
       });
-      showToast({ message: t("sent"), tone: ToastTone.Success });
-      onSent();
     } catch (sendError) {
       setError(errorMessage(sendError, t("failed")));
     }
@@ -362,5 +433,7 @@ export function usePeerMentorRequestForm(
     error,
     isSending: send.isPending,
     submit,
+    /** The request just sent; null while the form is still open. */
+    sent: send.data ?? null,
   };
 }
