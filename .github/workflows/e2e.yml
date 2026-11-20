@@ -193,6 +193,13 @@ jobs:
             test-results/**/*.png
           retention-days: 7
 
+      # What the backend said when a journey failed: errors and their stack traces only. The stack holds fake
+      # personas and per-run secrets; the service-account key is never logged.
+      - name: Backend errors
+        if: failure() && steps.firebase.outputs.ready == 'true'
+        run: |
+          docker logs metu-e2e-app-1 2>&1 | grep -E -A25 "ERROR|Exception" | head -300 || true
+
       - name: Stop the backend
         if: always() && steps.firebase.outputs.ready == 'true'
         run: e2e/stack.sh down
