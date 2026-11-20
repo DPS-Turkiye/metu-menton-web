@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Response } from "@playwright/test";
 
 import { sql } from "./support/database";
 import {
@@ -489,15 +489,20 @@ test.describe("İŞKUR", () => {
     await signInAs(page, Persona.ZeynepDemir);
     // Everything the leader's screens load, to check the mentee is in none of it, not only in what is drawn.
     // It starts after the sign-in, whose persona picker lists every persona.
-    const responses: Promise<{ path: string; body: string }>[] = [];
-    page.on("response", (response) => {
+    // A body the browser has already dropped (after a navigation) reads as null instead of failing the test.
+    const responses: Promise<{ path: string; body: string | null }>[] = [];
+    const watch = (response: Response) => {
       const url = new URL(response.url());
       if (url.pathname.startsWith("/api/") && response.ok()) {
         responses.push(
-          response.text().then((body) => ({ path: url.pathname, body })),
+          response.text().then(
+            (body) => ({ path: url.pathname, body }),
+            () => ({ path: url.pathname, body: null }),
+          ),
         );
       }
-    });
+    };
+    page.on("response", watch);
     await page.goto("/student/team");
     await page.getByRole("tab", { name: "Haftalık kayıtlar" }).click();
     await page
@@ -508,15 +513,23 @@ test.describe("İŞKUR", () => {
 
     await expect(page.getByText(TASK)).toBeVisible();
     await expect(page.getByText("İçerik gizli")).toBeVisible();
-    // Every body read in full, and the watch saw the leader's data at all (the week's task), before the check.
+    // Every body read before the check, and the week the leader reviews among them, with the task in it.
+    page.off("response", watch);
     const loaded = await Promise.all(responses);
-    expect(loaded.some((response) => response.body.includes(TASK))).toBe(true);
+    expect(
+      loaded.some(
+        (response) =>
+          /^\/api\/iskur\/leader\/weeks\/[^/]+$/.test(response.path) &&
+          response.body?.includes(TASK),
+      ),
+      "the week under review was read",
+    ).toBe(true);
     for (const secret of [Persona.AyseYilmaz, REQUEST_MESSAGE]) {
       await expect(page.getByText(secret)).toHaveCount(0);
       // Only the paths go into the report, never what they answered.
       expect(
         loaded
-          .filter((response) => response.body.includes(secret))
+          .filter((response) => response.body?.includes(secret))
           .map((response) => response.path),
         `the leader's screens loaded "${secret}"`,
       ).toEqual([]);
