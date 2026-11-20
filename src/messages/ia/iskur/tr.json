@@ -395,8 +395,28 @@
       "cancel": "Vazgeç",
       "send": "Mentorluk Talebi Gönder",
       "sending": "Gönderiliyor…",
-      "sent": "Talebin gönderildi.",
       "failed": "Talep gönderilemedi."
+    },
+    "sent": {
+      "title": "Talebin iletildi",
+      "topic": "Konu",
+      "nextTitle": "Sonra ne olur?",
+      "next": {
+        "answer": "{name} yanıt verdiğinde bildirim alırsın.",
+        "accepted": "Kabul ederse mentorluğunuz başlar; görüşmeleri birlikte planlarsınız.",
+        "declined": "Reddederse başka bir mentora talep gönderebilirsin."
+      },
+      "close": "Kapat",
+      "goToMine": "Mentorluklarım'a git"
+    },
+    "withdraw": {
+      "title": "Talebi geri çekmek istiyor musun?",
+      "body": "Talebin kapanır ve {name} artık yanıt veremez. İstersen daha sonra yeniden talep gönderebilirsin.",
+      "keep": "Vazgeç",
+      "confirm": "Talebi geri çek",
+      "confirming": "Geri çekiliyor…",
+      "done": "Talebini geri çektin.",
+      "failed": "Talep geri çekilemedi. Tekrar dene."
     },
     "mine": {
       "activeTitle": "Aktif mentorluk",
@@ -425,7 +445,8 @@
         "oct": "Ekim'den",
         "nov": "Kasım'dan",
         "dec": "Aralık'tan"
-      }
+      },
+      "withdraw": "Talebi geri çek"
     }
   },
   "home": {

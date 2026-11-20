@@ -4,14 +4,20 @@ import { CalendarDays, Info } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
+import { ModalDialog } from "@/components/common/modal-dialog";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { InlineAlert } from "@/components/ia/inline-alert";
+import { StatusTone } from "@/components/ia/status-badge";
 import {
   InitialsAvatar,
   RequestStatusBadge,
 } from "@/components/student/iskur-ui";
 import { NameSuffix } from "@/components/student/peer-mentor-directory";
 import { PeerSessionBookingDialog } from "@/components/student/peer-session-booking-dialog";
-import { useMyPeerMentorships } from "@/hooks/use-peer-mentoring";
+import {
+  useMyPeerMentorships,
+  type usePeerRequestWithdrawal,
+} from "@/hooks/use-peer-mentoring";
 import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
 import { mentorshipSince, peerMentorProfileHref } from "@/lib/peer-mentoring";
 import { formatDateTime, initials } from "@/lib/utils";
@@ -82,6 +88,16 @@ export function PeerMentoringRequests({
                     <RequestSummary request={request} />
                     <div className="flex flex-wrap items-center gap-2">
                       <RequestStatusBadge status={request.status} />
+                      {mine.withdrawal.canWithdraw(request) ? (
+                        <Button
+                          variant={ButtonVariant.Secondary}
+                          size={ButtonSize.Small}
+                          onClick={() => mine.withdrawal.ask(request)}
+                        >
+                          {t("withdraw")}
+                          <NameSuffix name={request.mentor.fullName} />
+                        </Button>
+                      ) : null}
                       {mine.isClosed(request) ? (
                         <Button
                           variant={ButtonVariant.Secondary}
@@ -109,7 +125,60 @@ export function PeerMentoringRequests({
           onClose={mine.closeBooking}
         />
       ) : null}
+      {mine.withdrawal.pending ? (
+        <WithdrawDialog
+          request={mine.withdrawal.pending}
+          withdrawal={mine.withdrawal}
+        />
+      ) : null}
     </div>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function WithdrawDialog({
+  request,
+  withdrawal,
+}: {
+  request: PeerMentoringRequest;
+  withdrawal: ReturnType<typeof usePeerRequestWithdrawal>;
+}) {
+  const t = useTranslations("iaIskur.take.withdraw");
+  return (
+    <ModalDialog
+      labelledBy="peer-withdraw-title"
+      onClose={withdrawal.dismiss}
+      panelClassName="w-full max-w-[480px] rounded-[28px] bg-background-surface p-7 shadow-modal outline-none"
+    >
+      <div className="flex flex-col gap-5">
+        <div className="space-y-2">
+          <h2 id="peer-withdraw-title" className="type-h3 text-text-primary">
+            {t("title")}
+          </h2>
+          <p className="type-body-sm text-text-secondary">
+            {t("body", { name: request.mentor.fullName })}
+          </p>
+        </div>
+        {withdrawal.error ? (
+          <InlineAlert tone={StatusTone.Error} title={withdrawal.error} />
+        ) : null}
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            variant={ButtonVariant.Secondary}
+            onClick={withdrawal.dismiss}
+            disabled={withdrawal.isWithdrawing}
+          >
+            {t("keep")}
+          </Button>
+          <Button
+            onClick={() => void withdrawal.confirm()}
+            disabled={withdrawal.isWithdrawing}
+          >
+            {withdrawal.isWithdrawing ? t("confirming") : t("confirm")}
+          </Button>
+        </div>
+      </div>
+    </ModalDialog>
   );
 }
 

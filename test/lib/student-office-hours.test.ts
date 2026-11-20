@@ -142,16 +142,9 @@ describe("officeHoursWeek", () => {
 });
 
 describe("officeHoursRequestErrors", () => {
-  it("asks for both the title and the description", () => {
-    expect(officeHoursRequestErrors(" ", "Açıklama")).toEqual({
-      title: true,
-      description: false,
-    });
-    expect(officeHoursRequestErrors("Başlık", "")).toEqual({
-      title: false,
-      description: true,
-    });
-    expect(officeHoursRequestErrors("Başlık", "Açıklama")).toBeNull();
+  it("asks only for the title; the description is optional", () => {
+    expect(officeHoursRequestErrors(" ")).toEqual({ title: true });
+    expect(officeHoursRequestErrors("Başlık")).toBeNull();
   });
 });
 
