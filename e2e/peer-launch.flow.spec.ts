@@ -91,7 +91,7 @@ function mentorRow(page: Page, mentor: Persona) {
   return page
     .getByRole("listitem")
     .filter({ hasText: mentor })
-    .filter({ has: page.getByRole("link", { name: /^Profili Gör/ }) });
+    .filter({ hasText: "Profili Gör" });
 }
 
 async function upcomingAppointment(page: Page, counterpart: string) {
@@ -259,9 +259,7 @@ test.describe("Akran", () => {
     await signInAs(page, Persona.AyseYilmaz);
     await peerMentoring(page, "Mentorluk Al");
     // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
-    await mentorRow(page, Persona.MehmetKaya)
-      .getByRole("link", { name: /^Profili Gör/ })
-      .click();
+    await mentorRow(page, Persona.MehmetKaya).getByText("Profili Gör").click();
     await page
       .getByRole("button", { name: /^Mentorluk Talebi Gönder/ })
       .click();
