@@ -31,12 +31,16 @@ import {
   type PeerMeetingReport,
 } from "@/interfaces/peer-reports";
 import {
+  hoursAndMinutes,
   MEETING_REPORT_ACTION_TEXT_MAX,
   MEETING_REPORT_TEXT_MAX,
   meetingDayLabel,
   meetingReportShownStatus,
   meetingSlotLabel,
+  minutesInput,
+  parseDuration,
   PRODUCTIVITY_CHOICES,
+  reportMentoringMinutes,
 } from "@/lib/peer-meeting-report";
 import {
   dailyReportHref,
@@ -49,6 +53,7 @@ import {
   MeetingReportFooterNote,
   MeetingReportSection,
   SupportChoice,
+  type MeetingReportForm,
 } from "@/types/peer-meeting-report";
 
 type View = ReturnType<typeof useMeetingReportForm>;
@@ -255,6 +260,7 @@ export function MeetingReportScreen({ meetingId }: { meetingId: string }) {
 
         <aside className="flex flex-col gap-4">
           <MenteeCard report={report} />
+          <TimeRecordCard view={view} form={form} readOnly={readOnly} />
           <ProgressCard view={view} />
           <Card compact featured>
             <h2 className="type-title-card text-text-accent">
@@ -665,6 +671,114 @@ function MenteeCard({ report }: { report: PeerMeetingReport }) {
         </Link>
       ) : null}
     </Card>
+  );
+}
+
+/** Figma 7.1 "Süre kaydı": what the report adds to the mentor's Akran Mentörlüğü time. */
+function TimeRecordCard({
+  view,
+  form,
+  readOnly,
+}: {
+  view: View;
+  form: MeetingReportForm;
+  readOnly: boolean;
+}) {
+  const t = useTranslations("iaIskurReports.meeting");
+  const meetingMinutes = parseDuration(form.actualDurationMinutes);
+  const extras = [
+    {
+      id: "meeting-preparation-minutes",
+      label: t("timeRecord.preparation"),
+      value: form.preparationMinutes,
+      onChange: (text: string) =>
+        view.update({ preparationMinutes: minutesInput(text) }),
+    },
+    {
+      id: "meeting-follow-up-minutes",
+      label: t("timeRecord.followUp"),
+      value: form.followUpMinutes,
+      onChange: (text: string) =>
+        view.update({ followUpMinutes: minutesInput(text) }),
+    },
+  ] as const;
+  const [preparation, followUp] = extras;
+  return (
+    <Card compact>
+      <h2 className="type-title-card text-text-primary">
+        {t("timeRecord.title")}
+      </h2>
+      <div className="mt-3 flex flex-col gap-2">
+        <TimeRecordInput
+          row={preparation}
+          readOnly={readOnly}
+          unit={t("minutesUnit")}
+        />
+        <div className="flex items-center justify-between gap-3">
+          <span className="type-body-sm text-text-secondary">
+            {t("timeRecord.meeting")}
+          </span>
+          <span className="type-label text-text-primary">
+            {meetingMinutes === null
+              ? t("timeRecord.meetingEmpty")
+              : t("timeRecord.meetingValue", { minutes: meetingMinutes })}
+          </span>
+        </div>
+        <TimeRecordInput
+          row={followUp}
+          readOnly={readOnly}
+          unit={t("minutesUnit")}
+        />
+      </div>
+      <p className="mt-3 rounded-card bg-background-muted p-3 type-label text-text-primary">
+        {t("timeRecord.total", hoursAndMinutes(reportMentoringMinutes(form)))}
+      </p>
+      <p className="mt-2 type-caption text-text-secondary">
+        {t("timeRecord.hint")}
+      </p>
+    </Card>
+  );
+}
+
+function TimeRecordInput({
+  row,
+  readOnly,
+  unit,
+}: {
+  row: {
+    id: string;
+    label: string;
+    value: string;
+    onChange: (text: string) => void;
+  };
+  readOnly: boolean;
+  unit: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <label htmlFor={row.id} className="type-body-sm text-text-secondary">
+        {row.label}
+      </label>
+      <div className="flex items-center gap-2">
+        <input
+          id={row.id}
+          inputMode="numeric"
+          maxLength={3}
+          autoComplete="off"
+          aria-describedby={`${row.id}-unit`}
+          className={`${ISKUR_FIELD_CLASS} w-20`}
+          value={row.value}
+          readOnly={readOnly}
+          onChange={(event) => row.onChange(event.target.value)}
+        />
+        <span
+          id={`${row.id}-unit`}
+          className="type-body-sm text-text-secondary"
+        >
+          {unit}
+        </span>
+      </div>
+    </div>
   );
 }
 

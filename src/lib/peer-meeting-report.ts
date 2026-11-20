@@ -33,6 +33,8 @@ export function meetingReportForm(
       report.actualDurationMinutes === null
         ? ""
         : String(report.actualDurationMinutes),
+    preparationMinutes: minutesText(report.preparationMinutes),
+    followUpMinutes: minutesText(report.followUpMinutes),
     topics: [...report.topics],
     menteeNeed: report.menteeNeed ?? "",
     discussion: report.discussion ?? "",
@@ -67,6 +69,8 @@ export function meetingReportInput(
     meetingType: form.meetingType,
     meetingFormat: form.meetingFormat,
     actualDurationMinutes: parseDuration(form.actualDurationMinutes),
+    preparationMinutes: parseExtraMinutes(form.preparationMinutes),
+    followUpMinutes: parseExtraMinutes(form.followUpMinutes),
     topics: form.topics,
     menteeNeed: textOrNull(form.menteeNeed),
     discussion: textOrNull(form.discussion),
@@ -142,6 +146,45 @@ export function parseDuration(text: string): number | null {
   return minutes >= 1 && minutes <= MEETING_REPORT_DURATION_MAX
     ? minutes
     : null;
+}
+
+function minutesText(minutes: number | null | undefined) {
+  return minutes === null || minutes === undefined ? "" : String(minutes);
+}
+
+/** Preparation or follow-up time: optional, so empty is null; 0 to the backend's limit. */
+export function parseExtraMinutes(text: string): number | null {
+  const trimmed = text.trim();
+  if (!/^\d{1,3}$/.test(trimmed)) return null;
+  const minutes = Number(trimmed);
+  return minutes <= MEETING_REPORT_DURATION_MAX ? minutes : null;
+}
+
+/** Keeps only what a minutes field can hold while it is typed: digits, capped at the backend's limit. */
+export function minutesInput(text: string) {
+  const digits = text.replace(/\D/g, "").slice(0, 3);
+  return digits && Number(digits) > MEETING_REPORT_DURATION_MAX
+    ? String(MEETING_REPORT_DURATION_MAX)
+    : digits;
+}
+
+/** What the report adds to the mentor's mentoring time: preparation, the meeting itself, report and follow-up. */
+export function reportMentoringMinutes(
+  form: Pick<
+    MeetingReportForm,
+    "actualDurationMinutes" | "preparationMinutes" | "followUpMinutes"
+  >,
+) {
+  return (
+    (parseDuration(form.actualDurationMinutes) ?? 0) +
+    (parseExtraMinutes(form.preparationMinutes) ?? 0) +
+    (parseExtraMinutes(form.followUpMinutes) ?? 0)
+  );
+}
+
+/** 80 → { hours: 1, minutes: 20 }, for "1 sa 20 dk". */
+export function hoursAndMinutes(total: number) {
+  return { hours: Math.floor(total / 60), minutes: total % 60 };
 }
 
 /** The 1–5 scale as the choice control's ids. */

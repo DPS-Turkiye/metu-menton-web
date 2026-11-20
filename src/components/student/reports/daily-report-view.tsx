@@ -72,6 +72,11 @@ export function DailyReportView({
                     <span className="type-caption text-text-muted">
                       {row.meta}
                     </span>
+                    {row.breakdown ? (
+                      <span className="type-caption text-text-muted">
+                        {row.breakdown}
+                      </span>
+                    ) : null}
                   </div>
                   <ReportStatusPill badge={row.badge} />
                   <span className="type-body-sm text-text-secondary">

@@ -85,6 +85,13 @@ export function dailyReportReady(
 }
 
 /** A meeting row's state: "Tamamlandı" once its report is sent, "Çıktı Bekliyor" before. */
+/** Whether the row's minutes hold more than the meeting itself, so its parts are worth spelling out. */
+export function hasTimeBreakdown(
+  meeting: Pick<PeerReportMeeting, "preparationMinutes" | "followUpMinutes">,
+) {
+  return meeting.preparationMinutes + meeting.followUpMinutes > 0;
+}
+
 export function meetingRowBadge(meeting: PeerReportMeeting): PeerReportBadge {
   return meeting.reportStatus === PeerReportStatus.InReview ||
     meeting.reportStatus === PeerReportStatus.Approved

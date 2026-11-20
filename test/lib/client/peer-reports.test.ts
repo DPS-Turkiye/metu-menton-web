@@ -43,6 +43,8 @@ const meetingReport: SavePeerMeetingReportInput = {
   meetingType: null,
   meetingFormat: null,
   actualDurationMinutes: 35,
+  preparationMinutes: 20,
+  followUpMinutes: null,
   topics: [],
   menteeNeed: null,
   discussion: "Hedef listesi",

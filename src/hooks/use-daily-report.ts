@@ -32,6 +32,7 @@ import {
   dailyReportInput,
   dailyReportReady,
   emptyActivityForm,
+  hasTimeBreakdown,
   invalidActivityFields,
   meetingRowBadge,
 } from "@/lib/peer-daily-report";
@@ -159,6 +160,14 @@ export function useDailyReport(day: string) {
       ]
         .filter((part) => part !== null)
         .join(t("daily.separator")),
+      // The total above is not the meeting's length once preparation or follow-up time is recorded.
+      breakdown: hasTimeBreakdown(meeting)
+        ? t("daily.timeBreakdown", {
+            meeting: meeting.meetingMinutes,
+            preparation: meeting.preparationMinutes,
+            followUp: meeting.followUpMinutes,
+          })
+        : null,
       badge,
       sent,
       statusText: sent ? t("daily.reportSent") : t("daily.reportWaiting"),
