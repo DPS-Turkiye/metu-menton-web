@@ -208,7 +208,9 @@ test.describe("Akran", () => {
       .first()
       .click();
     await expect(
-      page.getByRole("heading", { name: "Mentor profilini oluştur" }),
+      page.getByRole("heading", {
+        name: "Hangi konularda mentorluk verebilirsin?",
+      }),
     ).toBeVisible();
 
     const next = page.getByRole("button", { name: "Devam Et" });
