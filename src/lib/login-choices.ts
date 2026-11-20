@@ -3,8 +3,10 @@ import { offersLogin } from "@/lib/edition-screens";
 import { LoginOption } from "@/types/edition-screens";
 
 export type LoginChoices = {
-  /** ODTÜ's institutional login leads the page (the ODTÜ edition's own sign-in). */
+  /** ODTÜ's institutional login button (until ODTÜ's real login exists, only the local dev persona login). */
   odtu: boolean;
+  /** The ODTÜ page: students sign in with their @metu.edu.tr address and password, the form always open. */
+  odtuStudents: boolean;
   otg: boolean;
   signUp: boolean;
   invite: boolean;
@@ -20,6 +22,7 @@ export function loginChoices(
 ): LoginChoices {
   return {
     odtu: odtuLoginReady && offersLogin(edition, LoginOption.Odtu),
+    odtuStudents: offersLogin(edition, LoginOption.Odtu),
     otg: offersLogin(edition, LoginOption.Otg),
     signUp: offersLogin(edition, LoginOption.SignUp),
     invite: offersLogin(edition, LoginOption.Invite),

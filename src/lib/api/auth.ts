@@ -6,12 +6,14 @@ import { HttpMethod } from "@/lib/http-method";
 import type { Locale } from "@/lib/i18n";
 import { backendRequest } from "@/lib/server/backend-client";
 
-export type RegisterRole = "founder" | "mentor" | "member";
+/** `student` is ODTÜ's e-mail sign-up; the Teknokent backend closes it, as ODTÜ closes `mentor` and `member`. */
+export type RegisterRole = "founder" | "mentor" | "member" | "student";
 
 export const REGISTER_ROLES: readonly RegisterRole[] = [
   "founder",
   "mentor",
   "member",
+  "student",
 ];
 
 export function isRegisterRole(value: string): value is RegisterRole {

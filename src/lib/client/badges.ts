@@ -3,6 +3,8 @@ import type {
   BadgeAward,
   GateBadgeRow,
   GateBadgeState,
+  PrismDecisionInput,
+  PrismDecisionResult,
   PublicBadge,
 } from "@/interfaces/badges";
 import { requireSuccess } from "@/lib/client/api";
@@ -67,6 +69,18 @@ export async function getAdminStudents(state: GateBadgeState | null) {
     await httpClient.get<GateBadgeRow[]>(
       "/api/admin/students",
       state ? { params: { state } } : undefined,
+    ),
+  );
+}
+
+export async function postPrismDecisions(
+  programId: string,
+  input: PrismDecisionInput,
+) {
+  return requireSuccess(
+    await httpClient.post<PrismDecisionResult[]>(
+      `${programBadges(programId)}/prism-decisions`,
+      input,
     ),
   );
 }

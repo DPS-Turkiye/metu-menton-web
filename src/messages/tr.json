@@ -73,11 +73,12 @@
     "invite": "Bir davet aldın mı? Davet kodunla devam et",
     "odtu": "ODTÜ Hesabıyla Giriş Yap",
     "otg": "ODTÜ TEKNOKENT Girişimcilik ile giriş yap",
-    "odtuIntro": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yap. Ayrı bir kayıt gerekmez.",
+    "odtuStudentIntro": "ODTÜ e-posta adresin (@metu.edu.tr) ve şifrenle giriş yap. Hesabın yoksa aşağıdan kayıt ol.",
     "or": "veya",
+    "help": "Giriş yapamıyor musun? Yardım al",
+    "odtuIntro": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yap. Ayrı bir kayıt gerekmez.",
     "staffQuestion": "Koordinatör, admin veya girişim programı hesabın mı var?",
-    "emailLogin": "E-posta ile giriş yap",
-    "help": "Giriş yapamıyor musun? Yardım al"
+    "emailLogin": "E-posta ile giriş yap"
   },
   "otgLogin": {
     "signingIn": "ODTÜ TEKNOKENT Girişimcilik hesabınla giriş yapılıyor…",
@@ -5930,7 +5931,40 @@
     "capacityFull": "{active} / {capacity} · dolu",
     "rowActions": "{name} için işlemler",
     "footnote": "Mentorluk konuşmaları, gizli görüşme notları ve kişisel belgeler koordinatöre görünmez.",
-    "noMatch": "Bu filtreye uyan kimse yok."
+    "noMatch": "Bu filtreye uyan kimse yok.",
+    "prism": {
+      "open": "Prism sonuçları",
+      "title": "Prism sonuçlarını işle",
+      "intro": "Prism yöneticisinin gönderdiği listeyi yapıştır: her satırda bir e-posta, istersen yanında puan (ör. ad.soyad@metu.edu.tr, 85). Puanı yalnızca koordinatörler ve yöneticiler görür.",
+      "listLabel": "E-postalar ve puanlar",
+      "decisionLegend": "Karar",
+      "decisions": {
+        "APPROVED": "Akran mentoru olarak onayla",
+        "RETAKE": "Testi tekrar alsın"
+      },
+      "parsed": "{count, plural, =0 {Henüz adres yok} one {# adres okundu} other {# adres okundu}}",
+      "rejected": "Okunamayan satırlar: {lines}",
+      "tooMany": "Tek seferde en fazla {max} adres gönderebilirsin.",
+      "send": "Uygula",
+      "sending": "Uygulanıyor…",
+      "failed": "Kararlar uygulanamadı.",
+      "close": "Kapat",
+      "resultsTitle": "Sonuç",
+      "outcomes": {
+        "APPROVED": "Onaylandı, rozet verildi",
+        "RETAKE": "Testi tekrar alacak, bildirim gönderildi",
+        "ALREADY_MENTOR": "Zaten Akran mentoru, değişiklik yok",
+        "NOT_FOUND": "Bu programda bulunamadı",
+        "NOT_ELIGIBLE": "Uygun değil (İŞKUR stajyeri değil ya da hesabı onaylı değil)"
+      },
+      "rowApprove": "Prism: onayla",
+      "rowRetake": "Prism: testi tekrar alsın",
+      "status": {
+        "PENDING": "Prism: değerlendirme bekliyor",
+        "RETAKE": "Prism: testi tekrar alacak"
+      },
+      "score": "Prism puanı: {score}"
+    }
   },
   "adminStudents": {
     "filterLabel": "Rozet durumu",
@@ -5963,7 +5997,17 @@
     "saveAndPublish": "Kaydet ve yayınla",
     "saving": "Kaydediliyor…",
     "saved": "Eğitim yayında.",
-    "saveFailed": "Eğitim kaydedilemedi."
+    "saveFailed": "Eğitim kaydedilemedi.",
+    "prismTitle": "Prism eğitimi",
+    "prismIntro": "Akran Mentoru eğitimi ve testi Prism'de. Öğrenciler eğitim sayfasındaki düğmeyle bu bağlantıyı açar.",
+    "prismLink": "Prism bağlantısı",
+    "prismHint": "Yalnızca https:// ile başlayan bağlantılar kabul edilir.",
+    "prismSave": "Bağlantıyı kaydet",
+    "prismSaving": "Kaydediliyor…",
+    "prismSaved": "Bağlantı kaydedildi.",
+    "prismSaveFailed": "Bağlantı kaydedilemedi.",
+    "prismUpdated": "Son güncelleme: {date}",
+    "quizOff": "Uygulama içi sınav bu sistemde kapalı. Akran mentorlarını Prism sonuçlarına göre Katılımcılar › Öğrenciler'den onaylarsın."
   },
   "studentTraining": {
     "title": "Akran Mentoru eğitimi",
@@ -5987,7 +6031,20 @@
     "submitFailed": "Cevapların gönderilemedi.",
     "passed": "Tebrikler, Akran Mentoru rozetini kazandın!",
     "failed": "Bu sefer olmadı.",
-    "score": "{score}/{total} doğru"
+    "score": "{score}/{total} doğru",
+    "badgeActiveTitle": "Onaylandın: artık Akran mentorusun",
+    "internsOnly": "Akran mentorluğu İŞKUR stajyerlerine açıktır.",
+    "prismTodoTitle": "Eğitimi Prism'de tamamla",
+    "prismTodoBody": "Akran Mentoru eğitimi ve testi Prism'de. Prism yöneticisi sonucunu koordinatörüne iletir; koordinatörün onaylayınca Akran mentoru olursun.",
+    "prismOpen": "Prism'de aç",
+    "prismMarkDone": "Prism eğitimini tamamladım",
+    "prismMarking": "Kaydediliyor…",
+    "prismMarkFailed": "Kaydedilemedi, tekrar dene.",
+    "prismPendingTitle": "Sonucun değerlendiriliyor",
+    "prismPendingBody": "Koordinatörün Prism sonucunu inceleyip karar verecek. Bu sırada bir şey yapman gerekmiyor.",
+    "prismPendingSince": "Tamamladığını bildirdin: {date}",
+    "prismRetakeTitle": "Testi tekrar alman gerekiyor",
+    "prismRetakeBody": "Testi Prism'de tekrar al. Bitirince aşağıdan haber verebilirsin."
   },
   "apiErrors": {
     "trainingSubmitFailed": "Cevaplar gönderilemedi.",
@@ -6304,6 +6361,9 @@
     "iskurChannelsInvalid": "Mesaj bilgileri geçersiz.",
     "iskurAcknowledgeFailed": "Okundu onayı kaydedilemedi.",
     "iskurPreferencesSaveFailed": "Bildirim tercihi kaydedilemedi.",
+    "prismLinkInvalid": "Geçerli bir https bağlantısı gir.",
+    "prismDecisionInvalid": "Listede en az bir e-posta olmalı; puan en fazla 32 karakter olabilir.",
+    "prismDecisionFailed": "Kararlar uygulanamadı.",
     "iskurInternsLoadFailed": "İŞKUR stajyer listesi yüklenemedi.",
     "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
     "iskurInternsInvalid": "Eklenecek adresler geçersiz."
@@ -8126,6 +8186,32 @@
       "title": "Kanalların"
     }
   },
+  "studentSignup": {
+    "title": "ODTÜ öğrenci kaydı",
+    "intro": "ODTÜ e-posta adresinle kayıt ol. Adresini doğruladıktan sonra hemen başlayabilirsin.",
+    "profileTitle": "Kaydını tamamla",
+    "profileIntro": "{email} hesabın için birkaç bilgi kaldı.",
+    "department": "Bölüm",
+    "departmentPlaceholder": "Örn. Bilgisayar Mühendisliği",
+    "year": "Sınıf",
+    "yearPlaceholder": "Seç",
+    "years": {
+      "PREP": "Hazırlık",
+      "YEAR_1": "1. sınıf",
+      "YEAR_2": "2. sınıf",
+      "YEAR_3": "3. sınıf",
+      "YEAR_4": "4. sınıf",
+      "YEAR_5_PLUS": "5. sınıf ve üstü",
+      "MASTER": "Yüksek lisans",
+      "DOCTORATE": "Doktora"
+    },
+    "emailPlaceholder": "ad.soyad@metu.edu.tr",
+    "submit": "Kayıt ol",
+    "finish": "Kaydı tamamla",
+    "submitting": "Kaydediliyor…",
+    "haveAccount": "Zaten hesabın var mı?",
+    "checking": "Oturum kontrol ediliyor…"
+  },
   "iskurInterns": {
     "title": "İŞKUR stajyerleri",
     "hint": "Yalnızca bu listedeki e-posta adreslerinin hesapları İŞKUR stajyeri sayılır; diğer öğrenciler İŞKUR ekranlarını görmez. Bir adres, kişi kaydolmadan önce de eklenebilir.",
@@ -8153,5 +8239,15 @@
     "removePlacedHint": "Önce yerleşimden çıkar.",
     "removed": "Adres listeden çıkarıldı.",
     "removeFailed": "Adres listeden çıkarılamadı."
+  },
+  "iskurWeekHistory": {
+    "title": "Hafta geçmişi",
+    "kinds": {
+      "SUBMITTED": "Gönderildi",
+      "APPROVED": "Onaylandı",
+      "REVISION": "Revizyon istendi",
+      "REJECTED": "Reddedildi",
+      "OBJECTION": "İtiraz edildi"
+    }
   }
 }
