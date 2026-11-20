@@ -4,10 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { POST as complete } from "@/app/api/institution-login/[provider]/complete/route";
 import { POST as start } from "@/app/api/institution-login/[provider]/start/route";
 import { GET as devPersonas } from "@/app/api/institution-login/dev-personas/route";
+import { GET as providers } from "@/app/api/institution-login/providers/route";
 import { InstitutionProvider } from "@/interfaces/institution-login";
 import {
   exchangeInstitutionCode,
   fetchDevPersonas,
+  fetchInstitutionProviders,
   finishInstitutionCallback,
   startInstitutionLogin,
 } from "@/lib/api/institution-login";
@@ -19,6 +21,7 @@ vi.mock("@/lib/api/institution-login", () => ({
   finishInstitutionCallback: vi.fn(),
   exchangeInstitutionCode: vi.fn(),
   fetchDevPersonas: vi.fn(),
+  fetchInstitutionProviders: vi.fn(),
 }));
 
 const provider = (name: string) => ({
@@ -219,6 +222,53 @@ describe("institution login routes", () => {
       provider("otg"),
     );
     expect((await elsewhere.json()).next).toBeNull();
+  });
+
+  it("starts an ODTÜ CAS login and binds it to this browser", async () => {
+    vi.mocked(startInstitutionLogin).mockResolvedValue({
+      status: 200,
+      data: {
+        redirectUrl: "https://cas.example.test/cas/login?service=x",
+        state: "s-9",
+      },
+      headers: {},
+    });
+
+    const response = await start(
+      new Request("http://localhost"),
+      provider("odtu-cas"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(startInstitutionLogin).toHaveBeenCalledWith(
+      InstitutionProvider.OdtuCas,
+    );
+    expect(bindingCookie(response)).toContain(
+      encodeURIComponent('"provider":"odtu-cas"'),
+    );
+  });
+
+  // The login page asks this signed out, before it shows the ODTÜ button.
+  it("tells a signed-out visitor which institution logins are on", async () => {
+    vi.mocked(fetchInstitutionProviders).mockResolvedValue({
+      status: 200,
+      data: { providers: ["odtu-cas"] },
+      headers: {},
+    });
+
+    const response = await providers();
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ providers: ["odtu-cas"] });
+  });
+
+  it("answers with an error, not a guess, when the backend cannot be asked", async () => {
+    vi.mocked(fetchInstitutionProviders).mockRejectedValue(new Error("down"));
+
+    const response = await providers();
+
+    expect(response.status).toBeGreaterThanOrEqual(500);
+    expect(await response.json()).not.toHaveProperty("providers");
   });
 
   it("lists the dev personas only while the dev login is switched on", async () => {
