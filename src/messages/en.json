@@ -6037,7 +6037,8 @@
     "prismPendingBody": "Your coordinator reviews your Prism result and decides. You do not need to do anything meanwhile.",
     "prismPendingSince": "You said you completed it: {date}",
     "prismRetakeTitle": "You need to take the test again",
-    "prismRetakeBody": "Take the test again on Prism. When you are done, you can say so below."
+    "prismRetakeBody": "Take the test again on Prism. When you are done, you can say so below.",
+    "prismLinkPending": "Your coordinator will add the Prism link."
   },
   "apiErrors": {
     "trainingSubmitFailed": "Could not submit the answers.",
