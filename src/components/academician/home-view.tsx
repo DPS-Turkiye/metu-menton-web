@@ -69,7 +69,12 @@ function HomeHeader({ home }: { home: AcademicianHome }) {
           >
             {t("editAvailability")}
           </Button>
-          <Button href={home.links.appointments}>{t("appointments")}</Button>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            href={home.links.appointments}
+          >
+            {t("appointments")}
+          </Button>
         </>
       }
     />
@@ -231,9 +236,12 @@ function PendingRequestCard({
           </Button>
         ) : null}
         {card.acceptTime === null ? (
-          <Button href={card.href}>{t("accept")}</Button>
+          <Button variant={ButtonVariant.Secondary} href={card.href}>
+            {t("accept")}
+          </Button>
         ) : (
           <Button
+            variant={ButtonVariant.Secondary}
             disabled={busy}
             onClick={() => {
               home.accept(card);

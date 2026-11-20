@@ -11,7 +11,7 @@ import { SimpleHeader } from "@/components/ia/simple-header";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { StepPills } from "@/components/ia/step-pills";
 import { ProgramType } from "@/interfaces/program";
-import { InLocale } from "@test/test-utils";
+import { InLocale, primaryButtons } from "@test/test-utils";
 
 describe("IA kit", () => {
   it("renders a button that calls back, and a link when given an href", async () => {
@@ -35,6 +35,25 @@ describe("IA kit", () => {
       "href",
       "/admin/programs",
     );
+  });
+
+  it("lets primaryButtons() find the enabled red Primary buttons and links only", () => {
+    render(
+      <>
+        <Button>Gönder</Button>
+        <Button href="/student">Ana Sayfa</Button>
+        <Button disabled>Bekle</Button>
+        <Button variant={ButtonVariant.Secondary}>Kabul Et</Button>
+        <Button variant={ButtonVariant.Ghost}>Vazgeç</Button>
+        <Button variant={ButtonVariant.Tertiary}>Tümü</Button>
+        <Button variant={ButtonVariant.Destructive}>Sil</Button>
+      </>,
+    );
+
+    expect(primaryButtons()).toEqual([
+      screen.getByRole("button", { name: "Gönder" }),
+      screen.getByRole("link", { name: "Ana Sayfa" }),
+    ]);
   });
 
   it("keeps a disabled button with an href a button, so it cannot be followed", () => {
