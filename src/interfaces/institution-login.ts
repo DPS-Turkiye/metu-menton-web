@@ -8,6 +8,12 @@ export enum InstitutionProvider {
   Otg = "otg",
 }
 
+/** The callback parameter that proves a sign-in to the backend: OTG's authorization code, CAS's service ticket. */
+export enum InstitutionLoginProof {
+  Code = "code",
+  Ticket = "ticket",
+}
+
 /** The institution logins the backend has switched on, by provider id. */
 export type InstitutionLoginProviders = {
   providers: string[];

@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OdtuCasCallbackView } from "@/components/login/odtu-cas-callback-view";
@@ -58,8 +59,15 @@ describe("ODTÜ CAS callback", () => {
     login.mockResolvedValue({});
   });
 
+  // StrictMode runs the effect twice; the ticket and the state are good once.
   it("hands the ticket to the server once and opens the session", async () => {
-    renderCallback();
+    render(
+      <StrictMode>
+        <InLocale locale="tr">
+          <OdtuCasCallbackView />
+        </InLocale>
+      </StrictMode>,
+    );
 
     expect(screen.getByRole("status")).toHaveTextContent(
       "ODTÜ hesabınla giriş yapılıyor…",

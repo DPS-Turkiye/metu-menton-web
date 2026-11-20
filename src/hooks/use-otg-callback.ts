@@ -4,7 +4,10 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
 import { useInstitutionCallback } from "@/hooks/use-institution-callback";
-import { InstitutionProvider } from "@/interfaces/institution-login";
+import {
+  InstitutionLoginProof,
+  InstitutionProvider,
+} from "@/interfaces/institution-login";
 
 const ACCESS_DENIED = "access_denied";
 
@@ -29,7 +32,7 @@ export function useOtgCallback() {
     InstitutionProvider.Otg,
     callbackError || !code || !state
       ? null
-      : { state, proofName: "code", proof: code },
+      : { state, proofName: InstitutionLoginProof.Code, proof: code },
   );
 
   return { error: callbackError || error };

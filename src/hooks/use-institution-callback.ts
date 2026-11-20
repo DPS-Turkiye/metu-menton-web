@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useSession } from "@/components/providers/session-provider";
-import type { InstitutionProvider } from "@/interfaces/institution-login";
+import type {
+  InstitutionLoginProof,
+  InstitutionProvider,
+} from "@/interfaces/institution-login";
 import { accountNotReadyHref } from "@/lib/account-not-ready";
 import { completeInstitutionLogin } from "@/lib/client/institution-login";
 import {
@@ -17,7 +20,7 @@ import { safeNextPath } from "@/lib/public-paths";
 /** What the institution sent back: the state, and the one value that proves the sign-in (a code, a ticket). */
 export type InstitutionCallback = {
   state: string;
-  proofName: string;
+  proofName: InstitutionLoginProof;
   proof: string;
 };
 

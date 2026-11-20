@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -29,6 +29,14 @@ function renderButton() {
   );
 }
 
+/** Lets the backend's answer (or its failure) reach the hook before the page is looked at. */
+async function answered() {
+  await act(async () => {
+    await Promise.resolve();
+  });
+  expect(fetchInstitutionProviders).toHaveBeenCalledTimes(1);
+}
+
 describe("ODTÜ login button", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -44,9 +52,7 @@ describe("ODTÜ login button", () => {
   it("stays hidden while the backend has no ODTÜ login on and the dev login is off", async () => {
     renderButton();
 
-    await vi.waitFor(() =>
-      expect(fetchInstitutionProviders).toHaveBeenCalled(),
-    );
+    await answered();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
@@ -54,9 +60,7 @@ describe("ODTÜ login button", () => {
     vi.mocked(fetchInstitutionProviders).mockRejectedValue(new Error("down"));
     renderButton();
 
-    await vi.waitFor(() =>
-      expect(fetchInstitutionProviders).toHaveBeenCalled(),
-    );
+    await answered();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
