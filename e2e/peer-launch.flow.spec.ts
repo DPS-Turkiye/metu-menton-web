@@ -69,6 +69,22 @@ async function peerMentoring(
   }
 }
 
+/** One batch of "Prism sonuçları": the pasted lines, one decision for all, and the outcome each line got. */
+async function prismDecision(
+  page: Page,
+  lines: string,
+  decision: "Akran mentoru olarak onayla" | "Testi tekrar alsın",
+  outcome: string,
+) {
+  await page.getByRole("button", { name: "Prism sonuçları" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("E-postalar ve puanlar").fill(lines);
+  await dialog.getByRole("radio", { name: decision }).check();
+  await dialog.getByRole("button", { name: "Uygula" }).click();
+  await expect(dialog.getByRole("listitem")).toContainText(outcome);
+  await dialog.getByRole("button", { name: "Kapat" }).click();
+}
+
 async function upcomingAppointment(page: Page, counterpart: string) {
   await page.goto("/student/appointments");
   await page.getByRole("tab", { name: /^Yaklaşan/ }).click();
@@ -140,14 +156,39 @@ test.describe("Akran", () => {
     await expect(page.getByText("Kategoriler kaydedildi.")).toBeVisible();
   });
 
-  test("the coordinator gives Mehmet the Akran Mentoru badge", async ({
+  test("the coordinator applies the Prism results: Mehmet approved (badge), Zeynep to retake", async ({
     page,
   }) => {
     await signInAsStaff(page, Staff.Coordinator);
     await page.goto(`/coordinator/programs/${programId}/students`);
-    const row = page.getByRole("row").filter({ hasText: Persona.MehmetKaya });
-    await row.getByRole("button", { name: "Rozet ver" }).click();
-    await expect(row).toContainText("Rozet Doğrulandı");
+    await prismDecision(
+      page,
+      `${INTERN_EMAILS[0]}, 85`,
+      "Akran mentoru olarak onayla",
+      "Onaylandı, rozet verildi",
+    );
+    await prismDecision(
+      page,
+      `${INTERN_EMAILS[1]}, 40`,
+      "Testi tekrar alsın",
+      "Testi tekrar alacak, bildirim gönderildi",
+    );
+
+    await page.reload();
+    await expect(
+      page.getByRole("row").filter({ hasText: Persona.MehmetKaya }),
+    ).toContainText("Rozet Doğrulandı");
+    await expect(
+      page.getByRole("row").filter({ hasText: Persona.ZeynepDemir }),
+    ).toContainText("Prism: testi tekrar alacak");
+  });
+
+  test("Zeynep's training page asks her to retake the test", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.ZeynepDemir);
+    await page.goto("/student/peer-mentoring/training");
+    await expect(page.getByText("Testi tekrar alman gerekiyor")).toBeVisible();
   });
 
   test("Mehmet fills in and publishes his mentor profile", async ({ page }) => {

@@ -55,7 +55,7 @@ export const Staff = {
 
 export type Staff = (typeof Staff)[keyof typeof Staff];
 
-/** Signs a staff member in with e-mail and password, through "E-posta ile giriş yap" on the ODTÜ login page. */
+/** Signs a staff member in with e-mail and password on the login page (open on ODTÜ since student sign-up). */
 export async function signInAsStaff(page: Page, staff: Staff) {
   const email = process.env[`E2E_${staff}_EMAIL`];
   const password = process.env[`E2E_${staff}_PASSWORD`];
@@ -66,7 +66,6 @@ export async function signInAsStaff(page: Page, staff: Staff) {
   await skipTours(page);
   await page.context().clearCookies();
   await page.goto("/login");
-  await page.getByRole("button", { name: "E-posta ile giriş yap" }).click();
   await page.getByLabel("E-posta").fill(email ?? "");
   await page.getByLabel("Şifre", { exact: false }).fill(password ?? "");
   await page.getByRole("button", { name: "Giriş yap", exact: true }).click();
