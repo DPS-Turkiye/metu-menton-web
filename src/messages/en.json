@@ -73,11 +73,12 @@
     "invite": "Got an invitation? Continue with your invite code",
     "odtu": "Sign in with your METU account",
     "otg": "Sign in with ODTÜ TEKNOKENT Girişimcilik",
-    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
+    "odtuStudentIntro": "Sign in with your ODTÜ e-mail address (@metu.edu.tr) and password. No account yet? Sign up below.",
     "or": "or",
+    "help": "Cannot sign in? Get help",
+    "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
     "staffQuestion": "Do you have a coordinator, admin or startup program account?",
-    "emailLogin": "Sign in with e-mail",
-    "help": "Cannot sign in? Get help"
+    "emailLogin": "Sign in with e-mail"
   },
   "otgLogin": {
     "signingIn": "Signing you in with your ODTÜ TEKNOKENT Girişimcilik account…",
@@ -5923,7 +5924,40 @@
     "capacityFull": "{active} / {capacity} · full",
     "rowActions": "Actions for {name}",
     "footnote": "Mentoring conversations, private meeting notes and personal documents are not visible to the coordinator.",
-    "noMatch": "Nobody matches this filter."
+    "noMatch": "Nobody matches this filter.",
+    "prism": {
+      "open": "Prism results",
+      "title": "Process Prism results",
+      "intro": "Paste the list the Prism admin sent: one e-mail per line, optionally with a score next to it (e.g. name.surname@metu.edu.tr, 85). Only coordinators and admins see the score.",
+      "listLabel": "E-mails and scores",
+      "decisionLegend": "Decision",
+      "decisions": {
+        "APPROVED": "Approve as Akran mentor",
+        "RETAKE": "Take the test again"
+      },
+      "parsed": "{count, plural, =0 {No addresses yet} one {# address read} other {# addresses read}}",
+      "rejected": "Lines that could not be read: {lines}",
+      "tooMany": "You can send at most {max} addresses at once.",
+      "send": "Apply",
+      "sending": "Applying…",
+      "failed": "Could not apply the decisions.",
+      "close": "Close",
+      "resultsTitle": "Result",
+      "outcomes": {
+        "APPROVED": "Approved, badge awarded",
+        "RETAKE": "Will take the test again, notified",
+        "ALREADY_MENTOR": "Already an Akran mentor, no change",
+        "NOT_FOUND": "Not found in this program",
+        "NOT_ELIGIBLE": "Not eligible (not an İŞKUR intern, or account not approved)"
+      },
+      "rowApprove": "Prism: approve",
+      "rowRetake": "Prism: take the test again",
+      "status": {
+        "PENDING": "Prism: waiting for review",
+        "RETAKE": "Prism: taking the test again"
+      },
+      "score": "Prism score: {score}"
+    }
   },
   "adminStudents": {
     "filterLabel": "Badge state",
@@ -5956,7 +5990,17 @@
     "saveAndPublish": "Save and publish",
     "saving": "Saving…",
     "saved": "The training is live.",
-    "saveFailed": "Could not save the training."
+    "saveFailed": "Could not save the training.",
+    "prismTitle": "Prism training",
+    "prismIntro": "The Akran Mentoru training and test are on Prism. Students open this link with the button on their training page.",
+    "prismLink": "Prism link",
+    "prismHint": "Only links starting with https:// are accepted.",
+    "prismSave": "Save link",
+    "prismSaving": "Saving…",
+    "prismSaved": "Link saved.",
+    "prismSaveFailed": "Could not save the link.",
+    "prismUpdated": "Last updated: {date}",
+    "quizOff": "The in-app quiz is off on this system. You approve Akran mentors from their Prism results in Participants › Students."
   },
   "studentTraining": {
     "title": "Peer Mentor training",
@@ -5980,7 +6024,20 @@
     "submitFailed": "Could not submit your answers.",
     "passed": "Congratulations, you earned the Peer Mentor badge!",
     "failed": "Not this time.",
-    "score": "{score}/{total} right"
+    "score": "{score}/{total} right",
+    "badgeActiveTitle": "Approved: you are an Akran mentor now",
+    "internsOnly": "Peer mentoring is open to İŞKUR interns.",
+    "prismTodoTitle": "Complete the training on Prism",
+    "prismTodoBody": "The Akran Mentoru training and test are on Prism. The Prism admin sends your result to your coordinator; once they approve it, you become an Akran mentor.",
+    "prismOpen": "Open in Prism",
+    "prismMarkDone": "I completed the Prism training",
+    "prismMarking": "Saving…",
+    "prismMarkFailed": "Could not save; try again.",
+    "prismPendingTitle": "Your result is being reviewed",
+    "prismPendingBody": "Your coordinator reviews your Prism result and decides. You do not need to do anything meanwhile.",
+    "prismPendingSince": "You said you completed it: {date}",
+    "prismRetakeTitle": "You need to take the test again",
+    "prismRetakeBody": "Take the test again on Prism. When you are done, you can say so below."
   },
   "apiErrors": {
     "trainingSubmitFailed": "Could not submit the answers.",
@@ -6297,6 +6354,9 @@
     "iskurChannelsInvalid": "The message details are not valid.",
     "iskurAcknowledgeFailed": "The read confirmation could not be saved.",
     "iskurPreferencesSaveFailed": "The notification setting could not be saved.",
+    "prismLinkInvalid": "Enter a valid https link.",
+    "prismDecisionInvalid": "The list needs at least one e-mail; a score can be at most 32 characters.",
+    "prismDecisionFailed": "Could not apply the decisions.",
     "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
     "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
     "iskurInternsInvalid": "The addresses to add are not valid."
@@ -8119,6 +8179,32 @@
       "title": "Your channels"
     }
   },
+  "studentSignup": {
+    "title": "ODTÜ student sign-up",
+    "intro": "Sign up with your ODTÜ e-mail address. Once you verify it, you can start right away.",
+    "profileTitle": "Finish signing up",
+    "profileIntro": "A few details are left for {email}.",
+    "department": "Department",
+    "departmentPlaceholder": "e.g. Computer Engineering",
+    "year": "Year",
+    "yearPlaceholder": "Choose",
+    "years": {
+      "PREP": "Preparatory",
+      "YEAR_1": "Year 1",
+      "YEAR_2": "Year 2",
+      "YEAR_3": "Year 3",
+      "YEAR_4": "Year 4",
+      "YEAR_5_PLUS": "Year 5 or later",
+      "MASTER": "Master's",
+      "DOCTORATE": "Doctorate"
+    },
+    "emailPlaceholder": "name.surname@metu.edu.tr",
+    "submit": "Sign up",
+    "finish": "Finish signing up",
+    "submitting": "Saving…",
+    "haveAccount": "Already have an account?",
+    "checking": "Checking your session…"
+  },
   "iskurInterns": {
     "title": "İŞKUR interns",
     "hint": "Only accounts whose e-mail address is on this list count as İŞKUR interns; other students do not see the İŞKUR screens. An address can be added before the person signs up.",
@@ -8146,5 +8232,15 @@
     "removePlacedHint": "Remove the placement first.",
     "removed": "The address was removed from the list.",
     "removeFailed": "The address could not be removed."
+  },
+  "iskurWeekHistory": {
+    "title": "Week history",
+    "kinds": {
+      "SUBMITTED": "Sent",
+      "APPROVED": "Approved",
+      "REVISION": "Revision requested",
+      "REJECTED": "Rejected",
+      "OBJECTION": "Objection"
+    }
   }
 }

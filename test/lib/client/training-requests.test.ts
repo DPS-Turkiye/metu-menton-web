@@ -1,11 +1,14 @@
 import { beforeEach, describe, vi } from "vitest";
 
 import {
+  getPrismLink,
   getStudentTraining,
   getTrainingForEditor,
   getTrainingQuiz,
+  postPrismCompleted,
   postTrainingAttempt,
   postVideoWatched,
+  putPrismLink,
   putTraining,
 } from "@/lib/client/training";
 import {
@@ -70,6 +73,27 @@ const calls: ClientCall[] = [
     call: () => postTrainingAttempt(3, { q1: 2 }),
     method: "post",
     args: ["/api/training/peer/attempts", { version: 3, answers: { q1: 2 } }],
+  },
+  {
+    title: "getPrismLink reads the encoded program's Prism link",
+    call: () => getPrismLink("prog/1"),
+    method: "get",
+    args: ["/api/coordinator/programs/prog%2F1/training/prism"],
+  },
+  {
+    title: "putPrismLink puts the link",
+    call: () => putPrismLink("prog/1", "https://prism.example.test"),
+    method: "put",
+    args: [
+      "/api/coordinator/programs/prog%2F1/training/prism",
+      { url: "https://prism.example.test" },
+    ],
+  },
+  {
+    title: "postPrismCompleted says the student finished Prism",
+    call: () => postPrismCompleted(),
+    method: "post",
+    args: ["/api/training/peer/prism-completed"],
   },
 ];
 

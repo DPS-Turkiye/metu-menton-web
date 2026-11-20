@@ -43,6 +43,7 @@ function row(overrides: Partial<GateBadgeRow> = {}): GateBadgeRow {
     reason: null,
     training: { videoWatched: false, attempts: 0, bestScore: null },
     profile: profile(),
+    prism: null,
     ...overrides,
   };
 }

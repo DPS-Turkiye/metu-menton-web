@@ -10,6 +10,7 @@ import { Card } from "@/components/ia/card";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { ISKUR_FIELD_CLASS, Segmented } from "@/components/student/iskur-ui";
 import { IskurProgressCard } from "@/components/student/iskur/progress-card";
+import { IskurWeekHistory } from "@/components/student/iskur/week-history";
 import { WEEK_STATUS_TONES } from "@/components/student/iskur/week-status";
 import { useIskurWorkLog } from "@/hooks/use-iskur-week";
 import { useReportDuration } from "@/hooks/use-report-format";
@@ -544,7 +545,10 @@ function Weekly({ log, week }: { log: Log; week: IskurWeek }) {
           </Link>
         </Card>
       </div>
-      <Send log={log} week={week} />
+      <div className="space-y-6">
+        <Send log={log} week={week} />
+        <IskurWeekHistory events={week.history} />
+      </div>
     </div>
   );
 }

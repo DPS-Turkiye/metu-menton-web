@@ -1,9 +1,11 @@
 import { IskurTaskKind, IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import {
+  IskurWeekEventKind,
   IskurWeekStatus,
   IskurWorkEntryKind,
   type IskurLeaderWeek,
   type IskurWeek,
+  type IskurWeekHistoryEvent,
   type IskurWorkEntry,
 } from "@/interfaces/iskur-weeks";
 
@@ -66,6 +68,7 @@ export function createIskurWeek(overrides: Partial<IskurWeek> = {}): IskurWeek {
     supportActivities: [
       { id: ACTIVITY_ID, title: "Açık ofis saati", description: null },
     ],
+    history: [],
     ...overrides,
   };
 }
@@ -139,6 +142,64 @@ export function createIskurLeaderWeek(
         mentoringMinutes: 0,
       },
     ],
+    history: [],
     ...overrides,
   };
+}
+
+/** A week sent, sent back, objected to, sent again and approved: one step of every kind. */
+export function createIskurWeekHistory(): IskurWeekHistoryEvent[] {
+  const intern = { userId: "member-1", fullName: "Mert Demir" };
+  const leader = { userId: "leader-1", fullName: "Zeynep Kaya" };
+  const plain = {
+    text: null,
+    timeMatchesWork: null,
+    effortDocumented: null,
+    outputsSufficient: null,
+  };
+  const checked = {
+    timeMatchesWork: true,
+    effortDocumented: true,
+    outputsSufficient: false,
+  };
+  return [
+    {
+      ...plain,
+      step: 0,
+      kind: IskurWeekEventKind.Submitted,
+      at: "2026-11-20T15:40:00Z",
+      by: intern,
+    },
+    {
+      ...checked,
+      step: 1,
+      kind: IskurWeekEventKind.Revision,
+      at: "2026-11-21T09:00:00Z",
+      by: leader,
+      text: "Çıktı bağlantısı eksik",
+    },
+    {
+      ...plain,
+      step: 2,
+      kind: IskurWeekEventKind.Objection,
+      at: "2026-11-21T10:00:00Z",
+      by: intern,
+      text: "Bağlantıyı notta paylaştım",
+    },
+    {
+      ...plain,
+      step: 3,
+      kind: IskurWeekEventKind.Submitted,
+      at: "2026-11-21T11:00:00Z",
+      by: intern,
+    },
+    {
+      ...checked,
+      step: 4,
+      kind: IskurWeekEventKind.Approved,
+      at: "2026-11-22T08:00:00Z",
+      by: null,
+      text: null,
+    },
+  ];
 }

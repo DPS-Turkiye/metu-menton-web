@@ -24,7 +24,10 @@ export type SaveTrainingInput = {
 export const TRAINING_QUESTION_COUNT = 10;
 export const TRAINING_OPTION_COUNT = 4;
 
-/** Where the student stands with their peer program's training (`GET /api/training/peer`). */
+/**
+ * Where the student stands with their peer program's training (`GET /api/training/peer`). Video and Quiz are the
+ * in-app training; the Prism states are ODTÜ's, where the training runs on Prism and a coordinator approves.
+ */
 export enum TrainingState {
   NotAvailable = "NOT_AVAILABLE",
   Video = "VIDEO",
@@ -32,6 +35,13 @@ export enum TrainingState {
   BadgeActive = "BADGE_ACTIVE",
   /** Their badge was taken back; only a coordinator or admin can award it again. */
   Blocked = "BLOCKED",
+  PrismTodo = "PRISM_TODO",
+  /** The student said they finished Prism; waiting for the coordinator. */
+  PrismPending = "PRISM_PENDING",
+  /** The coordinator asked them to take the test again. */
+  PrismRetake = "PRISM_RETAKE",
+  /** The program's peer mentors come from its İŞKUR interns, and this student is not one. */
+  InternsOnly = "INTERNS_ONLY",
 }
 
 export type StudentTraining = {
@@ -46,6 +56,17 @@ export type StudentTraining = {
   lastScore: number | null;
   passMark: number;
   questionCount: number;
+  /** The program's Prism training, in the Prism states. */
+  prismUrl: string | null;
+  prismCompletedAt: string | null;
+};
+
+/** The program's Prism link for the training editor (`GET …/training/prism`); `url` is null before the first save. */
+export type PrismLink = {
+  url: string | null;
+  updatedAt: string | null;
+  /** Whether this deployment still runs the in-app quiz; ODTÜ does not. */
+  inAppQuiz: boolean;
 };
 
 /** One attempt's questions in a fresh order; an option is answered by its `index`. No correct answers. */
