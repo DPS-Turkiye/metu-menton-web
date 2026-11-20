@@ -429,14 +429,19 @@ test.describe("İŞKUR", () => {
     await expect(
       page.getByRole("heading", { name: `Ekibin belli oldu: ${teamName}` }),
     ).toBeVisible();
+    // Finalized before the onboarding, so the reveal says "Kesin atama" and names the leader under "Kime sorarım?".
+    await expect(page.getByText("Kesin atama")).toBeVisible();
     await expect(
-      page.getByText(`Lideriniz ${Persona.ZeynepDemir}`),
+      page.getByText(`Ekip liderin · ${Persona.ZeynepDemir}`),
     ).toBeVisible();
 
     await signInAs(page, Persona.ZeynepDemir);
     await onboard(page);
     await page.goto("/student");
-    await expect(page.getByText("Bu ekipte ekip liderisin")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Ekibin belli oldu: ${teamName}` }),
+    ).toBeVisible();
+    await expect(page.getByText("Ekip lideri · 1 üye")).toBeVisible();
   });
 
   test("the leader assigns Mehmet a task", async ({ page }) => {
