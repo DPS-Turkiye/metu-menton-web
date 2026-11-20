@@ -20,6 +20,7 @@ test.use({ timezoneId: "Europe/Istanbul" });
 const RUN = Date.now().toString(36);
 const PROGRAM = `E2E İŞKUR Akran ${RUN}`;
 const CATEGORY = "Kariyer ve Staj";
+const PRISM_LINK = "https://prism.example.test/akran-mentoru";
 const HELP_WITH = `Staj başvurusu ve CV üzerine birlikte çalışabiliriz (${RUN}).`;
 const REQUEST_MESSAGE = `Yaz stajı için CV'mi birlikte gözden geçirmek istiyorum (${RUN}).`;
 const UUID = /[0-9a-f-]{36}/;
@@ -127,7 +128,7 @@ test.describe("Akran", () => {
     ).toHaveCount(0, { timeout: 15_000 });
   });
 
-  test("three students are in the program; the coordinator lists two as İŞKUR interns and turns a category on", async ({
+  test("three students are in the program; the coordinator lists two as İŞKUR interns, turns a category on and sets the Prism link", async ({
     page,
   }) => {
     await joinProgram(page, [
@@ -154,6 +155,11 @@ test.describe("Akran", () => {
     await page.getByRole("checkbox", { name: CATEGORY }).check();
     await page.getByRole("button", { name: "Kategorileri kaydet" }).click();
     await expect(page.getByText("Kategoriler kaydedildi.")).toBeVisible();
+
+    // The training lives on Prism: the link students open from their training page.
+    await page.getByLabel("Prism bağlantısı").fill(PRISM_LINK);
+    await page.getByRole("button", { name: "Bağlantıyı kaydet" }).click();
+    await expect(page.getByText("Bağlantı kaydedildi.")).toBeVisible();
   });
 
   test("the coordinator applies the Prism results: Mehmet approved (badge), Zeynep to retake", async ({
@@ -189,6 +195,9 @@ test.describe("Akran", () => {
     await signInAs(page, Persona.ZeynepDemir);
     await page.goto("/student/peer-mentoring/training");
     await expect(page.getByText("Testi tekrar alman gerekiyor")).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Prism'de aç" }),
+    ).toHaveAttribute("href", PRISM_LINK);
   });
 
   test("Mehmet fills in and publishes his mentor profile", async ({ page }) => {
