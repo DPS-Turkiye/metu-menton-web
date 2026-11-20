@@ -160,7 +160,7 @@ export function todoHref(todo: IskurTodo): string | null {
     case IskurTodoKind.Request:
       return PEER_MENTOR_GIVE_HREF;
     case IskurTodoKind.MissingDay:
-      return `${iskurWorkLogHref(todo.weekStart)}&day=${todo.date}`;
+      return iskurWorkLogHref(todo.weekStart, false, todo.date);
     case IskurTodoKind.Revision:
     case IskurTodoKind.Submit:
       return iskurWorkLogHref(todo.weekStart, true);

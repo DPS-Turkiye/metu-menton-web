@@ -31,8 +31,14 @@ export const ISKUR_WORK_LOG_HREF = "/student/work-log";
 export const ISKUR_WEEK_KEY = "iskur-week";
 export const ISKUR_REVIEW_QUEUE_KEY = "iskur-review-queue";
 
-export function iskurWorkLogHref(weekStart: string, weekly = false) {
-  return `${ISKUR_WORK_LOG_HREF}?view=${weekly ? "weekly" : "daily"}&week=${weekStart}`;
+/** Çalışma kaydı on a week, daily or weekly, optionally opened on one day. */
+export function iskurWorkLogHref(
+  weekStart: string,
+  weekly = false,
+  day: string | null = null,
+) {
+  const base = `${ISKUR_WORK_LOG_HREF}?view=${weekly ? "weekly" : "daily"}&week=${weekStart}`;
+  return day ? `${base}&day=${day}` : base;
 }
 
 export function iskurLeaderWeekHref(weekId: string) {

@@ -125,7 +125,7 @@ function IskurToday({ state }: { state: ThisWeek }) {
       >
         {t("title")}
         {state.todos.length > 0 ? (
-          <span className="type-body-sm text-text-muted">
+          <span aria-hidden className="type-body-sm text-text-muted">
             {state.todos.length}
           </span>
         ) : null}

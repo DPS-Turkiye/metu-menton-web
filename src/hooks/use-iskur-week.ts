@@ -107,7 +107,8 @@ export function useIskurThisWeek() {
     retry: (failures, error) => !isNotPlaced(error) && failures < 1,
   });
   const week = query.data ?? null;
-  // The list's other sources only refine it: while they load or if they fail, it shows what the week alone gives.
+  // The list's other sources only refine it: if they fail it shows what the week alone gives. While they load the
+  // blocks wait, so rows do not pop in and move the main button after the first paint.
   const form = useQuery({
     queryKey: iskurOnboardingQueryKey,
     queryFn: getIskurOnboarding,
@@ -128,7 +129,9 @@ export function useIskurThisWeek() {
     week,
     supportOptions: week?.supportActivities ?? [],
     hidden: isNotPlaced(query.error),
-    loading: query.isPending,
+    loading:
+      query.isPending ||
+      (week != null && (form.isPending || previous.isPending)),
     failed: query.isError && !isNotPlaced(query.error),
     todos: week
       ? todayTodos({

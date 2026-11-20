@@ -35,6 +35,9 @@ describe("İŞKUR week helpers", () => {
       "/student/work-log?view=daily&week=2026-11-16",
     );
     expect(iskurWorkLogHref("2026-11-16", true)).toContain("view=weekly");
+    expect(iskurWorkLogHref("2026-11-16", false, "2026-11-18")).toBe(
+      "/student/work-log?view=daily&week=2026-11-16&day=2026-11-18",
+    );
     expect(iskurLeaderWeekHref("w/1")).toBe("/student/team/weeks/w%2F1");
     expect(iskurFallbackWeekHref("p/1", "w/1")).toBe(
       "/coordinator/programs/p%2F1/iskur/weeks/w%2F1",
