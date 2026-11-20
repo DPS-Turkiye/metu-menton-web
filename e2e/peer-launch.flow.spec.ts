@@ -485,10 +485,14 @@ test.describe("İŞKUR", () => {
     page,
   }) => {
     // Everything the leader's screens load, to check the mentee is in none of it, not only in what is drawn.
-    const bodies: string[] = [];
+    const responses: { path: string; body: string }[] = [];
     page.on("response", async (response) => {
-      if (response.url().includes("/api/") && response.ok()) {
-        bodies.push(await response.text().catch(() => ""));
+      const url = new URL(response.url());
+      if (url.pathname.startsWith("/api/") && response.ok()) {
+        responses.push({
+          path: url.pathname,
+          body: await response.text().catch(() => ""),
+        });
       }
     });
 
@@ -505,8 +509,11 @@ test.describe("İŞKUR", () => {
     await expect(page.getByText("İçerik gizli")).toBeVisible();
     for (const secret of [Persona.AyseYilmaz, REQUEST_MESSAGE]) {
       await expect(page.getByText(secret)).toHaveCount(0);
+      // Only the paths go into the report, never what they answered.
       expect(
-        bodies.filter((body) => body.includes(secret)),
+        responses
+          .filter((response) => response.body.includes(secret))
+          .map((response) => response.path),
         `the leader's screens loaded "${secret}"`,
       ).toEqual([]);
     }
