@@ -13,3 +13,9 @@ export enum CapacityKind {
   Open = "OPEN",
   Full = "FULL",
 }
+
+/** Öğrenciler's Prism note for someone without the badge. */
+export enum PrismRowStatus {
+  Pending = "PENDING",
+  Retake = "RETAKE",
+}

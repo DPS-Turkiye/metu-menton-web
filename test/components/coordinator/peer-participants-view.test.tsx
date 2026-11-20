@@ -7,6 +7,8 @@ import { PeerParticipantsView } from "@/components/coordinator/peer-participants
 import {
   BadgeSource,
   GateBadgeState,
+  PrismDecision,
+  PrismDecisionOutcome,
   type GateBadgeProfile,
   type GateBadgeRow,
 } from "@/interfaces/badges";
@@ -15,6 +17,7 @@ import {
   getProgramBadgeRoster,
   postGateBadgeAward,
   postGateBadgeRevoke,
+  postPrismDecisions,
 } from "@/lib/client/badges";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -40,6 +43,7 @@ vi.mock("@/lib/client/badges", () => ({
   getProgramBadgeRoster: vi.fn(),
   postGateBadgeAward: vi.fn(),
   postGateBadgeRevoke: vi.fn(),
+  postPrismDecisions: vi.fn(),
 }));
 
 function profile(overrides: Partial<GateBadgeProfile> = {}): GateBadgeProfile {
@@ -72,6 +76,7 @@ function row(overrides: Partial<GateBadgeRow>): GateBadgeRow {
     reason: null,
     training: { videoWatched: false, attempts: 0, bestScore: null },
     profile: profile({ mentorProfile: false, categories: [], classYear: 2 }),
+    prism: null,
     ...overrides,
   };
 }
@@ -368,5 +373,200 @@ describe("PeerParticipantsView", () => {
         "Bu programda henüz Akran Mentoru rozeti olan kimse yok.",
       ),
     ).toBeInTheDocument();
+  });
+
+  // Weekend launch §C: the Prism admin's list, approved or sent back in bulk.
+  it("applies a pasted Prism list and shows what happened to each address", async () => {
+    vi.mocked(postPrismDecisions).mockResolvedValue([
+      {
+        email: "zeynep@example.test",
+        outcome: PrismDecisionOutcome.Approved,
+        fullName: "Zeynep Öğrenci",
+      },
+      {
+        email: "yok@example.test",
+        outcome: PrismDecisionOutcome.NotFound,
+        fullName: null,
+      },
+      {
+        email: "ogrenci@example.test",
+        outcome: PrismDecisionOutcome.NotEligible,
+        fullName: "Ali Öğrenci",
+      },
+    ]);
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.PeerMentors} />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Prism sonuçları" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const send = within(dialog).getByRole("button", { name: "Uygula" });
+    expect(send).toBeDisabled();
+    await user.type(
+      within(dialog).getByLabelText("E-postalar ve puanlar"),
+      "Zeynep Öğrenci, zeynep@example.test, 86{enter}yok@example.test{enter}ogrenci@example.test{enter}başlık satırı",
+    );
+    expect(dialog).toHaveTextContent("3 adres okundu");
+    expect(dialog).toHaveTextContent("Okunamayan satırlar: başlık satırı");
+    await user.click(
+      within(dialog).getByLabelText("Akran mentoru olarak onayla"),
+    );
+    await user.click(send);
+
+    await waitFor(() =>
+      expect(postPrismDecisions).toHaveBeenCalledWith("p1", {
+        decision: PrismDecision.Approved,
+        entries: [
+          { email: "zeynep@example.test", score: "86" },
+          { email: "yok@example.test", score: null },
+          { email: "ogrenci@example.test", score: null },
+        ],
+      }),
+    );
+    const results = within(dialog).getByRole("status");
+    await waitFor(() =>
+      expect(results).toHaveTextContent(
+        "Zeynep Öğrencizeynep@example.testOnaylandı, rozet verildi",
+      ),
+    );
+    expect(within(dialog).getByLabelText("E-postalar ve puanlar")).toHaveValue(
+      "",
+    );
+    expect(send).toBeDisabled();
+    expect(results).toHaveTextContent(
+      "yok@example.testBu programda bulunamadı",
+    );
+    expect(results).toHaveTextContent("Uygun değil");
+    expect(getProgramBadgeRoster).toHaveBeenCalledTimes(2);
+
+    await user.click(within(dialog).getByRole("button", { name: "Kapat" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Onaylandı");
+
+    await user.click(screen.getByRole("button", { name: "Prism sonuçları" }));
+    expect(
+      within(await screen.findByRole("dialog")).getByRole("status"),
+    ).toBeEmptyDOMElement();
+  });
+
+  it("says how many addresses a paste has and refuses more than the backend takes", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.Students} />,
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Prism sonuçları" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const list = within(dialog).getByLabelText("E-postalar ve puanlar");
+    await user.click(list);
+    await user.paste(
+      Array.from(
+        { length: 501 },
+        (_, index) => `kisi${index}@example.test`,
+      ).join("\n"),
+    );
+
+    expect(dialog).toHaveTextContent("501 adres okundu");
+    expect(dialog).toHaveTextContent(
+      "Tek seferde en fazla 500 adres gönderebilirsin.",
+    );
+    expect(
+      within(dialog).getByRole("button", { name: "Uygula" }),
+    ).toBeDisabled();
+    expect(list).toHaveAccessibleDescription("501 adres okundu");
+
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    expect(postPrismDecisions).not.toHaveBeenCalled();
+  });
+
+  it("asks one student on Öğrenciler to retake the test from the row menu", async () => {
+    vi.mocked(postPrismDecisions).mockResolvedValue([
+      {
+        email: "zeynep@odtu-dev.invalid",
+        outcome: PrismDecisionOutcome.Retake,
+        fullName: "Zeynep Öğrenci",
+      },
+    ]);
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.Students} />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Zeynep Öğrenci için işlemler",
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Prism: testi tekrar alsın" }),
+    );
+
+    await waitFor(() =>
+      expect(postPrismDecisions).toHaveBeenCalledWith("p1", {
+        decision: PrismDecision.Retake,
+        entries: [{ email: "zeynep@odtu-dev.invalid", score: null }],
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Testi tekrar alacak, bildirim gönderildi",
+      ),
+    );
+  });
+
+  it("shows a student waiting for a Prism decision with their score, and a failed decision", async () => {
+    vi.mocked(getProgramBadgeRoster).mockResolvedValue([
+      row({
+        prism: {
+          completedAt: "2026-11-20T09:00:00Z",
+          decision: PrismDecision.Retake,
+          decidedAt: "2026-11-19T09:00:00Z",
+          score: "62/100",
+        },
+      }),
+      row({
+        userId: "u5",
+        fullName: "Ali Tekrar",
+        prism: {
+          completedAt: null,
+          decision: PrismDecision.Retake,
+          decidedAt: "2026-11-19T09:00:00Z",
+          score: null,
+        },
+      }),
+    ]);
+    vi.mocked(postPrismDecisions).mockRejectedValue(
+      new Error("Kararlar uygulanamadı."),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.Students} />,
+    );
+
+    const zeynep = (await screen.findByText("Zeynep Öğrenci")).closest("tr")!;
+    expect(
+      within(zeynep).getByText("Prism: değerlendirme bekliyor"),
+    ).toBeInTheDocument();
+    expect(within(zeynep).getByText("Prism puanı: 62/100")).toBeInTheDocument();
+    expect(screen.getByText("Ali Tekrar").closest("tr")).toHaveTextContent(
+      "Prism: testi tekrar alacak",
+    );
+
+    await user.click(
+      within(zeynep).getByRole("button", {
+        name: "Zeynep Öğrenci için işlemler",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "Prism: onayla" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Kararlar uygulanamadı.",
+    );
   });
 });

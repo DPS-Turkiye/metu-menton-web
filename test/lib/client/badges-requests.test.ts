@@ -1,6 +1,6 @@
 import { beforeEach, describe, vi } from "vitest";
 
-import { GateBadgeState } from "@/interfaces/badges";
+import { GateBadgeState, PrismDecision } from "@/interfaces/badges";
 import {
   getAdminStudents,
   getMyAchievements,
@@ -9,6 +9,7 @@ import {
   getUserBadges,
   postGateBadgeAward,
   postGateBadgeRevoke,
+  postPrismDecisions,
 } from "@/lib/client/badges";
 import {
   itSendsEachClientCall,
@@ -81,6 +82,22 @@ const calls: ClientCall[] = [
     call: () => getAdminStudents(GateBadgeState.Active),
     method: "get",
     args: ["/api/admin/students", { params: { state: GateBadgeState.Active } }],
+  },
+  {
+    title: "postPrismDecisions posts the decision and the addresses",
+    call: () =>
+      postPrismDecisions("prog/1", {
+        decision: PrismDecision.Approved,
+        entries: [{ email: "a@example.test", score: null }],
+      }),
+    method: "post",
+    args: [
+      "/api/coordinator/programs/prog%2F1/badges/prism-decisions",
+      {
+        decision: PrismDecision.Approved,
+        entries: [{ email: "a@example.test", score: null }],
+      },
+    ],
   },
 ];
 

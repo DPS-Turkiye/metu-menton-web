@@ -10,15 +10,18 @@ import type {
 import {
   getStudentTraining,
   getTrainingQuiz,
+  postPrismCompleted,
   postTrainingAttempt,
   postVideoWatched,
 } from "@/lib/client/training";
+import { httpUrlOrNull } from "@/lib/utils";
 
 export const STUDENT_TRAINING_QUERY_KEY = ["training", "peer"] as const;
 
 /**
  * The student's Akran Mentoru training: video → quiz → result. The quiz is fetched only when the student starts
- * it, in a fresh order each time; answers are kept by question id and the option's own index.
+ * it, in a fresh order each time; answers are kept by question id and the option's own index. On ODTÜ the training
+ * runs on Prism instead: the page links there and the student can say they finished it.
  */
 export function useStudentTraining() {
   const queryClient = useQueryClient();
@@ -43,6 +46,10 @@ export function useStudentTraining() {
     mutationFn: postVideoWatched,
     onSuccess: store,
   });
+  const prismDone = useMutation({
+    mutationFn: postPrismCompleted,
+    onSuccess: store,
+  });
   const submit = useMutation({
     mutationFn: () => postTrainingAttempt(quiz.data?.version ?? 0, answers),
     onSuccess: (outcome) => {
@@ -61,6 +68,13 @@ export function useStudentTraining() {
     training: training.data ?? null,
     isLoading: training.isLoading,
     loadError: training.error,
+    /** Only a plain http(s) link becomes the Prism button's href. */
+    prismHref: httpUrlOrNull(training.data?.prismUrl),
+    markPrismCompleted: () => {
+      if (!prismDone.isPending) prismDone.mutate();
+    },
+    isMarkingPrism: prismDone.isPending,
+    prismError: prismDone.error,
     markWatched: () => {
       if (!watched.isPending) watched.mutate();
     },
