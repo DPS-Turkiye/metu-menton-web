@@ -7,6 +7,7 @@ import type {
   OfficeHoursSessionUser,
 } from "@/interfaces/office-hours";
 import { SessionRequiredError } from "@/lib/server/session-error";
+import { sessionPassword } from "@/lib/server/session-password";
 
 export const OFFICE_HOURS_COOKIE = "menton_office_hours";
 const OFFICE_HOURS_MAX_AGE_SECONDS = 60 * 60 * 8;
@@ -19,10 +20,7 @@ const OFFICE_HOURS_MAX_AGE_SECONDS = 60 * 60 * 8;
  * POST itself needs no cookie; its state and nonce are checked by the backend.
  */
 function officeHoursSessionOptions(): SessionOptions {
-  const password = process.env.SESSION_PASSWORD;
-  if (!password || password.length < 32) {
-    throw new Error("SESSION_PASSWORD must contain at least 32 characters.");
-  }
+  const password = sessionPassword();
   const production = process.env.NODE_ENV === "production";
   return {
     cookieName: OFFICE_HOURS_COOKIE,

@@ -6057,6 +6057,7 @@
     "workspaceSwitchFailed": "Could not switch the workspace.",
     "institutionUnknown": "You cannot sign in through this institution.",
     "institutionLoginFailed": "The institution sign-in could not be completed. Please try again.",
+    "institutionLoginTooMany": "Too many sign-in attempts. Please wait a little and try again.",
     "institutionLoginExpired": "This sign-in expired or was started in another browser. Please sign in again.",
     "institutionRecordLoadFailed": "Could not load your institution details.",
     "adviseeProfileLoadFailed": "Could not load the student's interests and goal.",

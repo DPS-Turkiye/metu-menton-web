@@ -58,6 +58,21 @@ describe("OTG callback", () => {
     login.mockResolvedValue({});
   });
 
+  it("clears the code from the URL on arrival and still trades it", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      "/auth/otg/callback?code=code-1&state=s-1",
+    );
+    renderCallback();
+
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/workspace"));
+    expect(window.location.search).toBe("");
+    expect(completeInstitutionLogin).toHaveBeenCalledWith("otg", "s-1", {
+      code: "code-1",
+    });
+  });
+
   it("trades the code once and opens the session", async () => {
     renderCallback();
 

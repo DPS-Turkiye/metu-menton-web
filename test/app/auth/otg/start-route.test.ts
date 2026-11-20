@@ -4,10 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as start } from "@/app/auth/otg/start/route";
 import { InstitutionProvider } from "@/interfaces/institution-login";
 import { startInstitutionLogin } from "@/lib/api/institution-login";
+import { institutionLoginCookieName } from "@/lib/server/institution-login-cookie";
 import {
-  INSTITUTION_LOGIN_COOKIE,
-  type PendingInstitutionLogin,
-} from "@/lib/server/institution-login-cookie";
+  savedLoginIn,
+  TEST_SESSION_PASSWORD,
+} from "@test/fixtures/institution-login";
 
 vi.mock("@/lib/api/institution-login", () => ({
   startInstitutionLogin: vi.fn(),
@@ -20,19 +21,15 @@ function open(query = "") {
   return start(new NextRequest(`http://localhost:3000/auth/otg/start${query}`));
 }
 
-function savedLogin(response: Response): PendingInstitutionLogin {
-  const cookie = response.headers.get("set-cookie") ?? "";
-  const [pair = ""] = cookie.split(";");
-  const value = pair.split("=").slice(1).join("=");
-  // The tests below check the parsed cookie's whole shape with toEqual.
-  const saved: PendingInstitutionLogin = JSON.parse(decodeURIComponent(value));
-  return saved;
+function savedLogin(response: Response) {
+  return savedLoginIn(response);
 }
 
 describe("GET /auth/otg/start", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NEXT_PUBLIC_OTG_LOGIN_ENABLED", "true");
+    vi.stubEnv("SESSION_PASSWORD", TEST_SESSION_PASSWORD);
     vi.mocked(startInstitutionLogin).mockResolvedValue({
       status: 200,
       data: { redirectUrl: OTG_AUTHORIZE, state: "s-1" },
@@ -60,9 +57,9 @@ describe("GET /auth/otg/start", () => {
     expect(response.headers.get("location")).toBe(OTG_AUTHORIZE);
     expect(startInstitutionLogin).toHaveBeenCalledWith(InstitutionProvider.Otg);
     const cookie = response.headers.get("set-cookie") ?? "";
-    expect(cookie).toContain(`${INSTITUTION_LOGIN_COOKIE}=`);
+    expect(cookie).toContain(`${institutionLoginCookieName()}=`);
     expect(cookie.toLowerCase()).toContain("httponly");
-    expect(savedLogin(response)).toEqual({
+    expect(await savedLogin(response)).toEqual({
       provider: "otg",
       state: "s-1",
       next: null,
@@ -70,7 +67,7 @@ describe("GET /auth/otg/start", () => {
   });
 
   it("keeps an in-app ?next= and drops anything that leaves the site", async () => {
-    expect(savedLogin(await open("?next=%2Fprograms%2F42")).next).toBe(
+    expect((await savedLogin(await open("?next=%2Fprograms%2F42"))).next).toBe(
       "/programs/42",
     );
     for (const next of [
@@ -79,7 +76,8 @@ describe("GET /auth/otg/start", () => {
       "/\\evil.example",
     ]) {
       expect(
-        savedLogin(await open(`?next=${encodeURIComponent(next)}`)).next,
+        (await savedLogin(await open(`?next=${encodeURIComponent(next)}`)))
+          .next,
       ).toBeNull();
     }
   });
@@ -101,6 +99,23 @@ describe("GET /auth/otg/start", () => {
     expect((await open("?next=%2Fprograms%2F42")).headers.get("location")).toBe(
       "http://localhost:3000/login?otg=hata&next=%2Fprograms%2F42",
     );
+  });
+
+  it("sends an address that starts too often back to the login page", async () => {
+    const from = () =>
+      start(
+        new NextRequest("http://localhost:3000/auth/otg/start", {
+          headers: { "x-forwarded-for": "198.51.100.9" },
+        }),
+      );
+    for (let turn = 0; turn < 120; turn += 1) await from();
+
+    const refused = await from();
+    expect(refused.headers.get("location")).toBe(
+      "http://localhost:3000/login?otg=hata",
+    );
+    expect(refused.headers.get("set-cookie")).toBeNull();
+    expect(startInstitutionLogin).toHaveBeenCalledTimes(120);
   });
 
   it("never follows a redirect that is not https", async () => {

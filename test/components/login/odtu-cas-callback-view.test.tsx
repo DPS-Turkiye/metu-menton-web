@@ -81,6 +81,28 @@ describe("ODTÜ CAS callback", () => {
     expect(login).toHaveBeenCalledWith("id-token-1");
   });
 
+  // The spent ticket must not stay in the address bar or the history, on success or failure alike.
+  it("clears the ticket from the URL on arrival and still hands it to the server", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      "/login/odtu/callback?state=s-1&ticket=ST-1-cas",
+    );
+    vi.mocked(completeInstitutionLogin).mockRejectedValue(
+      new Error("ODTÜ girişi doğrulanamadı. Lütfen yeniden giriş yap."),
+    );
+    renderCallback();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "ODTÜ girişi doğrulanamadı.",
+    );
+    expect(window.location.pathname).toBe("/login/odtu/callback");
+    expect(window.location.search).toBe("");
+    expect(completeInstitutionLogin).toHaveBeenCalledWith("odtu-cas", "s-1", {
+      ticket: "ST-1-cas",
+    });
+  });
+
   it("goes on to the in-app page the login was started for", async () => {
     vi.mocked(completeInstitutionLogin).mockResolvedValue({
       customToken: "custom-1",

@@ -9,6 +9,7 @@ import {
 } from "@/lib/otg-login";
 import { safeNextPath } from "@/lib/public-paths";
 import { rememberInstitutionLogin } from "@/lib/server/institution-login-cookie";
+import { takeInstitutionLoginStart } from "@/lib/server/institution-login-limit";
 
 function backToLogin(request: NextRequest, next: string | null) {
   const login = new URL("/login", request.url);
@@ -24,11 +25,14 @@ function backToLogin(request: NextRequest, next: string | null) {
 export async function GET(request: NextRequest) {
   if (!isOtgLoginEnabled()) return new NextResponse(null, { status: 404 });
   const next = safeNextPath(request.nextUrl.searchParams.get("next"));
+  if (!takeInstitutionLoginStart(request.headers).allowed) {
+    return backToLogin(request, next);
+  }
   try {
     const started = await startInstitutionLogin(InstitutionProvider.Otg);
     const target = started.status === 200 ? started.data.redirectUrl : "";
     if (!target.startsWith("https://")) return backToLogin(request, next);
-    return rememberInstitutionLogin(NextResponse.redirect(target), {
+    return await rememberInstitutionLogin(NextResponse.redirect(target), {
       provider: InstitutionProvider.Otg,
       state: started.data.state,
       next,

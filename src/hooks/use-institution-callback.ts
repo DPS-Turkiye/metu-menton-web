@@ -28,7 +28,8 @@ export type InstitutionCallback = {
  * Finishes an institution sign-in on its callback page. The proof is traded on the server (which also checks this
  * browser started the login); the browser signs in to Firebase with the custom token, then opens the session.
  * Someone the institution knows but Menton doesn't yet lands in the ordinary sign-up, already signed in. A null
- * callback means the redirect itself was unusable, and nothing is sent.
+ * callback means the redirect itself was unusable, and nothing is sent. The callback page's query is cleared from the
+ * URL on arrival, so callers must read it once (the first render's values), not on every render.
  */
 export function useInstitutionCallback(
   provider: InstitutionProvider,
@@ -39,6 +40,14 @@ export function useInstitutionCallback(
   const [error, setError] = useState("");
   // The state and the proof are single use; a second run (StrictMode, a re-render) would only fail.
   const started = useRef(false);
+
+  // The proof is spent the moment it is sent, but it would stay in the address bar and the history, where a shared
+  // screen or a copied link carries it. The callers read the parameters once, before this clears them.
+  useEffect(() => {
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
   const state = callback?.state;
   const proofName = callback?.proofName;
   const proof = callback?.proof;

@@ -6059,6 +6059,7 @@
     "workspaceSwitchFailed": "Çalışma alanı değiştirilemedi.",
     "institutionUnknown": "Bu kurumla giriş yapılamıyor.",
     "institutionLoginFailed": "Kurum girişi tamamlanamadı. Lütfen yeniden dene.",
+    "institutionLoginTooMany": "Çok fazla giriş denemesi yapıldı. Lütfen biraz bekleyip yeniden dene.",
     "institutionLoginExpired": "Giriş bağlantısının süresi doldu ya da başka bir tarayıcıda başlatıldı. Lütfen yeniden giriş yap.",
     "institutionRecordLoadFailed": "Kurumsal bilgiler yüklenemedi.",
     "adviseeProfileLoadFailed": "Öğrencinin ilgi alanları ve hedefi yüklenemedi.",
