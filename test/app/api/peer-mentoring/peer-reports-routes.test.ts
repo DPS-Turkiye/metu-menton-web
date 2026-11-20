@@ -223,6 +223,8 @@ const bodyCases: BodyCase[] = [
       "an unknown topic": { topics: ["GOSSIP"] },
       "a productivity of 6": { productivity: 6 },
       "a duration of 0": { actualDurationMinutes: 0 },
+      "a negative preparation time": { preparationMinutes: -1 },
+      "a follow-up time over the limit": { followUpMinutes: 601 },
       "an empty action": { actions: [{ text: " ", owner: "MENTEE" }] },
       "an action id that isn't a uuid": {
         actions: [{ id: "x", text: "CV", owner: "MENTEE" }],

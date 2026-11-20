@@ -65,7 +65,11 @@ export type PeerReportMeeting = {
   menteeId: string;
   menteeName: string;
   scheduledAt: string;
+  /** Everything the meeting counts for as mentoring work: the three parts below added up. */
   durationMinutes: number;
+  meetingMinutes: number;
+  preparationMinutes: number;
+  followUpMinutes: number;
   meetingType: PeerMeetingType | null;
   meetingFormat: PeerMeetingFormat | null;
   reportStatus: PeerReportStatus | null;
@@ -100,6 +104,9 @@ export type PeerMeetingReport = {
   meetingType: PeerMeetingType | null;
   meetingFormat: PeerMeetingFormat | null;
   actualDurationMinutes: number | null;
+  /** Time spent preparing, and on the report and follow-up; both count as mentoring minutes (Figma 7.1). */
+  preparationMinutes: number | null;
+  followUpMinutes: number | null;
   topics: PeerMeetingTopic[];
   menteeNeed: string | null;
   discussion: string | null;
@@ -130,6 +137,9 @@ export type SavePeerMeetingReportInput = {
   meetingType: PeerMeetingType | null;
   meetingFormat: PeerMeetingFormat | null;
   actualDurationMinutes: number | null;
+  /** Time spent preparing, and on the report and follow-up; both count as mentoring minutes (Figma 7.1). */
+  preparationMinutes: number | null;
+  followUpMinutes: number | null;
   topics: PeerMeetingTopic[];
   menteeNeed: string | null;
   discussion: string | null;

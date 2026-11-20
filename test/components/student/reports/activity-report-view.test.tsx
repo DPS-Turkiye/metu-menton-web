@@ -118,6 +118,37 @@ describe("ActivityReportView", () => {
     expect(getPeerDailyReport).not.toHaveBeenCalled();
   });
 
+  // Round, 20 Nov: the row keeps the counted total, and its parts sit under it so nobody reads it as the meeting length.
+  it("spells out a meeting's parts under its total once preparation or follow-up time is recorded", async () => {
+    const report = peerDailyReportFixture();
+    const [meeting] = report.meetings;
+    if (!meeting) throw new Error("fixture has a meeting");
+    vi.mocked(getPeerDailyReport).mockResolvedValue({
+      ...report,
+      meetings: [
+        {
+          ...meeting,
+          durationMinutes: 70,
+          meetingMinutes: 45,
+          preparationMinutes: 15,
+          followUpMinutes: 10,
+        },
+      ],
+    });
+    renderWithQueryClient(<ActivityReportView />);
+
+    expect(
+      await screen.findByText("Görüşme 45 dk · Hazırlık 15 · Takip 10"),
+    ).toBeInTheDocument();
+  });
+
+  it("adds no parts line to a meeting that is only the meeting", async () => {
+    renderWithQueryClient(<ActivityReportView />);
+
+    expect(await screen.findByText("Görüşme · Emre Kaya")).toBeInTheDocument();
+    expect(screen.queryByText(/Hazırlık \d+ · Takip/)).toBeNull();
+  });
+
   it("lists the day's meetings and activities, and links an unwritten report", async () => {
     renderWithQueryClient(<ActivityReportView />);
 

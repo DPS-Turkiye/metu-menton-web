@@ -14,6 +14,7 @@ import {
   dailyReportInput,
   dailyReportReady,
   emptyActivityForm,
+  hasTimeBreakdown,
   invalidActivityFields,
   latestUnreportedMeeting,
   meetingRowBadge,
@@ -288,5 +289,19 @@ describe("weekCardCounts", () => {
         weeklyReport({ status: PeerReportStatus.Approved, editable: false }),
       ).waitingForAnswers,
     ).toBe(false);
+  });
+});
+
+describe("hasTimeBreakdown", () => {
+  it("is true only when preparation or follow-up time is recorded", () => {
+    expect(
+      hasTimeBreakdown({ preparationMinutes: 0, followUpMinutes: 0 }),
+    ).toBe(false);
+    expect(
+      hasTimeBreakdown({ preparationMinutes: 15, followUpMinutes: 0 }),
+    ).toBe(true);
+    expect(
+      hasTimeBreakdown({ preparationMinutes: 0, followUpMinutes: 10 }),
+    ).toBe(true);
   });
 });

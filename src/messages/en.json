@@ -86,6 +86,11 @@
     "failed": "Signing in with ODTÜ TEKNOKENT Girişimcilik could not be completed. Please try again.",
     "backToLogin": "Back to sign-in"
   },
+  "odtuCasLogin": {
+    "signingIn": "Signing you in with your ODTÜ account…",
+    "failed": "Signing in with ODTÜ could not be completed. Please try again.",
+    "backToLogin": "Back to sign-in"
+  },
   "workspaceSwitch": {
     "label": "Workspace",
     "names": {
@@ -6037,7 +6042,8 @@
     "prismPendingBody": "Your coordinator reviews your Prism result and decides. You do not need to do anything meanwhile.",
     "prismPendingSince": "You said you completed it: {date}",
     "prismRetakeTitle": "You need to take the test again",
-    "prismRetakeBody": "Take the test again on Prism. When you are done, you can say so below."
+    "prismRetakeBody": "Take the test again on Prism. When you are done, you can say so below.",
+    "prismLinkPending": "Your coordinator will add the Prism link."
   },
   "apiErrors": {
     "trainingSubmitFailed": "Could not submit the answers.",
@@ -6051,6 +6057,7 @@
     "workspaceSwitchFailed": "Could not switch the workspace.",
     "institutionUnknown": "You cannot sign in through this institution.",
     "institutionLoginFailed": "The institution sign-in could not be completed. Please try again.",
+    "institutionLoginTooMany": "Too many sign-in attempts. Please wait a little and try again.",
     "institutionLoginExpired": "This sign-in expired or was started in another browser. Please sign in again.",
     "institutionRecordLoadFailed": "Could not load your institution details.",
     "adviseeProfileLoadFailed": "Could not load the student's interests and goal.",

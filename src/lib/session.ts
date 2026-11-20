@@ -22,13 +22,11 @@ import {
 } from "@/lib/public-paths";
 import { appEdition } from "@/lib/server/edition";
 import { SessionRequiredError } from "@/lib/server/session-error";
+import { sessionPassword } from "@/lib/server/session-password";
 import { isWorkspace, workspacesOf } from "@/lib/workspaces";
 
 function sessionOptions(persist = false): SessionOptions {
-  const password = process.env.SESSION_PASSWORD;
-  if (!password || password.length < 32) {
-    throw new Error("SESSION_PASSWORD must contain at least 32 characters.");
-  }
+  const password = sessionPassword();
 
   return {
     cookieName: "teknokent_session",

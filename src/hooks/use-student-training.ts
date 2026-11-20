@@ -3,9 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import type {
-  StudentTraining,
-  TrainingAttemptResult,
+import {
+  TrainingState,
+  type StudentTraining,
+  type TrainingAttemptResult,
 } from "@/interfaces/training";
 import {
   getStudentTraining,
@@ -70,6 +71,10 @@ export function useStudentTraining() {
     loadError: training.error,
     /** Only a plain http(s) link becomes the Prism button's href. */
     prismHref: httpUrlOrNull(training.data?.prismUrl),
+    /** Asked to retake before the coordinator set the link (or after it was cleared): say it is coming. */
+    prismLinkPending:
+      training.data?.state === TrainingState.PrismRetake &&
+      httpUrlOrNull(training.data.prismUrl) === null,
     markPrismCompleted: () => {
       if (!prismDone.isPending) prismDone.mutate();
     },

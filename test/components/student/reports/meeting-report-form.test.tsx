@@ -121,6 +121,49 @@ describe("MeetingReportScreen", () => {
     expect(await screen.findByText(/Son kaydetme/)).toBeInTheDocument();
   });
 
+  it("records preparation and follow-up time, totals it, and saves both", async () => {
+    vi.mocked(getPeerMeetingReport).mockResolvedValue(
+      peerMeetingReportFixture({ actualDurationMinutes: 45 }),
+    );
+    vi.mocked(savePeerMeetingReport).mockImplementation(async () =>
+      peerMeetingReportFixture({
+        id: "report-1",
+        status: PeerReportStatus.Draft,
+      }),
+    );
+    const user = userEvent.setup();
+    renderScreen();
+
+    expect(
+      await screen.findByRole("heading", { name: "Süre kaydı" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Akran Mentörlüğü’ne eklenecek: 45 dk"),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Hazırlık"), "20x");
+    await user.type(screen.getByLabelText("Rapor ve takip"), "15");
+
+    expect(screen.getByLabelText("Hazırlık")).toHaveValue("20");
+    expect(
+      screen.getByText("Akran Mentörlüğü’ne eklenecek: 1 sa 20 dk"),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Taslak Olarak Kaydet" }),
+    );
+
+    await waitFor(() => expect(savePeerMeetingReport).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(savePeerMeetingReport).mock.calls[0]).toEqual([
+      "meeting-1",
+      expect.objectContaining({
+        actualDurationMinutes: 45,
+        preparationMinutes: 20,
+        followUpMinutes: 15,
+      }),
+    ]);
+  });
+
   it("adds, edits and removes action steps", async () => {
     vi.mocked(getPeerMeetingReport).mockResolvedValue(
       peerMeetingReportFixture(),

@@ -27,6 +27,8 @@ export const peerMeetingReportSchema = z.object({
     .max(600)
     .nullable()
     .default(null),
+  preparationMinutes: z.number().int().min(0).max(600).nullable().default(null),
+  followUpMinutes: z.number().int().min(0).max(600).nullable().default(null),
   topics: z.array(z.enum(PeerMeetingTopic)).max(8).default([]),
   menteeNeed: optionalText(TEXT),
   discussion: optionalText(TEXT),

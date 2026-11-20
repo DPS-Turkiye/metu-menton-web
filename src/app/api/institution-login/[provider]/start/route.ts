@@ -7,10 +7,14 @@ import {
   backendResponse,
 } from "@/lib/server/api-response";
 import { rememberInstitutionLogin } from "@/lib/server/institution-login-cookie";
+import {
+  RETRY_AFTER_HEADER,
+  takeInstitutionLoginStart,
+} from "@/lib/server/institution-login-limit";
 import { toInstitutionProvider } from "@/lib/server/institution-provider";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ provider: string }> },
 ) {
   try {
@@ -21,10 +25,23 @@ export async function POST(
         { status: 404 },
       );
     }
+    const turn = takeInstitutionLoginStart(request.headers);
+    if (!turn.allowed) {
+      return NextResponse.json(
+        {
+          code: "RATE_LIMITED",
+          message: await apiText("institutionLoginTooMany"),
+        },
+        {
+          status: 429,
+          headers: { [RETRY_AFTER_HEADER]: String(turn.retryAfterSeconds) },
+        },
+      );
+    }
     const started = await startInstitutionLogin(provider);
     const response = backendResponse(started);
     return started.status === 200
-      ? rememberInstitutionLogin(response, {
+      ? await rememberInstitutionLogin(response, {
           provider,
           state: started.data.state,
           next: null,

@@ -48,7 +48,11 @@ export async function POST(
       invalidMessage: "institutionLoginFailed",
     });
     if (!body.ok) return body.response;
-    const pending = pendingInstitutionLogin(request, provider, body.data.state);
+    const pending = await pendingInstitutionLogin(
+      request,
+      provider,
+      body.data.state,
+    );
     if (!pending) {
       return forgetInstitutionLogin(
         NextResponse.json(
