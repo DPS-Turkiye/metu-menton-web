@@ -4,6 +4,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useId } from "react";
 
+import { usePrismLink } from "@/hooks/use-prism-link";
 import { useTrainingEditor } from "@/hooks/use-training-editor";
 import { TRAINING_OPTION_COUNT } from "@/interfaces/training";
 import { errorMessage, formatDateTime } from "@/lib/utils";
@@ -12,10 +13,114 @@ const inputClass =
   "w-full rounded-xl border border-[#e4e7ea] px-3 py-2 text-sm disabled:bg-[#f8f9fa]";
 
 /**
- * The peer program's Akran Mentoru training: a YouTube link and ten questions with four options each, one marked
- * correct. "Kaydet ve yayınla" publishes; any change starts a new version, which students begin again on.
+ * The peer program's Akran Mentoru training. On ODTÜ it runs on Prism: the coordinator sets the link, and the in-app
+ * quiz form is not shown because the quiz no longer awards the badge there. Where the quiz is still on, its editor
+ * follows the link.
  */
 export function ProgramTrainingEditor({
+  programId,
+  archived,
+}: {
+  programId: string;
+  archived: boolean;
+}) {
+  const t = useTranslations("trainingEditor");
+  const prism = usePrismLink(programId);
+  if (prism.isLoading) {
+    return (
+      <p role="status" className="text-sm text-[#676e78]">
+        {t("loading")}
+      </p>
+    );
+  }
+  if (prism.loadError) {
+    return (
+      <p role="alert" className="text-sm text-red-700">
+        {errorMessage(prism.loadError, t("loadFailed"))}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-8">
+      <PrismLinkSection prism={prism} archived={archived} />
+      {prism.inAppQuiz ? (
+        <QuizEditor programId={programId} archived={archived} />
+      ) : (
+        <p className="text-[13px] text-[#676e78]">{t("quizOff")}</p>
+      )}
+    </div>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function PrismLinkSection({
+  prism,
+  archived,
+}: {
+  prism: ReturnType<typeof usePrismLink>;
+  archived: boolean;
+}) {
+  const t = useTranslations("trainingEditor");
+  const locale = useLocale();
+  const fieldId = useId();
+  return (
+    <section className="space-y-3">
+      <h3 className="text-base font-semibold text-[#22262b]">
+        {t("prismTitle")}
+      </h3>
+      <p className="text-[13px] text-[#676e78]">{t("prismIntro")}</p>
+      <div className="space-y-1.5">
+        <label htmlFor={fieldId} className="block text-sm font-medium">
+          {t("prismLink")}
+        </label>
+        <input
+          id={fieldId}
+          type="url"
+          inputMode="url"
+          placeholder="https://"
+          value={prism.url}
+          disabled={archived}
+          maxLength={500}
+          aria-describedby={`${fieldId}-hint`}
+          onChange={(event) => prism.setUrl(event.target.value)}
+          className={inputClass}
+        />
+        <p id={`${fieldId}-hint`} className="text-xs text-[#858c96]">
+          {t("prismHint")}
+          {prism.link?.updatedAt
+            ? ` ${t("prismUpdated", { date: formatDateTime(prism.link.updatedAt, locale) })}`
+            : null}
+        </p>
+      </div>
+      {prism.saveError ? (
+        <p role="alert" className="text-sm text-red-700">
+          {errorMessage(prism.saveError, t("prismSaveFailed"))}
+        </p>
+      ) : null}
+      <p role="status" className="text-sm text-[#008236]">
+        {prism.saved ? t("prismSaved") : null}
+      </p>
+      {archived ? null : (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={prism.save}
+            disabled={!prism.canSave}
+            className="rounded-full bg-[#22262b] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+          >
+            {prism.isSaving ? t("prismSaving") : t("prismSave")}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The in-app training: a YouTube link and ten questions with four options each, one marked correct. "Kaydet ve
+ * yayınla" publishes; any change starts a new version, which students begin again on.
+ */
+function QuizEditor({
   programId,
   archived,
 }: {

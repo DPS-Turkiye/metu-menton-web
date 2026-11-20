@@ -2,10 +2,13 @@ import type { AxiosRequestConfig } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  fetchPrismLink,
   fetchStudentTraining,
   fetchTrainingForEditor,
   fetchTrainingQuiz,
+  reportPrismCompleted,
   reportVideoWatched,
+  savePrismLink,
   saveTraining,
   submitTrainingAttempt,
 } from "@/lib/api/training";
@@ -86,6 +89,33 @@ const cases: RequestCase[] = [
         version: 3,
         answers: { "q-1": 2, "q-2": 0 },
       },
+    },
+  ],
+  [
+    "reads the program's Prism link for the editor",
+    () => fetchPrismLink("coord-1", "prog/1"),
+    {
+      method: "GET",
+      url: "/api/coordinator/programs/prog%2F1/training/prism",
+      params: { actorId: "coord-1" },
+    },
+  ],
+  [
+    "saves the Prism link with the actor in the body",
+    () => savePrismLink("coord-1", "prog/1", "https://prism.example.test"),
+    {
+      method: "PUT",
+      url: "/api/coordinator/programs/prog%2F1/training/prism",
+      data: { actorId: "coord-1", url: "https://prism.example.test" },
+    },
+  ],
+  [
+    "reports the Prism training as completed for the actor",
+    () => reportPrismCompleted("student-1"),
+    {
+      method: "POST",
+      url: "/api/training/peer/prism-completed",
+      data: { actorId: "student-1" },
     },
   ],
 ];

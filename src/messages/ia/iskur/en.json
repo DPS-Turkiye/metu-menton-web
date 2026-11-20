@@ -11,12 +11,13 @@
     "loading": "Loading…",
     "noBadge": {
       "title": "Complete the training to become a mentor",
-      "body": "To become a peer mentor, complete your program's mentoring training (a short video and a 10-question quiz) and earn the badge. Once the badge is verified this area opens by itself; no extra approval is needed.",
+      "body": "To become a peer mentor, complete your program's training and test on Prism; then your coordinator approves you. Once approved, this area opens on its own.",
       "training": "Go to training",
       "trainingReason": {
         "loading": "Loading training details…",
         "notAvailable": "Your program's training isn't published yet.",
-        "unavailable": "The training can't be opened right now."
+        "unavailable": "The training can't be opened right now.",
+        "internsOnly": "Peer mentoring is open to İŞKUR interns."
       }
     },
     "journey": {

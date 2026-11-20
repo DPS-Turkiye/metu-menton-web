@@ -1,4 +1,5 @@
 import type {
+  PrismLink,
   SaveTrainingInput,
   StudentTraining,
   TrainingAttemptResult,
@@ -52,6 +53,26 @@ export async function postTrainingAttempt(
         version,
         answers,
       },
+    ),
+  );
+}
+
+export async function getPrismLink(programId: string) {
+  return requireSuccess(
+    await httpClient.get<PrismLink>(`${editorUrl(programId)}/prism`),
+  );
+}
+
+export async function putPrismLink(programId: string, url: string) {
+  return requireSuccess(
+    await httpClient.put<PrismLink>(`${editorUrl(programId)}/prism`, { url }),
+  );
+}
+
+export async function postPrismCompleted() {
+  return requireSuccess(
+    await httpClient.post<StudentTraining>(
+      "/api/training/peer/prism-completed",
     ),
   );
 }

@@ -5,6 +5,8 @@ import type {
   BadgeAward,
   GateBadgeRow,
   GateBadgeState,
+  PrismDecisionInput,
+  PrismDecisionResult,
   PublicBadge,
 } from "@/interfaces/badges";
 import { HttpMethod } from "@/lib/http-method";
@@ -81,5 +83,17 @@ export function fetchAdminStudents(
     method: HttpMethod.Get,
     url: "/api/admin/students",
     params: state ? { actorId, state } : { actorId },
+  });
+}
+
+export function decidePrismResults(
+  actorId: string,
+  programId: string,
+  input: PrismDecisionInput,
+) {
+  return backendRequest<PrismDecisionResult[]>({
+    method: HttpMethod.Post,
+    url: `${programBadges(programId)}/prism-decisions`,
+    data: { ...input, actorId },
   });
 }
