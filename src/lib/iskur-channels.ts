@@ -1,6 +1,8 @@
 import {
+  IskurChannelEventType,
   IskurChannelKind,
   type IskurChannel,
+  type IskurChannelEvent,
   type IskurMessage,
   type IskurMessageInput,
 } from "@/interfaces/iskur-channels";
@@ -9,6 +11,7 @@ import {
   messageDayLabel,
   messageTime,
 } from "@/lib/coordinator-messages";
+import { isEnumValue } from "@/lib/enum";
 
 export const ISKUR_MESSAGE_MAX = MAX_MESSAGE_LENGTH;
 export const ISKUR_TITLE_MAX = 160;
@@ -217,4 +220,38 @@ export function channelHref(channelId: string) {
 export function firstSearchParam(value: string | string[] | undefined) {
   if (Array.isArray(value)) return value[0] ?? null;
   return value ?? null;
+}
+
+/** Reads one frame from a channel's live topic; null for anything that is not an event of that channel. */
+export function parseIskurChannelEvent(
+  body: string,
+  channelId: string,
+): IskurChannelEvent | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const fields: Record<string, unknown> = { ...parsed };
+  const { type, messageId } = fields;
+  if (!isEnumValue(IskurChannelEventType, type)) return null;
+  if (typeof messageId !== "string" || fields.channelId !== channelId) {
+    return null;
+  }
+  return { type, channelId, messageId };
+}
+
+/**
+ * Whether a live event changes what this reader sees in the channel's messages. A new message does for everyone; an
+ * "Okudum" only moves the receipt tally, which only the coordinators who post there are shown, so the whole channel
+ * does not reload each time one of its members confirms.
+ */
+export function eventChangesMessages(
+  event: IskurChannelEvent,
+  channel: IskurChannel | null,
+) {
+  if (event.type === IskurChannelEventType.MessagePosted) return true;
+  return channel !== null && canAnnounce(channel);
 }

@@ -23,6 +23,10 @@ import {
 } from "@test/fixtures/iskur-channels";
 import { renderWithQueryClient } from "@test/test-utils";
 
+// The live topics have their own tests; here the screen runs on its polling alone.
+vi.mock("@/hooks/use-iskur-channel-push", () => ({
+  useIskurChannelPush: () => ({ live: false }),
+}));
 vi.mock("@/lib/client/iskur-channels", () => ({
   acknowledgeIskurMessage: vi.fn(),
   getIskurChannelPreferences: vi.fn(),

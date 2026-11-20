@@ -38,6 +38,20 @@ describe("meeting note server API", () => {
     });
   });
 
+  it("names only the account in a realtime token request when it has no team", async () => {
+    await issueRealtimeToken({ userId: "user-1", organizationId: "" });
+
+    expect(backendRequest).toHaveBeenCalledWith({
+      method: HttpMethod.Post,
+      url: "/api/realtime/token",
+      data: {
+        userId: "user-1",
+        organizationId: undefined,
+        signedInAt: undefined,
+      },
+    });
+  });
+
   it("scopes note reads to the caller organization", async () => {
     await fetchMeetingNote("meeting-1", "org-1");
 
