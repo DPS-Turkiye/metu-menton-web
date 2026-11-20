@@ -233,6 +233,7 @@ describe("the time record (Figma 7.1)", () => {
   it("keeps only up to three digits while typing", () => {
     expect(minutesInput("1a2b3c4")).toBe("123");
     expect(minutesInput("")).toBe("");
+    expect(minutesInput("700")).toBe("600");
   });
 
   it("adds preparation, the meeting and the follow-up, counting what is missing as nothing", () => {

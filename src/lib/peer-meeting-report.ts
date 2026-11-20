@@ -160,9 +160,12 @@ export function parseExtraMinutes(text: string): number | null {
   return minutes <= MEETING_REPORT_DURATION_MAX ? minutes : null;
 }
 
-/** Keeps only what a minutes field can hold while it is typed: up to three digits. */
+/** Keeps only what a minutes field can hold while it is typed: digits, capped at the backend's limit. */
 export function minutesInput(text: string) {
-  return text.replace(/\D/g, "").slice(0, 3);
+  const digits = text.replace(/\D/g, "").slice(0, 3);
+  return digits && Number(digits) > MEETING_REPORT_DURATION_MAX
+    ? String(MEETING_REPORT_DURATION_MAX)
+    : digits;
 }
 
 /** What the report adds to the mentor's mentoring time: preparation, the meeting itself, report and follow-up. */

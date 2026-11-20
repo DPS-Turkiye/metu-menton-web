@@ -764,12 +764,19 @@ function TimeRecordInput({
           id={row.id}
           inputMode="numeric"
           maxLength={3}
+          autoComplete="off"
+          aria-describedby={`${row.id}-unit`}
           className={`${ISKUR_FIELD_CLASS} w-20`}
           value={row.value}
           readOnly={readOnly}
           onChange={(event) => row.onChange(event.target.value)}
         />
-        <span className="type-body-sm text-text-secondary">{unit}</span>
+        <span
+          id={`${row.id}-unit`}
+          className="type-body-sm text-text-secondary"
+        >
+          {unit}
+        </span>
       </div>
     </div>
   );

@@ -310,7 +310,8 @@
     "activityFailed": "The activity could not be saved.",
     "separator": " · ",
     "readyDone": "Done",
-    "readyMissing": "Missing"
+    "readyMissing": "Missing",
+    "timeBreakdown": "Meeting {meeting} min · Preparation {preparation} · Follow-up {followUp}"
   },
   "activity": {
     "title": "Add an activity outside meetings",

@@ -65,7 +65,11 @@ export type PeerReportMeeting = {
   menteeId: string;
   menteeName: string;
   scheduledAt: string;
+  /** Everything the meeting counts for as mentoring work: the three parts below added up. */
   durationMinutes: number;
+  meetingMinutes: number;
+  preparationMinutes: number;
+  followUpMinutes: number;
   meetingType: PeerMeetingType | null;
   meetingFormat: PeerMeetingFormat | null;
   reportStatus: PeerReportStatus | null;

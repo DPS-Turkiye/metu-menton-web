@@ -310,7 +310,8 @@
     "activityFailed": "Faaliyet kaydedilemedi.",
     "separator": " · ",
     "readyDone": "Tamam",
-    "readyMissing": "Eksik"
+    "readyMissing": "Eksik",
+    "timeBreakdown": "Görüşme {meeting} dk · Hazırlık {preparation} · Takip {followUp}"
   },
   "activity": {
     "title": "Görüşme dışı faaliyet ekle",
