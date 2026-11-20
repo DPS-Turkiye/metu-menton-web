@@ -8267,5 +8267,15 @@
     "removePlacedHint": "Remove the placement first.",
     "removed": "The address was removed from the list.",
     "removeFailed": "The address could not be removed."
+  },
+  "iskurWeekHistory": {
+    "title": "Week history",
+    "kinds": {
+      "SUBMITTED": "Sent",
+      "APPROVED": "Approved",
+      "REVISION": "Revision requested",
+      "REJECTED": "Rejected",
+      "OBJECTION": "Objection"
+    }
   }
 }
