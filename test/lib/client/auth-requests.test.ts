@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { StudentYear } from "@/interfaces/student-signup";
 import { Workspace } from "@/interfaces/workspace";
 import {
   createSession,
@@ -9,6 +10,7 @@ import {
   registerFounder,
   registerMember,
   registerMentor,
+  registerStudent,
   saveLanguage,
   switchWorkspace,
 } from "@/lib/client/auth";
@@ -73,6 +75,31 @@ const calls: ClientCall[] = [
     args: [
       "/api/auth/register/member",
       { ...founder, inviteCode: "CODE" },
+      BEARER,
+    ],
+  },
+  {
+    title:
+      "registerStudent posts the ODTÜ student's profile, with no address, under the given token",
+    call: () =>
+      registerStudent(
+        {
+          firstName: "Deniz",
+          lastName: "Kaya",
+          department: "Fizik",
+          year: StudentYear.Year2,
+        },
+        "given-token",
+      ),
+    method: "post",
+    args: [
+      "/api/auth/register/student",
+      {
+        firstName: "Deniz",
+        lastName: "Kaya",
+        department: "Fizik",
+        year: StudentYear.Year2,
+      },
       BEARER,
     ],
   },

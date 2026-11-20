@@ -99,7 +99,50 @@ export type GateBadgeRow = {
   };
   /** Katılımcılar's columns on a program roster; null on the admin's student list. */
   profile: GateBadgeProfile | null;
+  /** The person's Prism training in the program, for staff only; null when nothing was recorded. */
+  prism: GateBadgePrism | null;
 };
+
+/** A coordinator's decision on a Prism result: the Akran Mentoru badge, or "take the test again". */
+export enum PrismDecision {
+  Approved = "APPROVED",
+  Retake = "RETAKE",
+}
+
+/** What a bulk Prism decision did for one address; NOT_FOUND also covers an account outside the program. */
+export enum PrismDecisionOutcome {
+  Approved = "APPROVED",
+  Retake = "RETAKE",
+  AlreadyMentor = "ALREADY_MENTOR",
+  NotFound = "NOT_FOUND",
+  NotEligible = "NOT_ELIGIBLE",
+}
+
+/** When the person said they finished Prism, the latest decision and the score the Prism admin reported. */
+export type GateBadgePrism = {
+  completedAt: string | null;
+  decision: PrismDecision | null;
+  decidedAt: string | null;
+  score: string | null;
+};
+
+/** One address of a bulk decision (`POST …/badges/prism-decisions`); `score` is free text, at most 32. */
+export type PrismDecisionEntry = { email: string; score: string | null };
+
+export type PrismDecisionInput = {
+  decision: PrismDecision;
+  entries: PrismDecisionEntry[];
+};
+
+export type PrismDecisionResult = {
+  email: string;
+  outcome: PrismDecisionOutcome;
+  /** Only for someone of the program. */
+  fullName: string | null;
+};
+
+export const PRISM_SCORE_MAX = 32;
+export const PRISM_DECISION_MAX_ENTRIES = 500;
 
 /**
  * Bölüm · sınıf from the institution's records and, for a peer mentor, the profile's categories and mentee load.

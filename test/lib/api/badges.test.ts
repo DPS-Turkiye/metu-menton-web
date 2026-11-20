@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GateBadgeState } from "@/interfaces/badges";
+import { GateBadgeState, PrismDecision } from "@/interfaces/badges";
 import {
   awardGateBadge,
+  decidePrismResults,
   fetchAdminStudents,
   fetchMyAchievements,
   fetchMyBadges,
@@ -101,6 +102,23 @@ const cases: RequestCase[] = [
       method: "GET",
       url: "/api/admin/students",
       params: { actorId: "admin-1", state: GateBadgeState.Active },
+    },
+  ],
+  [
+    "sends the Prism decisions with the actor added to the body",
+    () =>
+      decidePrismResults("coord-1", "prog/1", {
+        decision: PrismDecision.Retake,
+        entries: [{ email: "a@example.test", score: "40" }],
+      }),
+    {
+      method: "POST",
+      url: "/api/coordinator/programs/prog%2F1/badges/prism-decisions",
+      data: {
+        decision: "RETAKE",
+        entries: [{ email: "a@example.test", score: "40" }],
+        actorId: "coord-1",
+      },
     },
   ],
 ];

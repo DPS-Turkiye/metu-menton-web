@@ -81,12 +81,17 @@ test.describe("ODTU edition: pages", () => {
     await expect(page.getByRole("button", { name: "Giriş yap" })).toBeVisible();
   });
 
-  test("sign-up is open in ODTU (founder flow, approved by a coordinator)", async ({
+  test("sign-up is open in ODTU: the student form with an ODTÜ e-mail address", async ({
     page,
   }) => {
     const response = await page.goto("/signup");
 
     expect(response?.status()).toBe(200);
+    await expect(
+      page.getByRole("heading", { name: "ODTÜ öğrenci kaydı" }),
+    ).toBeVisible();
+    await expect(page.getByLabel(/^Bölüm/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Kayıt ol" })).toBeDisabled();
   });
 
   for (const path of ["/student", "/academician"]) {

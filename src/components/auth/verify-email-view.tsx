@@ -59,7 +59,8 @@ export function VerifyEmailView({
         setError(copy("notVerified"));
         return;
       }
-      finishedRef.current = true;
+      // The poll may have finished while this check was waiting; continuing twice would register twice.
+      if (!markFinished(finishedRef)) return;
       await onVerified();
     } catch (caught) {
       setError(describeAuthError(caught));

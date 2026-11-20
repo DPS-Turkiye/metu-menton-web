@@ -7,6 +7,7 @@ import { TrainingState, type StudentTraining } from "@/interfaces/training";
 import {
   getStudentTraining,
   getTrainingQuiz,
+  postPrismCompleted,
   postTrainingAttempt,
   postVideoWatched,
 } from "@/lib/client/training";
@@ -15,6 +16,7 @@ import { renderWithQueryClient } from "@test/test-utils";
 vi.mock("@/lib/client/training", () => ({
   getStudentTraining: vi.fn(),
   getTrainingQuiz: vi.fn(),
+  postPrismCompleted: vi.fn(),
   postTrainingAttempt: vi.fn(),
   postVideoWatched: vi.fn(),
 }));
@@ -39,6 +41,8 @@ function training(overrides: Partial<StudentTraining>): StudentTraining {
     lastScore: null,
     passMark: 8,
     questionCount: 2,
+    prismUrl: null,
+    prismCompletedAt: null,
     ...overrides,
   };
 }
@@ -155,6 +159,103 @@ describe("StudentTrainingView", () => {
     renderWithQueryClient(<StudentTrainingView />);
     expect(
       await screen.findByText(/eğitimle yeniden kazanamazsın/),
+    ).toBeInTheDocument();
+  });
+
+  // ODTÜ: the training and test run on Prism and a coordinator approves.
+  const PRISM = "https://prism.example.test/akran-mentor";
+
+  it("sends the student to Prism and lets them say they finished it", async () => {
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({
+        state: TrainingState.PrismTodo,
+        videoId: null,
+        prismUrl: PRISM,
+      }),
+    );
+    vi.mocked(postPrismCompleted).mockResolvedValue(
+      training({
+        state: TrainingState.PrismPending,
+        videoId: null,
+        prismUrl: PRISM,
+        prismCompletedAt: "2026-11-20T08:00:00Z",
+      }),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(<StudentTrainingView />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Eğitimi Prism'de tamamla" }),
+    ).toBeInTheDocument();
+    const link = screen.getByRole("link", { name: "Prism'de aç" });
+    expect(link).toHaveAttribute("href", PRISM);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+
+    await user.click(
+      screen.getByRole("button", { name: "Prism eğitimini tamamladım" }),
+    );
+    const waiting = await screen.findByRole("heading", {
+      name: "Sonucun değerlendiriliyor",
+    });
+    await waitFor(() => expect(waiting).toHaveFocus());
+    expect(postPrismCompleted).toHaveBeenCalledOnce();
+    expect(screen.getByText(/Tamamladığını bildirdin/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Prism eğitimini tamamladım" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("asks for a retake, and never links a Prism address that is not http(s)", async () => {
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({
+        state: TrainingState.PrismRetake,
+        videoId: null,
+        prismUrl: "javascript:alert(1)",
+      }),
+    );
+    vi.mocked(postPrismCompleted).mockRejectedValue(
+      new Error("Kaydedilemedi."),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(<StudentTrainingView />);
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Testi tekrar alman gerekiyor",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Prism'de aç" }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Prism eğitimini tamamladım" }),
+    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Kaydedilemedi.",
+    );
+  });
+
+  it("tells a student who is not an intern that peer mentoring is for interns", async () => {
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({ state: TrainingState.InternsOnly, videoId: null }),
+    );
+    renderWithQueryClient(<StudentTrainingView />);
+    expect(
+      await screen.findByText("Akran mentorluğu İŞKUR stajyerlerine açıktır."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("congratulates an approved mentor and leads on to the mentor profile", async () => {
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({ state: TrainingState.BadgeActive }),
+    );
+    renderWithQueryClient(<StudentTrainingView />);
+    expect(
+      await screen.findByRole("heading", {
+        name: "Onaylandın: artık Akran mentorusun",
+      }),
     ).toBeInTheDocument();
   });
 });

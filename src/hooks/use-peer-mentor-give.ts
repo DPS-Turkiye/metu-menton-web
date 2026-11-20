@@ -136,11 +136,21 @@ export function usePeerMentorGate() {
   };
 }
 
-export type TrainingEntryReason = "loading" | "notAvailable" | "unavailable";
+export type TrainingEntryReason =
+  "loading" | "notAvailable" | "unavailable" | "internsOnly";
+
+/** The states in which the training page has something for the student to do or follow. */
+const OPEN_TRAINING_STATES: ReadonlySet<TrainingState> = new Set([
+  TrainingState.Video,
+  TrainingState.Quiz,
+  TrainingState.PrismTodo,
+  TrainingState.PrismPending,
+  TrainingState.PrismRetake,
+]);
 
 /**
- * "Eğitimi başlat" on Rozet Yok links to the training only while the student's program has a published training they
- * can take (VIDEO or QUIZ). Anything else keeps it disabled with a reason, including a backend without the training
+ * "Eğitimi başlat" on Rozet Yok links to the training only while the student's program has a training they can take
+ * (in the app, or on Prism). Anything else keeps it disabled with a reason, including a backend without the training
  * endpoint (no retry, so that answer is immediate).
  */
 export function usePeerMentorTrainingEntry(enabled = true): {
@@ -154,10 +164,13 @@ export function usePeerMentorTrainingEntry(enabled = true): {
     retry: false,
   });
   const state = training.data?.state;
-  if (state === TrainingState.Video || state === TrainingState.Quiz) {
+  if (state !== undefined && OPEN_TRAINING_STATES.has(state)) {
     return { href: PEER_MENTOR_TRAINING_HREF, reason: null };
   }
   if (training.isLoading) return { href: null, reason: "loading" };
+  if (state === TrainingState.InternsOnly) {
+    return { href: null, reason: "internsOnly" };
+  }
   return {
     href: null,
     reason:
