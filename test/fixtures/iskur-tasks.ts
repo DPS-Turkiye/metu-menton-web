@@ -6,6 +6,8 @@ import {
   IskurTaskKind,
   IskurTaskStatus,
   type IskurTask,
+  type IskurTaskOutputFile,
+  type IskurTaskOutputs,
   type IskurTeamTasks,
   type IskurTeamTasksMember,
 } from "@/interfaces/iskur-tasks";
@@ -38,6 +40,54 @@ export function createIskurTask(overrides: Partial<IskurTask> = {}): IskurTask {
     createdAt: "2026-11-17T09:00:00Z",
     canWork: true,
     canManage: false,
+    outputFiles: [],
+    outputFilesEnabled: true,
+    canAttach: true,
+    ...overrides,
+  };
+}
+
+export const OUTPUT_ID = "00000000-0000-4000-8000-0000000000e1";
+
+export function createIskurTaskOutputFile(
+  overrides: Partial<IskurTaskOutputFile> = {},
+): IskurTaskOutputFile {
+  return {
+    id: OUTPUT_ID,
+    fileName: "afis-oneri.pdf",
+    contentType: "application/pdf",
+    sizeBytes: 2 * 1024 * 1024,
+    uploadedAt: "2026-11-19T10:30:00Z",
+    canRemove: true,
+    ...overrides,
+  };
+}
+
+export function createIskurTaskOutputs(
+  overrides: Partial<IskurTaskOutputs> = {},
+): IskurTaskOutputs {
+  return {
+    programId: "p1",
+    enabled: true,
+    tasks: [
+      {
+        taskId: TASK_ID,
+        title: "Sponsor listesi: 10 firma",
+        teamName: "Medya ve Kreatif Üretim",
+        assignee: { userId: MEMBER_ID, fullName: "Mert Demir" },
+        status: IskurTaskStatus.Open,
+        dueDate: "2026-11-20",
+        files: [
+          {
+            id: OUTPUT_ID,
+            fileName: "afis-oneri.pdf",
+            contentType: "application/pdf",
+            sizeBytes: 2 * 1024 * 1024,
+            uploadedAt: "2026-11-19T10:30:00Z",
+          },
+        ],
+      },
+    ],
     ...overrides,
   };
 }

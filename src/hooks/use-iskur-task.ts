@@ -12,14 +12,19 @@ import { ClientApiError } from "@/lib/client/api";
 import {
   deleteIskurTask,
   getIskurTask,
+  iskurTaskOutputHref,
+  removeIskurTaskOutput,
   updateIskurTask,
+  uploadIskurTaskOutput,
 } from "@/lib/client/iskur-tasks";
 import {
   completeBlock,
+  ISKUR_TASK_OUTPUT_MAX_FILES,
   ISKUR_TEAM_HREF,
   linkSavable,
   minutesSavable,
   taskForm,
+  taskOutputProblem,
   taskUpdateInput,
 } from "@/lib/iskur-tasks";
 import { errorMessage } from "@/lib/utils";
@@ -30,8 +35,8 @@ export const iskurTaskQueryKey = (taskId: string) =>
   ["iskur-task", taskId] as const;
 
 /**
- * "Görev detayı": the assignee's actual time and output over the saved task, and the moves it allows: save,
- * complete, hand over to next week (with a reason), reopen; a leader may reopen or delete.
+ * "Görev detayı": the assignee's actual time and output over the saved task, the files handed in with it, and the
+ * moves it allows: save, complete, hand over to next week (with a reason), reopen; a leader may reopen or delete.
  */
 export function useIskurTask(taskId: string) {
   const t = useTranslations("iskurTask");
@@ -88,7 +93,36 @@ export function useIskurTask(taskId: string) {
       }),
   });
 
-  const busy = change.isPending || remove.isPending;
+  // The answer is the task with its files; what is being typed in the form stays.
+  const filesChanged = (message: string) => (data: IskurTask) => {
+    queryClient.setQueryData(iskurTaskQueryKey(taskId), data);
+    void queryClient.invalidateQueries({ queryKey: [ISKUR_TEAM_TASKS_KEY] });
+    showToast({ message, tone: ToastTone.Success });
+  };
+  const attach = useMutation({
+    mutationFn: (file: File) => uploadIskurTaskOutput(taskId, file),
+    onSuccess: filesChanged(t("files.uploaded")),
+    onError: (failure: Error) =>
+      showToast({
+        message: errorMessage(failure, t("files.uploadFailed")),
+        tone: ToastTone.Error,
+      }),
+  });
+  const detach = useMutation({
+    mutationFn: (outputId: string) => removeIskurTaskOutput(taskId, outputId),
+    onSuccess: filesChanged(t("files.removed")),
+    onError: (failure: Error) =>
+      showToast({
+        message: errorMessage(failure, t("files.removeFailed")),
+        tone: ToastTone.Error,
+      }),
+  });
+
+  const busy =
+    change.isPending ||
+    remove.isPending ||
+    attach.isPending ||
+    detach.isPending;
   const update = (patch: Partial<IskurTaskForm>) => {
     if (form) setDraft({ ...form, ...patch });
   };
@@ -137,6 +171,32 @@ export function useIskurTask(taskId: string) {
     },
     reopen: () => {
       if (!busy) change.mutate(IskurTaskStatus.Open);
+    },
+    outputFiles: task?.outputFiles ?? [],
+    outputFilesEnabled: task?.outputFilesEnabled ?? false,
+    /** The assignee sees the upload control; nobody does while file storage is off. */
+    showsUpload:
+      (task?.canWork ?? false) && (task?.outputFilesEnabled ?? false),
+    outputFilesFull:
+      (task?.outputFiles.length ?? 0) >= ISKUR_TASK_OUTPUT_MAX_FILES,
+    outputFilesMax: ISKUR_TASK_OUTPUT_MAX_FILES,
+    canAttach: (task?.canAttach ?? false) && !busy,
+    uploading: attach.isPending,
+    outputHref: (outputId: string) => iskurTaskOutputHref(taskId, outputId),
+    attachFile: (file: File) => {
+      if (busy || !task?.canAttach) return;
+      const problem = taskOutputProblem(file);
+      if (problem) {
+        showToast({
+          message: t(`files.problems.${problem}`),
+          tone: ToastTone.Error,
+        });
+        return;
+      }
+      attach.mutate(file);
+    },
+    removeFile: (outputId: string) => {
+      if (!busy) detach.mutate(outputId);
     },
     confirmingDelete,
     askDelete: () => setConfirmingDelete(true),

@@ -49,3 +49,10 @@ export enum IskurCompleteBlock {
   LinkInvalid = "linkInvalid",
   OutputMissing = "outputMissing",
 }
+
+/** Why a chosen file cannot be handed in with a task. */
+export enum IskurOutputProblem {
+  Empty = "empty",
+  TooLarge = "tooLarge",
+  WrongType = "wrongType",
+}

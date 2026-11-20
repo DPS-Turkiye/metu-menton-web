@@ -8,11 +8,15 @@ import { ClientApiError } from "@/lib/client/api";
 import {
   deleteIskurTask,
   getIskurTask,
+  removeIskurTaskOutput,
   updateIskurTask,
+  uploadIskurTaskOutput,
 } from "@/lib/client/iskur-tasks";
 import {
   createIskurTask,
+  createIskurTaskOutputFile,
   createIskurTeamTasks,
+  OUTPUT_ID,
   TASK_ID,
 } from "@test/fixtures/iskur-tasks";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -22,8 +26,19 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("@/lib/client/iskur-tasks", () => ({
   deleteIskurTask: vi.fn(),
   getIskurTask: vi.fn(),
+  iskurTaskOutputHref: (taskId: string, outputId: string) =>
+    `/files/${taskId}/${outputId}`,
+  removeIskurTaskOutput: vi.fn(),
   updateIskurTask: vi.fn(),
+  uploadIskurTaskOutput: vi.fn(),
 }));
+
+/** The picker the "Dosya ekle" button opens; hidden from assistive tech, so found by its type. */
+function fileInput() {
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+  if (!input) throw new Error("no file input");
+  return input;
+}
 
 describe("IskurTaskDetailView", () => {
   beforeEach(() => {
@@ -171,5 +186,116 @@ describe("IskurTaskDetailView", () => {
       "href",
       "/student/team",
     );
+  });
+
+  it("lets the assignee hand in a file and take it back", async () => {
+    const user = userEvent.setup();
+    const handedIn = createIskurTask({
+      outputFiles: [createIskurTaskOutputFile()],
+    });
+    vi.mocked(getIskurTask).mockResolvedValue(createIskurTask());
+    vi.mocked(uploadIskurTaskOutput).mockResolvedValue(handedIn);
+    vi.mocked(removeIskurTaskOutput).mockResolvedValue(createIskurTask());
+    renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
+
+    expect(
+      await screen.findByText("Henüz dosya eklenmedi."),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/en fazla 10 MB · 0\/5 dosya/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Danışan adı ya da görüşme notu içeren dosya ekleme/),
+    ).toBeInTheDocument();
+    const file = new File(["%PDF-1.4"], "afis-oneri.pdf", {
+      type: "application/pdf",
+    });
+    await user.upload(fileInput(), file);
+    await waitFor(() =>
+      expect(uploadIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, file),
+    );
+
+    const link = await screen.findByRole("link", {
+      name: "afis-oneri.pdf",
+    });
+    expect(link).toHaveAttribute("href", `/files/${TASK_ID}/${OUTPUT_ID}`);
+    expect(link).toHaveAttribute("download");
+    expect(screen.getByText(/^2 MB · /)).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Kaldır: afis-oneri.pdf" }),
+    );
+    await waitFor(() =>
+      expect(removeIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, OUTPUT_ID),
+    );
+    expect(
+      await screen.findByText("Henüz dosya eklenmedi."),
+    ).toBeInTheDocument();
+  });
+
+  it("stops adding at five files and locks a done task's files", async () => {
+    const five = Array.from({ length: 5 }, (_, index) =>
+      createIskurTaskOutputFile({
+        id: `00000000-0000-4000-8000-0000000000e${index}`,
+        fileName: `rapor-${index}.pdf`,
+        canRemove: false,
+      }),
+    );
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({
+        status: IskurTaskStatus.Done,
+        outputFiles: five,
+        canAttach: false,
+      }),
+    );
+    renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
+
+    expect(
+      await screen.findByText(/Bu göreve en fazla 5 dosya eklenebilir/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /^rapor-\d\.pdf$/ }),
+    ).toHaveLength(5);
+    expect(screen.getByRole("button", { name: "Dosya ekle" })).toBeDisabled();
+    expect(fileInput()).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: /^Kaldır: / }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a leader the files to download, without any way to add or remove", async () => {
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({
+        canWork: false,
+        canManage: true,
+        canAttach: false,
+        outputFiles: [createIskurTaskOutputFile({ canRemove: false })],
+      }),
+    );
+    renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
+
+    expect(
+      await screen.findByRole("link", {
+        name: "afis-oneri.pdf",
+      }),
+    ).toHaveAttribute("href", `/files/${TASK_ID}/${OUTPUT_ID}`);
+    expect(
+      screen.queryByRole("button", { name: "Dosya ekle" }),
+    ).not.toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /^Kaldır: / }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("hides the upload while file storage is off", async () => {
+    vi.mocked(getIskurTask).mockResolvedValue(
+      createIskurTask({ outputFilesEnabled: false, canAttach: false }),
+    );
+    renderWithQueryClient(<IskurTaskDetailView taskId={TASK_ID} />);
+
+    expect(
+      await screen.findByRole("button", { name: "Görevi tamamla" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Dosyalar")).not.toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).toBeNull();
   });
 });

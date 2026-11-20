@@ -7,6 +7,7 @@ import { useId, type ReactNode } from "react";
 import { ModalDialog } from "@/components/common/modal-dialog";
 import { IskurInternsCard } from "@/components/coordinator/iskur-interns-card";
 import { IskurPreferencesPanel } from "@/components/coordinator/iskur-preferences-panel";
+import { IskurTaskOutputsCard } from "@/components/coordinator/iskur-task-outputs-card";
 import { IskurUnitSkillsCard } from "@/components/coordinator/iskur-unit-skills-card";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
@@ -106,6 +107,7 @@ function WorkspaceBody({
           )}
         </div>
       </div>
+      <IskurTaskOutputsCard programId={programId} />
       <Dialogs
         state={state}
         workspace={workspace}
