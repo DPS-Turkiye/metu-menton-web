@@ -374,6 +374,88 @@ async function place(
 
 let teamName = "";
 
+const REVISION_REASON = `Afiş için çıktı bağlantısı eksik (${RUN}).`;
+const OBJECTION = `Bağlantıyı nota ekledim, lütfen tekrar bakın (${RUN}).`;
+const LEADER_WORK = `Ekip toplantısı ve görev dağıtımı (${RUN})`;
+/** "Hafta geçmişi" of a week that was sent, sent back, objected to and sent again, before and after approval. */
+const FULL_HISTORY_BEFORE_APPROVAL = [
+  /Gönderildi/,
+  new RegExp(`Revizyon istendi.*${escapeRegExp(REVISION_REASON)}`),
+  new RegExp(`İtiraz edildi.*${escapeRegExp(OBJECTION)}`),
+  /Gönderildi/,
+];
+const FULL_HISTORY = [...FULL_HISTORY_BEFORE_APPROVAL, /Onaylandı/];
+
+/** "Hafta geçmişi": its steps, oldest first, each matched by its kind (and reason or objection). */
+async function expectHistory(page: Page, steps: RegExp[]) {
+  await expect(
+    page.getByRole("region", { name: "Hafta geçmişi" }).getByRole("listitem"),
+  ).toHaveText(steps);
+}
+
+/** The leader's review of Mehmet's week, from Ekibim › Haftalık kayıtlar. */
+async function openMehmetsWeek(page: Page) {
+  await page.goto("/student/team");
+  await page.getByRole("tab", { name: "Haftalık kayıtlar" }).click();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: Persona.MehmetKaya })
+    .getByRole("link", { name: "İncele" })
+    .click();
+}
+
+/** The coordinator's review of Zeynep's week, from "Ekip lideri olmayan haftalık kayıtlar". */
+async function openZeynepsFallbackWeek(page: Page) {
+  await page.goto(`/coordinator/programs/${programId}/iskur/weeks`);
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: Persona.ZeynepDemir })
+    .getByRole("link", { name: "Aç" })
+    .click();
+}
+
+/** A week decision with the three checks; a revision needs its reason. */
+async function decide(
+  page: Page,
+  decision: "Onayla" | "Revizyon iste",
+  reason?: string,
+) {
+  for (const check of [
+    "Kaydedilen süre yapılan işle tutarlı",
+    "Emek belgelenmiş (çıktı, not, bağlantı)",
+    "Raporlar ve çıktılar yeterli",
+  ]) {
+    await page.getByRole("checkbox", { name: check }).check();
+  }
+  // The decision cards are labels over visually hidden radios.
+  await page.getByRole("radio", { name: decision }).check({ force: true });
+  if (reason) await page.getByLabel("Gerekçe").fill(reason);
+  await page.getByRole("button", { name: "Kararı gönder" }).click();
+  await expect(page.getByText("Karar gönderildi.")).toBeVisible();
+}
+
+/** The intern's Çalışma kaydı › Haftalık özet, where the week is sent, objected to and its history shown. */
+async function weeklySummary(page: Page) {
+  await page.goto("/student/work-log");
+  await page
+    .getByRole("group", { name: "Görünüm" })
+    .getByRole("button", { name: "Haftalık özet" })
+    .click();
+}
+
+/** "Karara itiraz et" on a revision, then "Düzeltilmiş kaydı yeniden gönder". */
+async function objectAndResend(page: Page, objection: string) {
+  await page.getByLabel("Karara itiraz et").fill(objection);
+  await page.getByRole("button", { name: "İtirazı gönder" }).click();
+  await expect(page.getByText(`İtirazın: ${objection}`)).toBeVisible();
+  await page
+    .getByRole("button", { name: "Düzeltilmiş kaydı yeniden gönder" })
+    .click();
+  await expect(
+    page.getByText("Ekip liderinin değerlendirmesi bekleniyor."),
+  ).toBeVisible();
+}
+
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -483,7 +565,7 @@ test.describe("İŞKUR", () => {
     ).toBeVisible();
   });
 
-  test("the leader approves the week and never sees Mehmet's mentee or notes", async ({
+  test("the leader asks for a revision and never sees Mehmet's mentee or notes", async ({
     page,
   }) => {
     await signInAs(page, Persona.ZeynepDemir);
@@ -503,13 +585,7 @@ test.describe("İŞKUR", () => {
       }
     };
     page.on("response", watch);
-    await page.goto("/student/team");
-    await page.getByRole("tab", { name: "Haftalık kayıtlar" }).click();
-    await page
-      .getByRole("listitem")
-      .filter({ hasText: Persona.MehmetKaya })
-      .getByRole("link", { name: "İncele" })
-      .click();
+    await openMehmetsWeek(page);
 
     await expect(page.getByText(TASK)).toBeVisible();
     await expect(page.getByText("İçerik gizli")).toBeVisible();
@@ -535,27 +611,42 @@ test.describe("İŞKUR", () => {
       ).toEqual([]);
     }
 
-    for (const check of [
-      "Kaydedilen süre yapılan işle tutarlı",
-      "Emek belgelenmiş (çıktı, not, bağlantı)",
-      "Raporlar ve çıktılar yeterli",
-    ]) {
-      await page.getByRole("checkbox", { name: check }).check();
-    }
-    // The decision cards are labels over visually hidden radios.
-    await page.getByRole("radio", { name: "Onayla" }).check({ force: true });
-    await page.getByRole("button", { name: "Kararı gönder" }).click();
-    await expect(page.getByText("Karar gönderildi.")).toBeVisible();
+    await decide(page, "Revizyon iste", REVISION_REASON);
+  });
+
+  test("Mehmet sees the revision in the week's history, objects, and sends the week again", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.MehmetKaya);
+    await weeklySummary(page);
+    await expectHistory(page, [
+      /Gönderildi/,
+      new RegExp(`Revizyon istendi.*${escapeRegExp(REVISION_REASON)}`),
+    ]);
+    await objectAndResend(page, OBJECTION);
+    await expectHistory(page, [
+      /Gönderildi/,
+      /Revizyon istendi/,
+      new RegExp(`İtiraz edildi.*${escapeRegExp(OBJECTION)}`),
+      /Gönderildi/,
+    ]);
+  });
+
+  test("the leader approves the resent week, and leader and intern see the whole history", async ({
+    page,
+  }) => {
+    await signInAs(page, Persona.ZeynepDemir);
+    await openMehmetsWeek(page);
+    await expectHistory(page, FULL_HISTORY_BEFORE_APPROVAL);
+    await decide(page, "Onayla");
+    await expectHistory(page, FULL_HISTORY);
 
     await signInAs(page, Persona.MehmetKaya);
-    await page.goto("/student/work-log");
-    await page
-      .getByRole("group", { name: "Görünüm" })
-      .getByRole("button", { name: "Haftalık özet" })
-      .click();
+    await weeklySummary(page);
     await expect(
       page.getByText("Hafta onaylandı: mesai tamamlandı."),
     ).toBeVisible();
+    await expectHistory(page, FULL_HISTORY);
   });
 
   test("the leader writes in the team channel and Mehmet reads it", async ({
@@ -580,6 +671,52 @@ test.describe("İŞKUR", () => {
     await expect(page.getByText(CHANNEL_MESSAGE)).toBeVisible({
       timeout: 20_000,
     });
+  });
+
+  test("the leader's own week falls back to the coordinator: revision, objection, resend, approval, one history", async ({
+    page,
+  }) => {
+    // Zeynep is her team's only leader, so no leader reviews her week: it goes to the program's coordinators.
+    await signInAs(page, Persona.ZeynepDemir);
+    await page.goto("/student/work-log");
+    await page.getByRole("button", { name: /Bugün/ }).click();
+    await page.getByRole("button", { name: "Ekle", exact: true }).click();
+    // Exact: the new line's remove button is labelled "Başlıksız satırını sil" until it has a title.
+    await page
+      .getByRole("textbox", { name: "Başlık", exact: true })
+      .fill(LEADER_WORK);
+    await page.getByLabel("Süre (dk)").fill("90");
+    await page.getByRole("button", { name: "Taslak olarak kaydet" }).click();
+    await expect(page.getByText("Kaydedildi.")).toBeVisible();
+    await page
+      .getByRole("group", { name: "Görünüm" })
+      .getByRole("button", { name: "Haftalık özet" })
+      .click();
+    await page
+      .getByRole("button", { name: "Haftalık kaydı ekip liderine gönder" })
+      .click();
+    await expect(
+      page.getByText("Ekip liderinin değerlendirmesi bekleniyor."),
+    ).toBeVisible();
+
+    await signInAsStaff(page, Staff.Coordinator);
+    await openZeynepsFallbackWeek(page);
+    await expect(page.getByText(LEADER_WORK)).toBeVisible();
+    await decide(page, "Revizyon iste", REVISION_REASON);
+
+    await signInAs(page, Persona.ZeynepDemir);
+    await weeklySummary(page);
+    await objectAndResend(page, OBJECTION);
+
+    await signInAsStaff(page, Staff.Coordinator);
+    await openZeynepsFallbackWeek(page);
+    await expectHistory(page, FULL_HISTORY_BEFORE_APPROVAL);
+    await decide(page, "Onayla");
+    await expectHistory(page, FULL_HISTORY);
+
+    await signInAs(page, Persona.ZeynepDemir);
+    await weeklySummary(page);
+    await expectHistory(page, FULL_HISTORY);
   });
 
   test("Ayşe, not on the intern list, sees no İŞKUR screen but keeps the mentor list, Office Hours and Randevularım", async ({
