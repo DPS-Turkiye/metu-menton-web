@@ -47,7 +47,9 @@ export function PeerMentorRequestDialog({
 
   if (form.sent) {
     return (
+      // Its own key, so the dialog mounts again and moves focus into the confirmation.
       <ModalDialog
+        key="sent"
         labelledBy="peer-request-sent-title"
         onClose={onClose}
         panelClassName={panelClassName}
@@ -59,6 +61,7 @@ export function PeerMentorRequestDialog({
 
   return (
     <ModalDialog
+      key="form"
       labelledBy="peer-request-title"
       onClose={onClose}
       panelClassName={panelClassName}

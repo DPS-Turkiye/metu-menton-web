@@ -325,7 +325,7 @@ export function usePeerRequestWithdrawal() {
   };
 
   const confirm = async () => {
-    if (!pending) return;
+    if (!pending || withdraw.isPending) return;
     setError(null);
     try {
       await withdraw.mutateAsync(pending.id);
@@ -345,6 +345,10 @@ export function usePeerRequestWithdrawal() {
       setPending(request);
     },
     close,
+    /** Escape or Vazgeç while the request is on its way would hide its outcome. */
+    dismiss: () => {
+      if (!withdraw.isPending) close();
+    },
     confirm,
     error,
     isWithdrawing: withdraw.isPending,
@@ -400,6 +404,7 @@ export function usePeerMentorRequestForm(mentor: PeerMentorCard) {
   };
 
   const submit = async () => {
+    if (send.isPending) return;
     const text = message.trim();
     if (text.length < PEER_REQUEST_MESSAGE_MIN) {
       setError(t("messageTooShort", { min: PEER_REQUEST_MESSAGE_MIN }));

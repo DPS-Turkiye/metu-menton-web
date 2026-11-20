@@ -65,7 +65,7 @@ export function peerTakeTab(value: string | null): PeerTakeTab {
   return value === PeerTakeTab.Mine ? PeerTakeTab.Mine : PeerTakeTab.Discover;
 }
 
-/** The backend lets the student withdraw a request only while nobody has answered it. */
+/** The backend lets the student withdraw a request until the mentor accepts or declines it. */
 export function canWithdrawPeerRequest(request: {
   status: MentorshipRequestStatus;
 }): boolean {

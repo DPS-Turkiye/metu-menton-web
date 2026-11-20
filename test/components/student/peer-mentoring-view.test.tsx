@@ -346,6 +346,7 @@ describe("PeerMentoringView › Keşfet", () => {
       name: "Talebin iletildi",
     });
     expect(within(sent).getByText("Onay Bekliyor")).toBeVisible();
+    expect(sent.contains(document.activeElement)).toBe(true);
     expect(within(sent).getByText("Teknik ve Dijital Beceriler")).toBeVisible();
     expect(
       within(sent).getByRole("region", { name: "Sonra ne olur?" }),

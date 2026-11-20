@@ -147,7 +147,7 @@ function WithdrawDialog({
   return (
     <ModalDialog
       labelledBy="peer-withdraw-title"
-      onClose={withdrawal.close}
+      onClose={withdrawal.dismiss}
       panelClassName="w-full max-w-[480px] rounded-[28px] bg-background-surface p-7 shadow-modal outline-none"
     >
       <div className="flex flex-col gap-5">
@@ -165,7 +165,7 @@ function WithdrawDialog({
         <div className="flex flex-wrap justify-end gap-3">
           <Button
             variant={ButtonVariant.Secondary}
-            onClick={withdrawal.close}
+            onClick={withdrawal.dismiss}
             disabled={withdrawal.isWithdrawing}
           >
             {t("keep")}
