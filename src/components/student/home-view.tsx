@@ -302,7 +302,11 @@ function MentorCard({
         <Button variant={ButtonVariant.Ghost} href={PEER_MENTORING_HREF}>
           {t("profile")}
         </Button>
-        <Button onClick={onAsk} className="flex-1">
+        <Button
+          variant={ButtonVariant.Secondary}
+          onClick={onAsk}
+          className="flex-1"
+        >
           {t("request")}
         </Button>
       </div>
@@ -337,7 +341,12 @@ function AdvisorCard({
           <p className="type-body-sm text-text-secondary">{t("source")}</p>
         </div>
       </div>
-      <Button href={OFFICE_HOURS_HREF} fullWidth className="justify-start">
+      <Button
+        variant={ButtonVariant.Secondary}
+        href={OFFICE_HOURS_HREF}
+        fullWidth
+        className="justify-start"
+      >
         <CalendarPlus aria-hidden className="size-5" strokeWidth={1.5} />
         {t("request")}
       </Button>

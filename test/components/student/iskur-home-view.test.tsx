@@ -17,7 +17,7 @@ import {
   getPeerMentorProfile,
   getReceivedPeerRequests,
 } from "@/lib/client/peer-mentoring";
-import { renderWithQueryClient } from "@test/test-utils";
+import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 // The shared home is ODTÜ öğrenci's screen; here it only shows where the İŞKUR blocks land.
 vi.mock("@/lib/client/iskur-weeks", () => ({
@@ -128,6 +128,9 @@ describe("IskurHomeView", () => {
     expect(await within(giving).findByText("Zeynep Koç")).toBeVisible();
     expect(within(giving).getByText("Can Tekin")).toBeVisible();
     expect(within(giving).queryByText("Ayşe Yılmaz")).toBeNull();
+    expect(
+      primaryButtons().filter((button) => giving.contains(button)),
+    ).toEqual([]);
     expect(
       within(giving).getByRole("link", { name: "Mentorluk Ver" }),
     ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
