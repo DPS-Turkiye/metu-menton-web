@@ -12,6 +12,7 @@ import {
   ISKUR_FIELD_CLASS,
 } from "@/components/student/iskur-ui";
 import { IskurProgressCard } from "@/components/student/iskur/progress-card";
+import { IskurWeekHistory } from "@/components/student/iskur/week-history";
 import { WEEK_STATUS_TONES } from "@/components/student/iskur/week-status";
 import { useIskurReview, type IskurReviewer } from "@/hooks/use-iskur-review";
 import { useReportDuration } from "@/hooks/use-report-format";
@@ -109,6 +110,7 @@ export function IskurReviewView({
         </div>
         <div className="space-y-6">
           <Decision review={review} week={week} />
+          <IskurWeekHistory events={week.history} />
           <Queue review={review} />
         </div>
       </div>
