@@ -107,6 +107,7 @@ function Giving({ home }: { home: Home }) {
                   {t("decline")}
                 </Button>
                 <Button
+                  variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
                   disabled={home.decision.pendingId === request.id}
                   onClick={() => home.decision.accept(request.id)}

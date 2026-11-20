@@ -6,7 +6,7 @@ import { StudentOfficeHoursView } from "@/components/student/office-hours-view";
 import { fetchInstitutionRecord } from "@/lib/client/institution";
 import { STUDENT_RECORD } from "@test/fixtures/student-home";
 import { listAdvisorAs } from "@test/fixtures/student-office-hours-client";
-import { renderWithQueryClient } from "@test/test-utils";
+import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock(
   "@/lib/client/student-office-hours",
@@ -71,6 +71,7 @@ describe("StudentOfficeHoursView", () => {
         within(card).queryByRole("heading", { name: "Prof. Dr. Ahmet Kaya" }),
       ),
     ).toHaveLength(0);
+    expect(primaryButtons()).toHaveLength(0);
   });
 
   it("lists the academicians with a free time and counts everyone", async () => {

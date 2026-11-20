@@ -177,7 +177,10 @@ function AdvisorHero({
           >
             {t("profile")}
           </Button>
-          <Button href={officeHoursBookingHref(academician.id)}>
+          <Button
+            variant={ButtonVariant.Secondary}
+            href={officeHoursBookingHref(academician.id)}
+          >
             {t("request")}
           </Button>
         </div>
@@ -236,7 +239,7 @@ function AcademicianCard({
         </ul>
       ) : null}
       <Button
-        variant={ButtonVariant.Secondary}
+        variant={nearest ? ButtonVariant.Secondary : ButtonVariant.Ghost}
         href={
           nearest
             ? officeHoursBookingHref(academician.id)

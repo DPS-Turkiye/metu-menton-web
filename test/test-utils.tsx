@@ -66,3 +66,16 @@ export function InLocale({
     </NextIntlClientProvider>
   );
 }
+
+/** The fill only `ButtonVariant.Primary` uses (see `components/ia/button.tsx`). */
+const PRIMARY_FILL = "bg-action-primary-bg";
+
+/**
+ * The enabled red Primary buttons and links on screen. The design allows one Primary per task, so a card or row
+ * action repeated down a list must not be one.
+ */
+export function primaryButtons(): Element[] {
+  return Array.from(document.getElementsByClassName(PRIMARY_FILL)).filter(
+    (element) => !element.matches(":disabled"),
+  );
+}

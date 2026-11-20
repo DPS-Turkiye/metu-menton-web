@@ -17,7 +17,7 @@ import {
   peerMentoringRequestsFixture,
   resetPeerMentoringFixtures,
 } from "@test/fixtures/peer-mentoring";
-import { renderWithQueryClient } from "@test/test-utils";
+import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/peer-mentoring", () => ({
   getPeerCategories: vi.fn(async () => {
@@ -83,11 +83,11 @@ describe("PeerMentorPublicProfile", () => {
     // The fixture's Deniz has no Akran Mentoru badge, so no "verified" tag.
     expect(screen.queryByText("Rozet doğrulandı")).toBeNull();
 
-    await user.click(
-      screen.getByRole("button", {
-        name: "Mentorluk Talebi Gönder, Deniz Kaya",
-      }),
-    );
+    const request = screen.getByRole("button", {
+      name: "Mentorluk Talebi Gönder, Deniz Kaya",
+    });
+    expect(primaryButtons()).toEqual([request]);
+    await user.click(request);
     expect(
       screen.getByRole("dialog", { name: "Mentorluk talebi gönder" }),
     ).toBeVisible();

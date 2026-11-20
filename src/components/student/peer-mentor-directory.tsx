@@ -120,6 +120,7 @@ export function PeerMentorDirectory() {
                       mentor={mentor}
                       availability={directory.availabilityOf(mentor)}
                       onRequest={() => directory.openRequest(mentor)}
+                      variant={ButtonVariant.Secondary}
                     />
                   </div>
                 </article>
@@ -229,7 +230,7 @@ export function PeerMentorDirectory() {
                   ) : null}
                   <Button
                     href={peerMentorProfileHref(mentor.mentorId)}
-                    variant={ButtonVariant.Secondary}
+                    variant={ButtonVariant.Ghost}
                     size={ButtonSize.Small}
                   >
                     {t("seeProfile")}
@@ -340,23 +341,31 @@ export function RequestButton({
   availability,
   onRequest,
   fullWidth = false,
+  variant = ButtonVariant.Primary,
 }: {
   mentor: PeerMentorCard;
   availability: PeerRequestAvailability;
   onRequest: () => void;
   fullWidth?: boolean;
+  /** Primary on the mentor's own page; a card in a list passes Secondary, so the list has no red button per card. */
+  variant?: ButtonVariant;
 }) {
   const t = useTranslations("iaIskur.take.discover");
   if (availability === PeerRequestAvailability.Open) {
     return (
-      <Button onClick={onRequest} fullWidth={fullWidth} className="flex-1">
+      <Button
+        variant={variant}
+        onClick={onRequest}
+        fullWidth={fullWidth}
+        className="flex-1"
+      >
         {t("request")}
         <NameSuffix name={mentor.fullName} />
       </Button>
     );
   }
   return (
-    <Button disabled fullWidth={fullWidth} className="flex-1">
+    <Button variant={variant} disabled fullWidth={fullWidth} className="flex-1">
       {availability === PeerRequestAvailability.Mentoring
         ? t("mentoring")
         : availability === PeerRequestAvailability.Requested
