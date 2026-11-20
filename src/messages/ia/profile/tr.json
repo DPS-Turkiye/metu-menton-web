@@ -27,9 +27,8 @@
   "welcome": {
     "title": "Hoş geldin",
     "titleNamed": "Hoş geldin, {name}",
-    "subtitle": "ODTÜ'den gelen bilgilerin aşağıda. Bunları tekrar girmene gerek yok.",
-    "recordTitle": "ODTÜ'den gelen bilgiler",
-    "readOnly": "Düzenlenemez",
+    "subtitle": "Kayıt bilgilerin aşağıda. Bunları tekrar girmene gerek yok.",
+    "recordTitle": "Kayıt bilgilerin",
     "facts": {
       "fullName": "Ad Soyad",
       "email": "Kurumsal e-posta",
@@ -40,11 +39,11 @@
     "classAndLevel": "{year}. sınıf · {level}",
     "classOnly": "{year}. sınıf",
     "unknown": "—",
-    "correction": "Bir bilgi hatalıysa ODTÜ Öğrenci İşleri üzerinden güncellenir; menton'a otomatik yansır.",
-    "loading": "ODTÜ bilgilerin yükleniyor…",
-    "loadError": "ODTÜ bilgilerin yüklenemedi.",
+    "correction": "Bir bilgi hatalıysa {email} adresine yaz.",
+    "loading": "Kayıt bilgilerin yükleniyor…",
+    "loadError": "Kayıt bilgilerin yüklenemedi.",
     "retry": "Tekrar dene",
-    "missing": "Hesabına bağlı bir ODTÜ kaydı bulamadık. Bu adımı geçip devam edebilirsin."
+    "missing": "Hesabına bağlı bir kayıt bulamadık. Bu adımı geçip devam edebilirsin."
   },
   "photo": {
     "title": "Profil fotoğrafı",

@@ -34,7 +34,7 @@
       },
       "SKILLS": {
         "title": "Kullandığın beceriler",
-        "hint": "Bu görüşmede mentör olarak hangi becerileri kullandın?"
+        "hint": "Bu görüşmede mentor olarak hangi becerileri kullandın?"
       },
       "OUTCOMES": {
         "title": "Çıktılar ve sonraki adımlar",
@@ -194,7 +194,7 @@
       "title": "Haftalık değerlendirme",
       "subtitle": "Günlük raporlarını tekrar yazma; haftanın genel resmini çiz.",
       "needsObserved": "1. Bu hafta hangi öğrenci ihtiyaçlarını gözlemledin?",
-      "growth": "2. Bu hafta mentör olarak nasıl geliştin?",
+      "growth": "2. Bu hafta mentor olarak nasıl geliştin?",
       "nextWeekPlan": "3. Gelecek hafta ne yapmayı planlıyorsun?"
     },
     "sideDays": {
@@ -271,11 +271,11 @@
     "addActivity": "+ Görüşme dışı faaliyet ekle (kaynak hazırlama, mesajlaşma, etkinlik…)",
     "evaluationTitle": "Günlük değerlendirme",
     "evaluationHint": "Bugünü kendi cümlelerinle detaylıca anlat.",
-    "didToday": "1. Bugün mentörlük kapsamında neler yaptın? Ayrıntılı anlat.",
+    "didToday": "1. Bugün mentorluk kapsamında neler yaptın? Ayrıntılı anlat.",
     "challenge": "2. Bugün karşılaştığın bir zorluk neydi, nasıl ele aldın?",
     "skills": "3. Bugün en çok hangi becerileri kullandın?",
     "skillsHint": "Görüşme raporlarındaki seçimlerinden otomatik işaretlendi; değiştirebilirsin.",
-    "learned": "4. Bugün mentör olarak ne öğrendin?",
+    "learned": "4. Bugün mentor olarak ne öğrendin?",
     "tomorrowPlan": "5. Yarın için planın ne?",
     "privacy": "Menteelerin kişisel veya hassas bilgilerini yazma. Genel gözlemlerini paylaş.",
     "summaryTitle": "Günün özeti",

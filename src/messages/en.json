@@ -61,14 +61,14 @@
     "en": "English"
   },
   "login": {
-    "title": "Welcome to Menton",
+    "title": "Welcome to hocam",
     "email": "Email",
     "emailPlaceholder": "name@email.com",
     "password": "Password",
     "forgotPassword": "Forgot password?",
     "submit": "Sign in",
     "submitting": "Signing in…",
-    "newHere": "New to Menton?",
+    "newHere": "New to hocam?",
     "signUp": "Sign up",
     "invite": "Got an invitation? Continue with your invite code",
     "odtu": "Sign in with your METU account",
@@ -78,7 +78,10 @@
     "help": "Cannot sign in? Get help",
     "odtuIntro": "If you are a METU student or academic, sign in with your METU account. No separate sign-up is needed.",
     "staffQuestion": "Do you have a coordinator, admin or startup program account?",
-    "emailLogin": "Sign in with e-mail"
+    "emailLogin": "Sign in with e-mail",
+    "afterTitle": "After you sign in",
+    "afterIskur": "The İŞKUR role is assigned by the program coordinators; you do not pick it here.",
+    "afterBoth": "With one account you can be both a mentee and a peer mentor."
   },
   "otgLogin": {
     "signingIn": "Signing you in with your ODTÜ TEKNOKENT Girişimcilik account…",
@@ -1074,19 +1077,19 @@
   },
   "metadata": {
     "manifestDescription": "Your mentoring meetings, tasks and messages in your pocket.",
-    "defaultTitle": "Mentoring and Startup Programs Platform",
-    "titleTemplate": "%s | ODTÜ Teknokent",
-    "description": "ODTÜ Teknokent's platform for mentoring, training and startup programs.",
+    "defaultTitle": "hocam by menton",
+    "titleTemplate": "%s | hocam by menton",
+    "description": "Office Hours, Peer Mentoring and İŞKUR for METU students and academics.",
     "login": "Sign in",
     "startup": "My startup",
     "workspace": "Workspace",
-    "notes": "Meeting Notes | Teknokent",
+    "notes": "Meeting Notes",
     "notesDescription": "Your meeting notes, grouped by topic.",
-    "notebook": "Meeting Notebook | Teknokent",
+    "notebook": "Meeting Notebook",
     "notebookDescription": "The notebook everyone in the same meeting edits together.",
-    "mentorDashboard": "Mentor Dashboard | Teknokent",
+    "mentorDashboard": "Mentor Dashboard",
     "mentorDashboardDescription": "Review and decide on incoming mentorship requests.",
-    "calendar": "My Calendar | Teknokent",
+    "calendar": "My Calendar",
     "calendarDescription": "Mentoring meetings and your personal meeting calendar.",
     "studentProject": "My project"
   },
@@ -2634,7 +2637,9 @@
     "increase": "Increase {label}",
     "rescheduleProposed": "New time proposed. The meeting moves once the other side accepts.",
     "backToMentorships": "Back to my mentorships",
-    "homeLabel": "menton home",
+    "homeLabel": "hocam by menton home",
+    "wordmark": "hocam",
+    "wordmarkBy": "<light>by </light>menton",
     "toastRegion": "Notifications"
   },
   "optionValues": {
@@ -7869,7 +7874,26 @@
     },
     "submitted": {
       "title": "Your form is sent",
-      "body": "When your coordinator places you in a team provisionally, you will see it on your home page.",
+      "titleNamed": "Your form is sent, {name}",
+      "body": "The coordinators will review your form and place you in a team.",
+      "nextTitle": "What happens next?",
+      "next": {
+        "REVIEW": {
+          "title": "Coordinator review",
+          "hint": "Your work days, units and skills are reviewed.",
+          "when": "This week"
+        },
+        "LEADERSHIP_INTERVIEW": {
+          "title": "Leadership interview",
+          "hint": "A 10-minute interview is scheduled for your leadership application.",
+          "when": "You get an invitation"
+        },
+        "TEAM_ASSIGNMENT": {
+          "title": "Team assignment",
+          "hint": "When your coordinator places you in a team provisionally, you will see it on your home page.",
+          "when": "Within ~1 week"
+        }
+      },
       "home": "Go to home"
     },
     "reveal": {

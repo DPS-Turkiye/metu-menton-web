@@ -15,6 +15,7 @@ import {
   leadershipEligibility,
   minutesOf,
   neededIskurDays,
+  nextStepsAfterSubmit,
   onboardingInput,
   rangeMinutes,
   remainingIskurDays,
@@ -28,7 +29,7 @@ import {
   targetMinutes,
 } from "@/lib/iskur-onboarding";
 import { withKeys } from "@/lib/keyed-list";
-import { IskurOnboardingStep } from "@/types/iskur-onboarding";
+import { IskurNextStep, IskurOnboardingStep } from "@/types/iskur-onboarding";
 import {
   completeForm,
   emptyForm,
@@ -171,6 +172,26 @@ describe("İŞKUR days and leadership", () => {
         leadership: { ...answers, motivation: "a".repeat(501) },
       }),
     ).toBe(false);
+  });
+
+  it("adds the leadership interview to the next steps only for an applicant", () => {
+    const leadership = {
+      wants: false,
+      motivation: null,
+      experience: null,
+      conflict: null,
+    };
+    expect(nextStepsAfterSubmit({ leadership })).toEqual([
+      IskurNextStep.Review,
+      IskurNextStep.TeamAssignment,
+    ]);
+    expect(
+      nextStepsAfterSubmit({ leadership: { ...leadership, wants: true } }),
+    ).toEqual([
+      IskurNextStep.Review,
+      IskurNextStep.LeadershipInterview,
+      IskurNextStep.TeamAssignment,
+    ]);
   });
 });
 

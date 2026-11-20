@@ -4,7 +4,11 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { AuthField, authFieldClass } from "@/components/auth/auth-field";
+import {
+  AuthField,
+  authFieldClass,
+  authLabelClass,
+} from "@/components/auth/auth-field";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { EmailDomainNote } from "@/components/auth/email-domain-note";
 import { VerifyEmailView } from "@/components/auth/verify-email-view";
@@ -61,12 +65,9 @@ function ProfileFields({ signup }: { signup: StudentSignup }) {
         onChange={(value) => updateProfile("department", value)}
       />
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="student-year"
-          className="text-[13px] font-semibold leading-[19.5px] text-[#374151]"
-        >
+        <label htmlFor="student-year" className={authLabelClass}>
           {copy("year")}
-          <span className="text-[#e5701d]"> *</span>
+          <span className="text-text-accent"> *</span>
         </label>
         <select
           id="student-year"

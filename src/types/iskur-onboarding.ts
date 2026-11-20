@@ -17,6 +17,13 @@ export enum IskurStepState {
   Upcoming = "UPCOMING",
 }
 
+/** "Sırada ne var?" on the submitted screen (Figma 5.6), in the order they happen. */
+export enum IskurNextStep {
+  Review = "REVIEW",
+  LeadershipInterview = "LEADERSHIP_INTERVIEW",
+  TeamAssignment = "TEAM_ASSIGNMENT",
+}
+
 /** A work-hours row being edited; keyed so removing one never hands its inputs to the next. */
 export type IskurRangeRow = Keyed<IskurScheduleRange>;
 

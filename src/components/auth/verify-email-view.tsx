@@ -4,6 +4,9 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 import { AuthShell } from "@/components/auth/auth-shell";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { InlineAlert } from "@/components/ia/inline-alert";
+import { StatusTone } from "@/components/ia/status-badge";
 import {
   describeAuthError,
   reloadAndCheckEmailVerified,
@@ -86,47 +89,38 @@ export function VerifyEmailView({
   return (
     <AuthShell>
       <div className="flex flex-col gap-4 py-8">
-        <h1 className="text-center text-2xl font-bold leading-9 text-[#111827]">
+        <h1 className="text-center type-h2 text-text-primary">
           {copy("title")}
         </h1>
-        <p className="text-center text-sm leading-6 text-[#6b7280]">
+        <p className="text-center type-body text-text-secondary">
           {copy("sentBefore")}
-          <span className="font-semibold text-[#111827]">{email}</span>
+          <span className="font-semibold text-text-primary">{email}</span>
           {copy("sentAfter")}
         </p>
 
-        <button
-          type="button"
+        <Button
+          size={ButtonSize.Large}
+          fullWidth
           onClick={() => void handleContinue()}
           disabled={checking}
-          className="h-[46px] w-full rounded-[10px] bg-[#e5701d] text-sm font-semibold text-white transition hover:bg-[#ce5e19] disabled:cursor-not-allowed disabled:bg-[#c9cdd2]"
         >
           {checking ? copy("checking") : copy("confirm")}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant={ButtonVariant.Ghost}
+          size={ButtonSize.Large}
+          fullWidth
           onClick={() => void handleResend()}
           disabled={resending}
-          className="h-[46px] w-full rounded-[10px] border border-[#e8eaed] text-sm font-semibold text-[#111827] hover:border-[#e5701d] disabled:opacity-60"
         >
           {resending ? copy("resending") : copy("resend")}
-        </button>
+        </Button>
 
         {notice ? (
-          <p
-            role="status"
-            className="rounded-lg border border-[#f2d3b8] bg-[#fff9f5] px-3 py-2 text-xs text-[#c85816]"
-          >
-            {notice}
-          </p>
+          <InlineAlert tone={StatusTone.Info}>{notice}</InlineAlert>
         ) : null}
         {error ? (
-          <p
-            role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
-          >
-            {error}
-          </p>
+          <InlineAlert tone={StatusTone.Error}>{error}</InlineAlert>
         ) : null}
       </div>
     </AuthShell>
