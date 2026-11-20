@@ -12,6 +12,8 @@
 #                    E2E_FIREBASE_CREDENTIALS_JSON (the JSON), and its web config, as E2E_FIREBASE_WEB_ENV (a file
 #                    of NEXT_PUBLIC_FIREBASE_* lines) or E2E_FIREBASE_API_KEY, _AUTH_DOMAIN, _PROJECT_ID, _APP_ID.
 #                    The key only ever goes into e2e/.stack/backend.env (owner-only, git-ignored, removed by down).
+#                    It also makes the admin and coordinator logins (e2e/support/staff-logins.mjs): fixed uids in
+#                    the test project, bootstrapped as staff, their passwords in e2e/.stack/web.env.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -102,6 +104,9 @@ ENV
       echo "FIREBASE_PROJECT_ID=$(printf '%s' "$account" | python3 -c 'import json,sys; print(json.load(sys.stdin)["project_id"])')"
       echo "FIREBASE_CREDENTIALS_JSON=$account"
     } >>"$STATE/backend.env"
+    # The admin and coordinator the journeys sign in as (e-mail + password in the test project).
+    printf '%s' "$account" | node e2e/support/staff-logins.mjs - >"$STATE/staff.env"
+    grep '^APP_BOOTSTRAP_STAFF=' "$STATE/staff.env" >>"$STATE/backend.env"
     sed -i.bak '/^INSTITUTION_LOGIN_DEV_STUB=false$/d' "$STATE/backend.env" && rm -f "$STATE/backend.env.bak"
   fi
   cat >"$STATE/web.env" <<ENV
@@ -125,6 +130,8 @@ E2E_DB_NAME=menton
 ENV
   if [ "$MODE" = flows ]; then
     firebase_web_config >>"$STATE/web.env"
+    grep -E '^E2E_(ADMIN|COORDINATOR)_' "$STATE/staff.env" >>"$STATE/web.env"
+    rm -f "$STATE/staff.env"
   elif [ -n "${E2E_FIREBASE_WEB_ENV:-}" ]; then
     grep -E '^NEXT_PUBLIC_FIREBASE_[A-Z_]+=' "$E2E_FIREBASE_WEB_ENV" >>"$STATE/web.env"
   fi
