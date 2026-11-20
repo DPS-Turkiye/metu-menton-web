@@ -272,7 +272,8 @@ test.describe("Akran", () => {
       .getByRole("listitem")
       .filter({ hasText: Persona.MehmetKaya });
     await request
-      .getByRole("button", { name: `Talebi geri çek, ${Persona.MehmetKaya}` })
+      // The mentor's name is a visually hidden suffix, so match the visible label (the row is already Mehmet's).
+      .getByRole("button", { name: /^Talebi geri çek/ })
       .click();
     await page
       .getByRole("dialog", { name: "Talebi geri çekmek istiyor musun?" })
