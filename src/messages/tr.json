@@ -6044,7 +6044,8 @@
     "prismPendingBody": "Koordinatörün Prism sonucunu inceleyip karar verecek. Bu sırada bir şey yapman gerekmiyor.",
     "prismPendingSince": "Tamamladığını bildirdin: {date}",
     "prismRetakeTitle": "Testi tekrar alman gerekiyor",
-    "prismRetakeBody": "Testi Prism'de tekrar al. Bitirince aşağıdan haber verebilirsin."
+    "prismRetakeBody": "Testi Prism'de tekrar al. Bitirince aşağıdan haber verebilirsin.",
+    "prismLinkPending": "Prism bağlantısı koordinatör tarafından eklenecek."
   },
   "apiErrors": {
     "trainingSubmitFailed": "Cevaplar gönderilemedi.",

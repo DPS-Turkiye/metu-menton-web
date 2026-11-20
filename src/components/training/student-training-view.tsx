@@ -246,6 +246,9 @@ function PrismSteps({
           })}
         </p>
       ) : null}
+      {flow.prismLinkPending ? (
+        <p className="text-sm text-[#8a5a00]">{t("prismLinkPending")}</p>
+      ) : null}
       <div className="flex flex-wrap items-center gap-3">
         {flow.prismHref ? (
           <a

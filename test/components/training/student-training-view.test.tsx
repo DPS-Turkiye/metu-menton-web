@@ -236,6 +236,33 @@ describe("StudentTrainingView", () => {
     );
   });
 
+  // Lane D: results applied before the coordinator set the Prism link.
+  it.each([
+    [TrainingState.PrismTodo, false],
+    [TrainingState.PrismPending, false],
+    [TrainingState.PrismRetake, true],
+  ])(
+    "shows no Prism button without a link (%s); a retake says the link is coming: %s",
+    async (state, linkNote) => {
+      vi.mocked(getStudentTraining).mockResolvedValue(
+        training({ state, videoId: null, prismUrl: null }),
+      );
+      renderWithQueryClient(<StudentTrainingView />);
+
+      expect(
+        await screen.findByRole("heading", { level: 2 }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "Prism'de aç" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryAllByText(
+          "Prism bağlantısı koordinatör tarafından eklenecek.",
+        ),
+      ).toHaveLength(linkNote ? 1 : 0);
+    },
+  );
+
   it("tells a student who is not an intern that peer mentoring is for interns", async () => {
     vi.mocked(getStudentTraining).mockResolvedValue(
       training({ state: TrainingState.InternsOnly, videoId: null }),
