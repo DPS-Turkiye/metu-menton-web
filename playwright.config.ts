@@ -36,6 +36,9 @@ export default defineConfig({
       name: "flows",
       testMatch: "**/*.flow.spec.ts",
       fullyParallel: false,
+      // A journey builds on its own earlier steps in one database, so a retry starts from a used state and can
+      // only fail for the wrong reason, hiding the real one.
+      retries: 0,
       use: { ...devices["Desktop Chrome"] },
     },
   ],

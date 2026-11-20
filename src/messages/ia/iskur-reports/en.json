@@ -126,6 +126,16 @@
     "leaderPrivacy": {
       "title": "Your team leader does not see this report",
       "body": "Only you and the peer mentoring coordinator see its content. The weekly work log carries only its time and whether it was sent, as peer mentoring."
+    },
+    "timeRecord": {
+      "title": "Time record",
+      "preparation": "Preparation",
+      "meeting": "Meeting",
+      "followUp": "Report and follow-up",
+      "meetingValue": "{minutes} min",
+      "meetingEmpty": "—",
+      "total": "Added to Peer Mentoring: {hours, plural, =0 {} other {# h }}{minutes} min",
+      "hint": "Times are suggested from the calendar; correct them to the real time."
     }
   },
   "skills": {
@@ -300,7 +310,8 @@
     "activityFailed": "The activity could not be saved.",
     "separator": " · ",
     "readyDone": "Done",
-    "readyMissing": "Missing"
+    "readyMissing": "Missing",
+    "timeBreakdown": "Meeting {meeting} min · Preparation {preparation} · Follow-up {followUp}"
   },
   "activity": {
     "title": "Add an activity outside meetings",
