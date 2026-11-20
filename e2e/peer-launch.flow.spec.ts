@@ -460,7 +460,8 @@ test.describe("İŞKUR", () => {
     await page.goto("/student/work-log");
     await page.getByRole("button", { name: /Bugün/ }).click();
     await page
-      .getByLabel("Ekip çalışması", { exact: true })
+      // The label wraps the select, so its name also carries the chosen option ("Görevsiz satır").
+      .getByRole("combobox", { name: /^Ekip çalışması/ })
       .selectOption({ label: TASK });
     await page.getByRole("button", { name: "Ekle", exact: true }).click();
     await page.getByLabel("Süre (dk)").fill("120");
