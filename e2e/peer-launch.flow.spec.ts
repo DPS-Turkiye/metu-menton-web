@@ -214,7 +214,10 @@ test.describe("Akran", () => {
     ).toBeVisible();
 
     const next = page.getByRole("button", { name: "Devam Et" });
-    await page.getByRole("checkbox", { name: new RegExp(CATEGORY) }).check();
+    // The category cards are labels over visually hidden checkboxes.
+    await page
+      .getByRole("checkbox", { name: new RegExp(CATEGORY) })
+      .check({ force: true });
     await next.click(); // Kategoriler
     await next.click(); // Alt konular
     await next.click(); // Deneyim
@@ -498,7 +501,8 @@ test.describe("İŞKUR", () => {
     ]) {
       await page.getByRole("checkbox", { name: check }).check();
     }
-    await page.getByRole("radio", { name: "Onayla" }).check();
+    // The decision cards are labels over visually hidden radios.
+    await page.getByRole("radio", { name: "Onayla" }).check({ force: true });
     await page.getByRole("button", { name: "Kararı gönder" }).click();
     await expect(page.getByText("Karar gönderildi.")).toBeVisible();
 
