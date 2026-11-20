@@ -27,7 +27,6 @@ import * as attendance from "@/lib/api/program-attendance";
 import * as programs from "@/lib/api/programs";
 import * as botapi from "@/lib/botapi";
 import { Locale } from "@/lib/i18n";
-import { INSTITUTION_LOGIN_COOKIE } from "@/lib/server/institution-login-cookie";
 import { requireAdminSession } from "@/lib/server/require-admin";
 import { requireCoordinatorOrAdminSession } from "@/lib/server/require-coordinator";
 import {
@@ -40,8 +39,20 @@ import {
   itChecksTheBody,
   type BodyCase,
 } from "@test/app/api/body-validation";
+import {
+  startedLoginCookie,
+  TEST_SESSION_PASSWORD,
+} from "@test/fixtures/institution-login";
 import { backendResponse } from "@test/fixtures/route-handlers";
 import { appSession } from "@test/fixtures/session";
+
+// Sealed once at load; each test stubs the same password again, since envs are reset after every test.
+vi.stubEnv("SESSION_PASSWORD", TEST_SESSION_PASSWORD);
+const odtuLoginStarted = await startedLoginCookie({
+  provider: InstitutionProvider.Odtu,
+  state: "state-1",
+  next: null,
+});
 
 vi.mock("@/lib/api/accounts");
 vi.mock("@/lib/api/admin-coordinators");
@@ -158,13 +169,7 @@ const cases: BodyCase[] = [
         params: Promise.resolve({ provider: InstitutionProvider.Odtu }),
       }),
     // Only the browser that started the login may finish it.
-    cookie: `${INSTITUTION_LOGIN_COOKIE}=${encodeURIComponent(
-      JSON.stringify({
-        provider: InstitutionProvider.Odtu,
-        state: "state-1",
-        next: null,
-      }),
-    )}`,
+    cookie: odtuLoginStarted,
     valid: { state: "state-1", params: { code: "c-1" } },
     backend: institutionLogin.finishInstitutionCallback,
     expected: [InstitutionProvider.Odtu, "state-1", { code: "c-1" }],
@@ -223,6 +228,7 @@ const cases: BodyCase[] = [
 describe.each(cases)("$route", (bodyCase) => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("SESSION_PASSWORD", TEST_SESSION_PASSWORD);
     vi.mocked(requireAdminSession).mockResolvedValue({
       ok: true,
       session: admin,

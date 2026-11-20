@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { useInstitutionCallback } from "@/hooks/use-institution-callback";
 import {
@@ -19,9 +20,12 @@ export function useOtgCallback() {
   const copy = useTranslations("otgLogin");
   const params = useSearchParams();
 
-  const code = params.get("code");
-  const state = params.get("state");
-  const otgError = params.get("error");
+  // Read once: useInstitutionCallback clears the query from the URL, and the values must outlive it.
+  const [{ code, state, otgError }] = useState(() => ({
+    code: params.get(InstitutionLoginProof.Code),
+    state: params.get("state"),
+    otgError: params.get("error"),
+  }));
   // What OTG's redirect alone says went wrong ("Vazgeç" on its consent screen is access_denied).
   const callbackError = otgError
     ? copy(otgError === ACCESS_DENIED ? "cancelled" : "failed")
