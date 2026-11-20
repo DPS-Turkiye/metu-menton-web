@@ -9,7 +9,11 @@ import {
   decideIskurLeaderWeek,
   getIskurLeaderWeek,
 } from "@/lib/client/iskur-weeks";
-import { createIskurLeaderWeek, WEEK_ID } from "@test/fixtures/iskur-weeks";
+import {
+  createIskurLeaderWeek,
+  createIskurWeekHistory,
+  WEEK_ID,
+} from "@test/fixtures/iskur-weeks";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/iskur-weeks", () => ({
@@ -49,6 +53,23 @@ describe("IskurReviewView", () => {
     const queue = screen.getByRole("region", { name: "Sıradaki kayıtlar" });
     expect(within(queue).getByText("Ayşe Yıldız")).toBeInTheDocument();
     expect(within(queue).queryByText("Mert Demir")).not.toBeInTheDocument();
+  });
+
+  it("shows the week's history to the reviewer", async () => {
+    vi.mocked(getIskurLeaderWeek).mockResolvedValue(
+      createIskurLeaderWeek({ history: createIskurWeekHistory() }),
+    );
+    renderWithQueryClient(
+      <IskurReviewView reviewer={{ programId: null }} weekId={WEEK_ID} />,
+    );
+
+    const history = await screen.findByRole("region", {
+      name: "Hafta geçmişi",
+    });
+    expect(within(history).getAllByRole("listitem")).toHaveLength(5);
+    expect(
+      within(history).getByText("Bağlantıyı notta paylaştım"),
+    ).toBeInTheDocument();
   });
 
   it("asks for a reason before a rejection, then sends the decision", async () => {
