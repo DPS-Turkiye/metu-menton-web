@@ -484,7 +484,9 @@ test.describe("İŞKUR", () => {
   test("the leader approves the week and never sees Mehmet's mentee or notes", async ({
     page,
   }) => {
+    await signInAs(page, Persona.ZeynepDemir);
     // Everything the leader's screens load, to check the mentee is in none of it, not only in what is drawn.
+    // It starts after the sign-in, whose persona picker lists every persona.
     const responses: { path: string; body: string }[] = [];
     page.on("response", async (response) => {
       const url = new URL(response.url());
@@ -495,8 +497,6 @@ test.describe("İŞKUR", () => {
         });
       }
     });
-
-    await signInAs(page, Persona.ZeynepDemir);
     await page.goto("/student/team");
     await page.getByRole("tab", { name: "Haftalık kayıtlar" }).click();
     await page
