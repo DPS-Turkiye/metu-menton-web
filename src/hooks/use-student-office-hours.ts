@@ -320,7 +320,7 @@ export function useOfficeHoursBooking(id: string) {
 
   const submit = async () => {
     if (!academician || !selected) return;
-    const found = officeHoursRequestErrors(title, description);
+    const found = officeHoursRequestErrors(title);
     setErrors(found);
     setFailure(null);
     if (found) return;
@@ -362,13 +362,10 @@ export function useOfficeHoursBooking(id: string) {
     title,
     setTitle: (value: string) => {
       setTitle(value);
-      setErrors((current) => current && { ...current, title: false });
+      setErrors(null);
     },
     description,
-    setDescription: (value: string) => {
-      setDescription(value);
-      setErrors((current) => current && { ...current, description: false });
-    },
+    setDescription,
     titleMax: OFFICE_HOURS_TITLE_MAX,
     descriptionMax: OFFICE_HOURS_DESCRIPTION_MAX,
     errors,

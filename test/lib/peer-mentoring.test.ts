@@ -12,6 +12,7 @@ import {
 } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
 import {
+  canWithdrawPeerRequest,
   chosenSubtopics,
   EMPTY_EXPERIENCE_FORM,
   experienceCardProblem,
@@ -23,12 +24,14 @@ import {
   mentorshipSince,
   nextSessionsByRequest,
   offeredSubTopics,
+  PEER_MENTORSHIPS_HREF,
   PEER_REQUEST_STATUS_TONE,
   peerMentorCapacity,
   peerMentorGateState,
   peerMentoringSide,
   peerMentorProfileHref,
   peerRequestAvailability,
+  peerTakeTab,
   splitPeerRequests,
   splitRecommended,
   subtopicGroupsWithCounts,
@@ -44,7 +47,34 @@ import {
   IskurHomeMode,
   PeerCapacityNote,
   PeerRequestAvailability,
+  PeerTakeTab,
 } from "@/types/iskur-student";
+
+describe("peerTakeTab", () => {
+  it("opens Mentorluklarım only for tab=mine, which is what PEER_MENTORSHIPS_HREF links to", () => {
+    expect(peerTakeTab("mine")).toBe(PeerTakeTab.Mine);
+    expect(peerTakeTab(null)).toBe(PeerTakeTab.Discover);
+    expect(peerTakeTab("MINE")).toBe(PeerTakeTab.Discover);
+    expect(
+      peerTakeTab(
+        new URL(PEER_MENTORSHIPS_HREF, "https://x").searchParams.get("tab"),
+      ),
+    ).toBe(PeerTakeTab.Mine);
+  });
+});
+
+describe("canWithdrawPeerRequest", () => {
+  it("allows withdrawing only a request nobody has answered yet", () => {
+    const withdrawable = Object.values(MentorshipRequestStatus).filter(
+      (status) => canWithdrawPeerRequest({ status }),
+    );
+    expect(withdrawable).toEqual([
+      MentorshipRequestStatus.CounterProposed,
+      MentorshipRequestStatus.MoreInfoRequested,
+      MentorshipRequestStatus.Pending,
+    ]);
+  });
+});
 
 describe("peerMentoringSide", () => {
   it("opens Mentorluk Ver only for as=MENTOR", () => {

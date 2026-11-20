@@ -317,9 +317,9 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toEqual(["Tüm alt konular", "Örnek: Değişim programları"]);
   });
 
-  it("sends a request after a long enough message and lists it under Mentorluklarım", async () => {
+  it("sends a request after a long enough message, says what happens next, and lists it under Mentorluklarım", async () => {
     const user = userEvent.setup();
-    renderWithQueryClient(<PeerMentoringView />);
+    const { rerender } = renderWithQueryClient(<PeerMentoringView />);
     const deniz = await mentorCard("Deniz Kaya");
 
     await user.click(
@@ -358,8 +358,20 @@ describe("PeerMentoringView › Keşfet", () => {
       within(dialog).getByRole("button", { name: "Mentorluk Talebi Gönder" }),
     );
 
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(screen.getByText("Talebin gönderildi.")).toBeVisible();
+    const sent = await screen.findByRole("dialog", {
+      name: "Talebin iletildi",
+    });
+    expect(within(sent).getByText("Onay Bekliyor")).toBeVisible();
+    expect(sent.contains(document.activeElement)).toBe(true);
+    expect(within(sent).getByText("Teknik ve Dijital Beceriler")).toBeVisible();
+    expect(
+      within(sent).getByRole("region", { name: "Sonra ne olur?" }),
+    ).toHaveTextContent("Deniz Kaya yanıt verdiğinde bildirim alırsın.");
+    expect(
+      within(sent).getByRole("link", { name: "Mentorluklarım'a git" }),
+    ).toHaveAttribute("href", "/student/peer-mentoring?tab=mine");
+    await user.click(within(sent).getByRole("button", { name: "Kapat" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(
       within(await mentorCard("Deniz Kaya")).getByRole("button", {
         name: "Talebin yanıt bekliyor",
@@ -367,6 +379,11 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toBeDisabled();
 
     await user.click(screen.getByRole("tab", { name: /Mentorluklarım/ }));
+    expect(replace).toHaveBeenCalledWith("/student/peer-mentoring?tab=mine", {
+      scroll: false,
+    });
+    search = "tab=mine";
+    rerender(<PeerMentoringView />);
     const mine = screen.getByRole("tabpanel", { name: /Mentorluklarım/ });
     const requests = within(mine).getByRole("region", { name: /Taleplerim/ });
     expect(await within(requests).findByText("Deniz Kaya")).toBeVisible();
@@ -416,6 +433,21 @@ describe("PeerMentoringView › switch", () => {
       "true",
     );
     expect(screen.queryByRole("button", { name: "Mentorluk Ver" })).toBeNull();
+  });
+
+  it("opens Mentorluklarım from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
+    search = "tab=mine";
+    const user = userEvent.setup();
+    renderWithQueryClient(<PeerMentoringView />);
+    expect(screen.getByRole("tab", { name: /Mentorluklarım/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+
+    await user.click(screen.getByRole("tab", { name: "Keşfet" }));
+    expect(replace).toHaveBeenCalledWith("/student/peer-mentoring", {
+      scroll: false,
+    });
   });
 
   it("answers a Mentorluk Ver link from such a student with Mentorluk Al", async () => {
