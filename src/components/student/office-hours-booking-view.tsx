@@ -298,6 +298,7 @@ function RequestDialog({ booking }: { booking: Booking }) {
           id="office-hours-request-subject"
           label={t("subject")}
           hint={t("subjectHint")}
+          required
           error={booking.errors?.title ? t("subjectRequired") : null}
         >
           <input
@@ -323,22 +324,15 @@ function RequestDialog({ booking }: { booking: Booking }) {
             count: booking.description.length,
             max: booking.descriptionMax,
           })}
-          error={booking.errors?.description ? t("descriptionRequired") : null}
         >
           <textarea
             id="office-hours-request-description"
             value={booking.description}
             maxLength={booking.descriptionMax}
             rows={4}
-            aria-required="true"
-            aria-invalid={booking.errors?.description === true}
             aria-describedby="office-hours-request-description-note"
             onChange={(event) => booking.setDescription(event.target.value)}
-            className={`w-full rounded-input border px-4 py-3 type-body text-text-primary ${
-              booking.errors?.description
-                ? "border-status-error-icon"
-                : "border-border-control"
-            }`}
+            className="w-full rounded-input border border-border-control px-4 py-3 type-body text-text-primary"
           />
         </Field>
         <InlineAlert tone={StatusTone.Info} title={t("approvalTitle")}>
@@ -366,21 +360,29 @@ function Field({
   id,
   label,
   hint,
-  error,
+  required = false,
+  error = null,
   children,
 }: {
   id: string;
   label: string;
   hint: string;
-  error: string | null;
+  required?: boolean;
+  error?: string | null;
   children: ReactNode;
 }) {
   const t = useTranslations("iaStudent.officeHours.request");
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="type-label text-text-primary">
-        {label} <span className="text-text-accent">*</span>
-        <span className="sr-only">{t("required")}</span>
+        {label}
+        {required ? (
+          <>
+            {" "}
+            <span className="text-text-accent">*</span>
+            <span className="sr-only">{t("required")}</span>
+          </>
+        ) : null}
       </label>
       {children}
       <p

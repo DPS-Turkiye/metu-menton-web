@@ -218,6 +218,12 @@ describe("PeerMentorPublicProfile", () => {
     );
 
     await waitFor(() => expect(getPeerMentor).toHaveBeenCalledTimes(2));
+    // "Mentorluklarım'a git" leaves the profile for the Mentorluklarım tab.
+    expect(
+      within(
+        screen.getByRole("dialog", { name: "Talebin iletildi" }),
+      ).getByRole("link", { name: "Mentorluklarım'a git" }),
+    ).toHaveAttribute("href", "/student/peer-mentoring?tab=mine");
   });
 
   it("says why a request can't be sent to a mentor already asked", async () => {

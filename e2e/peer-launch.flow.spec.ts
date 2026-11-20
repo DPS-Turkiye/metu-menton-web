@@ -255,24 +255,38 @@ test.describe("Akran", () => {
     });
   });
 
-  test("Ayşe finds Mehmet in the mentor list and sends a request", async ({
+  test("Ayşe finds Mehmet in the mentor list, sends a request, withdraws it and sends it again", async ({
     page,
   }) => {
     await signInAs(page, Persona.AyseYilmaz);
     await peerMentoring(page, "Mentorluk Al");
-    // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
-    await mentorRow(page, Persona.MehmetKaya).getByText("Profili Gör").click();
-    await page
-      .getByRole("button", { name: /^Mentorluk Talebi Gönder/ })
-      .click();
+    await sendRequestToMehmet(page);
 
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Konu").selectOption({ label: CATEGORY });
-    await dialog.getByLabel("Kısa mesaj").fill(REQUEST_MESSAGE);
-    await dialog
-      .getByRole("button", { name: "Mentorluk Talebi Gönder" })
+    // 4.3b: the confirmation leads to Mentorluklarım, where the unanswered request can be withdrawn (4.4).
+    const sent = page.getByRole("dialog", { name: "Talebin iletildi" });
+    await expect(sent).toContainText("Onay Bekliyor");
+    await sent.getByRole("link", { name: "Mentorluklarım'a git" }).click();
+    await expect(page).toHaveURL(/[?&]tab=mine/);
+    const request = page
+      .getByRole("region", { name: /Taleplerim/ })
+      .getByRole("listitem")
+      .filter({ hasText: Persona.MehmetKaya });
+    await request
+      .getByRole("button", { name: `Talebi geri çek, ${Persona.MehmetKaya}` })
       .click();
-    await expect(page.getByText("Talebin gönderildi.")).toBeVisible();
+    await page
+      .getByRole("dialog", { name: "Talebi geri çekmek istiyor musun?" })
+      .getByRole("button", { name: "Talebi geri çek" })
+      .click();
+    await expect(page.getByText("Talebini geri çektin.")).toBeVisible();
+    await expect(request).toContainText("Geri çekildi");
+
+    await page.getByRole("tab", { name: "Keşfet" }).click();
+    await sendRequestToMehmet(page);
+    await page
+      .getByRole("dialog", { name: "Talebin iletildi" })
+      .getByRole("button", { name: "Kapat" })
+      .click();
   });
 
   test("Mehmet accepts it", async ({ page }) => {
@@ -744,3 +758,18 @@ test.describe("İŞKUR", () => {
     ).toHaveCount(1);
   });
 });
+
+/** Keşfet → Mehmet's profile → "Mentorluk Talebi Gönder", up to the sent confirmation. */
+async function sendRequestToMehmet(page: Page) {
+  // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
+  await mentorRow(page, Persona.MehmetKaya).getByText("Profili Gör").click();
+  await page.getByRole("button", { name: /^Mentorluk Talebi Gönder/ }).click();
+
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Konu").selectOption({ label: CATEGORY });
+  await dialog.getByLabel("Kısa mesaj").fill(REQUEST_MESSAGE);
+  await dialog.getByRole("button", { name: "Mentorluk Talebi Gönder" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Talebin iletildi" }),
+  ).toBeVisible();
+}

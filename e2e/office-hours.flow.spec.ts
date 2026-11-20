@@ -126,7 +126,7 @@ test("the student finds the academician and asks for a slot", async ({
 
   await page.getByLabel("Görüşme başlığı").fill(BOOKED_TOPIC);
   await page
-    .getByLabel("Açıklama")
+    .getByLabel("Kısa açıklama (isteğe bağlı)")
     .fill("Uçtan uca test: yüksek lisans seçeneklerini konuşmak istiyorum.");
   await page.getByRole("button", { name: "Randevu Talebi Gönder" }).click();
 

@@ -13,6 +13,7 @@ import { ClientApiError } from "@/lib/client/api";
 import {
   getMentorAvailability,
   scheduleMeeting,
+  withdrawMentorRequest,
 } from "@/lib/client/mentor-requests";
 import { getPeerMentoringRequests } from "@/lib/client/peer-mentoring";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
@@ -29,6 +30,7 @@ vi.mock("@/lib/client/student-appointments", () => ({
 vi.mock("@/lib/client/mentor-requests", () => ({
   getMentorAvailability: vi.fn(),
   scheduleMeeting: vi.fn(),
+  withdrawMentorRequest: vi.fn(),
 }));
 
 function request(
@@ -158,7 +160,7 @@ describe("Mentorluk Al › Mentorluklarım", () => {
     expect(within(mehmet).getByText(/^Sıradaki görüşme: /)).toBeVisible();
   });
 
-  it("lists the other requests with their status, and offers another mentor after a decline", async () => {
+  it("lists the other requests with their status, offers to withdraw a pending one, and another mentor after a decline", async () => {
     const user = userEvent.setup();
     renderMine();
 
@@ -168,12 +170,68 @@ describe("Mentorluk Al › Mentorluklarım", () => {
     const declined = itemAt(items, 1);
     expect(pending).toHaveTextContent("Deniz Ak");
     expect(pending).toHaveTextContent("Onay Bekliyor");
-    expect(within(pending).queryByRole("button")).toBeNull();
+    expect(within(pending).getAllByRole("button")).toHaveLength(1);
+    expect(
+      within(pending).getByRole("button", {
+        name: "Talebi geri çek, Deniz Ak",
+      }),
+    ).toBeVisible();
     expect(declined).toHaveTextContent("Reddedildi");
+    expect(
+      within(declined).queryByRole("button", { name: /Talebi geri çek/ }),
+    ).toBeNull();
     await user.click(
       within(declined).getByRole("button", { name: "Başka Mentor Bul" }),
     );
     expect(onFindAnother).toHaveBeenCalledTimes(1);
+  });
+
+  it("withdraws a pending request only after the student confirms, then reloads the list", async () => {
+    const user = userEvent.setup();
+    renderMine();
+    const withdraw = await screen.findByRole("button", {
+      name: "Talebi geri çek, Deniz Ak",
+    });
+
+    await user.click(withdraw);
+    let dialog = screen.getByRole("dialog", {
+      name: "Talebi geri çekmek istiyor musun?",
+    });
+    expect(dialog).toHaveTextContent("Deniz Ak artık yanıt veremez");
+    await user.click(within(dialog).getByRole("button", { name: "Vazgeç" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(withdrawMentorRequest).not.toHaveBeenCalled();
+
+    await user.click(withdraw);
+    dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Talebi geri çek" }),
+    );
+    expect(withdrawMentorRequest).toHaveBeenCalledWith("request-3");
+    expect(await screen.findByText("Talebini geri çektin.")).toBeVisible();
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(getPeerMentoringRequests).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the confirmation open with the reason when the withdrawal is refused", async () => {
+    vi.mocked(withdrawMentorRequest).mockRejectedValueOnce(
+      new ClientApiError("Bu talep artık geri çekilemez.", 400),
+    );
+    const user = userEvent.setup();
+    renderMine();
+    await user.click(
+      await screen.findByRole("button", { name: "Talebi geri çek, Deniz Ak" }),
+    );
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Talebi geri çek" }),
+    );
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      "Bu talep artık geri çekilemez.",
+    );
+    expect(screen.getByRole("dialog")).toBeVisible();
+    expect(getPeerMentoringRequests).toHaveBeenCalledTimes(1);
   });
 
   it("says so when the student has no request yet", async () => {
