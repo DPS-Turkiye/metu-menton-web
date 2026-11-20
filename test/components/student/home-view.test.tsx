@@ -12,7 +12,7 @@ import {
 } from "@test/fixtures/peer-mentoring";
 import { peerAppointment } from "@test/fixtures/student-appointments";
 import { studentHomeModel } from "@test/fixtures/student-home";
-import { renderWithQueryClient } from "@test/test-utils";
+import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/hooks/use-student-home", () => ({ useStudentHome: vi.fn() }));
 vi.mock("@/components/student/peer-mentor-request-dialog", () => ({
@@ -186,6 +186,19 @@ describe("StudentHomeView", () => {
       within(section).getByRole("button", { name: "Mentorluk Talebi Gönder" }),
     );
     expect(screen.getByRole("dialog", { name: mentor.fullName })).toBeVisible();
+  });
+
+  it("keeps the mentor cards, the advisor and the replies off the red Primary", () => {
+    homeReturns({
+      awaiting: [alternative],
+      mentors: PEER_MENTORS_FIXTURE.slice(0, 2),
+    });
+    renderWithQueryClient(<StudentHomeView />);
+
+    expect(
+      screen.getAllByRole("button", { name: "Mentorluk Talebi Gönder" }),
+    ).toHaveLength(2);
+    expect(primaryButtons()).toHaveLength(0);
   });
 
   it("renders the extra blocks another edition adds", () => {
