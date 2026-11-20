@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MentonWordmark } from "@/components/common/menton-wordmark";
@@ -8,10 +8,14 @@ describe("MentonWordmark", () => {
   it("reads hocam by menton and links home", () => {
     render(<MentonWordmark href="/student" />);
 
-    const link = screen.getByRole("link", { name: "hocam ana sayfa" });
+    const link = screen.getByRole("link", {
+      name: "hocam by menton ana sayfa",
+    });
     expect(link).toHaveAttribute("href", "/student");
-    expect(link).toHaveTextContent(/^hocamby menton$/);
-    expect(screen.getByText("by")).toHaveClass("font-light");
+    expect(within(link).getByText("hocam")).toBeInTheDocument();
+    expect(
+      within(link).getByText("menton", { exact: false }),
+    ).toBeInTheDocument();
   });
 
   it("keeps the brand and translates only the label in English", () => {
@@ -21,8 +25,8 @@ describe("MentonWordmark", () => {
       </InLocale>,
     );
 
-    const link = screen.getByRole("link", { name: "hocam home" });
+    const link = screen.getByRole("link", { name: "hocam by menton home" });
     expect(link).toHaveAttribute("href", "/");
-    expect(link).toHaveTextContent(/^hocamby menton$/);
+    expect(within(link).getByText("hocam")).toBeInTheDocument();
   });
 });

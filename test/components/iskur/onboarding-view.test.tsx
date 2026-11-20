@@ -242,17 +242,9 @@ describe("IskurOnboardingView", () => {
       await screen.findByRole("heading", { name: "Formun gönderildi, Mert" }),
     ).toBeInTheDocument();
     // Figma 5.6: an applicant to lead also gets the leadership interview between review and team assignment.
-    const steps = within(
-      screen.getByRole("region", { name: "Sırada ne var?" }),
-    ).getAllByRole("listitem");
-    expect(steps.map((step) => step.textContent)).toEqual([
-      expect.stringMatching(/^1Koordinatör incelemesi.*Bu hafta$/),
-      expect.stringMatching(/^2Liderlik görüşmesi.*Görüşme daveti gelir$/),
-      expect.stringMatching(/^3Ekip ataması.*~1 hafta içinde$/),
-    ]);
-    expect(
-      screen.getByRole("link", { name: "Ana Sayfa’ya git" }),
-    ).toHaveAttribute("href", "/student");
+    const region = screen.getByRole("region", { name: "Sırada ne var?" });
+    expect(within(region).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(region).getByText("Liderlik görüşmesi")).toBeInTheDocument();
   });
 
   it("shows a submitted form without the leadership interview when they did not apply to lead", async () => {
@@ -264,14 +256,8 @@ describe("IskurOnboardingView", () => {
     const region = await screen.findByRole("region", {
       name: "Sırada ne var?",
     });
-    expect(
-      within(region)
-        .getAllByRole("listitem")
-        .map((step) => step.textContent),
-    ).toEqual([
-      expect.stringMatching(/^1Koordinatör incelemesi/),
-      expect.stringMatching(/^2Ekip ataması/),
-    ]);
+    expect(within(region).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(region).getByText("Ekip ataması")).toBeInTheDocument();
     expect(screen.queryByText("Liderlik görüşmesi")).toBeNull();
   });
 

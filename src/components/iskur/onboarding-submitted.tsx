@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ia/button";
 import type { IskurNextStep } from "@/types/iskur-onboarding";
@@ -15,12 +16,21 @@ export function OnboardingSubmitted({
   nextSteps: readonly IskurNextStep[];
 }) {
   const t = useTranslations("iskurOnboarding.submitted");
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  // The form and its focused "Formu gönder" button are gone; land keyboard and screen-reader users on the result.
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
   return (
     <main className="mx-auto flex w-full max-w-[640px] flex-col items-center gap-6 px-4 pt-[72px] pb-16 text-center sm:px-0">
       <span className="grid size-16 place-items-center rounded-full bg-status-success-bg">
         <Image src="/ia/iskur/check-circle.svg" alt="" width={32} height={32} />
       </span>
-      <h1 className="type-h1 text-text-primary">
+      <h1
+        ref={headingRef}
+        tabIndex={-1}
+        className="type-h1 text-text-primary outline-none"
+      >
         {firstName ? t("titleNamed", { name: firstName }) : t("title")}
       </h1>
       <p className="type-body-lg text-text-secondary">{t("body")}</p>
@@ -36,6 +46,7 @@ export function OnboardingSubmitted({
             <li key={step} className="flex items-center gap-4 py-3.5">
               <span
                 aria-hidden
+                // The first step is the one under way now (Figma 5.6), so it alone takes the accent.
                 className={`grid size-6 shrink-0 place-items-center rounded-full type-label-sm ${
                   index === 0
                     ? "bg-brand-mentee-bg text-brand-mentee-strong"

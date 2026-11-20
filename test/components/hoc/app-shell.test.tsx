@@ -395,7 +395,7 @@ describe("AppShell navigation", () => {
       within(menteeNav).queryByRole("link", { name: /Toplantı Asistanı/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "hocam ana sayfa" }),
+      screen.getByRole("link", { name: "hocam by menton ana sayfa" }),
     ).toHaveAttribute("href", "/dashboard");
   });
 
@@ -417,7 +417,7 @@ describe("AppShell navigation", () => {
     ).toHaveAttribute("href", "/dashboard");
     expect(screen.queryByText("metual")).not.toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: "hocam ana sayfa" }).length,
+      screen.getAllByRole("link", { name: "hocam by menton ana sayfa" }).length,
     ).toBeGreaterThan(0);
   });
 

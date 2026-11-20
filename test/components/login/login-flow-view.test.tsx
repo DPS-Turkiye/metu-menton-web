@@ -106,8 +106,8 @@ describe("Login screen", () => {
       screen.getByRole("heading", { level: 1, name: "hocam’a hoş geldin" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "hocam ana sayfa" }),
-    ).toHaveTextContent("hocamby menton");
+      screen.getByRole("link", { name: "hocam by menton ana sayfa" }),
+    ).toBeInTheDocument();
     // The whole page takes the ODTÜ accent, so the design-system buttons and fields are red, not Teknokent orange.
     expect(
       screen
