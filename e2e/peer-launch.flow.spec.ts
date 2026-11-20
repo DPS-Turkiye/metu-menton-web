@@ -250,9 +250,16 @@ test.describe("Akran", () => {
   }) => {
     await signInAs(page, Persona.AyseYilmaz);
     await peerMentoring(page, "Mentorluk Al");
-    const card = page.getByRole("article", { name: Persona.MehmetKaya });
-    await expect(card).toBeVisible({ timeout: 15_000 });
-    await card.getByRole("button", { name: "Mentorluk Talebi Gönder" }).click();
+    // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
+    await page
+      .getByRole("link", { name: `Profili Gör, ${Persona.MehmetKaya}` })
+      .first()
+      .click();
+    await page
+      .getByRole("button", {
+        name: `Mentorluk Talebi Gönder, ${Persona.MehmetKaya}`,
+      })
+      .click();
 
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Konu").selectOption({ label: CATEGORY });
@@ -557,7 +564,9 @@ test.describe("İŞKUR", () => {
 
     await peerMentoring(page, "Mentorluk Al");
     await expect(
-      page.getByRole("article", { name: Persona.MehmetKaya }),
+      page
+        .getByRole("link", { name: `Profili Gör, ${Persona.MehmetKaya}` })
+        .first(),
     ).toBeVisible();
     await page.goto("/student/office-hours");
     await expect(
