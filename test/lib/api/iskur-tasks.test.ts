@@ -12,10 +12,16 @@ import {
 import {
   createIskurTask,
   deleteIskurTask,
+  fetchIskurProgramTaskOutputContent,
   fetchIskurTask,
+  fetchIskurTaskOutputContent,
+  fetchIskurTaskOutputs,
   fetchIskurTeamTasks,
+  removeIskurTaskOutput,
   updateIskurTask,
+  uploadIskurTaskOutput,
 } from "@/lib/api/iskur-tasks";
+import { UPLOAD_TIMEOUT_MS } from "@/lib/http-client";
 import { backendRequest } from "@/lib/server/backend-client";
 import { withForgedActor } from "@test/fixtures/forged-actor";
 
@@ -40,7 +46,59 @@ const update = {
 const activity = { title: "Açık ofis", description: null, active: null };
 const POOL = "/api/coordinator/programs/p%2F1/iskur/support-activities";
 
+const upload = new FormData();
+const OUTPUTS = "/api/coordinator/programs/p%2F1/iskur/task-outputs";
+const fileRequest = {
+  method: "GET",
+  responseType: "arraybuffer",
+  headers: { Accept: "*/*" },
+  timeout: UPLOAD_TIMEOUT_MS,
+} as const;
+
 const cases: [string, () => Promise<unknown>, AxiosRequestConfig][] = [
+  [
+    "hands in a file under the session user",
+    () => uploadIskurTaskOutput("u1", "t/1", upload),
+    {
+      method: "POST",
+      url: "/api/iskur/tasks/t%2F1/outputs",
+      params: { actorId: "u1" },
+      data: upload,
+      timeout: UPLOAD_TIMEOUT_MS,
+    },
+  ],
+  [
+    "takes a handed-in file back",
+    () => removeIskurTaskOutput("u1", "t/1", "o/1"),
+    {
+      method: "DELETE",
+      url: "/api/iskur/tasks/t%2F1/outputs/o%2F1",
+      params: { actorId: "u1" },
+    },
+  ],
+  [
+    "reads a handed-in file as bytes",
+    () => fetchIskurTaskOutputContent("u1", "t/1", "o/1"),
+    {
+      ...fileRequest,
+      url: "/api/iskur/tasks/t%2F1/outputs/o%2F1",
+      params: { actorId: "u1" },
+    },
+  ],
+  [
+    "lists a program's handed-in files",
+    () => fetchIskurTaskOutputs("c1", "p/1"),
+    { method: "GET", url: OUTPUTS, params: { actorId: "c1" } },
+  ],
+  [
+    "reads a program's handed-in file as bytes",
+    () => fetchIskurProgramTaskOutputContent("c1", "p/1", "t/1", "o/1"),
+    {
+      ...fileRequest,
+      url: `${OUTPUTS}/t%2F1/o%2F1`,
+      params: { actorId: "c1" },
+    },
+  ],
   [
     "reads this week's team tasks",
     () => fetchIskurTeamTasks("u1", null),

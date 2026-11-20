@@ -9,10 +9,12 @@ import {
 } from "@/interfaces/iskur-tasks";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import { Weekday } from "@/interfaces/mentor";
+import { ISKUR_DOCUMENT_MAX_BYTES } from "@/lib/iskur-onboarding";
 import { fromIsoDay } from "@/lib/peer-reports";
 import { ISO_DAY_PATTERN } from "@/lib/utils";
 import {
   IskurCompleteBlock,
+  IskurOutputProblem,
   type IskurAssignForm,
   type IskurPlanPreview,
   type IskurTaskForm,
@@ -32,6 +34,24 @@ export const ISKUR_TASK_DEFAULT_MINUTES = 120;
 export const ISKUR_TASK_MAX_ACTUAL_MINUTES = 1350;
 export const ISKUR_SUPPORT_DESCRIPTION_MAX = 500;
 export const ISKUR_HTTPS_LINK = /^https:\/\/\S+$/;
+/** The backend's limits for a task's handed-in files (`IskurTaskOutputFiles`, `DocumentKind.ISKUR_TASK_OUTPUT`). */
+export const ISKUR_TASK_OUTPUT_MAX_FILES = 5;
+/** The same 10 MB the upload route checks (`readIskurDocumentUpload`). */
+export const ISKUR_TASK_OUTPUT_MAX_BYTES = ISKUR_DOCUMENT_MAX_BYTES;
+export const ISKUR_TASK_OUTPUT_EXTENSIONS = [
+  "pdf",
+  "png",
+  "jpg",
+  "jpeg",
+  "docx",
+  "xlsx",
+  "pptx",
+  "zip",
+] as const;
+/** For the file picker; the backend decides from the file's bytes. */
+export const ISKUR_TASK_OUTPUT_ACCEPT = ISKUR_TASK_OUTPUT_EXTENSIONS.map(
+  (extension) => `.${extension}`,
+).join(",");
 
 export const ISKUR_TASK_KINDS: readonly IskurTaskKind[] = [
   IskurTaskKind.TeamTask,
@@ -195,7 +215,26 @@ export function taskUpdateInput(
   };
 }
 
-/** What still stops "Görevi tamamla": the actual time, a valid link, and an output when the task asks for one. */
+/** Why a chosen file cannot be handed in, before it is sent; the backend checks the content too. */
+export function taskOutputProblem(file: {
+  name: string;
+  size: number;
+}): IskurOutputProblem | null {
+  if (file.size === 0) return IskurOutputProblem.Empty;
+  if (file.size > ISKUR_TASK_OUTPUT_MAX_BYTES) {
+    return IskurOutputProblem.TooLarge;
+  }
+  const dot = file.name.lastIndexOf(".");
+  const extension = dot < 0 ? "" : file.name.slice(dot + 1).toLowerCase();
+  return ISKUR_TASK_OUTPUT_EXTENSIONS.some((allowed) => allowed === extension)
+    ? null
+    : IskurOutputProblem.WrongType;
+}
+
+/**
+ * What still stops "Görevi tamamla": the actual time, a valid link, and an output when the task asks for one (a
+ * link, a note or a handed-in file).
+ */
 export function completeBlock(
   task: IskurTask,
   form: IskurTaskForm,
@@ -205,7 +244,12 @@ export function completeBlock(
   }
   const link = form.outputLink.trim();
   if (link && !isHttpsLink(link)) return IskurCompleteBlock.LinkInvalid;
-  if (task.needsOutput && !link && !form.outputNote.trim()) {
+  if (
+    task.needsOutput &&
+    !link &&
+    !form.outputNote.trim() &&
+    task.outputFiles.length === 0
+  ) {
     return IskurCompleteBlock.OutputMissing;
   }
   return null;

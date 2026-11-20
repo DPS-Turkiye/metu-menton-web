@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { IskurTaskOutputFiles } from "@/components/student/iskur-task-output-files";
 import { ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { useIskurTask } from "@/hooks/use-iskur-task";
 import { useReportDuration } from "@/hooks/use-report-format";
@@ -28,8 +29,8 @@ type View = ReturnType<typeof useIskurTask>;
 
 /**
  * "Görev detayı" (handbook note 338:2423): the task as assigned, and for its assignee the actual time, the output
- * (a link or a note) and the moves: complete, hand over to next week, reopen. A leader of the team may reopen or
- * delete it.
+ * (a link, a note or files) and the moves: complete, hand over to next week, reopen. A leader of the team reads the
+ * output and may reopen or delete it.
  */
 export function IskurTaskDetailView({ taskId }: { taskId: string }) {
   const t = useTranslations("iskurTask");
@@ -79,7 +80,7 @@ export function IskurTaskDetailView({ taskId }: { taskId: string }) {
         <div className="space-y-6">
           <Summary task={task} />
           {view.canWork ? <WorkForm view={view} task={task} /> : null}
-          {!view.canWork ? <Outcome task={task} /> : null}
+          {!view.canWork ? <Outcome view={view} task={task} /> : null}
         </div>
         <Actions view={view} task={task} />
       </div>
@@ -212,13 +213,14 @@ function WorkForm({ view, task }: { view: View; task: IskurTask }) {
             {t("save")}
           </Button>
         ) : null}
+        <IskurTaskOutputFiles view={view} />
       </div>
     </Card>
   );
 }
 
 /** What a leader sees of someone else's task: the recorded time and output, read-only. */
-function Outcome({ task }: { task: IskurTask }) {
+function Outcome({ view, task }: { view: View; task: IskurTask }) {
   const t = useTranslations("iskurTask.work");
   const duration = useReportDuration();
   return (
@@ -243,6 +245,9 @@ function Outcome({ task }: { task: IskurTask }) {
         </div>
         <Fact label={t("note")} value={task.outputNote ?? t("none")} />
       </dl>
+      <div className="mt-4">
+        <IskurTaskOutputFiles view={view} />
+      </div>
     </Card>
   );
 }

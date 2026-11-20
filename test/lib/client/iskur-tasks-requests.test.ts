@@ -1,4 +1,4 @@
-import { describe, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { IskurTaskKind, IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import {
@@ -12,15 +12,22 @@ import {
   createIskurTask,
   deleteIskurTask,
   getIskurTask,
+  getIskurTaskOutputs,
   getIskurTeamTasks,
+  iskurProgramTaskOutputHref,
+  iskurTaskOutputHref,
+  removeIskurTaskOutput,
   updateIskurTask,
+  uploadIskurTaskOutput,
 } from "@/lib/client/iskur-tasks";
+import { UPLOAD_TIMEOUT_MS } from "@/lib/http-client";
 import {
   itSendsEachClientCall,
   type ClientCall,
 } from "@test/fixtures/client-calls";
 
-vi.mock("@/lib/http-client", () => ({
+vi.mock("@/lib/http-client", async (original) => ({
+  ...(await original<typeof import("@/lib/http-client")>()),
   httpClient: {
     get: vi.fn(),
     post: vi.fn(),
@@ -49,7 +56,32 @@ const update = {
 const activity = { title: "Açık ofis", description: null, active: true };
 const POOL = "/api/coordinator/programs/p%2F1/iskur/support-activities";
 
+const OUTPUTS = "/api/coordinator/programs/p%2F1/iskur/task-outputs";
+const file = new File(["%PDF-1.4"], "rapor.pdf", { type: "application/pdf" });
+
 const calls: ClientCall[] = [
+  {
+    title: "uploadIskurTaskOutput sends the file to its task",
+    call: () => uploadIskurTaskOutput("t/1", file),
+    method: "post",
+    args: [
+      "/api/iskur/tasks/t%2F1/outputs",
+      expect.any(FormData),
+      { timeout: UPLOAD_TIMEOUT_MS },
+    ],
+  },
+  {
+    title: "removeIskurTaskOutput takes a file back",
+    call: () => removeIskurTaskOutput("t/1", "o/1"),
+    method: "delete",
+    args: ["/api/iskur/tasks/t%2F1/outputs/o%2F1"],
+  },
+  {
+    title: "getIskurTaskOutputs lists a program's files",
+    call: () => getIskurTaskOutputs("p/1"),
+    method: "get",
+    args: [OUTPUTS],
+  },
   {
     title: "getIskurTeamTasks reads this week",
     call: () => getIskurTeamTasks(null),
@@ -120,4 +152,15 @@ const calls: ClientCall[] = [
 
 describe("İŞKUR task and pool client calls", () => {
   itSendsEachClientCall(calls);
+});
+
+describe("İŞKUR task output links", () => {
+  it("point at this app's own routes, never at storage", () => {
+    expect(iskurTaskOutputHref("t/1", "o/1")).toBe(
+      "/api/iskur/tasks/t%2F1/outputs/o%2F1",
+    );
+    expect(iskurProgramTaskOutputHref("p/1", "t/1", "o/1")).toBe(
+      `${OUTPUTS}/t%2F1/o%2F1`,
+    );
+  });
 });

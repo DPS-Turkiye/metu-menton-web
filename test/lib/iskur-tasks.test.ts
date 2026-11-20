@@ -20,11 +20,17 @@ import {
   stepEstimate,
   taskCount,
   taskForm,
+  taskOutputProblem,
   taskUpdateInput,
 } from "@/lib/iskur-tasks";
-import { IskurCompleteBlock, type IskurTaskForm } from "@/types/iskur-tasks";
+import {
+  IskurCompleteBlock,
+  IskurOutputProblem,
+  type IskurTaskForm,
+} from "@/types/iskur-tasks";
 import {
   createIskurTask,
+  createIskurTaskOutputFile,
   createIskurTeamMember,
   createIskurTeamTasks,
   LEADER_ID,
@@ -234,5 +240,46 @@ describe("İŞKUR task helpers", () => {
     expect(taskCount(createIskurTeamTasks())).toBe(1);
     expect(taskCount(null)).toBe(0);
     expect(iskurTaskHref("a/b")).toBe("/student/team/tasks/a%2Fb");
+  });
+});
+
+describe("İŞKUR task output files", () => {
+  it("counts a handed-in file as the output a task asks for", () => {
+    const withFile = createIskurTask({
+      needsOutput: true,
+      outputFiles: [createIskurTaskOutputFile()],
+    });
+    expect(completeBlock(withFile, form({ actualMinutes: "60" }))).toBeNull();
+  });
+
+  it("takes the listed formats by extension, in any case", () => {
+    for (const name of [
+      "rapor.pdf",
+      "AFIS.PNG",
+      "foto.jpg",
+      "foto.JPEG",
+      "rapor.docx",
+      "butce.xlsx",
+      "sunum.pptx",
+      "TESLIM.ZIP",
+    ]) {
+      expect(taskOutputProblem({ name, size: 10 })).toBeNull();
+    }
+  });
+
+  it("says why a file cannot be handed in", () => {
+    for (const name of ["betik.js", "sayfa.html", "gorsel.webp", "pdf", ""]) {
+      expect(taskOutputProblem({ name, size: 10 })).toBe(
+        IskurOutputProblem.WrongType,
+      );
+    }
+    expect(taskOutputProblem({ name: "rapor.pdf", size: 0 })).toBe(
+      IskurOutputProblem.Empty,
+    );
+    const limit = 10 * 1024 * 1024;
+    expect(taskOutputProblem({ name: "rapor.pdf", size: limit })).toBeNull();
+    expect(taskOutputProblem({ name: "rapor.pdf", size: limit + 1 })).toBe(
+      IskurOutputProblem.TooLarge,
+    );
   });
 });
