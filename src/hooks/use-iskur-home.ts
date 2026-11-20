@@ -20,17 +20,23 @@ import { IskurHomeMode } from "@/types/iskur-student";
 
 const HOME_WAITING_SHOWN = 3;
 
+/** The requests a published peer mentor received; for anyone else nothing is fetched and the lists stay empty. */
+export function useIskurMentorRequests() {
+  const gate = usePeerMentorGate();
+  const earned =
+    gate.state === PeerMentorGateState.Earned && !gate.sessionBehind;
+  const profile = usePeerMentorProfile(earned);
+  const received = useReceivedPeerRequests(Boolean(profile.data));
+  return { gate, profile, received };
+}
+
 /**
  * The İŞKUR home blocks: which ones show (iskurHomeMode), the requests waiting for the mentor's answer with the
  * decision actions, and the "Mentor profilin" capacity. Queries run only for a published peer mentor.
  */
 export function useIskurHome() {
-  const gate = usePeerMentorGate();
-  const earned =
-    gate.state === PeerMentorGateState.Earned && !gate.sessionBehind;
-  const profile = usePeerMentorProfile(earned);
+  const { gate, profile, received } = useIskurMentorRequests();
   const hasProfile = Boolean(profile.data);
-  const received = useReceivedPeerRequests(hasProfile);
   // Capacity is saved with the availability settings (Mentorluk Ver's availability tab), not the profile, so read it
   // there like the Mentorluk Ver card does; only a published mentor has settings to read.
   const settings = useQuery({

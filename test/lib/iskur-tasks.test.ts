@@ -22,6 +22,7 @@ import {
   taskForm,
   taskOutputProblem,
   taskUpdateInput,
+  weekdayOf,
 } from "@/lib/iskur-tasks";
 import {
   IskurCompleteBlock,
@@ -234,6 +235,12 @@ describe("İŞKUR task helpers", () => {
     expect(dueOnWorkDay(member, "")).toBeNull();
     expect(dueOnWorkDay(createIskurTeamMember(), "2026-11-18")).toBeNull();
     expect(dueOnWorkDay(null, "2026-11-17")).toBeNull();
+  });
+
+  it("names the weekday of a day", () => {
+    expect(weekdayOf("2026-11-16")).toBe(Weekday.Monday);
+    expect(weekdayOf("2026-11-22")).toBe(Weekday.Sunday);
+    expect(weekdayOf("16.11.2026")).toBeNull();
   });
 
   it("counts the week's tasks and links a task", () => {

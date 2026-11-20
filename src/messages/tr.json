@@ -8048,8 +8048,6 @@
       "mentoring": "Akran Mentörlüğü",
       "teamWork": "Ekip Çalışmaları",
       "logged": "Kaydedilen süre",
-      "todos": "Yapılacaklar",
-      "noTodos": "Bu hafta için bekleyen bir şey yok.",
       "task": "Ekip görevi · {day}",
       "taskWithOutput": "Ekip görevi · teslim edilecek çıktı · {day}",
       "reports": "{count, plural, one {# görüşme raporu bekliyor} other {# görüşme raporu bekliyor}}",
@@ -8309,6 +8307,31 @@
       "REVISION": "Revizyon istendi",
       "REJECTED": "Reddedildi",
       "OBJECTION": "İtiraz edildi"
+    }
+  },
+  "iskurToday": {
+    "title": "Bugün yapman gerekenler",
+    "empty": "Bugün için bekleyen bir şey yok.",
+    "request": "Yeni mentorluk talebi: {name}",
+    "requestHint": "{topic} · {date}",
+    "missingDay": "{day} için çalışma kaydı yok",
+    "missingDayHint": "Planlanan {planned} · o gün için henüz bir satır girmedin",
+    "revision": "Bu haftanın kaydı için düzeltme istendi",
+    "revisionPrevious": "Geçen haftanın kaydı için düzeltme istendi",
+    "revisionHint": "Değerlendirenin notu: {reason}",
+    "revisionNoReason": "Notu Çalışma kaydı’nda görebilirsin.",
+    "submit": "Bu haftanın kaydını gönder",
+    "submitPrevious": "Geçen haftanın kaydı gönderilmedi",
+    "submitHint": "Gönderdiğinde kaydın değerlendirmeye gider.",
+    "submitToday": "Haftalık özetini bugün liderine gönder",
+    "submitTodayHint": "İŞKUR programında haftalık özet cuma günü liderine gider.",
+    "actions": {
+      "writeReport": "Raporu yaz",
+      "reply": "Yanıtla",
+      "complete": "Tamamla",
+      "fix": "Düzelt",
+      "send": "Gönder",
+      "open": "Aç"
     }
   }
 }

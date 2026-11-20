@@ -127,6 +127,12 @@ const WEEKDAY_OF_JS_DAY: readonly Weekday[] = [
   Weekday.Saturday,
 ];
 
+/** The weekday of a "yyyy-mm-dd" day; null for anything that is not one. */
+export function weekdayOf(day: string): Weekday | null {
+  if (!ISO_DAY_PATTERN.test(day)) return null;
+  return WEEKDAY_OF_JS_DAY[fromIsoDay(day).getDay()] ?? null;
+}
+
 /**
  * Whether the due date ("yyyy-mm-dd") is one of the assignee's work days: null while they have not given their days,
  * when any day is accepted.
@@ -135,15 +141,9 @@ export function dueOnWorkDay(
   member: IskurTeamTasksMember | null,
   dueDate: string,
 ): boolean | null {
-  if (
-    !member ||
-    member.workDays.length === 0 ||
-    !ISO_DAY_PATTERN.test(dueDate)
-  ) {
-    return null;
-  }
-  const weekday = WEEKDAY_OF_JS_DAY[fromIsoDay(dueDate).getDay()];
-  return weekday != null && member.workDays.includes(weekday);
+  const weekday = weekdayOf(dueDate);
+  if (!member || member.workDays.length === 0 || weekday == null) return null;
+  return member.workDays.includes(weekday);
 }
 
 /** "Mert: 12 → 14 sa / 16,5 sa": the assignee's planned time before and after this task, against their target. */
