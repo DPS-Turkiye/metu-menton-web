@@ -3,10 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
-import type {
-  IskurChannelPreferences,
-  IskurMessage,
-  IskurMessageInput,
+import { useIskurChannelPush } from "@/hooks/use-iskur-channel-push";
+import {
+  IskurChannelEventType,
+  type IskurChannelEvent,
+  type IskurChannelPreferences,
+  type IskurMessage,
+  type IskurMessageInput,
 } from "@/interfaces/iskur-channels";
 import {
   acknowledgeIskurMessage,
@@ -22,6 +25,7 @@ import {
   canAnnounce,
   canSendDraft,
   EMPTY_DRAFT,
+  eventChangesMessages,
   groupChannels,
   ISKUR_MESSAGE_MAX,
   ISKUR_TITLE_MAX,
@@ -85,6 +89,8 @@ export function useIskurMessages(
     hasMore: boolean;
   } | null>(null);
   const [receiptsFor, setReceiptsFor] = useState<string | null>(null);
+  // While the live topics are up they bring the changes, and polling drops to a slow safety net.
+  const [live, setLive] = useState(false);
   // Switching channels starts clean: no half-written draft for the wrong channel, no other channel's receipts.
   const openChannel = (channelId: string | null) => {
     setRequestedId(channelId);
@@ -100,7 +106,7 @@ export function useIskurMessages(
   const list = useQuery({
     queryKey: iskurChannelListQueryKey(programId),
     queryFn: () => getIskurChannels(programId),
-    ...polling(POLL_INTERVAL.messages),
+    ...polling(live ? POLL_INTERVAL.background : POLL_INTERVAL.messages),
   });
   const channels = list.data?.channels ?? [];
   const active = pickChannel(channels, requestedId);
@@ -110,11 +116,43 @@ export function useIskurMessages(
     queryKey: iskurMessagesQueryKey(activeId),
     queryFn: () => getIskurMessages(activeId ?? ""),
     enabled: Boolean(activeId),
-    ...polling(POLL_INTERVAL.chat),
+    ...polling(live ? POLL_INTERVAL.background : POLL_INTERVAL.chat),
   });
 
   const refreshList = () =>
     queryClient.invalidateQueries({ queryKey: ISKUR_CHANNELS_QUERY_KEY });
+
+  const push = useIskurChannelPush(
+    channels.map((channel) => channel.id),
+    (event: IskurChannelEvent) => {
+      const channel =
+        channels.find((candidate) => candidate.id === event.channelId) ?? null;
+      if (eventChangesMessages(event, channel)) {
+        void queryClient.invalidateQueries({
+          queryKey: iskurMessagesQueryKey(event.channelId),
+        });
+      }
+      // A new message moves the unread counts of every list that shows the channel.
+      if (event.type === IskurChannelEventType.MessagePosted) {
+        void queryClient.invalidateQueries({
+          queryKey: [...ISKUR_CHANNELS_QUERY_KEY, "list"],
+        });
+      }
+    },
+    () =>
+      void queryClient.invalidateQueries({
+        queryKey: [...ISKUR_CHANNELS_QUERY_KEY, "list"],
+      }),
+  );
+  if (push.live !== live) setLive(push.live);
+  // Whatever happened while the socket was down (or before it first opened) is fetched once it is up.
+  useEffect(() => {
+    if (live) {
+      void queryClient.invalidateQueries({
+        queryKey: ISKUR_CHANNELS_QUERY_KEY,
+      });
+    }
+  }, [live, queryClient]);
 
   const markRead = useMutation({
     mutationFn: (channelId: string) => markIskurChannelRead(channelId),
