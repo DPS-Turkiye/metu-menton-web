@@ -355,6 +355,7 @@ async function place(
     .getByRole("button", { name: `${person} kişisini yerleştir` })
     .click();
   const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
   const team = dialog.getByLabel("Ekip", { exact: true });
   await team.selectOption({ index: 0 });
   await dialog.getByRole("radio", { name: role }).check();
@@ -384,10 +385,9 @@ test.describe("İŞKUR", () => {
     await page
       .getByRole("button", { name: "Varsayılan yapıyı oluştur" })
       .click();
+    // The pool shows before the structure exists; place people once the units and teams are there.
     await expect(
-      page.getByRole("button", {
-        name: `${Persona.ZeynepDemir} kişisini yerleştir`,
-      }),
+      page.getByRole("button", { name: "Birimi kesinleştir" }).first(),
     ).toBeVisible({ timeout: 15_000 });
 
     await page
@@ -395,6 +395,7 @@ test.describe("İŞKUR", () => {
         name: `${Persona.ZeynepDemir} kişisini yerleştir`,
       })
       .click();
+    await expect(page.getByRole("dialog")).toBeVisible();
     teamName =
       (await page
         .getByRole("dialog")
