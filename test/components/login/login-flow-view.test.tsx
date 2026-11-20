@@ -95,6 +95,43 @@ describe("Login screen", () => {
     );
   });
 
+  it("shows ODTÜ students the hocam sign-in in ODTÜ red, with what happens after it (Figma 1.1)", () => {
+    const { container } = render(
+      <InLocale locale="tr">
+        <LoginFlowView edition={Edition.Odtu} />
+      </InLocale>,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "hocam’a hoş geldin" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "hocam ana sayfa" }),
+    ).toHaveTextContent("hocamby menton");
+    // The whole page takes the ODTÜ accent, so the design-system buttons and fields are red, not Teknokent orange.
+    expect(
+      screen
+        .getByRole("button", { name: "Giriş yap" })
+        .closest("[data-ia-accent]"),
+    ).toHaveAttribute("data-ia-accent", "odtu");
+    expect(container.innerHTML).not.toMatch(/e86f22|e5701d|f97316/i);
+    const after = screen.getByRole("region", { name: "Giriş yaptıktan sonra" });
+    expect(after).toHaveTextContent(
+      "İŞKUR rolü program koordinatörlüğünce atanır; buradan seçilmez.",
+    );
+    expect(after).toHaveTextContent(
+      "Bir hesapla hem mentee hem akran mentor olabilirsin.",
+    );
+  });
+
+  it("leaves the ODTÜ-only notes off Teknokent's sign-in", () => {
+    render(<LoginFlowView edition={Edition.Teknokent} />);
+
+    expect(
+      screen.queryByRole("region", { name: "Giriş yaptıktan sonra" }),
+    ).toBeNull();
+  });
+
   // On a server the dev persona login is off: students see only e-mail, password, "Şifremi unuttum" and sign-up.
   it("signs ODTÜ students in by e-mail, with no ODTÜ button outside the dev login", () => {
     render(
@@ -155,7 +192,7 @@ describe("Login screen", () => {
     );
 
     expect(
-      await screen.findByRole("heading", { name: "Welcome to Menton" }),
+      await screen.findByRole("heading", { name: "Welcome to hocam" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sign up" })).toHaveAttribute(
@@ -172,7 +209,7 @@ describe("Login screen", () => {
     expect(container.querySelector("img")).toBeNull();
 
     expect(
-      screen.getByRole("heading", { name: "Menton’a hoş geldin" }),
+      screen.getByRole("heading", { name: "hocam’a hoş geldin" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/E-posta/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Şifre/)).toBeInTheDocument();
@@ -193,7 +230,7 @@ describe("Login screen", () => {
     render(<LoginFlowView edition={Edition.Teknokent} />);
     await waitUntilLoginReady();
 
-    expect(screen.getByText("Menton’a yeni misin?")).toBeInTheDocument();
+    expect(screen.getByText("hocam’a yeni misin?")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Kayıt Ol" })).toHaveAttribute(
       "href",
       "/signup",

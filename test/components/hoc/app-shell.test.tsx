@@ -395,7 +395,7 @@ describe("AppShell navigation", () => {
       within(menteeNav).queryByRole("link", { name: /Toplantı Asistanı/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "menton ana sayfa" }),
+      screen.getByRole("link", { name: "hocam ana sayfa" }),
     ).toHaveAttribute("href", "/dashboard");
   });
 
@@ -416,7 +416,9 @@ describe("AppShell navigation", () => {
       within(menteeNav).getByRole("link", { name: /Ana Sayfa/ }),
     ).toHaveAttribute("href", "/dashboard");
     expect(screen.queryByText("metual")).not.toBeInTheDocument();
-    expect(screen.getByText("menton")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "hocam ana sayfa" }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("leaves a mentor on a page that does not opt in unchanged", () => {

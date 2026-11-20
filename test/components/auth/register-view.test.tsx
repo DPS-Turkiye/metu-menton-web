@@ -33,7 +33,7 @@ describe("RegisterView", () => {
       );
       expect(screen.queryByRole("img")).not.toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /menton.*ana sayfa/i }),
+        screen.getByRole("link", { name: "hocam ana sayfa" }),
       ).toHaveAttribute("href", "/");
       expect(screen.getByRole("link", { name: "Giriş yap" })).toHaveAttribute(
         "href",

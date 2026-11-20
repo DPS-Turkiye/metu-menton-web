@@ -3,7 +3,10 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 
 export const authFieldClass =
-  "h-11 w-full rounded-[20px] border border-[#e8eaed] bg-white px-3.5 text-sm text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#e86f22] focus:ring-2 focus:ring-[#fde4d3]";
+  "h-11 w-full rounded-input border border-border-default bg-background-surface px-3.5 text-sm text-text-primary outline-none transition placeholder:text-text-placeholder focus:border-border-selected focus:ring-2 focus:ring-background-selected";
+
+export const authLabelClass =
+  "text-[13px] font-semibold leading-[19.5px] text-text-primary";
 
 export function AuthField({
   id,
@@ -35,12 +38,9 @@ export function AuthField({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
-        <label
-          htmlFor={id}
-          className="text-[13px] font-semibold leading-[19.5px] text-[#374151]"
-        >
+        <label htmlFor={id} className={authLabelClass}>
           {label}
-          {required ? <span className="text-[#e5701d]"> *</span> : null}
+          {required ? <span className="text-text-accent"> *</span> : null}
         </label>
         {action}
       </div>
@@ -55,10 +55,14 @@ export function AuthField({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         onChange={(event) => onChange(event.target.value)}
-        className={`${authFieldClass} ${error ? "border-[#c0392b]" : ""}`}
+        className={`${authFieldClass} ${error ? "border-status-error-icon" : ""}`}
       />
       {error ? (
-        <p id={`${id}-error`} role="alert" className="text-xs text-[#c0392b]">
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="text-xs text-status-error-text"
+        >
           {error}
         </p>
       ) : null}

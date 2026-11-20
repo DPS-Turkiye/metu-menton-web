@@ -13,11 +13,11 @@ export function EmailDomainNote({
   const t = useTranslations("auth");
   if (!domains) return null;
   return notAllowed ? (
-    <p role="alert" className="mt-1.5 text-xs text-[#c0392b]">
+    <p role="alert" className="mt-1.5 text-xs text-status-error-text">
       {t("emailDomainNotAllowed", { domains })}
     </p>
   ) : (
-    <p className="mt-1.5 text-xs text-[#676e78]">
+    <p className="mt-1.5 text-xs text-text-secondary">
       {t("emailDomainHint", { domains })}
     </p>
   );

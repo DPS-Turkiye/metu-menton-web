@@ -61,14 +61,14 @@
     "en": "English"
   },
   "login": {
-    "title": "Menton’a hoş geldin",
+    "title": "hocam’a hoş geldin",
     "email": "E-posta",
     "emailPlaceholder": "ornek@email.com",
     "password": "Şifre",
     "forgotPassword": "Şifremi unuttum",
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor…",
-    "newHere": "Menton’a yeni misin?",
+    "newHere": "hocam’a yeni misin?",
     "signUp": "Kayıt Ol",
     "invite": "Bir davet aldın mı? Davet kodunla devam et",
     "odtu": "ODTÜ Hesabıyla Giriş Yap",
@@ -78,7 +78,10 @@
     "help": "Giriş yapamıyor musun? Yardım al",
     "odtuIntro": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yap. Ayrı bir kayıt gerekmez.",
     "staffQuestion": "Koordinatör, admin veya girişim programı hesabın mı var?",
-    "emailLogin": "E-posta ile giriş yap"
+    "emailLogin": "E-posta ile giriş yap",
+    "afterTitle": "Giriş yaptıktan sonra",
+    "afterIskur": "İŞKUR rolü program koordinatörlüğünce atanır; buradan seçilmez.",
+    "afterBoth": "Bir hesapla hem mentee hem akran mentor olabilirsin."
   },
   "otgLogin": {
     "signingIn": "ODTÜ TEKNOKENT Girişimcilik hesabınla giriş yapılıyor…",
@@ -1076,19 +1079,19 @@
   },
   "metadata": {
     "manifestDescription": "Mentorluk görüşmelerin, görevlerin ve mesajların cebinde.",
-    "defaultTitle": "Mentorluk ve Girişim Programları Platformu",
-    "titleTemplate": "%s | ODTÜ Teknokent",
-    "description": "ODTÜ Teknokent mentorluk, eğitim ve girişim programları platformu.",
+    "defaultTitle": "hocam by menton",
+    "titleTemplate": "%s | hocam by menton",
+    "description": "ODTÜ öğrencileri ve akademisyenleri için Office Hours, Akran Mentörlüğü ve İŞKUR platformu.",
     "login": "Giriş",
     "startup": "Startup’ım",
     "workspace": "Çalışma Alanı",
-    "notes": "Toplantı Notları | Teknokent",
+    "notes": "Toplantı Notları",
     "notesDescription": "Konuya göre gruplanmış toplantı notların.",
-    "notebook": "Toplantı Not Defteri | Teknokent",
+    "notebook": "Toplantı Not Defteri",
     "notebookDescription": "Aynı toplantıdaki herkesin ortak düzenlediği not defteri.",
-    "mentorDashboard": "Mentor Paneli | Teknokent",
+    "mentorDashboard": "Mentor Paneli",
     "mentorDashboardDescription": "Gelen mentorluk talepleri inceleme ve karar ekranı.",
-    "calendar": "Takvimim | Teknokent",
+    "calendar": "Takvimim",
     "calendarDescription": "Mentorluk görüşmeleri ve kişisel toplantı takvimi.",
     "studentProject": "Projem"
   },
@@ -2636,7 +2639,9 @@
     "increase": "{label} artır",
     "rescheduleProposed": "Yeni saat önerildi. Diğer taraf onaylayınca görüşme taşınır.",
     "backToMentorships": "Mentorluklarıma dön",
-    "homeLabel": "menton ana sayfa",
+    "homeLabel": "hocam ana sayfa",
+    "wordmark": "hocam",
+    "wordmarkBy": "<light>by </light>menton",
     "toastRegion": "İşlem bildirimleri"
   },
   "optionValues": {
@@ -7391,7 +7396,7 @@
       "PROVISIONAL": "Geçici",
       "FINAL": "Kesin"
     },
-    "split": "{days} gün · {mentoring, number} sa mentörlük · {team, number} sa ekip",
+    "split": "{days} gün · {mentoring, number} sa mentorluk · {team, number} sa ekip",
     "noDays": "Görev günü girilmedi",
     "edit": "Düzenle",
     "editNamed": "{name} yerleşimini düzenle",
@@ -7412,14 +7417,14 @@
     "weeklyDays": "Haftalık görev günü",
     "daysUnknown": "Henüz bilinmiyor",
     "daysOption": "{days} gün",
-    "mentoringHours": "Haftalık mentörlük süresi (saat)",
+    "mentoringHours": "Haftalık mentorluk süresi (saat)",
     "mentoringDefault": "Varsayılan: {hours, number} sa",
-    "mentoringHint": "Boş bırakırsan gün sayısına göre varsayılan (%27 civarı) uygulanır. Mentörlük vermeyen için 0 yaz; kalan süre ekip çalışmasına gider. 30 dakikalık adımlarla.",
+    "mentoringHint": "Boş bırakırsan gün sayısına göre varsayılan (%27 civarı) uygulanır. Mentorluk vermeyen için 0 yaz; kalan süre ekip çalışmasına gider. 30 dakikalık adımlarla.",
     "problems": {
       "NO_TEAM": "Önce bir ekip seç.",
-      "MENTORING_NEEDS_DAYS": "Mentörlük süresi için önce görev günü sayısını seç.",
-      "MENTORING_STEP": "Mentörlük süresi 0,5 saatlik adımlarla girilir (ör. 1,5).",
-      "MENTORING_TOO_MUCH": "Mentörlük süresi haftalık toplamı aşamaz."
+      "MENTORING_NEEDS_DAYS": "Mentorluk süresi için önce görev günü sayısını seç.",
+      "MENTORING_STEP": "Mentorluk süresi 0,5 saatlik adımlarla girilir (ör. 1,5).",
+      "MENTORING_TOO_MUCH": "Mentorluk süresi haftalık toplamı aşamaz."
     },
     "unplace": "Yerleştirmeyi kaldır",
     "cancel": "Vazgeç",
@@ -7509,10 +7514,10 @@
     "weeks": {
       "title": "Haftalık kayıtlar · {week}",
       "empty": "Bu hafta değerlendireceğin bir kayıt yok.",
-      "totals": "Ekip {team} · Mentörlük {mentoring}",
+      "totals": "Ekip {team} · Mentorluk {mentoring}",
       "notStarted": "Başlamadı",
       "open": "İncele",
-      "privacy": "Mentörlük tarafında yalnızca süre, görüşme sayısı ve rapor durumu görünür.",
+      "privacy": "Mentorluk tarafında yalnızca süre, görüşme sayısı ve rapor durumu görünür.",
       "loading": "Haftalık kayıtlar yükleniyor…",
       "failed": "Haftalık kayıtlar yüklenemedi."
     }
@@ -7871,7 +7876,26 @@
     },
     "submitted": {
       "title": "Formun gönderildi",
-      "body": "Koordinatörün seni geçici olarak bir ekibe yerleştirdiğinde ekibini Ana Sayfa’nda göreceksin.",
+      "titleNamed": "Formun gönderildi, {name}",
+      "body": "Koordinatörler formunu inceleyip seni bir ekibe yerleştirecek.",
+      "nextTitle": "Sırada ne var?",
+      "next": {
+        "REVIEW": {
+          "title": "Koordinatör incelemesi",
+          "hint": "Görev günlerin, birimlerin ve yetkinliklerin değerlendirilir.",
+          "when": "Bu hafta"
+        },
+        "LEADERSHIP_INTERVIEW": {
+          "title": "Liderlik görüşmesi",
+          "hint": "Liderlik başvurun için 10 dakikalık bir görüşme planlanır.",
+          "when": "Görüşme daveti gelir"
+        },
+        "TEAM_ASSIGNMENT": {
+          "title": "Ekip ataması",
+          "hint": "Koordinatörün seni geçici olarak bir ekibe yerleştirdiğinde ekibini Ana Sayfa’nda göreceksin.",
+          "when": "~1 hafta içinde"
+        }
+      },
       "home": "Ana Sayfa’ya git"
     },
     "reveal": {
@@ -8030,7 +8054,7 @@
       "taskWithOutput": "Ekip görevi · teslim edilecek çıktı · {day}",
       "reports": "{count, plural, one {# görüşme raporu bekliyor} other {# görüşme raporu bekliyor}}",
       "reportsHint": "Akran Mentörlüğü · Faaliyet Raporum’da doldur",
-      "support": "Mentörlük destek faaliyeti seç (isteğe bağlı)",
+      "support": "Mentorluk destek faaliyeti seç (isteğe bağlı)",
       "supportHint": "Bu hafta planlı görüşmen yok. Havuzdan seçtiğin faaliyet Akran Mentörlüğü saatine yazılır.",
       "supportPick": "Destek faaliyeti",
       "supportAdd": "Bugüne 1 saat ekle",
@@ -8109,7 +8133,7 @@
     "noMentoring": "Bu hafta akran mentörlüğü kaydı yok.",
     "meetings": "{count, plural, one {# görüşme} other {# görüşme}} · {sent}/{due} rapor gönderildi",
     "supportActivity": "Destek faaliyeti: {title}",
-    "otherWork": "Görüşme dışı mentörlük çalışması",
+    "otherWork": "Görüşme dışı mentorluk çalışması",
     "privacy": "Mentee adları, görüşme notları ve rapor içerikleri sana gösterilmez. Bir sorun görürsen akran mentörlüğü koordinatörüne danış.",
     "queue": "Sıradaki kayıtlar",
     "notStarted": "Başlamadı",
@@ -8149,7 +8173,7 @@
       "subtitle": "Tek liderli ekiplerin liderleri ve lideri olmayan üyelerin haftası koordinatöre düşer.",
       "loading": "Yükleniyor…",
       "empty": "Bu hafta koordinatöre düşen bir kayıt yok.",
-      "totals": "Ekip {team} · Mentörlük {mentoring}",
+      "totals": "Ekip {team} · Mentorluk {mentoring}",
       "notStarted": "Başlamadı",
       "open": "Aç",
       "failed": "Kayıtlar yüklenemedi."

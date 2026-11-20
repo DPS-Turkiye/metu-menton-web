@@ -126,7 +126,7 @@ describe("WeeklySummaryView", () => {
     await renderView();
 
     const growth = screen.getByRole("textbox", {
-      name: "2. Bu hafta mentör olarak nasıl geliştin?",
+      name: "2. Bu hafta mentor olarak nasıl geliştin?",
     });
     await userEvent.clear(growth);
     await userEvent.type(growth, "Sabırlı oldum");

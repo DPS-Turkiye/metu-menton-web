@@ -27,9 +27,8 @@
   "welcome": {
     "title": "Welcome",
     "titleNamed": "Welcome, {name}",
-    "subtitle": "Your details from ODTÜ are below. You don't need to enter them again.",
-    "recordTitle": "Details from ODTÜ",
-    "readOnly": "Read-only",
+    "subtitle": "Your sign-up details are below. You don't need to enter them again.",
+    "recordTitle": "Your sign-up details",
     "facts": {
       "fullName": "Full name",
       "email": "University e-mail",
@@ -40,11 +39,11 @@
     "classAndLevel": "Year {year} · {level}",
     "classOnly": "Year {year}",
     "unknown": "—",
-    "correction": "If a detail is wrong, it is corrected through ODTÜ Student Affairs and shows up in menton automatically.",
-    "loading": "Loading your ODTÜ details…",
-    "loadError": "Your ODTÜ details could not be loaded.",
+    "correction": "If a detail is wrong, write to {email}.",
+    "loading": "Loading your sign-up details…",
+    "loadError": "Your sign-up details could not be loaded.",
     "retry": "Try again",
-    "missing": "We couldn't find an ODTÜ record linked to your account. You can skip this step and continue."
+    "missing": "We couldn't find a record linked to your account. You can skip this step and continue."
   },
   "photo": {
     "title": "Profile photo",

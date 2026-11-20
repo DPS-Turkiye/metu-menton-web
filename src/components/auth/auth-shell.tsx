@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { LanguageSwitch } from "@/components/common/language-switch";
 import { MentonWordmark } from "@/components/common/menton-wordmark";
+import { IaAccent } from "@/types/ia-theme";
 
 export function AuthHeader() {
   return (
@@ -16,7 +17,10 @@ export function AuthHeader() {
 
 export function AuthPage({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-[#111827]">
+    <div
+      data-ia-accent={IaAccent.Odtu}
+      className="flex min-h-screen flex-col bg-background-surface text-text-primary"
+    >
       <div className="px-4 pt-6 sm:px-8">
         <AuthHeader />
       </div>
@@ -29,7 +33,10 @@ export function AuthPage({ children }: { children: ReactNode }) {
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-white text-[#111827]">
+    <div
+      data-ia-accent={IaAccent.Odtu}
+      className="flex min-h-screen bg-background-surface text-text-primary"
+    >
       <main className="flex flex-1 flex-col px-4 py-6 sm:px-8">
         <AuthHeader />
         <div className="flex flex-1 items-center justify-center py-8">
