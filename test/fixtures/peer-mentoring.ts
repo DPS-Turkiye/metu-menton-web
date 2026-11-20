@@ -12,6 +12,7 @@ import {
   type PeerMentorFilter,
   type PeerMentoringPerson,
   type PeerMentoringRequest,
+  type PeerMentorProfile,
 } from "@/interfaces/peer-mentoring";
 
 // Test stand-in for the peer-mentoring API: the same filtering and request rules the backend applies.
@@ -246,4 +247,40 @@ export function addPeerMentoringRequestFixture(
 export function resetPeerMentoringFixtures() {
   requests = structuredClone(INITIAL_REQUESTS);
   nextRequest = 1;
+}
+
+/** A request Mert Demir received as a peer mentor, from `name`. */
+export function receivedPeerRequest(
+  id: string,
+  name: string,
+  status: MentorshipRequestStatus = MentorshipRequestStatus.Pending,
+): PeerMentoringRequest {
+  return {
+    id,
+    mentor: { userId: "me", fullName: "Mert Demir", department: null },
+    mentee: { userId: `student-${id}`, fullName: name, department: null },
+    category: PeerTopicCategory.CareerInternship,
+    message: "Staj başvurusu için CV'me bakar mısın?",
+    status,
+    createdAt: "2026-11-18T09:30:00Z",
+    acceptedAt: null,
+  };
+}
+
+/** A published peer mentor's profile: enough for the screens that only ask whether one exists. */
+export function peerMentorProfileFixture(): PeerMentorProfile {
+  return {
+    categories: [PeerTopicCategory.CareerInternship],
+    subTopics: [],
+    strongCourses: [],
+    projects: [],
+    erasmus: null,
+    helpWith: "Staj ve CV konusunda yardımcı olurum.",
+    linkedinUrl: null,
+    department: "Endüstri Mühendisliği",
+    classYear: 4,
+    menteeCapacity: 4,
+    levels: {},
+    experiences: [],
+  };
 }

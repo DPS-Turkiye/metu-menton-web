@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useIskurThisWeek, useIskurWorkLog } from "@/hooks/use-iskur-week";
 import {
@@ -7,7 +7,9 @@ import {
   IskurWeekStatus,
   IskurWorkEntryKind,
 } from "@/interfaces/iskur-weeks";
+import { PeerMentorGateState } from "@/interfaces/peer-mentoring";
 import { ClientApiError } from "@/lib/client/api";
+import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import {
   addIskurSupportEntry,
   getIskurWeek,
@@ -15,8 +17,22 @@ import {
   saveIskurWeekEntries,
   submitIskurWeek,
 } from "@/lib/client/iskur-weeks";
+import {
+  getPeerMentorProfile,
+  getReceivedPeerRequests,
+} from "@/lib/client/peer-mentoring";
+import { IskurTodoKind } from "@/types/iskur-weeks";
 import { PeerReportView } from "@/types/peer-reports";
+import {
+  completeForm,
+  emptyForm,
+  onboarding,
+} from "@test/fixtures/iskur-onboarding";
 import { ACTIVITY_ID, createIskurWeek } from "@test/fixtures/iskur-weeks";
+import {
+  peerMentorProfileFixture,
+  receivedPeerRequest,
+} from "@test/fixtures/peer-mentoring";
 import { queryWrapper } from "@test/fixtures/query-wrapper";
 
 const replace = vi.fn();
@@ -33,13 +49,42 @@ vi.mock("@/lib/client/iskur-weeks", () => ({
   saveIskurWeekEntries: vi.fn(),
   submitIskurWeek: vi.fn(),
 }));
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurOnboarding: vi.fn(),
+}));
+vi.mock("@/lib/client/peer-mentoring", () => ({
+  getPeerMentorProfile: vi.fn(),
+  getReceivedPeerRequests: vi.fn(),
+}));
+const gate = { state: PeerMentorGateState.Hidden };
+vi.mock("@/hooks/use-peer-mentor-give", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/hooks/use-peer-mentor-give")>()),
+  usePeerMentorGate: () => ({
+    state: gate.state,
+    gateAward: null,
+    expired: false,
+    isLoading: false,
+    sessionBehind: false,
+  }),
+}));
 
 describe("useIskurThisWeek", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getIskurWeek).mockResolvedValue(
-      createIskurWeek({ needsSupportActivity: true }),
+    // Wednesday of the fixture week; only Date is faked, so waitFor keeps its timers.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-18T09:00:00+03:00"));
+    gate.state = PeerMentorGateState.Hidden;
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      weekStart === null
+        ? Promise.resolve(createIskurWeek({ needsSupportActivity: true }))
+        : Promise.reject(new ClientApiError("x", 404)),
     );
+    vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(emptyForm()));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("lists the to-dos and adds a support activity for today", async () => {
@@ -67,11 +112,45 @@ describe("useIskurThisWeek", () => {
     });
   });
 
-  it("hides the card for someone not placed", async () => {
+  it("adds a new request, a work day with no log and last week's unsent log", async () => {
+    gate.state = PeerMentorGateState.Earned;
+    vi.mocked(getPeerMentorProfile).mockResolvedValue(
+      peerMentorProfileFixture(),
+    );
+    vi.mocked(getReceivedPeerRequests).mockResolvedValue([
+      receivedPeerRequest("r1", "Zeynep Koç"),
+    ]);
+    vi.mocked(getIskurOnboarding).mockResolvedValue(
+      onboarding(completeForm({ submittedAt: "2026-11-13T12:00:00Z" })),
+    );
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      Promise.resolve(
+        weekStart === null
+          ? createIskurWeek({ needsSupportActivity: true })
+          : createIskurWeek({ weekStart: "2026-11-09" }),
+      ),
+    );
+    const { wrapper } = queryWrapper();
+    const { result } = renderHook(() => useIskurThisWeek(), { wrapper });
+    await waitFor(() => expect(result.current.todos).toHaveLength(6));
+    expect(getIskurWeek).toHaveBeenCalledWith("2026-11-09");
+    expect(result.current.todos.map((todo) => todo.kind)).toEqual([
+      IskurTodoKind.Reports,
+      IskurTodoKind.Request,
+      IskurTodoKind.MissingDay,
+      IskurTodoKind.Submit,
+      IskurTodoKind.Task,
+      IskurTodoKind.Support,
+    ]);
+  });
+
+  it("hides the card for someone not placed, and asks nothing else", async () => {
     vi.mocked(getIskurWeek).mockRejectedValue(new ClientApiError("x", 404));
     const { wrapper } = queryWrapper();
     const { result } = renderHook(() => useIskurThisWeek(), { wrapper });
     await waitFor(() => expect(result.current.hidden).toBe(true));
+    expect(getIskurOnboarding).not.toHaveBeenCalled();
+    expect(getIskurWeek).toHaveBeenCalledTimes(1);
   });
 });
 

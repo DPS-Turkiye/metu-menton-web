@@ -5,6 +5,7 @@ import {
   IskurWeekDecision,
   IskurWorkEntryKind,
 } from "@/interfaces/iskur-weeks";
+import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import {
   dayMinutes,
   decisionInput,
@@ -18,6 +19,7 @@ import {
   overflowingDays,
   percentOf,
   teamDraft,
+  todoKey,
   weekTodos,
 } from "@/lib/iskur-weeks";
 import { IskurTodoKind } from "@/types/iskur-weeks";
@@ -131,6 +133,44 @@ describe("İŞKUR week helpers", () => {
       })),
     });
     expect(weekTodos(done)).toEqual([]);
+  });
+
+  it("keys each to-do by what it is about", () => {
+    expect(todoKey({ kind: IskurTodoKind.Reports, count: 2 })).toBe("reports");
+    expect(todoKey({ kind: IskurTodoKind.Support })).toBe("support");
+    expect(
+      todoKey({
+        kind: IskurTodoKind.Task,
+        taskId: "t1",
+        title: "Sponsor listesi",
+        dueDate: "2026-11-20",
+        needsOutput: false,
+      }),
+    ).toBe("task-t1");
+    expect(
+      todoKey({
+        kind: IskurTodoKind.Request,
+        requestId: "r1",
+        menteeName: "Zeynep Koç",
+        category: PeerTopicCategory.CareerInternship,
+        createdAt: "2026-11-18T09:30:00Z",
+      }),
+    ).toBe("request-r1");
+    expect(
+      todoKey({
+        kind: IskurTodoKind.MissingDay,
+        weekStart: "2026-11-16",
+        date: "2026-11-18",
+        plannedMinutes: 450,
+      }),
+    ).toBe("missingDay-2026-11-18");
+    expect(
+      todoKey({
+        kind: IskurTodoKind.Submit,
+        weekStart: "2026-11-09",
+        previous: true,
+      }),
+    ).toBe("submit-2026-11-09");
   });
 
   it("needs a decision, and a reason unless approving", () => {

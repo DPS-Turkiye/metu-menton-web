@@ -175,8 +175,21 @@ export function weekTodos(week: IskurWeek): IskurTodo[] {
 export const PEER_REPORTS_HREF = `${PEER_MENTOR_GIVE_HREF}&tab=report`;
 
 /** A stable key for a to-do line. */
-export function todoKey(todo: IskurTodo) {
-  return todo.kind === IskurTodoKind.Task ? todo.taskId : todo.kind;
+export function todoKey(todo: IskurTodo): string {
+  switch (todo.kind) {
+    case IskurTodoKind.Task:
+      return `${todo.kind}-${todo.taskId}`;
+    case IskurTodoKind.Request:
+      return `${todo.kind}-${todo.requestId}`;
+    case IskurTodoKind.MissingDay:
+      return `${todo.kind}-${todo.date}`;
+    case IskurTodoKind.Revision:
+    case IskurTodoKind.Submit:
+      return `${todo.kind}-${todo.weekStart}`;
+    case IskurTodoKind.Reports:
+    case IskurTodoKind.Support:
+      return todo.kind;
+  }
 }
 
 export function emptyDecisionForm(): IskurDecisionForm {

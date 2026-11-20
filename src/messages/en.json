@@ -8022,8 +8022,6 @@
       "mentoring": "Peer mentoring",
       "teamWork": "Team work",
       "logged": "Logged",
-      "todos": "To do",
-      "noTodos": "Nothing pending this week.",
       "task": "Team task · {day}",
       "taskWithOutput": "Team task · output to hand in · {day}",
       "reports": "{count, plural, one {# meeting report pending} other {# meeting reports pending}}",
@@ -8283,6 +8281,29 @@
       "REVISION": "Revision requested",
       "REJECTED": "Rejected",
       "OBJECTION": "Objection"
+    }
+  },
+  "iskurToday": {
+    "title": "To do today",
+    "empty": "Nothing waiting for you today.",
+    "request": "New mentoring request: {name}",
+    "requestHint": "{topic} · {date}",
+    "missingDay": "No work log for {day}",
+    "missingDayHint": "Planned {planned} · you have not added a line for that day yet",
+    "revision": "A correction was requested on this week's log",
+    "revisionPrevious": "A correction was requested on last week's log",
+    "revisionHint": "Reviewer's note: {reason}",
+    "revisionNoReason": "You can read the note in your work log.",
+    "submit": "Send this week's log",
+    "submitPrevious": "Last week's log has not been sent",
+    "submitHint": "Once you send it, your log goes to review.",
+    "actions": {
+      "writeReport": "Write report",
+      "reply": "Reply",
+      "complete": "Complete",
+      "fix": "Fix",
+      "send": "Send",
+      "open": "Open"
     }
   }
 }

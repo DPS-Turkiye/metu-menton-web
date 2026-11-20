@@ -1,59 +1,189 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IskurThisWeekCard } from "@/components/student/iskur/this-week-card";
+import { IskurTaskStatus } from "@/interfaces/iskur-tasks";
+import { IskurWeekDecision, IskurWeekStatus } from "@/interfaces/iskur-weeks";
+import { PeerMentorGateState } from "@/interfaces/peer-mentoring";
 import { ClientApiError } from "@/lib/client/api";
+import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import { addIskurSupportEntry, getIskurWeek } from "@/lib/client/iskur-weeks";
+import {
+  getPeerMentorProfile,
+  getReceivedPeerRequests,
+} from "@/lib/client/peer-mentoring";
+import {
+  completeForm,
+  emptyForm,
+  onboarding,
+} from "@test/fixtures/iskur-onboarding";
 import { createIskurWeek } from "@test/fixtures/iskur-weeks";
+import {
+  peerMentorProfileFixture,
+  receivedPeerRequest,
+} from "@test/fixtures/peer-mentoring";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/iskur-weeks", () => ({
   addIskurSupportEntry: vi.fn(),
   getIskurWeek: vi.fn(),
 }));
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurOnboarding: vi.fn(),
+}));
+vi.mock("@/lib/client/peer-mentoring", () => ({
+  getPeerMentorProfile: vi.fn(),
+  getReceivedPeerRequests: vi.fn(),
+}));
+const gate = { state: PeerMentorGateState.Hidden };
+vi.mock("@/hooks/use-peer-mentor-give", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/hooks/use-peer-mentor-give")>()),
+  usePeerMentorGate: () => ({
+    state: gate.state,
+    gateAward: null,
+    expired: false,
+    isLoading: false,
+    sessionBehind: false,
+  }),
+}));
 
 describe("IskurThisWeekCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Wednesday 18 November; only Date is faked, so the queries' timers still run.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-18T09:00:00+03:00"));
+    gate.state = PeerMentorGateState.Hidden;
+    vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(emptyForm()));
   });
 
-  it("shows the hours on each side against the targets and the to-dos", async () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("lists today's to-dos above the week's hours, each with its action", async () => {
     const user = userEvent.setup();
-    vi.mocked(getIskurWeek).mockResolvedValue(
-      createIskurWeek({ needsSupportActivity: true }),
+    gate.state = PeerMentorGateState.Earned;
+    vi.mocked(getPeerMentorProfile).mockResolvedValue(
+      peerMentorProfileFixture(),
+    );
+    vi.mocked(getReceivedPeerRequests).mockResolvedValue([
+      receivedPeerRequest("r1", "Zeynep Koç"),
+    ]);
+    vi.mocked(getIskurOnboarding).mockResolvedValue(
+      onboarding(completeForm({ submittedAt: "2026-11-13T12:00:00Z" })),
+    );
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      weekStart === null
+        ? Promise.resolve(createIskurWeek({ needsSupportActivity: true }))
+        : Promise.reject(new ClientApiError("x", 404)),
     );
     vi.mocked(addIskurSupportEntry).mockResolvedValue(createIskurWeek());
     renderWithQueryClient(<IskurThisWeekCard />);
 
+    const today = await screen.findByRole("region", {
+      name: /Bugün yapman gerekenler/,
+    });
     expect(
-      await screen.findByRole("heading", { name: /Bu Haftam/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("2 sa 40 dk / 6 sa")).toBeInTheDocument();
-    expect(screen.getByText("3 sa / 16 sa 30 dk")).toBeInTheDocument();
+      await within(today).findByRole("link", {
+        name: "Yanıtla: Yeni mentorluk talebi: Zeynep Koç",
+      }),
+    ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
     expect(
-      screen.getByRole("progressbar", { name: "Akran Mentörlüğü" }),
-    ).toHaveAttribute("aria-valuenow", "44");
+      within(today).getByRole("link", {
+        name: "Raporu yaz: 1 görüşme raporu bekliyor",
+      }),
+    ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR&tab=report");
     expect(
-      screen.getByRole("link", { name: /1 görüşme raporu bekliyor/ }),
-    ).toBeInTheDocument();
+      await within(today).findByRole("link", {
+        name: /^Tamamla: Pzt, 16 Kasım için çalışma kaydı yok/,
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/student/work-log?view=daily&week=2026-11-16&day=2026-11-16",
+    );
+    expect(within(today).getByText(/Planlanan 4 sa/)).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /Sponsor listesi: 10 firma/ }),
+      within(today).getByRole("link", {
+        name: "Aç: Sponsor listesi: 10 firma",
+      }),
     ).toHaveAttribute("href", "/student/team/tasks/task-1");
-    expect(
-      screen.getByRole("link", { name: "Çalışma kaydını aç" }),
-    ).toHaveAttribute("href", "/student/work-log?view=daily&week=2026-11-16");
+    expect(within(today).getAllByRole("listitem")).toHaveLength(5);
 
-    await user.click(screen.getByRole("button", { name: "Çalışma saati" }));
+    const week = screen.getByRole("region", { name: /Bu Haftam/ });
+    expect(within(week).getByText("2 sa 40 dk / 6 sa")).toBeInTheDocument();
+    expect(
+      within(week).getByRole("link", { name: "Çalışma kaydını aç" }),
+    ).toHaveAttribute("href", "/student/work-log?view=daily&week=2026-11-16");
+    await user.click(
+      within(week).getByRole("button", { name: "Çalışma saati" }),
+    );
     expect(
       screen.queryByRole("progressbar", { name: "Akran Mentörlüğü" }),
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Faaliyet seç" }));
     await user.click(
-      screen.getByRole("button", { name: "Bugüne 1 saat ekle" }),
+      within(today).getByRole("button", { name: "Faaliyet seç" }),
+    );
+    await user.click(
+      within(today).getByRole("button", { name: "Bugüne 1 saat ekle" }),
     );
     await waitFor(() => expect(addIskurSupportEntry).toHaveBeenCalledTimes(1));
+  });
+
+  it("asks to fix a week the leader sent back, with the leader's note", async () => {
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      Promise.resolve(
+        weekStart === null
+          ? createIskurWeek()
+          : createIskurWeek({
+              weekStart: "2026-11-09",
+              status: IskurWeekStatus.RevisionRequested,
+              decision: {
+                decision: IskurWeekDecision.Revision,
+                reason: "Salı'nın çıktısını ekle.",
+                timeMatchesWork: true,
+                effortDocumented: false,
+                outputsSufficient: false,
+                decidedAt: "2026-11-16T08:00:00Z",
+                decidedBy: null,
+              },
+            }),
+      ),
+    );
+    renderWithQueryClient(<IskurThisWeekCard />);
+    expect(
+      await screen.findByRole("link", {
+        name: "Düzelt: Geçen haftanın kaydı için düzeltme istendi",
+      }),
+    ).toHaveAttribute("href", "/student/work-log?view=weekly&week=2026-11-09");
+    expect(
+      screen.getByText("Değerlendirenin notu: Salı'nın çıktısını ekle."),
+    ).toBeInTheDocument();
+  });
+
+  it("says when nothing is waiting today", async () => {
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      weekStart === null
+        ? Promise.resolve(
+            createIskurWeek({
+              mentoring: {
+                ...createIskurWeek().mentoring,
+                reportsSubmitted: 2,
+              },
+              tasks: createIskurWeek().tasks.map((task) => ({
+                ...task,
+                status: IskurTaskStatus.Done,
+              })),
+            }),
+          )
+        : Promise.reject(new ClientApiError("x", 404)),
+    );
+    renderWithQueryClient(<IskurThisWeekCard />);
+    expect(
+      await screen.findByText("Bugün için bekleyen bir şey yok."),
+    ).toBeInTheDocument();
   });
 
   it("is not shown to someone who is not placed", async () => {

@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { useIskurMentorRequests } from "@/hooks/use-iskur-home";
+import { iskurOnboardingQueryKey } from "@/hooks/use-iskur-onboarding";
 import {
   IskurWeekDecision,
   IskurWeekStatus,
@@ -13,6 +15,7 @@ import {
 } from "@/interfaces/iskur-weeks";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
+import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import {
   addIskurSupportEntry,
   getIskurWeek,
@@ -20,6 +23,7 @@ import {
   saveIskurWeekEntries,
   submitIskurWeek,
 } from "@/lib/client/iskur-weeks";
+import { todayTodos } from "@/lib/iskur-today";
 import {
   dayMinutes,
   entriesInput,
@@ -30,7 +34,6 @@ import {
   lineProblem,
   overflowingDays,
   teamDraft,
-  weekTodos,
 } from "@/lib/iskur-weeks";
 import { parseReportSearch, reportWeekLabel } from "@/lib/peer-daily-report";
 import {
@@ -88,8 +91,9 @@ function useWeekChanges(
 }
 
 /**
- * Bu Haftam (1.1a/b): this week's targets and what is logged, the to-dos, and a quick support-activity pick when no
- * peer meeting is planned. A person who is not placed gets no card.
+ * The İŞKUR home (6.1/6.1b): "Bugün yapman gerekenler" from this week, last week, the onboarding schedule and the
+ * received peer requests; this week's targets and what is logged; and a quick support-activity pick when no peer
+ * meeting is planned. A person who is not placed gets neither block.
  */
 export function useIskurThisWeek() {
   const [now] = useState(() => new Date());
@@ -103,6 +107,21 @@ export function useIskurThisWeek() {
     retry: (failures, error) => !isNotPlaced(error) && failures < 1,
   });
   const week = query.data ?? null;
+  // The list's other sources only refine it: while they load or if they fail, it shows what the week alone gives.
+  const form = useQuery({
+    queryKey: iskurOnboardingQueryKey,
+    queryFn: getIskurOnboarding,
+    enabled: week != null,
+    retry: false,
+  });
+  const previousStart = week ? shiftReportWeek(week.weekStart, -1) : null;
+  const previous = useQuery({
+    queryKey: iskurWeekQueryKey(previousStart),
+    queryFn: () => getIskurWeek(previousStart),
+    enabled: previousStart != null,
+    retry: false,
+  });
+  const { received } = useIskurMentorRequests();
   const changes = useWeekChanges(null, () => setPicking(false));
   const chosen = activityId ?? week?.supportActivities[0]?.id ?? null;
   return {
@@ -111,7 +130,15 @@ export function useIskurThisWeek() {
     hidden: isNotPlaced(query.error),
     loading: query.isPending,
     failed: query.isError && !isNotPlaced(query.error),
-    todos: week ? weekTodos(week) : [],
+    todos: week
+      ? todayTodos({
+          week,
+          previousWeek: previous.data ?? null,
+          form: form.data?.form ?? null,
+          requests: received.waiting,
+          today,
+        })
+      : [],
     hoursOpen,
     toggleHours: () => setHoursOpen((open) => !open),
     picking,
