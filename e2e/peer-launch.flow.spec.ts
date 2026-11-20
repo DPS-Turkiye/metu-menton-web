@@ -86,6 +86,14 @@ async function prismDecision(
   await dialog.getByRole("button", { name: "Kapat" }).click();
 }
 
+/** A mentor's row in Keşfet's "Mentor ara" list. */
+function mentorRow(page: Page, mentor: Persona) {
+  return page
+    .getByRole("listitem")
+    .filter({ hasText: mentor })
+    .filter({ has: page.getByRole("link", { name: /^Profili Gör/ }) });
+}
+
 async function upcomingAppointment(page: Page, counterpart: string) {
   await page.goto("/student/appointments");
   await page.getByRole("tab", { name: /^Yaklaşan/ }).click();
@@ -251,14 +259,11 @@ test.describe("Akran", () => {
     await signInAs(page, Persona.AyseYilmaz);
     await peerMentoring(page, "Mentorluk Al");
     // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
-    await page
-      .getByRole("link", { name: `Profili Gör, ${Persona.MehmetKaya}` })
-      .first()
+    await mentorRow(page, Persona.MehmetKaya)
+      .getByRole("link", { name: /^Profili Gör/ })
       .click();
     await page
-      .getByRole("button", {
-        name: `Mentorluk Talebi Gönder, ${Persona.MehmetKaya}`,
-      })
+      .getByRole("button", { name: /^Mentorluk Talebi Gönder/ })
       .click();
 
     const dialog = page.getByRole("dialog");
@@ -563,11 +568,7 @@ test.describe("İŞKUR", () => {
     ).toBeVisible();
 
     await peerMentoring(page, "Mentorluk Al");
-    await expect(
-      page
-        .getByRole("link", { name: `Profili Gör, ${Persona.MehmetKaya}` })
-        .first(),
-    ).toBeVisible();
+    await expect(mentorRow(page, Persona.MehmetKaya)).toBeVisible();
     await page.goto("/student/office-hours");
     await expect(
       page.getByRole("heading", { name: "Office Hours", level: 1 }),
