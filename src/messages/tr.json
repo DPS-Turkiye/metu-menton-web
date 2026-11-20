@@ -7348,8 +7348,7 @@
       "empty": "Henüz teslim edilen dosya yok.",
       "loadFailed": "Görev çıktıları yüklenemedi.",
       "taskMeta": "{team} · {assignee} · son tarih {date}",
-      "fileMeta": "{size} · {date}",
-      "download": "{name} dosyasını indir"
+      "fileMeta": "{size} · {date}"
     },
     "loading": "İŞKUR ekipleri yükleniyor…",
     "loadFailed": "İŞKUR ekipleri yüklenemedi.",
@@ -7589,9 +7588,8 @@
       "full": "Bu göreve en fazla {max} dosya eklenebilir; yenisi için birini kaldır.",
       "privacy": "Dosyaları ekip liderlerin ve program koordinatörlerin görür. Danışan adı ya da görüşme notu içeren dosya ekleme.",
       "meta": "{size} · {date}",
-      "download": "{name} dosyasını indir",
       "remove": "Kaldır",
-      "removeLabel": "{name} dosyasını kaldır",
+      "removeLabel": "Kaldır: {name}",
       "uploaded": "Dosya eklendi.",
       "removed": "Dosya kaldırıldı.",
       "uploadFailed": "Dosya yüklenemedi.",

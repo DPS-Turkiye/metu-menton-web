@@ -7346,8 +7346,7 @@
       "empty": "No files handed in yet.",
       "loadFailed": "The task outputs could not be loaded.",
       "taskMeta": "{team} · {assignee} · due {date}",
-      "fileMeta": "{size} · {date}",
-      "download": "Download {name}"
+      "fileMeta": "{size} · {date}"
     },
     "loading": "Loading İŞKUR teams…",
     "loadFailed": "İŞKUR teams could not be loaded.",
@@ -7587,9 +7586,8 @@
       "full": "A task takes at most {max} files; remove one to add another.",
       "privacy": "Your team leaders and the program coordinators see these files. Do not add a file with a mentee’s name or meeting notes.",
       "meta": "{size} · {date}",
-      "download": "Download {name}",
       "remove": "Remove",
-      "removeLabel": "Remove {name}",
+      "removeLabel": "Remove: {name}",
       "uploaded": "File added.",
       "removed": "File removed.",
       "uploadFailed": "The file could not be uploaded.",

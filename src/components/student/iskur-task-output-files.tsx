@@ -6,10 +6,7 @@ import { useRef } from "react";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import type { useIskurTask } from "@/hooks/use-iskur-task";
-import {
-  ISKUR_TASK_OUTPUT_ACCEPT,
-  ISKUR_TASK_OUTPUT_MAX_FILES,
-} from "@/lib/iskur-tasks";
+import { ISKUR_TASK_OUTPUT_ACCEPT } from "@/lib/iskur-tasks";
 import { formatDateTime, formatFileSize } from "@/lib/utils";
 
 type View = ReturnType<typeof useIskurTask>;
@@ -23,12 +20,14 @@ export function IskurTaskOutputFiles({ view }: { view: View }) {
   const locale = useLocale();
   const input = useRef<HTMLInputElement>(null);
   const files = view.outputFiles;
-  const uploads = view.canWork && view.outputFilesEnabled;
-  if (!uploads && files.length === 0) return null;
-  const full = files.length >= ISKUR_TASK_OUTPUT_MAX_FILES;
+  if (!view.showsUpload && files.length === 0) return null;
 
   return (
-    <section aria-labelledby="iskur-task-files" className="space-y-3">
+    <section
+      aria-labelledby="iskur-task-files"
+      aria-busy={view.uploading}
+      className="space-y-3"
+    >
       <h3 id="iskur-task-files" className="type-label text-text-primary">
         {t("title")}
       </h3>
@@ -45,7 +44,6 @@ export function IskurTaskOutputFiles({ view }: { view: View }) {
                 <a
                   href={view.outputHref(file.id)}
                   download
-                  aria-label={t("download", { name: file.fileName })}
                   className="type-body break-all text-text-accent hover:underline"
                 >
                   {file.fileName}
@@ -72,15 +70,17 @@ export function IskurTaskOutputFiles({ view }: { view: View }) {
           ))}
         </ul>
       )}
-      {uploads ? (
+      {view.showsUpload ? (
         <div className="space-y-2">
+          {/* Opened by the button below; hidden from assistive tech so the button is the one control. */}
           <input
             ref={input}
             type="file"
             accept={ISKUR_TASK_OUTPUT_ACCEPT}
             className="sr-only"
-            aria-label={t("choose")}
+            aria-hidden
             tabIndex={-1}
+            disabled={!view.canAttach}
             onChange={(event) => {
               const chosen = event.target.files?.[0];
               event.target.value = "";
@@ -95,11 +95,13 @@ export function IskurTaskOutputFiles({ view }: { view: View }) {
           >
             {t(view.uploading ? "uploading" : "choose")}
           </Button>
-          <p className="type-caption text-text-muted">
-            {t(full ? "full" : "hint", {
-              count: files.length,
-              max: ISKUR_TASK_OUTPUT_MAX_FILES,
-            })}
+          <p role="status" className="type-caption text-text-muted">
+            {view.uploading
+              ? t("uploading")
+              : t(view.outputFilesFull ? "full" : "hint", {
+                  count: files.length,
+                  max: view.outputFilesMax,
+                })}
           </p>
           <p className="type-caption text-text-muted">{t("privacy")}</p>
         </div>

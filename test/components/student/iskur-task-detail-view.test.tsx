@@ -33,6 +33,13 @@ vi.mock("@/lib/client/iskur-tasks", () => ({
   uploadIskurTaskOutput: vi.fn(),
 }));
 
+/** The picker the "Dosya ekle" button opens; hidden from assistive tech, so found by its type. */
+function fileInput() {
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+  if (!input) throw new Error("no file input");
+  return input;
+}
+
 describe("IskurTaskDetailView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -201,20 +208,20 @@ describe("IskurTaskDetailView", () => {
     const file = new File(["%PDF-1.4"], "afis-oneri.pdf", {
       type: "application/pdf",
     });
-    await user.upload(screen.getByLabelText("Dosya ekle"), file);
+    await user.upload(fileInput(), file);
     await waitFor(() =>
       expect(uploadIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, file),
     );
 
     const link = await screen.findByRole("link", {
-      name: "afis-oneri.pdf dosyasını indir",
+      name: "afis-oneri.pdf",
     });
     expect(link).toHaveAttribute("href", `/files/${TASK_ID}/${OUTPUT_ID}`);
     expect(link).toHaveAttribute("download");
     expect(screen.getByText(/^2 MB · /)).toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: "afis-oneri.pdf dosyasını kaldır" }),
+      screen.getByRole("button", { name: "Kaldır: afis-oneri.pdf" }),
     );
     await waitFor(() =>
       expect(removeIskurTaskOutput).toHaveBeenCalledWith(TASK_ID, OUTPUT_ID),
@@ -245,11 +252,12 @@ describe("IskurTaskDetailView", () => {
       await screen.findByText(/Bu göreve en fazla 5 dosya eklenebilir/),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: /dosyasını indir$/ }),
+      screen.getAllByRole("link", { name: /^rapor-\d\.pdf$/ }),
     ).toHaveLength(5);
     expect(screen.getByRole("button", { name: "Dosya ekle" })).toBeDisabled();
+    expect(fileInput()).toBeDisabled();
     expect(
-      screen.queryByRole("button", { name: /dosyasını kaldır$/ }),
+      screen.queryByRole("button", { name: /^Kaldır: / }),
     ).not.toBeInTheDocument();
   });
 
@@ -266,15 +274,15 @@ describe("IskurTaskDetailView", () => {
 
     expect(
       await screen.findByRole("link", {
-        name: "afis-oneri.pdf dosyasını indir",
+        name: "afis-oneri.pdf",
       }),
     ).toHaveAttribute("href", `/files/${TASK_ID}/${OUTPUT_ID}`);
     expect(
       screen.queryByRole("button", { name: "Dosya ekle" }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Dosya ekle")).not.toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).toBeNull();
     expect(
-      screen.queryByRole("button", { name: /dosyasını kaldır$/ }),
+      screen.queryByRole("button", { name: /^Kaldır: / }),
     ).not.toBeInTheDocument();
   });
 
@@ -288,6 +296,6 @@ describe("IskurTaskDetailView", () => {
       await screen.findByRole("button", { name: "Görevi tamamla" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Dosyalar")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Dosya ekle")).not.toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).toBeNull();
   });
 });

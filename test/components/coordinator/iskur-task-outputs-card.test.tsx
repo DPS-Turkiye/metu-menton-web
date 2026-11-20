@@ -39,7 +39,7 @@ describe("IskurTaskOutputsCard", () => {
       ),
     ).toBeInTheDocument();
     const link = screen.getByRole("link", {
-      name: "afis-oneri.pdf dosyasını indir",
+      name: "afis-oneri.pdf",
     });
     expect(link).toHaveAttribute("href", `/files/p1/${TASK_ID}/${OUTPUT_ID}`);
     expect(link).toHaveAttribute("download");

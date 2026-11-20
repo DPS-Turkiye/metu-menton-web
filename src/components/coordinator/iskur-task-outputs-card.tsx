@@ -61,7 +61,6 @@ export function IskurTaskOutputsCard({ programId }: { programId: string }) {
                     <a
                       href={outputs.hrefOf(task.taskId, file.id)}
                       download
-                      aria-label={t("download", { name: file.fileName })}
                       className="type-body-sm break-all text-text-accent hover:underline"
                     >
                       {file.fileName}

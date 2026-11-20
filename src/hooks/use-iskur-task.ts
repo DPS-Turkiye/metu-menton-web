@@ -19,6 +19,7 @@ import {
 } from "@/lib/client/iskur-tasks";
 import {
   completeBlock,
+  ISKUR_TASK_OUTPUT_MAX_FILES,
   ISKUR_TEAM_HREF,
   linkSavable,
   minutesSavable,
@@ -173,6 +174,12 @@ export function useIskurTask(taskId: string) {
     },
     outputFiles: task?.outputFiles ?? [],
     outputFilesEnabled: task?.outputFilesEnabled ?? false,
+    /** The assignee sees the upload control; nobody does while file storage is off. */
+    showsUpload:
+      (task?.canWork ?? false) && (task?.outputFilesEnabled ?? false),
+    outputFilesFull:
+      (task?.outputFiles.length ?? 0) >= ISKUR_TASK_OUTPUT_MAX_FILES,
+    outputFilesMax: ISKUR_TASK_OUTPUT_MAX_FILES,
     canAttach: (task?.canAttach ?? false) && !busy,
     uploading: attach.isPending,
     outputHref: (outputId: string) => iskurTaskOutputHref(taskId, outputId),

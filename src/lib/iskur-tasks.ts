@@ -9,6 +9,7 @@ import {
 } from "@/interfaces/iskur-tasks";
 import { IskurTeamRole } from "@/interfaces/iskur-workspace";
 import { Weekday } from "@/interfaces/mentor";
+import { ISKUR_DOCUMENT_MAX_BYTES } from "@/lib/iskur-onboarding";
 import { fromIsoDay } from "@/lib/peer-reports";
 import { ISO_DAY_PATTERN } from "@/lib/utils";
 import {
@@ -35,7 +36,8 @@ export const ISKUR_SUPPORT_DESCRIPTION_MAX = 500;
 export const ISKUR_HTTPS_LINK = /^https:\/\/\S+$/;
 /** The backend's limits for a task's handed-in files (`IskurTaskOutputFiles`, `DocumentKind.ISKUR_TASK_OUTPUT`). */
 export const ISKUR_TASK_OUTPUT_MAX_FILES = 5;
-export const ISKUR_TASK_OUTPUT_MAX_BYTES = 10 * 1024 * 1024;
+/** The same 10 MB the upload route checks (`readIskurDocumentUpload`). */
+export const ISKUR_TASK_OUTPUT_MAX_BYTES = ISKUR_DOCUMENT_MAX_BYTES;
 export const ISKUR_TASK_OUTPUT_EXTENSIONS = [
   "pdf",
   "png",
