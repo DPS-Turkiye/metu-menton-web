@@ -174,6 +174,9 @@ describe("İŞKUR week helpers", () => {
         previous: true,
       }),
     ).toBe("submit-2026-11-09");
+    expect(
+      todoKey({ kind: IskurTodoKind.FridaySubmit, weekStart: "2026-11-16" }),
+    ).toBe("fridaySubmit-2026-11-16");
   });
 
   it("needs a decision, and a reason unless approving", () => {

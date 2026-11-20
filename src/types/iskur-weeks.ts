@@ -40,6 +40,7 @@ export enum IskurTodoKind {
   MissingDay = "missingDay",
   Revision = "revision",
   Submit = "submit",
+  FridaySubmit = "fridaySubmit",
 }
 
 /** A line of the İŞKUR home's "Bugün yapman gerekenler". */
@@ -75,7 +76,9 @@ export type IskurTodo =
       reason: string | null;
     }
   /** A week ready to send that is not sent yet. */
-  | { kind: IskurTodoKind.Submit; weekStart: string; previous: boolean };
+  | { kind: IskurTodoKind.Submit; weekStart: string; previous: boolean }
+  /** Friday, and this week is not sent yet: the program sends the weekly summary to the leader on Fridays. */
+  | { kind: IskurTodoKind.FridaySubmit; weekStart: string };
 
 export interface IskurDecisionForm {
   decision: IskurWeekDecision | null;

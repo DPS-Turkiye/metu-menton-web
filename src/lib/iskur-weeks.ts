@@ -191,6 +191,7 @@ export function todoKey(todo: IskurTodo): string {
       return `${todo.kind}-${todo.date}`;
     case IskurTodoKind.Revision:
     case IskurTodoKind.Submit:
+    case IskurTodoKind.FridaySubmit:
       return `${todo.kind}-${todo.weekStart}`;
     case IskurTodoKind.Reports:
     case IskurTodoKind.Support:

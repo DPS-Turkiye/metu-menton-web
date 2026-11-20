@@ -163,6 +163,57 @@ describe("IskurThisWeekCard", () => {
     ).toBeInTheDocument();
   });
 
+  describe("the Friday weekly-summary prompt", () => {
+    const PROMPT = "Gönder: Haftalık özetini bugün liderine gönder";
+
+    function weekIs(week: ReturnType<typeof createIskurWeek>) {
+      vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+        weekStart === null
+          ? Promise.resolve(week)
+          : Promise.reject(new ClientApiError("x", 404)),
+      );
+    }
+
+    it("shows on Friday while the week is unsent, by the Istanbul date", async () => {
+      // 22:30 UTC on Thursday is already 01:30 on Friday in Istanbul.
+      vi.setSystemTime(new Date("2026-11-19T22:30:00Z"));
+      weekIs(createIskurWeek());
+      renderWithQueryClient(<IskurThisWeekCard />);
+      expect(await screen.findByRole("link", { name: PROMPT })).toHaveAttribute(
+        "href",
+        "/student/work-log?view=weekly&week=2026-11-16",
+      );
+      expect(
+        screen.getByText(
+          "İŞKUR programında haftalık özet cuma günü liderine gider.",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("is hidden once the week is sent", async () => {
+      vi.setSystemTime(new Date("2026-11-20T09:00:00+03:00"));
+      weekIs(
+        createIskurWeek({
+          status: IskurWeekStatus.Submitted,
+          editable: false,
+          canSubmit: false,
+        }),
+      );
+      renderWithQueryClient(<IskurThisWeekCard />);
+      await screen.findByRole("region", { name: /Bugün yapman gerekenler/ });
+      expect(screen.queryByRole("link", { name: PROMPT })).toBeNull();
+    });
+
+    it("is hidden on another day", async () => {
+      // 23:30 in Istanbul on Thursday (20:30 UTC).
+      vi.setSystemTime(new Date("2026-11-19T23:30:00+03:00"));
+      weekIs(createIskurWeek());
+      renderWithQueryClient(<IskurThisWeekCard />);
+      await screen.findByRole("region", { name: /Bugün yapman gerekenler/ });
+      expect(screen.queryByRole("link", { name: PROMPT })).toBeNull();
+    });
+  });
+
   it("says when nothing is waiting today", async () => {
     vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
       weekStart === null

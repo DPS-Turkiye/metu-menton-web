@@ -8297,6 +8297,8 @@
     "submit": "Send this week's log",
     "submitPrevious": "Last week's log has not been sent",
     "submitHint": "Once you send it, your log goes to review.",
+    "submitToday": "Send your weekly summary to your leader today",
+    "submitTodayHint": "In the İŞKUR program the weekly summary goes to your leader on Friday.",
     "actions": {
       "writeReport": "Write report",
       "reply": "Reply",

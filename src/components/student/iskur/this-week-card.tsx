@@ -157,6 +157,7 @@ const TODO_ICONS: Record<IskurTodoKind, LucideIcon> = {
   [IskurTodoKind.Request]: User,
   [IskurTodoKind.MissingDay]: Clock,
   [IskurTodoKind.Submit]: Send,
+  [IskurTodoKind.FridaySubmit]: Send,
   [IskurTodoKind.Task]: Users,
   [IskurTodoKind.Support]: LifeBuoy,
 };
@@ -212,6 +213,12 @@ function useTodoText(todo: IskurTodo): TodoText {
       return {
         title: t(todo.previous ? "submitPrevious" : "submit"),
         hint: t("submitHint"),
+        action: t("actions.send"),
+      };
+    case IskurTodoKind.FridaySubmit:
+      return {
+        title: t("submitToday"),
+        hint: t("submitTodayHint"),
         action: t("actions.send"),
       };
     case IskurTodoKind.Task:

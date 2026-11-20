@@ -140,7 +140,7 @@ describe("todayTodos", () => {
         date: "2026-11-19",
         plannedMinutes: 450,
       },
-      { kind: IskurTodoKind.Submit, weekStart: "2026-11-16", previous: false },
+      { kind: IskurTodoKind.FridaySubmit, weekStart: "2026-11-16" },
       {
         kind: IskurTodoKind.Task,
         taskId: "task-1",
@@ -164,7 +164,51 @@ describe("todayTodos", () => {
     expect(kinds("2026-11-18")).not.toContain(IskurTodoKind.Submit);
     expect(kinds("2026-11-19")).toContain(IskurTodoKind.Submit);
     expect(kinds("2026-11-19", null)).not.toContain(IskurTodoKind.Submit);
-    expect(kinds(FRIDAY, null)).toContain(IskurTodoKind.Submit);
+    // Friday itself gets the Friday prompt instead; Saturday falls back to the plain one.
+    expect(kinds("2026-11-21", null)).toContain(IskurTodoKind.Submit);
+  });
+
+  it("asks on Friday to send this week's summary to the leader while it is unsent, even before it has lines", () => {
+    const friday = (week: IskurWeek, today = FRIDAY) =>
+      todayTodos({
+        week,
+        previousWeek: null,
+        form: FORM,
+        requests: [],
+        today,
+      }).filter(
+        (todo) =>
+          todo.kind === IskurTodoKind.FridaySubmit ||
+          todo.kind === IskurTodoKind.Submit,
+      );
+    expect(friday(createIskurWeek())).toEqual([
+      { kind: IskurTodoKind.FridaySubmit, weekStart: "2026-11-16" },
+    ]);
+    expect(friday(createIskurWeek({ entries: [], canSubmit: false }))).toEqual([
+      { kind: IskurTodoKind.FridaySubmit, weekStart: "2026-11-16" },
+    ]);
+  });
+
+  it("does not ask on Friday once the week is sent, nor on another day", () => {
+    const fridayPrompt = (week: IskurWeek, today: string) =>
+      todayTodos({
+        week,
+        previousWeek: null,
+        form: FORM,
+        requests: [],
+        today,
+      }).some((todo) => todo.kind === IskurTodoKind.FridaySubmit);
+    const sent = createIskurWeek({
+      status: IskurWeekStatus.Submitted,
+      editable: false,
+      canSubmit: false,
+    });
+    expect(fridayPrompt(sent, FRIDAY)).toBe(false);
+    expect(fridayPrompt(sentBack({ weekStart: "2026-11-16" }), FRIDAY)).toBe(
+      false,
+    );
+    expect(fridayPrompt(createIskurWeek(), "2026-11-19")).toBe(false);
+    expect(fridayPrompt(createIskurWeek(), "2026-11-21")).toBe(false);
   });
 
   it("asks to send last week at once, and says nothing about a week already sent", () => {

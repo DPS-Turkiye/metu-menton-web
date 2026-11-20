@@ -1,5 +1,6 @@
 import type { IskurOnboardingForm } from "@/interfaces/iskur-onboarding";
 import { IskurWeekStatus, type IskurWeek } from "@/interfaces/iskur-weeks";
+import { Weekday } from "@/interfaces/mentor";
 import { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
 import { dayMinutes } from "@/lib/iskur-onboarding";
@@ -82,7 +83,11 @@ function weekOver(
   return today >= last;
 }
 
-/** A week the leader sent back, or one ready to send: last week's at once, this week's from its last work day. */
+/**
+ * A week the leader sent back, or one ready to send: last week's at once, this week's from its last work day. On a
+ * Friday an unsent week always gets the "send it today" prompt, even before it has lines: that is the program's day
+ * for the weekly summary. It is a prompt only; the backend sets no deadline.
+ */
 function weekTodo(
   week: IskurWeek,
   previous: boolean,
@@ -97,6 +102,13 @@ function weekTodo(
       previous,
       reason: week.decision?.reason ?? null,
     };
+  }
+  if (
+    !previous &&
+    week.status === IskurWeekStatus.Draft &&
+    weekdayOf(today) === Weekday.Friday
+  ) {
+    return { kind: IskurTodoKind.FridaySubmit, weekStart: week.weekStart };
   }
   const due = previous || weekOver(week, form, today);
   if (week.status === IskurWeekStatus.Draft && week.canSubmit && due) {
@@ -143,6 +155,7 @@ export function todayTodos({
     ...ofKind(weeks, IskurTodoKind.Revision),
     ...newRequests,
     ...missing,
+    ...ofKind(weeks, IskurTodoKind.FridaySubmit),
     ...ofKind(weeks, IskurTodoKind.Submit),
     ...ofKind(base, IskurTodoKind.Task),
     ...ofKind(base, IskurTodoKind.Support),
@@ -163,6 +176,7 @@ export function todoHref(todo: IskurTodo): string | null {
       return iskurWorkLogHref(todo.weekStart, false, todo.date);
     case IskurTodoKind.Revision:
     case IskurTodoKind.Submit:
+    case IskurTodoKind.FridaySubmit:
       return iskurWorkLogHref(todo.weekStart, true);
     case IskurTodoKind.Task:
       return iskurTaskHref(todo.taskId);

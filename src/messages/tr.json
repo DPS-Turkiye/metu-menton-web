@@ -8299,6 +8299,8 @@
     "submit": "Bu haftanın kaydını gönder",
     "submitPrevious": "Geçen haftanın kaydı gönderilmedi",
     "submitHint": "Gönderdiğinde kaydın değerlendirmeye gider.",
+    "submitToday": "Haftalık özetini bugün liderine gönder",
+    "submitTodayHint": "İŞKUR programında haftalık özet cuma günü liderine gider.",
     "actions": {
       "writeReport": "Raporu yaz",
       "reply": "Yanıtla",
