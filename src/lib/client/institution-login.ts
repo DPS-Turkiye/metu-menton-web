@@ -1,6 +1,7 @@
 import type {
   DevPersona,
   InstitutionLoginCompletion,
+  InstitutionLoginProviders,
   InstitutionLoginStart,
   InstitutionProvider,
 } from "@/interfaces/institution-login";
@@ -24,6 +25,14 @@ export async function completeInstitutionLogin(
     await httpClient.post<InstitutionLoginCompletion>(
       `/api/institution-login/${provider}/complete`,
       { state, params },
+    ),
+  );
+}
+
+export async function fetchInstitutionProviders() {
+  return requireSuccess(
+    await httpClient.get<InstitutionLoginProviders>(
+      "/api/institution-login/providers",
     ),
   );
 }

@@ -3,6 +3,7 @@ import "server-only";
 import type {
   DevPersona,
   InstitutionLoginCompletion,
+  InstitutionLoginProviders,
   InstitutionLoginStart,
   InstitutionProvider,
 } from "@/interfaces/institution-login";
@@ -35,6 +36,13 @@ export function exchangeInstitutionCode(code: string) {
     method: HttpMethod.Post,
     url: `${BASE}/exchange`,
     data: { code },
+  });
+}
+
+export function fetchInstitutionProviders() {
+  return backendRequest<InstitutionLoginProviders>({
+    method: HttpMethod.Get,
+    url: `${BASE}/providers`,
   });
 }
 

@@ -5,6 +5,7 @@ import { InstitutionProvider } from "@/interfaces/institution-login";
 import {
   exchangeInstitutionCode,
   fetchDevPersonas,
+  fetchInstitutionProviders,
   finishInstitutionCallback,
   startInstitutionLogin,
 } from "@/lib/api/institution-login";
@@ -51,6 +52,16 @@ const cases: RequestCase[] = [
     "lists the provider's dev personas",
     () => fetchDevPersonas(InstitutionProvider.Odtu),
     { method: "GET", url: "/api/auth/institution/odtu/dev-personas" },
+  ],
+  [
+    "asks which institution logins are on",
+    () => fetchInstitutionProviders(),
+    { method: "GET", url: "/api/auth/institution/providers" },
+  ],
+  [
+    "starts ODTÜ's CAS under its own provider path",
+    () => startInstitutionLogin(InstitutionProvider.OdtuCas),
+    { method: "POST", url: "/api/auth/institution/odtu-cas/start" },
   ],
 ];
 
