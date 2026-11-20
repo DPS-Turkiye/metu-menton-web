@@ -7,7 +7,10 @@ import {
   useIskurChannelMenu,
   useIskurMessages,
 } from "@/hooks/use-iskur-channels";
-import { IskurChannelKind } from "@/interfaces/iskur-channels";
+import {
+  IskurChannelEventType,
+  IskurChannelKind,
+} from "@/interfaces/iskur-channels";
 import {
   acknowledgeIskurMessage,
   getIskurChannelPreferences,
@@ -25,7 +28,18 @@ import {
   iskurMessage,
   PROGRAM_ID,
 } from "@test/fixtures/iskur-channels";
+import { iskurStomp } from "@test/mocks/iskur-stomp";
 import { createTestQueryClient } from "@test/test-utils";
+
+vi.mock("@stomp/stompjs", async () => {
+  const { iskurStomp: fake } = await import("@test/mocks/iskur-stomp");
+  return { Client: fake.Client };
+});
+vi.mock("@/lib/client/meeting-notes", () => ({
+  postRealtimeToken: vi.fn(() =>
+    Promise.resolve({ token: "token", expiresAt: "2026-11-20T11:00:00Z" }),
+  ),
+}));
 
 vi.mock("@/lib/client/iskur-channels", () => ({
   acknowledgeIskurMessage: vi.fn(),
@@ -246,6 +260,146 @@ describe("useIskurMessages marking read", () => {
     rerender({ link: announcements.id });
     expect(result.current.draft.body).toBe("");
     expect(result.current.receiptsFor).toBeNull();
+  });
+});
+
+describe("useIskurMessages, live", () => {
+  const topic = (channelId: string) => `/topic/iskur/channels/${channelId}`;
+  const event = (type: IskurChannelEventType, channelId: string) =>
+    JSON.stringify({ type, channelId, messageId: "m-9" });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    iskurStomp.reset();
+    vi.mocked(getIskurChannelPreferences).mockResolvedValue({
+      programId: PROGRAM_ID,
+      mutedKinds: [],
+    });
+    vi.mocked(markIskurChannelRead).mockResolvedValue(null);
+  });
+
+  async function openLive(channels = [announcements, iskurChannel()]) {
+    vi.mocked(getIskurChannels).mockResolvedValue({
+      channels,
+      totalUnread: 0,
+    });
+    vi.mocked(getIskurMessages).mockResolvedValue({
+      channel: channels[0] ?? announcements,
+      messages: [iskurMessage()],
+      hasMore: false,
+    });
+    const view = renderHook(
+      () => useIskurMessages(null, channels[0]?.id ?? null),
+      { wrapper },
+    );
+    await waitFor(() => expect(view.result.current.messages).toHaveLength(1));
+    const client = await iskurStomp.connect();
+    await waitFor(() =>
+      expect(client.topics()).toEqual(
+        channels.map((channel) => topic(channel.id)).sort(),
+      ),
+    );
+    // Going live fetches once more, to catch up on what the socket missed.
+    await waitFor(() => expect(getIskurChannels).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(getIskurMessages).toHaveBeenCalledTimes(2));
+    return { ...view, client };
+  }
+
+  it("follows every listed channel and catches up once the socket is up", async () => {
+    const { client } = await openLive();
+
+    expect(client.topics()).toHaveLength(2);
+  });
+
+  it("reloads the open channel and the unread counts when a message arrives in it", async () => {
+    const { client } = await openLive();
+
+    act(() =>
+      client.deliver(
+        topic(announcements.id),
+        event(IskurChannelEventType.MessagePosted, announcements.id),
+      ),
+    );
+
+    await waitFor(() => expect(getIskurMessages).toHaveBeenCalledTimes(3));
+    await waitFor(() => expect(getIskurChannels).toHaveBeenCalledTimes(3));
+  });
+
+  it("only refreshes the unread counts for a message in another channel", async () => {
+    const { client } = await openLive();
+
+    act(() =>
+      client.deliver(
+        topic(CHANNEL_ID),
+        event(IskurChannelEventType.MessagePosted, CHANNEL_ID),
+      ),
+    );
+
+    await waitFor(() => expect(getIskurChannels).toHaveBeenCalledTimes(3));
+    expect(getIskurMessages).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not reload a member's channel each time someone else confirms an announcement", async () => {
+    const { client } = await openLive();
+
+    act(() =>
+      client.deliver(
+        topic(announcements.id),
+        event(IskurChannelEventType.MessageAcknowledged, announcements.id),
+      ),
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(getIskurMessages).toHaveBeenCalledTimes(2);
+    expect(getIskurChannels).toHaveBeenCalledTimes(2);
+  });
+
+  it("reloads the receipt tallies for the coordinator who posts the announcements", async () => {
+    const { client } = await openLive([
+      announcementsChannel({ canWrite: true, coordinatorView: true }),
+    ]);
+
+    act(() =>
+      client.deliver(
+        topic(announcements.id),
+        event(IskurChannelEventType.MessageAcknowledged, announcements.id),
+      ),
+    );
+
+    await waitFor(() => expect(getIskurMessages).toHaveBeenCalledTimes(3));
+    expect(getIskurChannels).toHaveBeenCalledTimes(2);
+  });
+
+  it("fetches the list again when the broker refuses a subscription", async () => {
+    const { client } = await openLive();
+
+    act(() => client.config.onStompError?.());
+
+    await waitFor(() => expect(getIskurChannels).toHaveBeenCalledTimes(3));
+    expect(getIskurMessages).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps working on polling alone while the socket cannot open", async () => {
+    vi.mocked(getIskurChannels).mockResolvedValue({
+      channels: [announcements],
+      totalUnread: 0,
+    });
+    vi.mocked(getIskurMessages).mockResolvedValue({
+      channel: announcements,
+      messages: [iskurMessage()],
+      hasMore: false,
+    });
+    const { result } = renderHook(() => useIskurMessages(null, null), {
+      wrapper,
+    });
+
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    act(() => iskurStomp.last().config.onWebSocketClose?.());
+
+    expect(result.current.messages).toHaveLength(1);
+    expect(getIskurChannels).toHaveBeenCalledTimes(1);
   });
 });
 
