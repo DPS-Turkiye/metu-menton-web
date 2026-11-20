@@ -87,3 +87,16 @@ export interface IskurMessageInput {
   title: string | null;
   important: boolean;
 }
+
+/** What a channel's live topic says changed. */
+export enum IskurChannelEventType {
+  MessagePosted = "MESSAGE_POSTED",
+  MessageAcknowledged = "MESSAGE_ACKNOWLEDGED",
+}
+
+/** The live signal: ids only. What changed is read again through the API, which checks the reader's reach. */
+export interface IskurChannelEvent {
+  type: IskurChannelEventType;
+  channelId: string;
+  messageId: string;
+}
