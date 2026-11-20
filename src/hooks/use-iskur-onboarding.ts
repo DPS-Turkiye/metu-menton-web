@@ -36,6 +36,7 @@ import {
   iskurDocumentProblem,
   leadershipEligibility,
   neededIskurDays,
+  nextStepsAfterSubmit,
   onboardingInput,
   rangeMinutes,
   remainingIskurDays,
@@ -229,6 +230,7 @@ export function useIskurOnboarding() {
     steps,
     busy,
     submitted: form?.submittedAt != null,
+    nextSteps: form ? nextStepsAfterSubmit(form) : [],
 
     // 01 Hoş geldin
     prepared,

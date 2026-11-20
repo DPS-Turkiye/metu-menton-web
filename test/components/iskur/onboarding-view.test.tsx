@@ -196,7 +196,17 @@ describe("IskurOnboardingView", () => {
   it("checks the leadership application (Figma 04) and sends the form from the preview", async () => {
     vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(completeForm()));
     vi.mocked(submitIskurOnboarding).mockResolvedValue(
-      onboarding(completeForm({ submittedAt: "2026-11-19T10:00:00Z" })),
+      onboarding(
+        completeForm({
+          submittedAt: "2026-11-19T10:00:00Z",
+          leadership: {
+            wants: true,
+            motivation: "Planlamayı severim.",
+            experience: "Tanıtım ekibi",
+            conflict: "Konuşurum",
+          },
+        }),
+      ),
     );
     const user = userEvent.setup();
     renderWithQueryClient(<IskurOnboardingView />);
@@ -228,7 +238,27 @@ describe("IskurOnboardingView", () => {
     expect(screen.getByText("Başvuruyorum")).toBeInTheDocument();
     expect(screen.getByText("Fikir üreten · Uygulayan")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Formu gönder" }));
-    expect(await screen.findByText("Formun gönderildi")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Formun gönderildi, Mert" }),
+    ).toBeInTheDocument();
+    // Figma 5.6: an applicant to lead also gets the leadership interview between review and team assignment.
+    const region = screen.getByRole("region", { name: "Sırada ne var?" });
+    expect(within(region).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(region).getByText("Liderlik görüşmesi")).toBeInTheDocument();
+  });
+
+  it("shows a submitted form without the leadership interview when they did not apply to lead", async () => {
+    vi.mocked(getIskurOnboarding).mockResolvedValue(
+      onboarding(completeForm({ submittedAt: "2026-11-19T10:00:00Z" })),
+    );
+    renderWithQueryClient(<IskurOnboardingView />);
+
+    const region = await screen.findByRole("region", {
+      name: "Sırada ne var?",
+    });
+    expect(within(region).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(region).getByText("Ekip ataması")).toBeInTheDocument();
+    expect(screen.queryByText("Liderlik görüşmesi")).toBeNull();
   });
 
   it("tells someone who is not an intern, and offers a retry when loading fails", async () => {

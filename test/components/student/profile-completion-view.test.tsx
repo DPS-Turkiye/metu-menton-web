@@ -78,12 +78,15 @@ function currentStep() {
 }
 
 describe("profile completion wizard", () => {
-  it("opens on the ODTÜ record, read-only, with the step list", async () => {
+  it("opens on the sign-up record, read-only, with the step list", async () => {
     await open();
-    const record = screen.getByRole("region", {
-      name: "ODTÜ'den gelen bilgiler",
-    });
-    expect(within(record).getByText("Düzenlenemez")).toBeVisible();
+    const record = screen.getByRole("region", { name: "Kayıt bilgilerin" });
+    // Profilim cannot change these either, so the card makes no claim about where to edit them or where they came from.
+    expect(within(record).queryByText("Düzenlenemez")).toBeNull();
+    expect(screen.queryByText(/ODTÜ'den gelen|Öğrenci İşleri/)).toBeNull();
+    expect(
+      screen.getByText("Bir bilgi hatalıysa info@menton.com.tr adresine yaz."),
+    ).toBeVisible();
     expect(within(record).getByText("Endüstri Mühendisliği")).toBeVisible();
     expect(within(record).getByText("3. sınıf · Lisans")).toBeVisible();
     expect(within(record).getByText("Doç. Dr. Elif Şahin")).toBeVisible();
@@ -204,7 +207,11 @@ describe("profile completion wizard", () => {
     );
     renderWithQueryClient(<StudentProfileCompletionView />);
     expect(
-      await screen.findByText(/ODTÜ kaydı bulamadık/, {}, { timeout: 4000 }),
+      await screen.findByText(
+        /bağlı bir kayıt bulamadık/,
+        {},
+        { timeout: 4000 },
+      ),
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "Hoş geldin" })).toBeVisible();
     expect(screen.queryByRole("alert")).toBeNull();
@@ -217,7 +224,7 @@ describe("profile completion wizard", () => {
     const user = userEvent.setup();
     renderWithQueryClient(<StudentProfileCompletionView />);
     const alert = await screen.findByRole("alert", {}, { timeout: 4000 });
-    expect(alert).toHaveTextContent("ODTÜ bilgilerin yüklenemedi");
+    expect(alert).toHaveTextContent("Kayıt bilgilerin yüklenemedi");
     vi.mocked(fetchInstitutionRecord).mockResolvedValue(STUDENT_RECORD);
     await user.click(
       within(alert).getByRole("button", { name: "Tekrar dene" }),

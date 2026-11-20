@@ -138,7 +138,7 @@ describe("IskurWorkspaceView", () => {
     expect(within(media).getByText("Geçici")).toBeInTheDocument();
     expect(within(media).getByText("Kesin")).toBeInTheDocument();
     expect(
-      within(media).getByText("3 gün · 6 sa mentörlük · 16,5 sa ekip"),
+      within(media).getByText("3 gün · 6 sa mentorluk · 16,5 sa ekip"),
     ).toBeInTheDocument();
     expect(
       within(
@@ -166,12 +166,12 @@ describe("IskurWorkspaceView", () => {
     await user.click(within(dialog).getByLabelText("Ekip lideri"));
     expect(within(dialog).queryByLabelText("Bağlı olduğu lider")).toBeNull();
     await user.type(
-      within(dialog).getByLabelText("Haftalık mentörlük süresi (saat)"),
+      within(dialog).getByLabelText("Haftalık mentorluk süresi (saat)"),
       "1,5",
     );
     expect(
       within(dialog).getByText(
-        "Mentörlük süresi için önce görev günü sayısını seç.",
+        "Mentorluk süresi için önce görev günü sayısını seç.",
       ),
     ).toBeInTheDocument();
     expect(
@@ -205,7 +205,7 @@ describe("IskurWorkspaceView", () => {
     );
     let dialog = await screen.findByRole("dialog");
     expect(
-      within(dialog).getByLabelText("Haftalık mentörlük süresi (saat)"),
+      within(dialog).getByLabelText("Haftalık mentorluk süresi (saat)"),
     ).toHaveValue("0");
     await user.selectOptions(
       within(dialog).getByLabelText("Bağlı olduğu lider"),

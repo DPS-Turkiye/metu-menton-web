@@ -233,7 +233,7 @@ describe("ActivityReportView", () => {
       await screen.findByRole("checkbox", { name: "Aktif dinleme" }),
     ).toBeChecked();
     await user.type(
-      screen.getByLabelText(/Bugün mentörlük kapsamında/),
+      screen.getByLabelText(/Bugün mentorluk kapsamında/),
       "İki görüşme.",
     );
     await user.click(
@@ -362,7 +362,7 @@ describe("ActivityReportView", () => {
     expect(
       screen.queryByRole("button", { name: /Görüşme dışı faaliyet ekle/ }),
     ).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/Bugün mentörlük kapsamında/)).toHaveAttribute(
+    expect(screen.getByLabelText(/Bugün mentorluk kapsamında/)).toHaveAttribute(
       "readonly",
     );
   });

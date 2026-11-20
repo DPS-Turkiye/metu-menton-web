@@ -11,6 +11,7 @@ import { OnboardingDocumentsStep } from "@/components/iskur/onboarding-documents
 import { OnboardingLeadershipStep } from "@/components/iskur/onboarding-leadership-step";
 import { OnboardingPreviewStep } from "@/components/iskur/onboarding-preview-step";
 import { OnboardingStepper } from "@/components/iskur/onboarding-stepper";
+import { OnboardingSubmitted } from "@/components/iskur/onboarding-submitted";
 import { OnboardingUnitsStep } from "@/components/iskur/onboarding-units-step";
 import { useIskurOnboarding } from "@/hooks/use-iskur-onboarding";
 import { SUPPORT_EMAIL } from "@/lib/const";
@@ -70,13 +71,11 @@ function Body({ wizard }: { wizard: Wizard }) {
     );
   }
   if (wizard.submitted) {
-    // TEST UI: placeholder until the design team's screen; replace when it arrives.
     return (
-      <Notice role="status">
-        <p className="type-title-card">{t("submitted.title")}</p>
-        <p>{t("submitted.body")}</p>
-        <Button href="/student">{t("submitted.home")}</Button>
-      </Notice>
+      <OnboardingSubmitted
+        firstName={wizard.firstName}
+        nextSteps={wizard.nextSteps}
+      />
     );
   }
   if (wizard.step === IskurOnboardingStep.Welcome)

@@ -12,6 +12,7 @@ import { WEEKDAY_ORDER, type Weekday } from "@/interfaces/mentor";
 import { ISKUR_MINUTES_PER_DAY } from "@/lib/iskur-workspace";
 import { withoutKeys } from "@/lib/keyed-list";
 import {
+  IskurNextStep,
   IskurOnboardingStep,
   type IskurLeadershipEligibility,
   type IskurRangeRow,
@@ -201,6 +202,19 @@ export function leadershipAnswered(
       answer.trim().length > 0 &&
       answer.length <= ISKUR_ANSWER_MAX,
   );
+}
+
+/** What happens after the form is sent; the leadership interview only for someone who applied to lead. */
+export function nextStepsAfterSubmit(
+  form: Pick<IskurOnboardingForm, "leadership">,
+): IskurNextStep[] {
+  return form.leadership.wants
+    ? [
+        IskurNextStep.Review,
+        IskurNextStep.LeadershipInterview,
+        IskurNextStep.TeamAssignment,
+      ]
+    : [IskurNextStep.Review, IskurNextStep.TeamAssignment];
 }
 
 /** The form as the screen holds it, in the shape the backend saves; ratings of unchosen units stay until submit. */

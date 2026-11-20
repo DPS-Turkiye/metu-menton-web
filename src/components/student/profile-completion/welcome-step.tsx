@@ -14,11 +14,15 @@ import { Card } from "@/components/ia/card";
 import { PageHeader } from "@/components/ia/page-header";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import type { useStudentProfileCompletion } from "@/hooks/use-student-profile-completion";
+import { SUPPORT_EMAIL } from "@/lib/const";
 import { PROFILE_PHOTO_TYPES } from "@/lib/personal-profile";
 
 type Completion = ReturnType<typeof useStudentProfileCompletion>;
 
-/** Step 1 (Figma "Profil Tamamlama — 1 · Hoş geldin"): the ODTÜ record, read-only, and an optional photo. */
+/**
+ * Step 1 (Figma "Profil Tamamlama — 1 · Hoş geldin"): the account's record, read-only, and an optional photo. Until
+ * ODTÜ login is on the record is what the student typed at sign-up, so the copy does not call it ODTÜ's.
+ */
 export function WelcomeStep({
   welcome,
   photo,
@@ -47,7 +51,7 @@ export function WelcomeStep({
           height={16}
           className="shrink-0"
         />
-        {t("correction")}
+        {t("correction", { email: SUPPORT_EMAIL })}
       </p>
     </>
   );
@@ -92,14 +96,6 @@ function RecordCard({ welcome }: { welcome: Completion["welcome"] }) {
             {t("recordTitle")}
           </h2>
         </div>
-        <StatusBadge
-          tone={StatusTone.Neutral}
-          icon={
-            <Image src="/ia/profile/lock.svg" alt="" width={14} height={14} />
-          }
-        >
-          {t("readOnly")}
-        </StatusBadge>
       </div>
       <RecordBody welcome={welcome} />
     </section>
