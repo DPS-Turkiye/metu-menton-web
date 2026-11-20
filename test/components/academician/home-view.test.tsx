@@ -15,7 +15,11 @@ import {
   sampleState,
   saveSampleAvailability,
 } from "@test/fixtures/academician-office-hours-sample-store";
-import { InLocale, renderWithQueryClient } from "@test/test-utils";
+import {
+  InLocale,
+  primaryButtons,
+  renderWithQueryClient,
+} from "@test/test-utils";
 
 // The screens walk through the in-memory sample; the real /me mapping is tested in test/lib.
 vi.mock(
@@ -148,6 +152,7 @@ describe("AcademicianHomeView", () => {
       "href",
       "/academician/appointments?request=sample-request-2&step=propose",
     );
+    expect(primaryButtons()).toHaveLength(0);
   });
 
   it("books a request with one time right from its card", async () => {
@@ -203,6 +208,7 @@ describe("AcademicianHomeView", () => {
       screen.queryByRole("link", { name: "Randevularım" }),
     ).not.toBeInTheDocument();
     const add = screen.getByRole("link", { name: "Müsaitlik Ekle" });
+    expect(primaryButtons()).toEqual([add]);
     expect(add).toHaveAttribute(
       "href",
       "/academician/appointments/availability",

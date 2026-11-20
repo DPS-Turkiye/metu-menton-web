@@ -15,7 +15,11 @@ import {
   peerMentorsFixture,
   resetPeerMentoringFixtures,
 } from "@test/fixtures/peer-mentoring";
-import { InLocale, renderWithQueryClient } from "@test/test-utils";
+import {
+  InLocale,
+  primaryButtons,
+  renderWithQueryClient,
+} from "@test/test-utils";
 
 const gate = { state: PeerMentorGateState.Hidden };
 vi.mock("@/hooks/use-peer-mentor-give", async (importOriginal) => ({
@@ -122,6 +126,18 @@ describe("PeerMentoringView › Keşfet", () => {
     expect(
       within(search).getByRole("link", { name: "Profili Gör, Zeynep Arslan" }),
     ).toHaveAttribute("href", "/student/peer-mentoring/mentors/fixture-peer-4");
+  });
+
+  it("has no red Primary on the mentor cards or the Mentor ara rows", async () => {
+    renderWithQueryClient(<PeerMentoringView />);
+
+    const deniz = await mentorCard("Deniz Kaya");
+    expect(
+      within(deniz).getByRole("button", {
+        name: "Mentorluk Talebi Gönder, Deniz Kaya",
+      }),
+    ).toBeEnabled();
+    expect(primaryButtons()).toHaveLength(0);
   });
 
   it("adds the student's matching interests to Neden önerildi", async () => {
