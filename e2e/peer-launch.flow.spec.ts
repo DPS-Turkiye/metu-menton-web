@@ -681,7 +681,10 @@ test.describe("İŞKUR", () => {
     await page.goto("/student/work-log");
     await page.getByRole("button", { name: /Bugün/ }).click();
     await page.getByRole("button", { name: "Ekle", exact: true }).click();
-    await page.getByLabel("Başlık").fill(LEADER_WORK);
+    // Exact: the new line's remove button is labelled "Başlıksız satırını sil" until it has a title.
+    await page
+      .getByRole("textbox", { name: "Başlık", exact: true })
+      .fill(LEADER_WORK);
     await page.getByLabel("Süre (dk)").fill("90");
     await page.getByRole("button", { name: "Taslak olarak kaydet" }).click();
     await expect(page.getByText("Kaydedildi.")).toBeVisible();
