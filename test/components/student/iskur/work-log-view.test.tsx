@@ -10,7 +10,10 @@ import {
   saveIskurWeekEntries,
   submitIskurWeek,
 } from "@/lib/client/iskur-weeks";
-import { createIskurWeek } from "@test/fixtures/iskur-weeks";
+import {
+  createIskurWeek,
+  createIskurWeekHistory,
+} from "@test/fixtures/iskur-weeks";
 import { renderWithQueryClient } from "@test/test-utils";
 
 let search = new URLSearchParams("view=daily&week=2026-11-16&day=2026-11-17");
@@ -122,6 +125,25 @@ describe("IskurWorkLogView", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Düzeltilmiş kaydı yeniden gönder" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the intern the week's history on the weekly summary", async () => {
+    search = new URLSearchParams("view=weekly&week=2026-11-16");
+    vi.mocked(getIskurWeek).mockResolvedValue(
+      createIskurWeek({
+        status: IskurWeekStatus.Approved,
+        history: createIskurWeekHistory(),
+      }),
+    );
+    renderWithQueryClient(<IskurWorkLogView />);
+
+    const history = await screen.findByRole("region", {
+      name: "Hafta geçmişi",
+    });
+    expect(within(history).getAllByRole("listitem")).toHaveLength(5);
+    expect(
+      within(history).getByText("Çıktı bağlantısı eksik"),
     ).toBeInTheDocument();
   });
 

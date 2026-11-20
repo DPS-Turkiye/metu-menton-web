@@ -86,6 +86,11 @@
     "failed": "ODTÜ TEKNOKENT Girişimcilik ile giriş tamamlanamadı. Lütfen yeniden dene.",
     "backToLogin": "Giriş sayfasına dön"
   },
+  "odtuCasLogin": {
+    "signingIn": "ODTÜ hesabınla giriş yapılıyor…",
+    "failed": "ODTÜ ile giriş tamamlanamadı. Lütfen yeniden dene.",
+    "backToLogin": "Giriş sayfasına dön"
+  },
   "workspaceSwitch": {
     "label": "Çalışma alanı",
     "names": {
@@ -8234,5 +8239,15 @@
     "removePlacedHint": "Önce yerleşimden çıkar.",
     "removed": "Adres listeden çıkarıldı.",
     "removeFailed": "Adres listeden çıkarılamadı."
+  },
+  "iskurWeekHistory": {
+    "title": "Hafta geçmişi",
+    "kinds": {
+      "SUBMITTED": "Gönderildi",
+      "APPROVED": "Onaylandı",
+      "REVISION": "Revizyon istendi",
+      "REJECTED": "Reddedildi",
+      "OBJECTION": "İtiraz edildi"
+    }
   }
 }

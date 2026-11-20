@@ -95,6 +95,29 @@ export interface IskurWeekObjection {
   at: string;
 }
 
+export enum IskurWeekEventKind {
+  Submitted = "SUBMITTED",
+  Approved = "APPROVED",
+  Revision = "REVISION",
+  Rejected = "REJECTED",
+  Objection = "OBJECTION",
+}
+
+/** One step of a week's history: a send, a decision (reason and checks) or the intern's objection. */
+export interface IskurWeekHistoryEvent {
+  /** The order within the week, from 0. */
+  step: number;
+  kind: IskurWeekEventKind;
+  at: string;
+  /** null when that account is gone. */
+  by: IskurWeekPerson | null;
+  text: string | null;
+  /** Set on decisions only. */
+  timeMatchesWork: boolean | null;
+  effortDocumented: boolean | null;
+  outputsSufficient: boolean | null;
+}
+
 export interface IskurWeek {
   /** The Monday, "yyyy-mm-dd". */
   weekStart: string;
@@ -114,6 +137,8 @@ export interface IskurWeek {
   entries: IskurWorkEntry[];
   tasks: IskurWeekTask[];
   supportActivities: IskurSupportOption[];
+  /** Oldest first; empty until the week is sent. */
+  history: IskurWeekHistoryEvent[];
 }
 
 export interface IskurWorkEntryInput {
@@ -188,6 +213,7 @@ export interface IskurLeaderWeek {
   objection: IskurWeekObjection | null;
   canDecide: boolean;
   queue: IskurLeaderQueueRow[];
+  history: IskurWeekHistoryEvent[];
 }
 
 export interface IskurWeekDecisionInput {
