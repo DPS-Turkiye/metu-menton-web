@@ -27,7 +27,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # A hand-run against another backend_ref does not cancel the branch's own run.
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.backend_ref || 'main' }}
   cancel-in-progress: true
 
 jobs:
@@ -104,7 +105,8 @@ jobs:
 
     timeout-minutes: 40
 
-    # The service-account key reaches only the two steps that need it, never npm ci, the build or the tests.
+    # The service-account key is an env var of only the two steps that need it, never of npm ci, the build or the
+    # tests (it is on disk in the owner-only e2e/.stack/backend.env while the stack runs; see docs/testing.md).
     env:
       E2E_MODE: flows
       E2E_FIREBASE_API_KEY: ${{ vars.E2E_FIREBASE_API_KEY }}
@@ -162,7 +164,14 @@ jobs:
 
       - name: Start the backend
         if: steps.firebase.outputs.ready == 'true'
-        run: e2e/stack.sh up
+        run: |
+          # Mask what the secret's own masking misses: each line of the private key (the stack re-emits the JSON
+          # compacted) and the staff passwords derived from it. The runner consumes ::add-mask:: lines; they never show.
+          python3 -c 'import json,os
+          for line in json.loads(os.environ["E2E_FIREBASE_CREDENTIALS_JSON"])["private_key"].splitlines():
+              if len(line) > 8: print("::add-mask::" + line)'
+          e2e/stack.sh up
+          grep -E '^E2E_(ADMIN|COORDINATOR)_PASSWORD=' e2e/.stack/web.env | cut -d= -f2- | sed 's/^/::add-mask::/'
         env:
           E2E_BACKEND_DIR: ${{ github.workspace }}/.e2e-backend
           E2E_FIREBASE_CREDENTIALS_JSON: ${{ secrets.E2E_FIREBASE_CREDENTIALS_JSON }}
@@ -193,12 +202,15 @@ jobs:
             test-results/**/*.png
           retention-days: 7
 
-      # What the backend said when a journey failed: errors and their stack traces only. The stack holds fake
-      # personas and per-run secrets; the service-account key is never logged.
+      # What the backend said when a journey failed: error lines and the app's own stack frames, cut short. The key
+      # and the staff passwords are masked (Start the backend); lines naming the key are dropped as well.
       - name: Backend errors
         if: failure() && steps.firebase.outputs.ready == 'true'
         run: |
-          docker logs metu-e2e-app-1 2>&1 | grep -E -A25 "ERROR|Exception" | head -300 || true
+          docker logs metu-e2e-app-1 2>&1 \
+            | grep -E "ERROR|Exception|^\s+at com\.dps\." \
+            | grep -viE "private_key|BEGIN PRIVATE|credential|FIREBASE_" \
+            | cut -c1-300 | head -150 || true
 
       - name: Stop the backend
         if: always() && steps.firebase.outputs.ready == 'true'

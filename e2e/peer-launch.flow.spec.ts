@@ -15,6 +15,7 @@ import {
 // an İŞKUR screen. One program and one database, so the steps run in order.
 test.describe.configure({ mode: "serial" });
 // ODTÜ's day: a task is due "today" in the browser, and the backend's work days are in Istanbul.
+// The journey needs a fresh stack (e2e/stack.sh down, then up): the personas keep what an earlier run gave them.
 test.use({ timezoneId: "Europe/Istanbul" });
 
 const RUN = Date.now().toString(36);
@@ -27,11 +28,13 @@ const UUID = /[0-9a-f-]{36}/;
 const TASK = `Etkinlik afişi için 2 görsel öneri (${RUN})`;
 const WORK_NOTE = `Afiş taslakları hazırlandı (${RUN})`;
 const CHANNEL_MESSAGE = `Merhaba ekip, bu haftanın görevleri paylaşıldı (${RUN}).`;
-/** Today in Istanbul, as the onboarding names a work day ("Cuma"). */
-const TODAY = new Intl.DateTimeFormat("tr-TR", {
-  weekday: "long",
-  timeZone: "Europe/Istanbul",
-}).format(new Date());
+/** Today in Istanbul, as the onboarding names a work day ("Cuma"). A run that crosses Istanbul midnight fails. */
+function today() {
+  return new Intl.DateTimeFormat("tr-TR", {
+    weekday: "long",
+    timeZone: "Europe/Istanbul",
+  }).format(new Date());
+}
 
 /** The persona login's addresses (metu-menton-backend dev/odtu-personas.json); Ayşe stays off the list. */
 const INTERN_EMAILS = [
@@ -158,7 +161,6 @@ test.describe("Akran", () => {
       ).toContainText("Kayıtlı");
     }
 
-    await signInAsStaff(page, Staff.Coordinator);
     await page.goto(`/coordinator/programs/${programId}/settings`);
     await page.getByRole("checkbox", { name: CATEGORY }).check();
     await page.getByRole("button", { name: "Kategorileri kaydet" }).click();
@@ -320,7 +322,7 @@ async function onboard(page: Page) {
     .getByRole("group", { name: "Haftalık gün sayısı" })
     .getByRole("button", { name: /^1 gün/ })
     .click();
-  await page.getByRole("button", { name: TODAY, exact: true }).click();
+  await page.getByRole("button", { name: today(), exact: true }).click();
   await page
     .getByLabel("Daha önce İŞKUR programlarında kullandığın gün sayısı")
     .fill("0");
@@ -487,14 +489,13 @@ test.describe("İŞKUR", () => {
     await signInAs(page, Persona.ZeynepDemir);
     // Everything the leader's screens load, to check the mentee is in none of it, not only in what is drawn.
     // It starts after the sign-in, whose persona picker lists every persona.
-    const responses: { path: string; body: string }[] = [];
-    page.on("response", async (response) => {
+    const responses: Promise<{ path: string; body: string }>[] = [];
+    page.on("response", (response) => {
       const url = new URL(response.url());
       if (url.pathname.startsWith("/api/") && response.ok()) {
-        responses.push({
-          path: url.pathname,
-          body: await response.text().catch(() => ""),
-        });
+        responses.push(
+          response.text().then((body) => ({ path: url.pathname, body })),
+        );
       }
     });
     await page.goto("/student/team");
@@ -507,11 +508,14 @@ test.describe("İŞKUR", () => {
 
     await expect(page.getByText(TASK)).toBeVisible();
     await expect(page.getByText("İçerik gizli")).toBeVisible();
+    // Every body read in full, and the watch saw the leader's data at all (the week's task), before the check.
+    const loaded = await Promise.all(responses);
+    expect(loaded.some((response) => response.body.includes(TASK))).toBe(true);
     for (const secret of [Persona.AyseYilmaz, REQUEST_MESSAGE]) {
       await expect(page.getByText(secret)).toHaveCount(0);
       // Only the paths go into the report, never what they answered.
       expect(
-        responses
+        loaded
           .filter((response) => response.body.includes(secret))
           .map((response) => response.path),
         `the leader's screens loaded "${secret}"`,

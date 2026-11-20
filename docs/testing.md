@@ -123,7 +123,11 @@ For the journeys, start the stack with `E2E_MODE=flows` and the test project's s
   not set. Neither is a required check yet.
   - The stack is always **backend `main`**, so a web PR whose backend half is not merged yet can fail for that reason.
     To test against that branch first, run the workflow by hand ("Run workflow") with `backend_ref` set to it.
-  - The service-account secret reaches only the two steps that need it, never `npm ci`, the build or the tests.
+  - The service-account secret is an environment variable of only the two steps that need it (not `npm ci`, the
+    build or the tests). While the stack runs it is also on disk in the owner-only `e2e/.stack/backend.env`, which the
+    later steps could read: anyone who can push a branch here can reach it, so treat it as a test-project key only.
   - In flows mode `stack.sh` also makes the E2E staff logins (`e2e/support/staff-logins.mjs`): `e2e-admin` and
     `e2e-coordinator` (`@example.test`) in the test project only, bootstrapped as ADMIN and COORDINATOR.
-    `signInAsStaff` signs them in with e-mail and password.
+    `signInAsStaff` signs them in with e-mail and password, without `fill`, whose value the HTML report would show.
+  - A journey builds on its earlier steps in one database: run it on a fresh stack (`down`, then `up`), and it is not
+    retried (`retries: 0` for flows).

@@ -6,7 +6,9 @@
 //
 // Prints KEY=VALUE lines for e2e/.stack/backend.env (APP_BOOTSTRAP_STAFF) and e2e/.stack/web.env (the logins).
 // The uids are fixed and each password is derived from the service account's key, so two runs at once agree on
-// both and nothing is left behind between runs. The addresses are @example.test; nobody can receive mail there.
+// both. The two accounts stay in the test project between runs (every run resets their passwords); nothing else is
+// made. The addresses are @example.test; nobody can receive mail there. Never print the output: it holds the
+// passwords (stack.sh writes it to owner-only, git-ignored files and CI masks them).
 import { createHmac, createSign } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -28,9 +30,15 @@ const STAFF = [
 // Only ever the test project: these logins must never exist in a real one (odtu-menton or anything else).
 const TEST_PROJECT = "metu-menton";
 
-const account = JSON.parse(
-  readFileSync(process.argv[2] === "-" ? 0 : process.argv[2], "utf8"),
-);
+let account;
+try {
+  account = JSON.parse(
+    readFileSync(process.argv[2] === "-" ? 0 : process.argv[2], "utf8"),
+  );
+} catch {
+  // A parse error quotes the input it choked on; this is a key, so say only what went wrong.
+  throw new Error("staff-logins: the service account is not valid JSON");
+}
 if (account.project_id !== TEST_PROJECT) {
   throw new Error(
     `staff-logins: refusing project "${account.project_id}"; only the ${TEST_PROJECT} test project`,
@@ -87,7 +95,8 @@ const token = await accessToken();
 const lines = [];
 for (const person of STAFF) {
   const password = createHmac("sha256", account.private_key)
-    .update(`menton-e2e:${person.uid}`)
+    // v2: the v1 passwords reached public test reports through fill step titles (20 Nov); a new salt retires them.
+    .update(`menton-e2e:v2:${person.uid}`)
     .digest("base64url");
   const fields = {
     email: person.email,
