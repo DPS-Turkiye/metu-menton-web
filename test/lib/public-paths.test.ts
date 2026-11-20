@@ -34,4 +34,11 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/auth/otg/callback")).toBe(true);
     expect(isPublicPath("/auth/otg/other")).toBe(false);
   });
+
+  // ODTÜ's CAS sends the browser back here before anyone is signed in.
+  it("lets a signed-out visitor through ODTÜ's CAS callback and nothing next to it", () => {
+    expect(isPublicPath("/login/odtu/callback")).toBe(true);
+    expect(isPublicPath("/login/odtu/callback/other")).toBe(false);
+    expect(isPublicPath("/login/odtu")).toBe(false);
+  });
 });

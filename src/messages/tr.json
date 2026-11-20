@@ -86,6 +86,11 @@
     "failed": "ODTÜ TEKNOKENT Girişimcilik ile giriş tamamlanamadı. Lütfen yeniden dene.",
     "backToLogin": "Giriş sayfasına dön"
   },
+  "odtuCasLogin": {
+    "signingIn": "ODTÜ hesabınla giriş yapılıyor…",
+    "failed": "ODTÜ ile giriş tamamlanamadı. Lütfen yeniden dene.",
+    "backToLogin": "Giriş sayfasına dön"
+  },
   "workspaceSwitch": {
     "label": "Çalışma alanı",
     "names": {

@@ -86,6 +86,11 @@
     "failed": "Signing in with ODTÜ TEKNOKENT Girişimcilik could not be completed. Please try again.",
     "backToLogin": "Back to sign-in"
   },
+  "odtuCasLogin": {
+    "signingIn": "Signing you in with your ODTÜ account…",
+    "failed": "Signing in with ODTÜ could not be completed. Please try again.",
+    "backToLogin": "Back to sign-in"
+  },
   "workspaceSwitch": {
     "label": "Workspace",
     "names": {
