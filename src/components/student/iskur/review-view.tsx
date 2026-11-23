@@ -21,7 +21,7 @@ import {
   type IskurLeaderWeek,
 } from "@/interfaces/iskur-weeks";
 import { ISKUR_NOTE_MAX, ISKUR_TEAM_HREF } from "@/lib/iskur-tasks";
-import { reportWeekLabel } from "@/lib/peer-daily-report";
+import { iskurWeekLabel } from "@/lib/iskur-weeks";
 import { formatReportDay, formatReportTime } from "@/lib/peer-weekly-report";
 import { initials } from "@/lib/utils";
 
@@ -84,7 +84,7 @@ export function IskurReviewView({
         <h1 className="type-h1 text-text-primary">
           {t("title", {
             name: week.person.fullName,
-            week: reportWeekLabel(week.weekStart, locale),
+            week: iskurWeekLabel(week.weekStart, locale),
           })}
         </h1>
         <p className="mt-1 type-body-sm text-text-secondary">

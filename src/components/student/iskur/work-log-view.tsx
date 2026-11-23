@@ -21,7 +21,7 @@ import {
   parseMinutes,
 } from "@/lib/iskur-tasks";
 import { ISKUR_ENTRY_TITLE_MAX, lineKind } from "@/lib/iskur-weeks";
-import { reportDayHref, reportWeekHref } from "@/lib/peer-reports";
+import { reportWeekHref } from "@/lib/peer-reports";
 import { formatReportDay } from "@/lib/peer-weekly-report";
 import { IskurLineProblem, type IskurEntryDraft } from "@/types/iskur-weeks";
 import { PeerReportView } from "@/types/peer-reports";
@@ -151,7 +151,10 @@ function Daily({ log, week }: { log: Log; week: IskurWeek }) {
   const duration = useReportDuration();
   return (
     <div className="space-y-6">
-      <ol aria-label={t("days")} className="grid gap-3 sm:grid-cols-5">
+      <ol
+        aria-label={t("days")}
+        className="grid gap-3 sm:grid-cols-4 lg:grid-cols-7"
+      >
         {log.days.map((day) => {
           const label = formatReportDay(day, locale);
           const selected = day === log.day;
@@ -195,12 +198,14 @@ function Daily({ log, week }: { log: Log; week: IskurWeek }) {
             <p className="type-body-sm text-text-secondary">
               {t("mentoringHint")}
             </p>
-            <Link
-              href={reportDayHref(log.day)}
-              className="inline-block type-label text-text-accent hover:underline"
-            >
-              {t("openDailyReport")}
-            </Link>
+            {log.dailyReportHref ? (
+              <Link
+                href={log.dailyReportHref}
+                className="inline-block type-label text-text-accent hover:underline"
+              >
+                {t("openDailyReport")}
+              </Link>
+            ) : null}
           </section>
           <section aria-labelledby="iskur-day-team" className="space-y-3">
             <h3

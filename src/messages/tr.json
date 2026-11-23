@@ -7926,6 +7926,8 @@
       "noCoordinator": "Birim koordinatörü belli olunca burada görünür",
       "channels": "Kanalların",
       "channelsLater": "Kanallar ekip kesinleşince açılır.",
+      "channelsOpen": "Kanalların açıldı.",
+      "channelsAction": "Mesajlara git",
       "waitingTitle": "Yerleştirme bekleniyor",
       "waitingBody": "Formun koordinatörüne ulaştı. Seni bir ekibe yerleştirdiğinde ekibin burada görünür.",
       "reminderTitle": "Yerleştirme formunu doldur",

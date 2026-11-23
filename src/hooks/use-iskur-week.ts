@@ -31,12 +31,15 @@ import {
   ISKUR_REVIEW_QUEUE_KEY,
   ISKUR_SUPPORT_DEFAULT_MINUTES,
   ISKUR_WEEK_KEY,
+  iskurWeekDays,
+  iskurWeekLabel,
   lineProblem,
   overflowingDays,
   teamDraft,
 } from "@/lib/iskur-weeks";
-import { parseReportSearch, reportWeekLabel } from "@/lib/peer-daily-report";
+import { parseReportSearch } from "@/lib/peer-daily-report";
 import {
+  reportDayHref,
   reportDayOf,
   reportWeekDays,
   shiftReportWeek,
@@ -175,7 +178,11 @@ export function useIskurWorkLog() {
   const params = useSearchParams();
   const [now] = useState(() => new Date());
   const today = reportDayOf(now.toISOString());
-  const search = parseReportSearch(Object.fromEntries(params.entries()), today);
+  const search = parseReportSearch(
+    Object.fromEntries(params.entries()),
+    today,
+    iskurWeekDays,
+  );
   const query = useQuery({
     queryKey: iskurWeekQueryKey(search.week),
     queryFn: () => getIskurWeek(search.week),
@@ -235,12 +242,16 @@ export function useIskurWorkLog() {
     view: search.view,
     setView: (view: PeerReportView) => go({ view }),
     weekStart: search.week,
-    weekLabel: reportWeekLabel(search.week, locale),
+    weekLabel: iskurWeekLabel(search.week, locale),
     previousWeek: () => go({ week: shiftReportWeek(search.week, -1) }),
     nextWeek: () => go({ week: shiftReportWeek(search.week, 1) }),
     canGoNext: shiftReportWeek(search.week, 1) <= today,
-    days: reportWeekDays(search.week),
+    days: iskurWeekDays(search.week),
     day: search.day,
+    /** The mentoring report has working days only, so a weekend day links to none. */
+    dailyReportHref: reportWeekDays(search.week).includes(search.day)
+      ? reportDayHref(search.day)
+      : null,
     today,
     selectDay: (day: string) => go({ day }),
     editable,
