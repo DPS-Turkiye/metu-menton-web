@@ -126,22 +126,19 @@ as `NEXT_PUBLIC_*` variables.
 6. Verify the request on `/mentor-request/status`, the dashboard, Swagger, or the
    PostgreSQL tables described in the backend README.
 
-## Deployment (AWS Amplify)
+## Deployment (ODTÜ server)
 
-Pushing to `main` triggers an automatic deploy on AWS Amplify.
+This repo is not connected to AWS Amplify. Every push to `main` (a merged PR) runs `.github/workflows/deploy.yml`,
+which deploys that commit to ODTÜ's temporary AWS server (eu-north-1):
 
-Build settings live in `amplify.yml`. Amplify uses Node 24, runs `npm ci`, writes environment variables to `.env`, then `npm run build`.
+1. GitHub OIDC assumes the deploy role named by the repository variable `ODTU_DEPLOY_ROLE_ARN`; no AWS keys are
+   stored in GitHub.
+2. Over SSM, the document `odtu-menton-deploy` runs `ops/deploy-component.sh web <sha>` on the instance tagged
+   `MentonDeployTarget=odtu`. The server builds the image itself (no registry), keeps the running backend and
+   smoke-tests the site.
+3. The job waits for the result and prints the step and smoke-test lines; the full log stays on the server.
 
-Set these in the Amplify console (app-level env). `amplify.yml` writes every key into `.env` before `npm run build`:
-
-| Variable                                | Description                                                        |
-| --------------------------------------- | ------------------------------------------------------------------ |
-| `APP_URL`                               | Deployed web app URL (`https://main.dxcmjf7esever.amplifyapp.com`) |
-| `BACKEND_URL`                           | CloudFront HTTPS API origin                                        |
-| `BACKEND_USERNAME` / `BACKEND_PASSWORD` | Spring HTTP Basic auth                                             |
-| `SESSION_PASSWORD`                      | iron-session cookie key (min 32 characters)                        |
-| `NEXT_PUBLIC_REALTIME_URL`              | `wss://<cdn_domain>/ws` — never `ws://` on Amplify HTTPS           |
-| `NEXT_PUBLIC_FIREBASE_*`                | Firebase web app config (same project as backend SSM)              |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`          | Optional Google Calendar OAuth client ID                           |
-
-Ensure the backend allows requests from the deployed web app URL if CORS or security rules apply.
+A manual run (**Actions → Deploy → Run workflow**) on `main` redeploys its head. While the server's pause file exists
+(a demo), a run deploys nothing and says `DEPLOY PAUSED`; run it again afterwards. The server's env files hold the
+settings (`web.env`, and `web.build.env` for the `NEXT_PUBLIC_*` build arguments); the backend deploys on its `v*`
+tags the same way.
