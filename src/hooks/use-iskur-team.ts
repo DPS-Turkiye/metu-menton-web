@@ -24,7 +24,7 @@ import {
   stepEstimate,
   taskCount,
 } from "@/lib/iskur-tasks";
-import { reportWeekLabel } from "@/lib/peer-daily-report";
+import { iskurWeekLabel } from "@/lib/iskur-weeks";
 import {
   reportDayOf,
   reportWeekStart,
@@ -107,7 +107,7 @@ export function useIskurTeam() {
     failed: query.isError && !isNotPlaced(query.error),
     retry: () => void query.refetch(),
     weekStart,
-    weekLabel: reportWeekLabel(weekStart, locale),
+    weekLabel: iskurWeekLabel(weekStart, locale),
     previousWeek: () => setWeekStart((week) => shiftReportWeek(week, -1)),
     nextWeek: () => setWeekStart((week) => shiftReportWeek(week, 1)),
     tab,

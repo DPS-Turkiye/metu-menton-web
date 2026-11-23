@@ -8,6 +8,7 @@ import {
 } from "@/interfaces/iskur-workspace";
 import { ClientApiError } from "@/lib/client/api";
 import { getIskurTeamReveal } from "@/lib/client/iskur-onboarding";
+import { ISKUR_MESSAGES_HREF } from "@/lib/iskur-channels";
 import { ISKUR_ONBOARDING_HREF } from "@/lib/iskur-onboarding";
 import { reveal } from "@test/fixtures/iskur-onboarding";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -80,6 +81,11 @@ describe("IskurTeamReveal", () => {
       screen.getAllByText("Birim koordinatörü belli olunca burada görünür"),
     ).toHaveLength(2);
     expect(screen.queryByText(/Ekip günleri/)).toBeNull();
+    expect(screen.getByText("Kanalların açıldı.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mesajlara git" })).toHaveAttribute(
+      "href",
+      ISKUR_MESSAGES_HREF,
+    );
   });
 
   it("waits for placement, reminds an intern who has not sent the form, and stays away from others", async () => {

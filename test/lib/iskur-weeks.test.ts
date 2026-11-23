@@ -15,6 +15,8 @@ import {
   iskurFallbackQueueHref,
   iskurFallbackWeekHref,
   iskurLeaderWeekHref,
+  iskurWeekDays,
+  iskurWeekLabel,
   iskurWorkLogHref,
   overflowingDays,
   percentOf,
@@ -30,6 +32,19 @@ import {
 } from "@test/fixtures/iskur-weeks";
 
 describe("İŞKUR week helpers", () => {
+  it("runs a week from Monday to Sunday, across a month too", () => {
+    expect(iskurWeekDays("2026-11-30")).toEqual([
+      "2026-11-30",
+      "2026-12-01",
+      "2026-12-02",
+      "2026-12-03",
+      "2026-12-04",
+      "2026-12-05",
+      "2026-12-06",
+    ]);
+    expect(iskurWeekLabel("2026-11-23", "tr")).toBe("23–29 Kasım 2026");
+  });
+
   it("links the work log, the review and the coordinators' queue", () => {
     expect(iskurWorkLogHref("2026-11-16")).toBe(
       "/student/work-log?view=daily&week=2026-11-16",

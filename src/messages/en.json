@@ -7924,6 +7924,8 @@
       "noCoordinator": "Shows here once your unit coordinator is set",
       "channels": "Your channels",
       "channelsLater": "Channels open once your team is confirmed.",
+      "channelsOpen": "Your channels are open.",
+      "channelsAction": "Go to messages",
       "waitingTitle": "Waiting for placement",
       "waitingBody": "Your form reached your coordinator. Your team shows here once they place you.",
       "reminderTitle": "Fill in the placement form",

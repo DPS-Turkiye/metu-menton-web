@@ -20,8 +20,7 @@ import { useIskurThisWeek } from "@/hooks/use-iskur-week";
 import { useReportDuration } from "@/hooks/use-report-format";
 import { ISKUR_TEAM_HREF } from "@/lib/iskur-tasks";
 import { todoHref } from "@/lib/iskur-today";
-import { iskurWorkLogHref, todoKey } from "@/lib/iskur-weeks";
-import { reportWeekLabel } from "@/lib/peer-daily-report";
+import { iskurWeekLabel, iskurWorkLogHref, todoKey } from "@/lib/iskur-weeks";
 import { formatReportDay } from "@/lib/peer-weekly-report";
 import { formatDateTime } from "@/lib/utils";
 import { IskurTodoKind, type IskurTodo } from "@/types/iskur-weeks";
@@ -55,7 +54,7 @@ export function IskurThisWeekCard() {
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="iskur-this-week" className="type-h3 text-text-primary">
-            {t("title", { week: reportWeekLabel(week.weekStart, locale) })}
+            {t("title", { week: iskurWeekLabel(week.weekStart, locale) })}
           </h2>
           <div className="flex flex-wrap gap-2">
             <Button

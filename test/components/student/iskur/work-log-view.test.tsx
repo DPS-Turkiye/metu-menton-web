@@ -147,6 +147,31 @@ describe("IskurWorkLogView", () => {
     ).toBeInTheDocument();
   });
 
+  it("offers every day of the week, so a weekend worker can log Saturday", async () => {
+    vi.useFakeTimers({
+      now: new Date("2026-11-21T09:00:00Z"),
+      toFake: ["Date"],
+    });
+    try {
+      search = new URLSearchParams("view=daily&week=2026-11-16");
+      renderWithQueryClient(<IskurWorkLogView />);
+      const days = await screen.findByRole("list", {
+        name: "Haftanın günleri",
+      });
+      expect(within(days).getAllByRole("listitem")).toHaveLength(7);
+      const saturday = within(days).getByRole("button", { name: /Bugün/ });
+      expect(saturday).toHaveTextContent("21 Kasım");
+      expect(saturday).toHaveAttribute("aria-current", "date");
+      expect(screen.getByRole("button", { name: "Ekle" })).toBeEnabled();
+      // The mentoring report has no weekend days.
+      expect(
+        screen.queryByRole("link", { name: "Günlük raporu aç →" }),
+      ).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("says when the intern is not placed", async () => {
     vi.mocked(getIskurWeek).mockRejectedValue(new ClientApiError("x", 404));
     renderWithQueryClient(<IskurWorkLogView />);

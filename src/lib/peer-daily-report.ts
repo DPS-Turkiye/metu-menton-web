@@ -117,15 +117,19 @@ export function reportDayCards(
 }
 
 /** "9–13 Kasım 2026" (or "30 Kasım – 4 Aralık 2026" across months). */
-export function reportWeekLabel(weekStart: string, locale: string): string {
-  const [monday] = reportWeekDays(weekStart);
-  const friday = reportWeekDays(weekStart).at(-1);
-  if (monday === undefined || friday === undefined) return weekStart;
+export function reportWeekLabel(
+  weekStart: string,
+  locale: string,
+  days: readonly string[] = reportWeekDays(weekStart),
+): string {
+  const first = days[0];
+  const last = days.at(-1);
+  if (first === undefined || last === undefined) return weekStart;
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).formatRange(fromIsoDay(monday), fromIsoDay(friday));
+  }).formatRange(fromIsoDay(first), fromIsoDay(last));
 }
 
 /** A new activity on the given day ("Kaynak hazırlama" first, as in 3.2.3b). */
@@ -179,11 +183,13 @@ function textOrNull(value: string) {
 
 /**
  * The view, week and day from the URL, each checked, with today's week and day standing in for anything missing or
- * wrong. The day always lies in the week (Monday–Friday); outside it, the week's last day up to today is taken.
+ * wrong. The day always lies in the week (Monday–Friday, unless the screen's week has other days); outside it, the
+ * week's last day up to today is taken.
  */
 export function parseReportSearch(
   search: Record<string, string | undefined>,
   today: string,
+  weekDays: (weekStart: string) => string[] = reportWeekDays,
 ): ReportSearch {
   const view = isEnumValue(PeerReportView, search.view)
     ? search.view
@@ -193,7 +199,7 @@ export function parseReportSearch(
     isCalendarDay(search.week) && mondayOf(search.week) === search.week
       ? search.week
       : mondayOf(asked);
-  const days = reportWeekDays(week);
+  const days = weekDays(week);
   const day = days.includes(asked)
     ? asked
     : (days.filter((candidate) => candidate <= today).at(-1) ?? week);

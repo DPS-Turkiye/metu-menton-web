@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ia/button";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
@@ -12,6 +12,7 @@ import type {
   IskurPersonRef,
   IskurRevealPlacement,
 } from "@/interfaces/iskur-onboarding";
+import { ISKUR_MESSAGES_HREF } from "@/lib/iskur-channels";
 import {
   ISKUR_ONBOARDING_HREF,
   type IskurRevealGroup,
@@ -197,8 +198,19 @@ function Reveal({
             <h3 className="type-h4 text-text-primary">{t("channels")}</h3>
             {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
             <p className="type-body-sm text-text-secondary">
-              {t("channelsLater")}
+              {t(provisional ? "channelsLater" : "channelsOpen")}
             </p>
+            {provisional ? null : (
+              <div className="mt-2">
+                <Button
+                  href={ISKUR_MESSAGES_HREF}
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                >
+                  {t("channelsAction")}
+                </Button>
+              </div>
+            )}
           </Card>
         </div>
       </div>

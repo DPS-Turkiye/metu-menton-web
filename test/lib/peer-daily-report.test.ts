@@ -156,6 +156,13 @@ describe("parseReportSearch", () => {
       "2026-11-16",
     );
   });
+
+  it("keeps a weekend day when the screen's week has weekends", () => {
+    const saturdayToo = () => ["2026-11-09", "2026-11-14"];
+    expect(
+      parseReportSearch({ day: "2026-11-14" }, "2026-11-14", saturdayToo).day,
+    ).toBe("2026-11-14");
+  });
 });
 
 describe("Faaliyet ekle", () => {

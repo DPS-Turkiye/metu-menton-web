@@ -9,7 +9,9 @@ import {
 } from "@/interfaces/iskur-weeks";
 import { ISKUR_TASK_MAX_MINUTES, parseMinutes } from "@/lib/iskur-tasks";
 import { withKey, withKeys } from "@/lib/keyed-list";
+import { reportWeekLabel } from "@/lib/peer-daily-report";
 import { PEER_MENTOR_GIVE_HREF } from "@/lib/peer-mentoring";
+import { shiftReportDay } from "@/lib/peer-reports";
 import {
   IskurLineKind,
   IskurLineProblem,
@@ -24,6 +26,20 @@ export const ISKUR_DAY_MINUTES = ISKUR_TASK_MAX_MINUTES;
 export const ISKUR_ENTRY_TITLE_MAX = 200;
 export const ISKUR_WEEK_ENTRIES_MAX = 60;
 export const ISKUR_SUPPORT_DEFAULT_MINUTES = 60;
+
+const ISKUR_WEEK_DAYS = 7;
+
+/** An İŞKUR week is Monday to Sunday: onboarding offers every day as a work day, and the backend takes lines on each. */
+export function iskurWeekDays(weekStart: string): string[] {
+  return Array.from({ length: ISKUR_WEEK_DAYS }, (_, offset) =>
+    shiftReportDay(weekStart, offset),
+  );
+}
+
+/** "23–29 Kasım 2026". */
+export function iskurWeekLabel(weekStart: string, locale: string): string {
+  return reportWeekLabel(weekStart, locale, iskurWeekDays(weekStart));
+}
 
 export const ISKUR_WORK_LOG_HREF = "/student/work-log";
 

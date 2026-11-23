@@ -32,6 +32,12 @@ describe("ModalDialog", () => {
     fireEvent.click(screen.getByRole("dialog").parentElement!);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+  it("scrolls when it is taller than the screen, so its buttons stay reachable", () => {
+    render(<Dialog onClose={vi.fn()} />);
+    expect(screen.getByRole("dialog").parentElement).toHaveClass(
+      "overflow-y-auto",
+    );
+  });
   it("moves focus to the first field and closes on Escape", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

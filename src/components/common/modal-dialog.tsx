@@ -8,8 +8,9 @@ const FOCUSABLE =
 const DEFAULT_PANEL_CLASS =
   "w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl outline-none";
 
+// It scrolls, so a dialog taller than the screen keeps its buttons reachable.
 const DEFAULT_OVERLAY_CLASS =
-  "fixed inset-0 z-[60] grid place-items-center bg-black/35 px-4";
+  "fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-black/35 p-4";
 
 export function ModalDialog({
   children,
