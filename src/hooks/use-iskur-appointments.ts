@@ -19,14 +19,16 @@ const ROLES = [
 ] as const;
 
 /**
- * Randevularım's "Tümü / Mentor olarak / Mentee olarak" filter. Only students who can give peer mentoring (İŞKUR
- * students and peer mentors) have both sides, so everyone else gets the list unfiltered and no filter row. A meeting
- * the student gave links to its report once it has started.
+ * Randevularım's "Tümü / Mentor olarak / Mentee olarak" filter. Only students who are or were peer mentors have both
+ * sides, so everyone else gets the list unfiltered and no filter row. A meeting the student gave links to its report
+ * once it has started.
  */
 export function useIskurAppointmentsRole() {
   const gate = usePeerMentorGate();
   const [role, setRole] = useState(AppointmentRoleFilter.All);
-  const enabled = gate.state !== PeerMentorGateState.Hidden;
+  const enabled =
+    gate.state === PeerMentorGateState.Earned ||
+    gate.state === PeerMentorGateState.Revoked;
   const now = useMinuteClock();
   return {
     enabled,

@@ -47,7 +47,7 @@
       },
       "badgeMissing": {
         "title": "Rozetin görünmüyor mu?",
-        "body": "Eğitimi tamamladıysan rozetin hemen verilir. Görünmüyorsa sayfayı yenile; sorun devam ederse program koordinatörüne yaz."
+        "body": "Rozetin, koordinatörün seni onayladığında verilir. Onaylandığın halde görünmüyorsa sayfayı yenile; sorun devam ederse program koordinatörüne yaz."
       },
       "oneAccount": {
         "title": "Tek hesap",

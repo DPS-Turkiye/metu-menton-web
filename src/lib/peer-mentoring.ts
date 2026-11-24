@@ -90,17 +90,20 @@ export const PEER_REQUEST_MESSAGE_MAX = 1000;
 export function peerMentorGateState({
   holdsMentor,
   iskurParticipant,
+  canTakeTraining,
   gateAward,
 }: {
   holdsMentor: boolean;
   iskurParticipant: boolean;
+  /** The student's program has a training they may take, so they may become a peer mentor there. */
+  canTakeTraining: boolean;
   gateAward: Pick<BadgeAward, "status"> | null;
 }): PeerMentorGateState {
   if (holdsMentor || gateAward?.status === BadgeStatus.Active) {
     return PeerMentorGateState.Earned;
   }
   if (gateAward) return PeerMentorGateState.Revoked;
-  if (iskurParticipant) return PeerMentorGateState.NoBadge;
+  if (iskurParticipant || canTakeTraining) return PeerMentorGateState.NoBadge;
   return PeerMentorGateState.Hidden;
 }
 

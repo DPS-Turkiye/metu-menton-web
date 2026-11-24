@@ -105,6 +105,7 @@ describe("peerMentorGateState", () => {
       peerMentorGateState({
         holdsMentor: false,
         iskurParticipant: true,
+        canTakeTraining: false,
         gateAward: active,
       }),
     ).toBe(PeerMentorGateState.Earned);
@@ -112,6 +113,7 @@ describe("peerMentorGateState", () => {
       peerMentorGateState({
         holdsMentor: true,
         iskurParticipant: false,
+        canTakeTraining: false,
         gateAward: null,
       }),
     ).toBe(PeerMentorGateState.Earned);
@@ -122,6 +124,18 @@ describe("peerMentorGateState", () => {
       peerMentorGateState({
         holdsMentor: false,
         iskurParticipant: true,
+        canTakeTraining: false,
+        gateAward: null,
+      }),
+    ).toBe(PeerMentorGateState.NoBadge);
+  });
+
+  it("says Rozet Yok to any other student who may take their program's training", () => {
+    expect(
+      peerMentorGateState({
+        holdsMentor: false,
+        iskurParticipant: false,
+        canTakeTraining: true,
         gateAward: null,
       }),
     ).toBe(PeerMentorGateState.NoBadge);
@@ -133,6 +147,7 @@ describe("peerMentorGateState", () => {
       peerMentorGateState({
         holdsMentor: false,
         iskurParticipant: true,
+        canTakeTraining: false,
         gateAward: revoked,
       }),
     ).toBe(PeerMentorGateState.Revoked);
@@ -143,6 +158,7 @@ describe("peerMentorGateState", () => {
       peerMentorGateState({
         holdsMentor: false,
         iskurParticipant: false,
+        canTakeTraining: false,
         gateAward: null,
       }),
     ).toBe(PeerMentorGateState.Hidden);

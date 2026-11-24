@@ -23,7 +23,7 @@ import { formatDateTime, initials } from "@/lib/utils";
 import { IskurHomeMode } from "@/types/iskur-student";
 
 /**
- * Ana Sayfa for İŞKUR students and peer mentors: the shared student home with "Mentorluk verdiğim" in the main
+ * Ana Sayfa for İŞKUR students, peer mentors and students who may become one: the shared student home with "Mentorluk verdiğim" in the main
  * column and "Mentor profilin" (or a step towards it) in the side column. Everyone else gets the shared home.
  */
 export function IskurHomeView() {
