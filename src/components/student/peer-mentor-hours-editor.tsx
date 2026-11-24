@@ -176,7 +176,11 @@ function DayRow({
                   width: `${String(place.width)}%`,
                 }}
               >
-                {inside ? `${range.startTime}–${range.endTime}` : null}
+                {inside ? (
+                  <span className="hidden sm:inline">
+                    {range.startTime}–{range.endTime}
+                  </span>
+                ) : null}
               </span>
             );
           })}
@@ -192,41 +196,51 @@ function DayRow({
                     open: duration(offeredMinutes(ranges)),
                   })}
           </p>
+          {/* The chart names the hours on a wide screen; a phone has no room, and a screen reader no chart. */}
+          {ranges.length > 0 ? (
+            <p className="type-caption text-status-info-text sm:sr-only">
+              {ranges
+                .map(({ startTime, endTime }) => `${startTime}–${endTime}`)
+                .join(", ")}
+            </p>
+          ) : null}
           {outside.map((range) => (
             <p key={range.key} className="type-caption text-status-error-text">
               {t("outside", { start: range.startTime, end: range.endTime })}
             </p>
           ))}
         </div>
-        {ranges.length > 0 ? (
-          <Button
-            variant={ButtonVariant.Ghost}
-            size={ButtonSize.Small}
-            aria-label={t("editDay", { day: label })}
-            aria-expanded={open}
-            onClick={() => setEditing((current) => !current)}
-          >
-            <Image alt="" src="/ia/icons/edit.svg" width={16} height={16} />
-          </Button>
-        ) : work > 0 ? (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            className="text-text-accent!"
-            aria-label={t("addDay", { day: label })}
-            onClick={() => {
-              editor.addRange(day, firstOffer(hours.duty, day));
-              setEditing(true);
-            }}
-          >
-            <Plus aria-hidden className="size-4" />
-            {t("add")}
-          </Button>
-        ) : (
-          <span className="grid h-9 w-10 place-items-center rounded-button-sm border border-border-default text-icon-default">
-            <Lock aria-hidden className="size-4" />
-          </span>
-        )}
+        <div className="flex w-[84px] justify-end">
+          {ranges.length > 0 ? (
+            <Button
+              variant={ButtonVariant.Ghost}
+              size={ButtonSize.Small}
+              aria-label={t("editDay", { day: label })}
+              aria-expanded={open}
+              onClick={() => setEditing((current) => !current)}
+            >
+              <Image alt="" src="/ia/icons/edit.svg" width={16} height={16} />
+            </Button>
+          ) : work > 0 ? (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              className="text-text-accent!"
+              aria-label={t("addDay", { day: label })}
+              onClick={() => {
+                editor.addRange(day, firstOffer(hours.duty, day));
+                setEditing(true);
+              }}
+            >
+              <Plus aria-hidden className="size-4" />
+              {t("add")}
+            </Button>
+          ) : (
+            <span className="grid h-9 w-10 place-items-center rounded-button-sm border border-border-default text-icon-default">
+              <Lock aria-hidden className="size-4" />
+            </span>
+          )}
+        </div>
       </div>
       {open ? (
         <div className="flex flex-col gap-2 pl-[52px]">
@@ -440,17 +454,19 @@ function Summary({
       )}
       <hr className="border-border-default" />
       <p className="type-label text-text-primary">{t("length")}</p>
-      <Segmented
-        label={t("length")}
-        selected={length}
-        onSelect={(value) =>
-          editor.setNumber("defaultMeetingDurationMinutes", value)
-        }
-        options={lengths.map((minutes) => ({
-          id: minutes,
-          label: t("minutes", { minutes }),
-        }))}
-      />
+      <div>
+        <Segmented
+          label={t("length")}
+          selected={length}
+          onSelect={(value) =>
+            editor.setNumber("defaultMeetingDurationMinutes", value)
+          }
+          options={lengths.map((minutes) => ({
+            id: minutes,
+            label: t("minutes", { minutes }),
+          }))}
+        />
+      </div>
       <p className="type-label text-text-primary">{t("limit")}</p>
       <div className="flex items-center gap-3">
         <button
