@@ -47,7 +47,7 @@ export function PeerCapacityCard({
       <Button
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
-        className="-ml-3 text-text-accent"
+        className="-ml-3 text-text-accent!"
         onClick={onEdit}
       >
         {t("edit")}

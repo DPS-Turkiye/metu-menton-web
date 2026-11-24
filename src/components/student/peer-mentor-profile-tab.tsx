@@ -68,7 +68,7 @@ function ProfileCard({
   return (
     <Card labelledBy="peer-own-profile" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4 sm:px-5 sm:py-4">
-        <InitialsAvatar initials={person.initials} size="lg" />
+        <InitialsAvatar initials={person.initials} size="profile" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h2 id="peer-own-profile" className="type-h4 text-text-primary">
             {person.fullName}
@@ -105,7 +105,7 @@ function ProfileCard({
         </Button>
         <Button
           variant={ButtonVariant.Tertiary}
-          className="text-text-accent"
+          className="text-text-accent!"
           onClick={() => setPreviewing(true)}
         >
           {t("preview")}

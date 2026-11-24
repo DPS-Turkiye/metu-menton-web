@@ -78,18 +78,24 @@ export function Tag({
   );
 }
 
+const AVATAR_SIZES = {
+  md: "size-10 type-label",
+  profile: "size-14 type-h4",
+  lg: "size-[72px] type-h3",
+} as const;
+
 export function InitialsAvatar({
   initials,
   size = "md",
 }: {
   initials: string;
-  size?: "md" | "lg";
+  size?: keyof typeof AVATAR_SIZES;
 }) {
   return (
     <span
       aria-hidden
       className={`grid shrink-0 place-items-center rounded-full bg-background-selected text-text-accent ${
-        size === "lg" ? "size-[72px] type-h3" : "size-10 type-label"
+        AVATAR_SIZES[size]
       }`}
     >
       {initials}
@@ -165,7 +171,7 @@ export function UnderlineTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className={`flex overflow-x-auto ${segment ? "" : "gap-1 border-b border-border-subtle"}`}
+      className={`flex overflow-x-auto ${segment ? "py-1" : "gap-1 border-b border-border-subtle"}`}
     >
       {tabs.map((tab, index) => {
         const active = tab.id === selected;
