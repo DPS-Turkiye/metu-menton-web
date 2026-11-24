@@ -155,7 +155,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
                           start: event.target.value,
                         })
                       }
-                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px] px-2 py-0 text-center`}
+                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px]! px-2! py-0! text-center`}
                     />
                     <span aria-hidden className="type-label text-text-muted">
                       –
@@ -167,7 +167,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
                       onChange={(event) =>
                         wizard.updateRange(row.key, { end: event.target.value })
                       }
-                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px] px-2 py-0 text-center`}
+                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px]! px-2! py-0! text-center`}
                     />
                     <span className="type-label-sm text-text-secondary">
                       {t("dayHours", {
