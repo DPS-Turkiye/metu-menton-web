@@ -14,6 +14,7 @@ import { StatusTone } from "@/components/ia/status-badge";
 import { StepPills } from "@/components/ia/step-pills";
 import { CATEGORY_ART, ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { PeerMentorDocumentsStep } from "@/components/student/peer-mentor-documents-step";
+import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
 import { PeerMentorPreview } from "@/components/student/peer-mentor-preview";
 import {
   PEER_MENTOR_WIZARD_STEPS,
@@ -56,6 +57,7 @@ type Wizard = ReturnType<typeof usePeerMentorWizard>;
  */
 export function PeerMentorProfileWizard() {
   const t = useTranslations("iaIskur.wizard");
+  const tHours = useTranslations("iaIskur.hours");
   const locale = useLocale();
   const wizard = usePeerMentorWizard();
   const { step } = wizard;
@@ -103,7 +105,10 @@ export function PeerMentorProfileWizard() {
                 {t(`headings.${key}.title`)}
               </h1>
               <p className="type-body-lg text-text-secondary">
-                {t(`headings.${key}.subtitle`)}
+                {step === PeerMentorWizardStep.Availability &&
+                wizard.dutyHours.duty.length > 0
+                  ? tHours("intro")
+                  : t(`headings.${key}.subtitle`)}
               </p>
             </header>
             {step === PeerMentorWizardStep.Categories ? (
@@ -121,7 +126,15 @@ export function PeerMentorProfileWizard() {
             {step === PeerMentorWizardStep.Links ? (
               <DocumentsStep wizard={wizard} />
             ) : null}
-            {step === PeerMentorWizardStep.Availability ? (
+            {step === PeerMentorWizardStep.Availability &&
+            wizard.dutyHours.duty.length > 0 ? (
+              <PeerMentorHoursEditor
+                editor={wizard.availability}
+                hours={wizard.dutyHours}
+              />
+            ) : null}
+            {step === PeerMentorWizardStep.Availability &&
+            wizard.dutyHours.duty.length === 0 ? (
               <Card>
                 <h2 className="mb-4 type-title-card text-text-primary">
                   {t("availability.title")}

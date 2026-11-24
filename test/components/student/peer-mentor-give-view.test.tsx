@@ -24,7 +24,12 @@ import { TrainingState, type StudentTraining } from "@/interfaces/training";
 import { ClientApiError } from "@/lib/client/api";
 import { getMyBadges } from "@/lib/client/badges";
 import { fetchInstitutionRecord } from "@/lib/client/institution";
-import { getAvailabilitySettings } from "@/lib/client/mentor-profile";
+import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
+import { getIskurWeek } from "@/lib/client/iskur-weeks";
+import {
+  getAvailabilitySettings,
+  updateAvailabilitySettings,
+} from "@/lib/client/mentor-profile";
 import { decideMentorRequest } from "@/lib/client/mentor-requests";
 import {
   getPeerMentorProfile,
@@ -38,6 +43,8 @@ import {
   getPeerWeeklyReport,
 } from "@/lib/client/peer-reports";
 import { getStudentTraining } from "@/lib/client/training";
+import { completeForm, onboarding } from "@test/fixtures/iskur-onboarding";
+import { createIskurWeek } from "@test/fixtures/iskur-weeks";
 import { peerDailyReportFixture } from "@test/fixtures/peer-reports";
 import { weeklyReport } from "@test/fixtures/peer-weekly-report";
 import { freezeDate, renderWithQueryClient } from "@test/test-utils";
@@ -80,6 +87,10 @@ vi.mock("@/lib/client/peer-mentoring", () => ({
   getPeerMentoringRequests: vi.fn(),
   createPeerMentoringRequest: vi.fn(),
 }));
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurOnboarding: vi.fn(),
+}));
+vi.mock("@/lib/client/iskur-weeks", () => ({ getIskurWeek: vi.fn() }));
 vi.mock("@/lib/client/student-profile-completion", () => ({
   getProfileCompletionCategories: vi.fn(async () => []),
 }));
@@ -221,6 +232,9 @@ beforeEach(() => {
   session = student([UserRole.Mentee, UserRole.Mentor]);
   vi.mocked(getMyBadges).mockResolvedValue([gateAward(BadgeStatus.Active)]);
   vi.mocked(fetchInstitutionRecord).mockResolvedValue(record(true));
+  vi.mocked(getIskurOnboarding).mockRejectedValue(
+    new ClientApiError("Not found", 404),
+  );
   vi.mocked(getPeerMentorProfile).mockResolvedValue(null);
   vi.mocked(getStudentTraining).mockResolvedValue(
     training(TrainingState.NotAvailable),
@@ -586,6 +600,108 @@ describe("PeerMentorGiveView", () => {
     expect(
       await within(panel).findByRole("button", { name: "Kaydet" }),
     ).toBeVisible();
+  });
+
+  describe("Müsaitlik ve kapasite for an intern", () => {
+    beforeEach(() => {
+      search = new URLSearchParams("tab=availability");
+      vi.mocked(getPeerMentorProfile).mockResolvedValue(publishedProfile());
+      vi.mocked(getIskurOnboarding).mockResolvedValue(
+        onboarding(
+          completeForm({
+            submittedAt: "2026-11-01T10:00:00Z",
+            schedule: [
+              { day: Weekday.Monday, start: "10:00", end: "14:00" },
+              { day: Weekday.Wednesday, start: "09:00", end: "13:00" },
+            ],
+          }),
+        ),
+      );
+      vi.mocked(getIskurWeek).mockResolvedValue(createIskurWeek());
+      vi.mocked(getAvailabilitySettings).mockResolvedValue({
+        rules: [
+          {
+            id: "rule-1",
+            dayOfWeek: Weekday.Monday,
+            startTime: "12:00",
+            endTime: "14:00",
+            slotMinutes: 45,
+          },
+        ],
+        exceptions: [],
+        menteeCapacity: 3,
+        defaultMeetingDurationMinutes: 45,
+        meetingBufferMinutes: 0,
+      });
+      vi.mocked(updateAvailabilitySettings).mockImplementation(
+        async (payload) => ({ ...payload, rules: [] }),
+      );
+    });
+
+    it("fills in the work hours, sums up the week and saves hours inside them", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      expect(
+        await screen.findByText("Görev 4 sa · mentorluk 2 sa"),
+      ).toBeVisible();
+      expect(screen.getAllByText("Görev günü değil")).toHaveLength(3);
+      const summary = screen.getByRole("region", { name: "Haftalık özet" });
+      expect(within(summary).getByText("2 sa")).toBeVisible();
+      expect(
+        await within(summary).findByText(/Mentorluk hedefin/),
+      ).toBeVisible();
+
+      await user.click(
+        screen.getByRole("button", { name: "Çarşamba için saat ekle" }),
+      );
+      expect(within(summary).getByText("4 sa")).toBeVisible();
+      await user.click(within(summary).getByRole("button", { name: "60 dk" }));
+      await user.click(
+        within(summary).getByRole("button", { name: "Üst sınırı azalt" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Kaydet" }));
+      await waitFor(() =>
+        expect(
+          vi.mocked(updateAvailabilitySettings).mock.calls[0]?.[0],
+        ).toMatchObject({
+          menteeCapacity: 2,
+          defaultMeetingDurationMinutes: 60,
+          rules: [
+            { dayOfWeek: Weekday.Monday, startTime: "12:00", endTime: "14:00" },
+            {
+              dayOfWeek: Weekday.Wednesday,
+              startTime: "09:00",
+              endTime: "11:00",
+            },
+          ],
+        }),
+      );
+    });
+
+    it("refuses hours outside the work hours", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Pazartesi saatlerini düzenle",
+        }),
+      );
+      const end = screen.getByLabelText("Pazartesi 1. aralık bitiş");
+      await user.clear(end);
+      await user.type(end, "15:00");
+      expect(
+        screen.getByText("12:00–15:00 görev saatlerinin dışında."),
+      ).toBeVisible();
+      await user.click(screen.getByRole("button", { name: "Kaydet" }));
+      expect(
+        await screen.findByText(
+          "Mentorluk saatlerin görev saatlerinin içinde olmalı: Pazartesi.",
+        ),
+      ).toBeVisible();
+      expect(updateAvailabilitySettings).not.toHaveBeenCalled();
+    });
   });
 
   it("falls back to Talepler for an unknown tab", async () => {

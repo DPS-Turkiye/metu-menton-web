@@ -16,11 +16,13 @@ import {
   UnderlineTabs,
 } from "@/components/student/iskur-ui";
 import { PeerCapacityCard } from "@/components/student/peer-capacity-card";
+import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
 import { PeerMentorProfileTab } from "@/components/student/peer-mentor-profile-tab";
 import { PeerMentorRequestsTab } from "@/components/student/peer-mentor-requests-tab";
 import { PeerRequestCard } from "@/components/student/peer-request-card";
 import { ActivityReportView } from "@/components/student/reports/activity-report-view";
 import { ReportDayPill } from "@/components/student/reports/report-day-pill";
+import { useMentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import { useAvailabilitySettingsForm } from "@/hooks/use-mentor-profile";
 import { usePeerMenteesTab } from "@/hooks/use-peer-mentees-tab";
 import {
@@ -405,16 +407,33 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
 
 function AvailabilityPanel() {
   const t = useTranslations("iaIskur.give.availability");
-  const availability = useAvailabilitySettingsForm(() => undefined);
+  const tHours = useTranslations("iaIskur.hours");
+  const hours = useMentorDutyHours();
+  const availability = useAvailabilitySettingsForm(
+    () => undefined,
+    hours.check,
+  );
+  const save = (
+    <Button
+      disabled={!availability.draft || availability.isSaving}
+      onClick={() => void availability.save()}
+    >
+      {availability.isSaving ? t("saving") : t("save")}
+    </Button>
+  );
+  if (hours.duty.length === 0) {
+    return (
+      <Card className="space-y-4">
+        <WeeklyAvailabilityEditor editor={availability} />
+        {save}
+      </Card>
+    );
+  }
   return (
-    <Card className="space-y-4">
-      <WeeklyAvailabilityEditor editor={availability} />
-      <Button
-        disabled={!availability.draft || availability.isSaving}
-        onClick={() => void availability.save()}
-      >
-        {availability.isSaving ? t("saving") : t("save")}
-      </Button>
-    </Card>
+    <div className="flex flex-col gap-6">
+      <p className="type-body text-text-secondary">{tHours("intro")}</p>
+      <PeerMentorHoursEditor editor={availability} hours={hours} />
+      <div>{save}</div>
+    </div>
   );
 }

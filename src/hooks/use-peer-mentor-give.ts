@@ -11,6 +11,7 @@ import {
 } from "@/components/providers/session-provider";
 import { useMyBadges } from "@/hooks/use-badges";
 import { useInstitutionRecord } from "@/hooks/use-institution-record";
+import { useMentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import {
   MENTOR_AVAILABILITY_QUERY_KEY,
   MENTOR_AVAILABILITY_SETTINGS_QUERY_KEY,
@@ -564,6 +565,7 @@ export function usePeerMentorWizard() {
         : (savedAvailability.data ?? DEFAULT_AVAILABILITY),
     [availabilityDraft, savedAvailability.data],
   );
+  const dutyHours = useMentorDutyHours();
   const availability = useWeeklyAvailabilityForm(
     {
       settings: availabilitySettings,
@@ -574,6 +576,7 @@ export function usePeerMentorWizard() {
       },
       isSaving: false,
       numberFields: ["menteeCapacity", "defaultMeetingDurationMinutes"],
+      check: dutyHours.check,
       quiet: true,
     },
     () => setStep(PeerMentorWizardStep.Preview),
@@ -707,6 +710,7 @@ export function usePeerMentorWizard() {
     ),
     previewSubtopics: chosenSubtopics(categories, draft.subtopics),
     availability,
+    dutyHours,
     availabilitySettings,
     weeklyHours: weeklyHours(availabilitySettings.rules),
     helpWithLength: draft.helpWith.trim().length,

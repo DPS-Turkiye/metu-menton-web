@@ -23,6 +23,7 @@ import {
   toAvailabilityPayload,
   type AvailabilityDraft,
   type AvailabilityNumberField,
+  type AvailabilityRange,
   type ExceptionInput,
 } from "@/lib/mentor-availability";
 import { errorMessage } from "@/lib/utils";
@@ -43,6 +44,8 @@ export type WeeklyAvailabilitySource = {
   numberFields?: readonly AvailabilityNumberField[];
   /** An owner whose number fields mean something else (a student limit, say) names them itself. */
   numberFieldLabels?: Partial<Record<AvailabilityNumberField, string>>;
+  /** One more rule of the owner's, checked before a save: what is wrong, in the words the owner reads, or null. */
+  check?: (draft: AvailabilityDraft) => string | null;
   /** A step that only keeps a draft (the peer-mentor wizard) says nothing on save; the owner confirms later. */
   quiet?: boolean;
 };
@@ -103,7 +106,10 @@ export function useWeeklyAvailabilityForm(
     );
   };
 
-  const addRange = (day: Weekday) => {
+  const addRange = (
+    day: Weekday,
+    first: Pick<AvailabilityRange, "startTime" | "endTime"> | null = null,
+  ) => {
     const key = newKey();
     change((current) => ({
       ...current,
@@ -112,7 +118,7 @@ export function useWeeklyAvailabilityForm(
         {
           key,
           dayOfWeek: day,
-          ...nextRangeAfter(rangesForDay(current, day)),
+          ...(first ?? nextRangeAfter(rangesForDay(current, day))),
           slotMinutes: null,
         },
       ],
@@ -194,10 +200,13 @@ export function useWeeklyAvailabilityForm(
 
   const save = async () => {
     if (!draft) return;
-    const problem = availabilityDraftError(draft, {
-      capacityRequired: settings?.menteeCapacity != null,
-      fields: numberFields,
-    });
+    const problem =
+      availabilityDraftError(draft, {
+        capacityRequired: settings?.menteeCapacity != null,
+        fields: numberFields,
+      }) ??
+      source.check?.(draft) ??
+      null;
     if (problem) {
       setError(problem);
       return;

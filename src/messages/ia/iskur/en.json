@@ -540,5 +540,46 @@
       "asMentor": "Meetings where you give mentoring",
       "asMentee": "Meetings where you get mentoring or an Office Hours slot"
     }
+  },
+  "hours": {
+    "loading": "Loading…",
+    "legend": {
+      "duty": "Your work hours",
+      "open": "Open for mentoring",
+      "conflict": "Conflict"
+    },
+    "span": "Showing {start} – {end}",
+    "intro": "Mentoring meetings take place inside your İŞKUR work hours, which were filled in for you.",
+    "notDuty": "Not a work day",
+    "dutyOnly": "Work {work} · no mentoring",
+    "dutyAndOpen": "Work {work} · mentoring {open}",
+    "outside": "{start}–{end} is outside your work hours.",
+    "outsideError": "Your mentoring hours must be inside your work hours: {day}.",
+    "editDay": "Edit {day} hours",
+    "addDay": "Add hours on {day}",
+    "add": "Add",
+    "addRange": "Add range",
+    "range": "{day} range {number}",
+    "rangeStart": "{range} start",
+    "rangeEnd": "{range} end",
+    "removeRange": "Remove {range}",
+    "protected": "Existing meetings stay: narrowing your availability does not cancel a confirmed meeting.",
+    "closed": {
+      "title": "Closed days",
+      "add": "Add date"
+    },
+    "summary": {
+      "title": "Weekly summary",
+      "open": "open for meetings",
+      "target": "Your mentoring target is {target}: the rest is for preparation, reports and follow-up.",
+      "length": "Meeting length",
+      "minutes": "{minutes} min",
+      "limit": "Active mentee limit",
+      "noLimit": "None",
+      "decrease": "Lower the limit",
+      "increase": "Raise the limit",
+      "suggested": "Suggested: at most 3",
+      "limitHint": "When it fills up, Discover says “Not taking new mentees right now” and no new request comes."
+    }
   }
 }

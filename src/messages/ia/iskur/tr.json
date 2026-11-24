@@ -540,5 +540,46 @@
       "asMentor": "Mentorluk verdiğin görüşmeler",
       "asMentee": "Mentorluk ya da Office Hours randevusu aldığın görüşmeler"
     }
+  },
+  "hours": {
+    "loading": "Yükleniyor…",
+    "legend": {
+      "duty": "Görev saatin",
+      "open": "Mentorluğa açık",
+      "conflict": "Çakışma"
+    },
+    "span": "{start} – {end} arası gösteriliyor",
+    "intro": "Mentorluk görüşmeleri İŞKUR görev saatlerinin içinde yapılır. Görev saatlerin otomatik getirildi.",
+    "notDuty": "Görev günü değil",
+    "dutyOnly": "Görev {work} · mentorluk yok",
+    "dutyAndOpen": "Görev {work} · mentorluk {open}",
+    "outside": "{start}–{end} görev saatlerinin dışında.",
+    "outsideError": "Mentorluk saatlerin görev saatlerinin içinde olmalı: {day}.",
+    "editDay": "{day} saatlerini düzenle",
+    "addDay": "{day} için saat ekle",
+    "add": "Ekle",
+    "addRange": "Aralık ekle",
+    "range": "{day} {number}. aralık",
+    "rangeStart": "{range} başlangıç",
+    "rangeEnd": "{range} bitiş",
+    "removeRange": "{range} kaldır",
+    "protected": "Mevcut randevular korunur: müsaitliği daraltsan da onaylı görüşmeler iptal edilmez.",
+    "closed": {
+      "title": "Kapalı günler",
+      "add": "Tarih ekle"
+    },
+    "summary": {
+      "title": "Haftalık özet",
+      "open": "görüşmeye açık",
+      "target": "Mentorluk hedefin {target}: kalan süre hazırlık, rapor ve takip için ayrılır.",
+      "length": "Görüşme süresi",
+      "minutes": "{minutes} dk",
+      "limit": "Aktif mentee üst sınırı",
+      "noLimit": "Yok",
+      "decrease": "Üst sınırı azalt",
+      "increase": "Üst sınırı artır",
+      "suggested": "Önerilen en fazla 3",
+      "limitHint": "Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür ve yeni talep gelmez."
+    }
   }
 }

@@ -29,6 +29,7 @@ import {
   updateMentorProfile,
 } from "@/lib/client/mentor-profile";
 import { withKey, withKeys, withoutKeys, type Keyed } from "@/lib/keyed-list";
+import type { AvailabilityDraft } from "@/lib/mentor-availability";
 import {
   applyMentorCv,
   fillStudies,
@@ -568,7 +569,10 @@ export function useAvailabilitySlotForm() {
 }
 
 /** The "Müsaitliği düzenle" modal: the weekly availability editor on the mentor's own settings. */
-export function useAvailabilitySettingsForm(onSaved: () => void) {
+export function useAvailabilitySettingsForm(
+  onSaved: () => void,
+  check?: (draft: AvailabilityDraft) => string | null,
+) {
   const settingsQuery = useMentorAvailabilitySettings();
   const updateSettings = useUpdateMentorAvailabilitySettings();
   return useWeeklyAvailabilityForm(
@@ -577,6 +581,7 @@ export function useAvailabilitySettingsForm(onSaved: () => void) {
       loadFailed: Boolean(settingsQuery.error),
       save: updateSettings.mutateAsync,
       isSaving: updateSettings.isPending,
+      ...(check ? { check } : {}),
     },
     onSaved,
   );
