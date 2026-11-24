@@ -135,7 +135,11 @@
       "proposedBadge": "Alternatif Saat Önerildi",
       "askedBadge": "Soru soruldu",
       "availabilityTitle": "Müsaitliğim",
-      "availabilityEmpty": "Henüz müsait saat yok."
+      "availabilityEmpty": "Henüz müsait saat yok.",
+      "summary": {
+        "title": "{month} özeti",
+        "body": "{confirmed, plural, =0 {onaylı randevu yok} other {# onaylı randevu}} · {waiting, plural, =0 {yanıt bekleyen talep yok} other {# yanıt bekleyen talep}}"
+      }
     }
   },
   "requestDrawer": {

@@ -7728,7 +7728,7 @@
       "title": "How many days a week can you come?",
       "intro": "In İŞKUR you choose days, not hours. Pick 1, 2 or 3 days a week around your timetable.",
       "countTitle": "Days per week",
-      "option": "{days} days",
+      "option": "{days}-day equivalent",
       "optionHours": "{hours} hours / week",
       "leaderHint": "To be a team leader you need at least 2 days; leaders run the weekly review and team meeting.",
       "hoursTitle": "Which days, which hours?",
@@ -7773,7 +7773,17 @@
       "priorHelp": "A participant can use at most {max} actual days across all programs.",
       "remaining": "Days left: {days}",
       "enough": "Enough for this term (about {needed} days needed)",
-      "notEnough": "May not be enough for this term (about {needed} days needed)"
+      "notEnough": "May not be enough for this term (about {needed} days needed)",
+      "summary": {
+        "title": "Weekly summary",
+        "of": "/ {target} h",
+        "matches": "The total matches · {days}-day equivalent spread over {calendarDays} calendar days",
+        "splitTitle": "How the week divides",
+        "mentoring": "Peer mentoring",
+        "team": "Team work",
+        "hours": "{hours} h",
+        "note": "Mentoring time covers preparation, meetings, reports and follow-up; it need not all be meetings. The share depends on the days (1 day: 2 h · 2 days: 4 h · 3 days: 6 h)."
+      }
     },
     "units": {
       "title": "Which unit, which skills?",
@@ -7805,7 +7815,22 @@
         "PLANNER": "Planner",
         "EXECUTOR": "Executor",
         "CONNECTOR": "Connector"
-      }
+      },
+      "about": {
+        "creative": "Teknokent's visual communication, digital content and technology projects.",
+        "venture": "Researching the startup ecosystem and supporting Teknokent's programs.",
+        "community": "Sports, healthy living, culture and arts events.",
+        "impact": "Sustainability and social benefit projects, event organization."
+      },
+      "examples": "Example work",
+      "exampleItems": {
+        "social": "Social media content",
+        "video": "Video and podcast production",
+        "posters": "Poster and presentation design",
+        "web": "Website and UX improvement ideas"
+      },
+      "showExamples": "See example work",
+      "hideExamples": "Hide example work"
     },
     "documents": {
       "title": "Your documents",
@@ -8243,6 +8268,12 @@
     },
     "card": {
       "title": "Your channels"
+    },
+    "how": {
+      "title": "How do channels work?",
+      "open": "Your channels open once your team placement is final.",
+      "announcements": "Only authorized coordinators post general announcements.",
+      "time": "Messages do not count as work time."
     }
   },
   "studentSignup": {

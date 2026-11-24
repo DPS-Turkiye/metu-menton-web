@@ -32,7 +32,32 @@ export function AppointmentsRail({
         <AwaitingCard calendar={calendar} />
       ) : null}
       <AvailabilityCard calendar={calendar} />
+      <MonthSummary calendar={calendar} />
     </div>
+  );
+}
+
+function MonthSummary({
+  calendar,
+}: {
+  calendar: AcademicianAppointmentsCalendar;
+}) {
+  const t = useTranslations("iaAcademician.appointments.rail.summary");
+  const titleId = useId();
+  const summary = calendar.monthSummary;
+  if (!summary) return null;
+  return (
+    <section aria-labelledby={titleId} className="flex flex-col gap-1.5">
+      <h2 id={titleId} className="type-label text-text-primary">
+        {t("title", { month: summary.month })}
+      </h2>
+      <p className="type-body-sm text-text-secondary">
+        {t("body", {
+          confirmed: summary.confirmed,
+          waiting: summary.waiting,
+        })}
+      </p>
+    </section>
   );
 }
 

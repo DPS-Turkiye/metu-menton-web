@@ -104,7 +104,11 @@
       "proposedTime": "Önerilen saat",
       "nothingInView": "Bu aralıkta randevun yok.",
       "emptyDay": "Bu gün randevun yok.",
-      "now": "Şu an: {time}"
+      "now": "Şu an: {time}",
+      "summary": {
+        "title": "{month} özeti",
+        "body": "{meetings, plural, =0 {onaylı randevu yok} other {# onaylı randevu}} · {done} tamamlandı · {waiting, plural, =0 {yanıt bekleyen talep yok} other {# yanıt bekleyen talep}}"
+      }
     },
     "colors": {
       "title": "Renkler",

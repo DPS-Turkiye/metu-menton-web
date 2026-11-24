@@ -114,6 +114,11 @@ export function formatWeekdayDate(date: Date, locale: string) {
   }).format(date);
 }
 
+/** "Kasım" / "November". */
+export function monthName(day: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(day);
+}
+
 /** "Ekim 2026" / "October 2026" */
 export function monthLabel(date: Date, locale: string) {
   return new Intl.DateTimeFormat(locale, {

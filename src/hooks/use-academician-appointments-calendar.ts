@@ -21,6 +21,7 @@ import {
   gridHours,
   isForeground,
   monthCells,
+  monthSummary,
   nowOffset,
   parseAppointmentsSearch,
   pendingRequests,
@@ -41,6 +42,7 @@ import {
 } from "@/lib/academician-office-hours";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
 import { adviseeIds } from "@/lib/academician-students";
+import { monthName } from "@/lib/calendar";
 import {
   getAcademicianAppointments,
   getAcademicianAvailability,
@@ -371,6 +373,14 @@ export function useAcademicianAppointmentsCalendar(
           update({ view: AppointmentsCalendarView.Day, date: cell.key });
         },
       })),
+      /** Null outside the month view. */
+      monthSummary:
+        search.view === AppointmentsCalendarView.Month
+          ? {
+              month: monthName(anchor, locale),
+              ...monthSummary(source, anchor),
+            }
+          : null,
       rail: {
         pending: pending.map(toRailRequest),
         awaiting: awaitingStudent(source.requests).map((request) => {
