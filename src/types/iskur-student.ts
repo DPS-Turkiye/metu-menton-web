@@ -27,6 +27,14 @@ export enum PeerCapacityNote {
   Full = "full",
 }
 
+/** "Rozet durumun" before the badge (Figma 6.2). */
+export enum PeerBadgeProgress {
+  Todo = "todo",
+  /** The student said they finished; the coordinator decides. */
+  Pending = "pending",
+  Retake = "retake",
+}
+
 /** "Mentor olma adımları", in order; the Mentorluk Ver screens mark where the student is. */
 export enum PeerMentorJourneyStep {
   EarnBadge = "earnBadge",

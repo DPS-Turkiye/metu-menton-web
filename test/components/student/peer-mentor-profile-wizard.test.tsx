@@ -250,6 +250,9 @@ describe("PeerMentorProfileWizard", () => {
     expect(screen.getByText("https://linkedin.com/in/zeynep")).toBeVisible();
     expect(savePeerMentorProfile).not.toHaveBeenCalled();
 
+    const check = screen.getByRole("region", { name: "Yayın kontrolü" });
+    expect(within(check).getByText("Eğitim rozeti doğrulandı")).toBeVisible();
+    expect(within(check).getByText("Haftalık saatler eklendi")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Profili Yayınla" }));
 
     await waitFor(() =>

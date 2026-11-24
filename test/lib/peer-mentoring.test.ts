@@ -11,6 +11,7 @@ import {
   PeerTopicLevel,
 } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
+import { TrainingState } from "@/interfaces/training";
 import {
   canWithdrawPeerRequest,
   chosenSubtopics,
@@ -27,6 +28,7 @@ import {
   offeredSubTopics,
   PEER_MENTORSHIPS_HREF,
   PEER_REQUEST_STATUS_TONE,
+  peerBadgeProgress,
   peerMentorCapacity,
   peerMentorGateState,
   peerMentoringSide,
@@ -46,6 +48,7 @@ import trIskur from "@/messages/ia/iskur/tr.json";
 import {
   ExperienceCardProblem,
   IskurHomeMode,
+  PeerBadgeProgress,
   PeerCapacityNote,
   PeerRequestAvailability,
   PeerTakeTab,
@@ -391,6 +394,18 @@ describe("peerRequestAvailability", () => {
     expect(peerRequestAvailability(true, paused)).toBe(
       PeerRequestAvailability.Requested,
     );
+  });
+});
+
+describe("peerBadgeProgress", () => {
+  it.each([
+    [undefined, PeerBadgeProgress.Todo],
+    [TrainingState.PrismTodo, PeerBadgeProgress.Todo],
+    [TrainingState.NotAvailable, PeerBadgeProgress.Todo],
+    [TrainingState.PrismPending, PeerBadgeProgress.Pending],
+    [TrainingState.PrismRetake, PeerBadgeProgress.Retake],
+  ])("reads %s as %s", (state, progress) => {
+    expect(peerBadgeProgress(state)).toBe(progress);
   });
 });
 

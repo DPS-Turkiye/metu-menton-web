@@ -1,5 +1,6 @@
 "use client";
 
+import { ExternalLink, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -8,8 +9,8 @@ import { QueryNotice } from "@/components/admin/admin-ui";
 import { WeeklyAvailabilityEditor } from "@/components/availability/weekly-availability-editor";
 import { Button, ButtonSize } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
+import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import {
-  InfoCard,
   JourneySteps,
   TabLook,
   TabPanel,
@@ -37,7 +38,11 @@ import {
   type PeerMentorProfile,
 } from "@/interfaces/peer-mentoring";
 import { PEER_MENTOR_WIZARD_HREF } from "@/lib/peer-mentoring";
-import { PeerGiveTab, PeerMentorJourneyStep } from "@/types/iskur-student";
+import {
+  PeerBadgeProgress,
+  PeerGiveTab,
+  PeerMentorJourneyStep,
+} from "@/types/iskur-student";
 
 const TABS_ID = "peer-give";
 const JOURNEY = [
@@ -59,39 +64,7 @@ export function PeerMentorGiveView() {
       </p>
     );
   }
-  if (gate.state === PeerMentorGateState.NoBadge) {
-    return (
-      <div className="space-y-5">
-        <Journey
-          current={PeerMentorJourneyStep.EarnBadge}
-          title={t("noBadge.title")}
-          body={t("noBadge.body")}
-        >
-          <TrainingEntry />
-        </Journey>
-        <div className="grid gap-5 md:grid-cols-3">
-          <InfoCard
-            icon="/ia/iskur/user.svg"
-            title={t("cards.keepGetting.title")}
-          >
-            {t("cards.keepGetting.body")}
-          </InfoCard>
-          <InfoCard
-            icon="/ia/iskur/info.svg"
-            title={t("cards.badgeMissing.title")}
-          >
-            {t("cards.badgeMissing.body")}
-          </InfoCard>
-          <InfoCard
-            icon="/ia/iskur/lock.svg"
-            title={t("cards.oneAccount.title")}
-          >
-            {t("cards.oneAccount.body")}
-          </InfoCard>
-        </div>
-      </div>
-    );
-  }
+  if (gate.state === PeerMentorGateState.NoBadge) return <NoBadgeView />;
   if (gate.state === PeerMentorGateState.Revoked) {
     return (
       <Featured
@@ -112,27 +85,159 @@ export function PeerMentorGiveView() {
   return null;
 }
 
-function TrainingEntry() {
+const BADGE_STATUSES = [
+  {
+    key: "todo",
+    tone: StatusTone.Neutral,
+    progress: [PeerBadgeProgress.Todo, PeerBadgeProgress.Retake],
+  },
+  {
+    key: "pending",
+    tone: StatusTone.Warning,
+    progress: [PeerBadgeProgress.Pending],
+  },
+  { key: "verified", tone: StatusTone.Success, progress: [] },
+] as const satisfies readonly {
+  key: string;
+  tone: StatusTone;
+  progress: readonly PeerBadgeProgress[];
+}[];
+
+/** Rozet yok (Figma 6.2): the training, the steps to becoming a mentor and where the badge stands. */
+function NoBadgeView() {
   const t = useTranslations("iaIskur.give.noBadge");
   const entry = usePeerMentorTrainingEntry();
-  if (entry.href) {
-    return (
-      <Button href={entry.href} size={ButtonSize.Large}>
-        {t("training")}
-      </Button>
-    );
-  }
+  const current =
+    entry.progress === PeerBadgeProgress.Pending
+      ? PeerMentorJourneyStep.BadgeVerified
+      : PeerMentorJourneyStep.EarnBadge;
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button size={ButtonSize.Large} disabled>
-        {t("training")}
-      </Button>
-      {entry.reason ? (
-        <p className="type-caption text-text-muted">
-          {t(`trainingReason.${entry.reason}`)}
-        </p>
-      ) : null}
+    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+      <div className="flex min-w-0 flex-1 flex-col gap-6">
+        <div className="flex flex-col items-start gap-3">
+          <h2 className="type-h2 text-text-primary">{t("title")}</h2>
+          <p className="type-body-lg text-text-secondary">{t("body")}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {entry.href ? (
+              <Button href={entry.href} size={ButtonSize.Large}>
+                <ExternalLink aria-hidden className="size-5" />
+                {t("training")}
+              </Button>
+            ) : (
+              <Button size={ButtonSize.Large} disabled>
+                {t("training")}
+              </Button>
+            )}
+            <p className="type-body-sm text-text-muted">
+              {entry.reason
+                ? t(`trainingReason.${entry.reason}`)
+                : t("trainingHint")}
+            </p>
+          </div>
+        </div>
+        <ol
+          aria-label={t("stepsLabel")}
+          className="divide-y divide-border-default rounded-card border border-border-default bg-background-surface px-6 py-2"
+        >
+          {JOURNEY.map((step, index) => {
+            const active = step === current;
+            return (
+              <li
+                key={step}
+                aria-current={active ? "step" : undefined}
+                className="flex items-center gap-3.5 py-3"
+              >
+                <span
+                  aria-hidden
+                  className={`grid size-6 shrink-0 place-items-center rounded-full type-label-sm ${
+                    active
+                      ? "bg-background-selected text-text-accent"
+                      : "bg-background-muted text-text-secondary"
+                  }`}
+                >
+                  {index + 1}
+                </span>
+                <span className="flex flex-col">
+                  <span
+                    className={`type-label-lg ${active ? "text-text-primary" : "text-text-secondary"}`}
+                  >
+                    {t(`steps.${step}.title`)}
+                  </span>
+                  <span
+                    className={`type-body-sm ${active ? "text-text-accent" : "text-text-muted"}`}
+                  >
+                    {active ? t("youAreHere") : t(`steps.${step}.hint`)}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <aside className="flex w-full flex-col gap-5 lg:w-[380px] lg:shrink-0">
+        <BadgeStatus progress={entry.progress} />
+        <ul className="flex flex-col gap-3">
+          {(["badgeMissing", "oneAccount", "keepGetting"] as const).map(
+            (note) => (
+              <li
+                key={note}
+                className="flex items-start gap-2.5 type-body-sm text-text-muted"
+              >
+                <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
+                {t(`notes.${note}`)}
+              </li>
+            ),
+          )}
+        </ul>
+      </aside>
     </div>
+  );
+}
+
+function BadgeStatus({ progress }: { progress: PeerBadgeProgress }) {
+  const t = useTranslations("iaIskur.give.noBadge.status");
+  return (
+    <Card
+      compact
+      labelledBy="peer-badge-status"
+      className="flex flex-col gap-4"
+    >
+      <h3 id="peer-badge-status" className="type-label-lg text-text-primary">
+        {t("title")}
+      </h3>
+      <ul className="flex flex-col gap-3">
+        {BADGE_STATUSES.map((status) => {
+          const current = status.progress.some((step) => step === progress);
+          return (
+            <li
+              key={status.key}
+              aria-current={current ? "true" : undefined}
+              className={`flex flex-col gap-2 rounded-xl border px-3 py-2.5 ${
+                current
+                  ? "border-border-control bg-background-subtle"
+                  : "border-transparent"
+              }`}
+            >
+              <span className="flex flex-wrap items-center gap-2">
+                <StatusBadge tone={status.tone}>
+                  {t(`${status.key}.label`)}
+                </StatusBadge>
+                {current ? (
+                  <span className="type-caption text-text-accent">
+                    {t("current")}
+                  </span>
+                ) : null}
+              </span>
+              <span className="type-body-sm text-text-muted">
+                {current && progress === PeerBadgeProgress.Retake
+                  ? t("todo.retake")
+                  : t(`${status.key}.body`)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }
 

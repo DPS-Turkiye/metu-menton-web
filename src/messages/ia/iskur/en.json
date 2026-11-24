@@ -18,6 +18,49 @@
         "notAvailable": "Your program's training isn't published yet.",
         "unavailable": "The training can't be opened right now.",
         "internsOnly": "Peer mentoring is open to İŞKUR interns."
+      },
+      "trainingHint": "Opens in Prism",
+      "stepsLabel": "Steps to becoming a mentor",
+      "youAreHere": "You are here",
+      "steps": {
+        "earnBadge": {
+          "title": "Complete the training",
+          "hint": "The training and test in Prism"
+        },
+        "badgeVerified": {
+          "title": "Badge approval",
+          "hint": "Your coordinator reviews your result"
+        },
+        "createProfile": {
+          "title": "Create your mentor profile",
+          "hint": "Topics, experience, availability · 7 short steps"
+        },
+        "published": {
+          "title": "Profile published",
+          "hint": "Students can discover you"
+        }
+      },
+      "status": {
+        "title": "Your badge status",
+        "current": "current status",
+        "todo": {
+          "label": "Training not completed",
+          "body": "When you finish the training, press “I completed the Prism training”.",
+          "retake": "You need to take the test again. Say so on the training page when you are done."
+        },
+        "pending": {
+          "label": "Waiting for approval",
+          "body": "You said you completed the training; your coordinator is reviewing your result."
+        },
+        "verified": {
+          "label": "Verified",
+          "body": "You can create your mentor profile."
+        }
+      },
+      "notes": {
+        "badgeMissing": "The badge is awarded once your coordinator approves you. If you were approved and it isn't showing, refresh the page; if the problem persists, write to your program coordinator.",
+        "oneAccount": "Becoming a mentor doesn't create a separate account; your mentee and mentor activity stay in the same account.",
+        "keepGetting": "On the Get mentoring tab you can keep discovering mentors and following your requests."
       }
     },
     "journey": {
@@ -38,20 +81,6 @@
       "published": {
         "title": "Profile published",
         "hint": "Students can discover you"
-      }
-    },
-    "cards": {
-      "keepGetting": {
-        "title": "Keep getting mentoring",
-        "body": "On the Get mentoring tab you can keep discovering mentors and following your requests."
-      },
-      "badgeMissing": {
-        "title": "Badge not showing?",
-        "body": "The badge is awarded once your coordinator approves you. If you were approved and it isn't showing, refresh the page; if the problem persists, write to your program coordinator."
-      },
-      "oneAccount": {
-        "title": "One account",
-        "body": "Becoming a mentor doesn't create a separate account; your mentee and mentor activity stay in the same account."
       }
     },
     "revoked": {
@@ -339,7 +368,17 @@
       "links": "Your links",
       "linkShown": "Shown on my profile",
       "noLinks": "No links added",
-      "experience": "Relevant experience"
+      "experience": "Relevant experience",
+      "check": {
+        "title": "Before you publish",
+        "badge": "Training badge verified",
+        "documents": "Required documents uploaded",
+        "documentsMissing": "{missing, plural, one {# required document missing} other {# required documents missing}}",
+        "hours": "Weekly hours added",
+        "hoursInside": "Availability fits your work hours",
+        "hoursMissing": "You added no weekly hours; students cannot book you",
+        "note": "Once published, students can discover you. Documents uploaded for verification are not shown in the preview."
+      }
     },
     "back": "Back",
     "next": "Continue",

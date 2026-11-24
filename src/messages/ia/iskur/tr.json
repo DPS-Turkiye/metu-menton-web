@@ -10,7 +10,7 @@
   "give": {
     "loading": "Yükleniyor…",
     "noBadge": {
-      "title": "Mentor olmak için eğitimi tamamla",
+      "title": "Mentor olmak için önce eğitimi tamamla",
       "body": "Akran mentoru olabilmek için programının Prism'deki eğitimini ve testini tamamlaman, ardından koordinatörünün seni onaylaması gerekiyor. Onaylandığında bu alan otomatik açılır.",
       "training": "Eğitime Git",
       "trainingReason": {
@@ -18,6 +18,49 @@
         "notAvailable": "Programının eğitimi henüz yayında değil.",
         "unavailable": "Eğitim şu an açılamıyor.",
         "internsOnly": "Akran mentorluğu İŞKUR stajyerlerine açıktır."
+      },
+      "trainingHint": "Prism'de açılır",
+      "stepsLabel": "Mentor olma adımları",
+      "youAreHere": "Şu an buradasın",
+      "steps": {
+        "earnBadge": {
+          "title": "Eğitimi tamamla",
+          "hint": "Prism'deki eğitim ve test"
+        },
+        "badgeVerified": {
+          "title": "Rozet onayı",
+          "hint": "Sonucunu koordinatörün değerlendirir"
+        },
+        "createProfile": {
+          "title": "Mentor profilini oluştur",
+          "hint": "Konular, deneyim, müsaitlik · 7 kısa adım"
+        },
+        "published": {
+          "title": "Profil yayında",
+          "hint": "Öğrenciler seni keşfedebilir"
+        }
+      },
+      "status": {
+        "title": "Rozet durumun",
+        "current": "mevcut durum",
+        "todo": {
+          "label": "Eğitim tamamlanmadı",
+          "body": "Eğitimi bitirince “Prism eğitimini tamamladım” düğmesine bas.",
+          "retake": "Testi tekrar alman gerekiyor. Bitirince eğitim sayfasından haber ver."
+        },
+        "pending": {
+          "label": "Onay bekliyor",
+          "body": "Eğitimi tamamladığını bildirdin; koordinatörün sonucunu inceliyor."
+        },
+        "verified": {
+          "label": "Doğrulandı",
+          "body": "Mentor profilini oluşturabilirsin."
+        }
+      },
+      "notes": {
+        "badgeMissing": "Rozetin, koordinatörün seni onayladığında verilir. Onaylandığın halde görünmüyorsa sayfayı yenile; sorun devam ederse program koordinatörüne yaz.",
+        "oneAccount": "Mentor olduğunda ayrı bir hesap açılmaz; mentee ve mentor etkinliklerin aynı hesapta durur.",
+        "keepGetting": "Mentorluk al sekmesinde mentor keşfetmeye ve taleplerini takip etmeye devam edebilirsin."
       }
     },
     "journey": {
@@ -38,20 +81,6 @@
       "published": {
         "title": "Profil Yayında",
         "hint": "Öğrenciler seni keşfedebilir"
-      }
-    },
-    "cards": {
-      "keepGetting": {
-        "title": "Mentorluk almaya devam et",
-        "body": "Mentorluk Al sekmesinde mentor keşfetmeye ve taleplerini takip etmeye devam edebilirsin."
-      },
-      "badgeMissing": {
-        "title": "Rozetin görünmüyor mu?",
-        "body": "Rozetin, koordinatörün seni onayladığında verilir. Onaylandığın halde görünmüyorsa sayfayı yenile; sorun devam ederse program koordinatörüne yaz."
-      },
-      "oneAccount": {
-        "title": "Tek hesap",
-        "body": "Mentor olduğunda ayrı bir hesap açılmaz; mentee ve mentor etkinliklerin aynı hesapta durur."
       }
     },
     "revoked": {
@@ -339,7 +368,17 @@
       "links": "Bağlantıların",
       "linkShown": "Profilimde gösteriliyor",
       "noLinks": "Bağlantı eklenmedi",
-      "experience": "İlgili deneyim"
+      "experience": "İlgili deneyim",
+      "check": {
+        "title": "Yayın kontrolü",
+        "badge": "Eğitim rozeti doğrulandı",
+        "documents": "Zorunlu belgeler yüklendi",
+        "documentsMissing": "{missing} zorunlu belge eksik",
+        "hours": "Haftalık saatler eklendi",
+        "hoursInside": "Müsaitlik görev saatlerinle uyumlu",
+        "hoursMissing": "Haftalık saat eklemedin; öğrenciler randevu alamaz",
+        "note": "Profilin yayınlanınca öğrenciler seni keşfedebilir. Doğrulama için yüklediğin belgeler önizlemede görünmez."
+      }
     },
     "back": "Geri",
     "next": "Devam Et",

@@ -472,7 +472,7 @@ describe("PeerMentoringView › switch", () => {
     renderWithQueryClient(<PeerMentoringView />);
     expect(
       screen.getByRole("heading", {
-        name: "Mentor olmak için eğitimi tamamla",
+        name: "Mentor olmak için önce eğitimi tamamla",
       }),
     ).toBeVisible();
     expect(screen.getByRole("button", { name: "Eğitime Git" })).toBeDisabled();

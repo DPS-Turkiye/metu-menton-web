@@ -18,11 +18,13 @@ import {
   type PeerTopicLevels,
 } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
+import { TrainingState } from "@/interfaces/training";
 import { currentTime, isUpcoming } from "@/lib/appointments";
 import { toTimeInput } from "@/lib/mentor-availability";
 import {
   ExperienceCardProblem,
   IskurHomeMode,
+  PeerBadgeProgress,
   PeerCapacityNote,
   PeerRequestAvailability,
   PeerTakeTab,
@@ -106,6 +108,15 @@ export function peerMentorGateState({
   if (gateAward) return PeerMentorGateState.Revoked;
   if (iskurParticipant || canTakeTraining) return PeerMentorGateState.NoBadge;
   return PeerMentorGateState.Hidden;
+}
+
+/** Where a student without the badge stands, from their training's state. */
+export function peerBadgeProgress(
+  state: TrainingState | undefined,
+): PeerBadgeProgress {
+  if (state === TrainingState.PrismPending) return PeerBadgeProgress.Pending;
+  if (state === TrainingState.PrismRetake) return PeerBadgeProgress.Retake;
+  return PeerBadgeProgress.Todo;
 }
 
 /** The newest Akran Mentoru award among the student's badges, whatever its status. */

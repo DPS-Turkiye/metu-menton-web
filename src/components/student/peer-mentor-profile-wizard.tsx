@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Info, Link2, Plus } from "lucide-react";
+import { Check, Info, Link2, Plus, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -16,6 +16,7 @@ import { CATEGORY_ART, ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { PeerMentorDocumentsStep } from "@/components/student/peer-mentor-documents-step";
 import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
 import { PeerMentorPreview } from "@/components/student/peer-mentor-preview";
+import { usePeerRequiredDocuments } from "@/hooks/use-peer-mentor-documents";
 import {
   PEER_MENTOR_WIZARD_STEPS,
   PeerMentorWizardStep,
@@ -687,36 +688,103 @@ function PreviewStep({ wizard }: { wizard: Wizard }) {
   const linkedin = wizard.previewLinkedin;
 
   return (
-    <div className="space-y-6">
-      <Card className="space-y-6">
-        <PeerMentorPreview
-          topics={wizard.draft.topics}
-          subTopics={wizard.previewSubtopics}
-          helpWith={wizard.previewHelpWith}
-          experiences={wizard.draft.experiences}
-          hours={wizard.weeklyHours}
-          capacity={wizard.availabilitySettings.menteeCapacity}
-        />
-      </Card>
-      <Card className="space-y-3">
-        <h2 className="type-title-card text-text-primary">{t("links")}</h2>
-        {linkedin ? (
-          <p className="flex items-center gap-3">
-            <Link2 aria-hidden className="size-4 text-icon-default" />
-            <span className="flex flex-col">
-              <span className="type-label break-all text-text-primary">
-                {linkedin}
+    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+      <div className="min-w-0 flex-1 space-y-6">
+        <Card className="space-y-6">
+          <PeerMentorPreview
+            topics={wizard.draft.topics}
+            subTopics={wizard.previewSubtopics}
+            helpWith={wizard.previewHelpWith}
+            experiences={wizard.draft.experiences}
+            hours={wizard.weeklyHours}
+            capacity={wizard.availabilitySettings.menteeCapacity}
+          />
+        </Card>
+        <Card className="space-y-3">
+          <h2 className="type-title-card text-text-primary">{t("links")}</h2>
+          {linkedin ? (
+            <p className="flex items-center gap-3">
+              <Link2 aria-hidden className="size-4 text-icon-default" />
+              <span className="flex flex-col">
+                <span className="type-label break-all text-text-primary">
+                  {linkedin}
+                </span>
+                <span className="type-caption text-text-muted">
+                  {t("linkShown")}
+                </span>
               </span>
-              <span className="type-caption text-text-muted">
-                {t("linkShown")}
-              </span>
-            </span>
-          </p>
-        ) : (
-          <p className="type-body-sm text-text-secondary">{t("noLinks")}</p>
-        )}
-      </Card>
+            </p>
+          ) : (
+            <p className="type-body-sm text-text-secondary">{t("noLinks")}</p>
+          )}
+        </Card>
+      </div>
+      <PublishCheck wizard={wizard} />
     </div>
+  );
+}
+
+/** "Yayın kontrolü" (Figma 6.9): what is in place, and what is still missing, before publishing. */
+function PublishCheck({ wizard }: { wizard: Wizard }) {
+  const t = useTranslations("iaIskur.wizard.preview.check");
+  const person = usePeerMentorPreviewPerson();
+  const documents = usePeerRequiredDocuments(
+    wizard.draft.topics,
+    wizard.draft.linkedinUrl,
+  );
+  const missing = documents ? documents.total - documents.done : 0;
+  const hasHours = wizard.weeklyHours.length > 0;
+  const rows = [
+    ...(person.badgeVerified ? [{ ok: true, text: t("badge") }] : []),
+    ...(documents && documents.total > 0
+      ? [
+          {
+            ok: missing === 0,
+            text:
+              missing === 0
+                ? t("documents")
+                : t("documentsMissing", { missing }),
+          },
+        ]
+      : []),
+    {
+      ok: hasHours,
+      text: !hasHours
+        ? t("hoursMissing")
+        : wizard.dutyHours.duty.length > 0
+          ? t("hoursInside")
+          : t("hours"),
+    },
+  ];
+  return (
+    <Card
+      compact
+      labelledBy="peer-publish-check"
+      className="flex w-full flex-col gap-3 lg:w-[340px] lg:shrink-0"
+    >
+      <h2 id="peer-publish-check" className="type-label-lg text-text-primary">
+        {t("title")}
+      </h2>
+      <ul className="flex flex-col gap-2.5">
+        {rows.map((row) => (
+          <li
+            key={row.text}
+            className={`flex items-start gap-2 type-body-sm ${row.ok ? "text-text-primary" : "text-status-warning-text"}`}
+          >
+            {row.ok ? (
+              <Check
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-status-success-icon"
+              />
+            ) : (
+              <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+            )}
+            {row.text}
+          </li>
+        ))}
+      </ul>
+      <p className="type-caption text-text-muted">{t("note")}</p>
+    </Card>
   );
 }
 

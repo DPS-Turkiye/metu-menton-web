@@ -303,27 +303,6 @@ export function JourneySteps({
   );
 }
 
-/** A small card with an icon, a title and a sentence (the three cards under Rozet Yok). */
-export function InfoCard({
-  icon,
-  title,
-  children,
-}: {
-  icon: string;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2.5 rounded-[20px] border border-border-subtle bg-background-surface p-5">
-      <h3 className="flex items-center gap-2.5 type-title-card text-text-primary">
-        <Image src={icon} alt="" width={18} height={18} />
-        {title}
-      </h3>
-      <p className="type-body-sm text-text-secondary">{children}</p>
-    </div>
-  );
-}
-
 /** The design's illustrations; categories without one show their name alone. */
 export const CATEGORY_ART: Partial<
   Record<PeerTopicCategory, { src: string; width: number; height: number }>

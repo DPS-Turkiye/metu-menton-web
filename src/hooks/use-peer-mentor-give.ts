@@ -75,6 +75,7 @@ import {
   PEER_MENTOR_GIVE_HREF,
   PEER_MENTOR_TRAINING_HREF,
   PEER_PROFILE_TEXT_MAX,
+  peerBadgeProgress,
   peerMentorCapacity,
   peerMentorGateState,
   subtopicGroupsWithCounts,
@@ -88,7 +89,11 @@ import {
 } from "@/lib/student-interests";
 import { errorMessage, initials } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import { PeerCapacityNote, PeerGiveTab } from "@/types/iskur-student";
+import {
+  PeerCapacityNote,
+  PeerGiveTab,
+  type PeerBadgeProgress,
+} from "@/types/iskur-student";
 
 export const PEER_MENTOR_PROFILE_QUERY_KEY = [
   "peer-mentoring",
@@ -181,17 +186,21 @@ export type TrainingEntryReason =
 export function usePeerMentorTrainingEntry(enabled = true): {
   href: string | null;
   reason: TrainingEntryReason | null;
+  /** Where the badge stands for the student: still to train, waiting for the coordinator, or to test again. */
+  progress: PeerBadgeProgress;
 } {
   const training = usePeerMentorTraining(enabled);
   const state = training.data?.state;
+  const progress = peerBadgeProgress(state);
   if (state !== undefined && OPEN_TRAINING_STATES.has(state)) {
-    return { href: PEER_MENTOR_TRAINING_HREF, reason: null };
+    return { href: PEER_MENTOR_TRAINING_HREF, reason: null, progress };
   }
-  if (training.isLoading) return { href: null, reason: "loading" };
+  if (training.isLoading) return { href: null, reason: "loading", progress };
   if (state === TrainingState.InternsOnly) {
-    return { href: null, reason: "internsOnly" };
+    return { href: null, reason: "internsOnly", progress };
   }
   return {
+    progress,
     href: null,
     reason:
       state === TrainingState.NotAvailable ? "notAvailable" : "unavailable",

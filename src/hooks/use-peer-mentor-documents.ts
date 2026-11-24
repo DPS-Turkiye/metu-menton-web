@@ -43,6 +43,26 @@ const OWN_DOCUMENTS_QUERY_KEY = [
   "mine",
 ] as const;
 
+/** How many of the documents the chosen categories require are uploaded; null until they load. */
+export function usePeerRequiredDocuments(
+  topics: readonly PeerTopicCategory[],
+  linkedinUrl: string,
+) {
+  const documents = useQuery({
+    queryKey: OWN_DOCUMENTS_QUERY_KEY,
+    queryFn: getOwnPeerMentorDocuments,
+  });
+  if (!documents.data) return null;
+  return requiredEvidence(
+    evidenceCards(
+      documents.data,
+      topics,
+      {},
+      httpUrlOrNull(linkedinUrl) != null,
+    ),
+  );
+}
+
 /**
  * The wizard's "Belgeler ve kanıtlar" step. Files and links are saved as soon as they are added (the profile's
  * publish does not carry them); a card's visibility menu changes every piece on it and what the next upload gets.

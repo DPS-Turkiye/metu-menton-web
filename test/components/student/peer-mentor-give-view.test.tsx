@@ -266,17 +266,35 @@ describe("PeerMentorGiveView", () => {
 
       expect(
         await screen.findByRole("heading", {
-          name: "Mentor olmak için eğitimi tamamla",
+          name: "Mentor olmak için önce eğitimi tamamla",
         }),
       ).toBeVisible();
       expect(
         await screen.findByRole("link", { name: "Eğitime Git" }),
       ).toHaveAttribute("href", "/student/peer-mentoring/training");
-      const steps = screen.getByRole("list");
+      const steps = screen.getByRole("list", {
+        name: "Mentor olma adımları",
+      });
       expect(
-        within(steps).getByText("Rozetini Al").closest("li"),
+        within(steps)
+          .getByText(
+            state === TrainingState.PrismPending
+              ? "Rozet onayı"
+              : "Eğitimi tamamla",
+          )
+          .closest("li"),
       ).toHaveAttribute("aria-current", "step");
-      expect(screen.getByText("Tek hesap")).toBeVisible();
+      const status = screen.getByRole("region", { name: "Rozet durumun" });
+      expect(
+        within(status).getByText("mevcut durum").closest("li"),
+      ).toHaveTextContent(
+        state === TrainingState.PrismPending
+          ? "Onay bekliyor"
+          : state === TrainingState.PrismRetake
+            ? /Testi tekrar alman gerekiyor/
+            : "Eğitim tamamlanmadı",
+      );
+      expect(screen.getByText(/ayrı bir hesap açılmaz/)).toBeVisible();
     },
   );
 
