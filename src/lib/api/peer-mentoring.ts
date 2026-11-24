@@ -10,6 +10,7 @@ import type {
   PeerMentorProfileDraft,
   PeerTopicCategory,
   SavedPeerMentorProfileDraft,
+  SavePeerMentorIntakeInput,
   SavePeerMentorProfileInput,
 } from "@/interfaces/peer-mentoring";
 import type { UserRole } from "@/interfaces/session";
@@ -97,6 +98,17 @@ export function savePeerMentorProfile(
   return backendRequest<PeerMentorProfile>({
     method: HttpMethod.Put,
     url: "/api/peer-mentoring/profile",
+    data: { ...input, actorId },
+  });
+}
+
+export function savePeerMentorIntake(
+  actorId: string,
+  input: SavePeerMentorIntakeInput,
+) {
+  return backendRequest<PeerMentorProfile>({
+    method: HttpMethod.Put,
+    url: "/api/peer-mentoring/profile/intake",
     data: { ...input, actorId },
   });
 }

@@ -94,6 +94,7 @@ beforeEach(() => {
     department: "Endüstri Mühendisliği",
     classYear: 4,
     menteeCapacity: 3,
+    acceptingRequests: true,
   }));
   vi.mocked(fetchInstitutionRecord).mockResolvedValue({
     kinds: [IdentityKind.Student],
@@ -296,6 +297,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {
         [PeerTopicCategory.CareerInternship]: PeerTopicLevel.Intermediate,
       },
@@ -527,6 +529,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {},
       experiences: [
         {
@@ -580,6 +583,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {},
       experiences: [],
     });

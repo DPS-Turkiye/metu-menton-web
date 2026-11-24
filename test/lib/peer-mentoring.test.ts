@@ -18,6 +18,7 @@ import {
   experienceCardProblem,
   experienceProblemField,
   formatYearMonth,
+  hoursByDays,
   iskurHomeMode,
   latestGateAward,
   levelsFor,
@@ -361,19 +362,66 @@ describe("splitPeerRequests", () => {
 });
 
 describe("peerRequestAvailability", () => {
+  const open = { capacityFull: false, acceptingRequests: true };
+  const full = { capacityFull: true, acceptingRequests: true };
+  const paused = { capacityFull: true, acceptingRequests: false };
+
   it("puts an open request before a full capacity", () => {
-    expect(peerRequestAvailability(true, true)).toBe(
+    expect(peerRequestAvailability(true, full)).toBe(
       PeerRequestAvailability.Requested,
     );
-    expect(peerRequestAvailability(false, true)).toBe(
+    expect(peerRequestAvailability(false, full)).toBe(
       PeerRequestAvailability.Full,
     );
-    expect(peerRequestAvailability(false, false)).toBe(
+    expect(peerRequestAvailability(false, open)).toBe(
       PeerRequestAvailability.Open,
     );
-    expect(peerRequestAvailability(true, true, true)).toBe(
+    expect(peerRequestAvailability(true, full, true)).toBe(
       PeerRequestAvailability.Mentoring,
     );
+  });
+
+  it("says a mentor who paused requests takes none, full or not", () => {
+    expect(peerRequestAvailability(false, paused)).toBe(
+      PeerRequestAvailability.Paused,
+    );
+    expect(
+      peerRequestAvailability(false, { ...open, acceptingRequests: false }),
+    ).toBe(PeerRequestAvailability.Paused);
+    expect(peerRequestAvailability(true, paused)).toBe(
+      PeerRequestAvailability.Requested,
+    );
+  });
+});
+
+describe("hoursByDays", () => {
+  it("puts days with the same hours together, in week order", () => {
+    const range = (dayOfWeek: Weekday, start: string, end: string) => ({
+      dayOfWeek,
+      start,
+      end,
+    });
+    expect(
+      hoursByDays([
+        range(Weekday.Monday, "12:00", "14:00"),
+        range(Weekday.Tuesday, "09:00", "10:00"),
+        range(Weekday.Tuesday, "15:00", "16:00"),
+        range(Weekday.Thursday, "12:00", "14:00"),
+      ]),
+    ).toEqual([
+      {
+        days: [Weekday.Monday, Weekday.Thursday],
+        ranges: [{ start: "12:00", end: "14:00" }],
+      },
+      {
+        days: [Weekday.Tuesday],
+        ranges: [
+          { start: "09:00", end: "10:00" },
+          { start: "15:00", end: "16:00" },
+        ],
+      },
+    ]);
+    expect(hoursByDays([])).toEqual([]);
   });
 });
 

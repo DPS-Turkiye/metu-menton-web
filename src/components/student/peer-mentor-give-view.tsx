@@ -1,23 +1,24 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { WeeklyAvailabilityEditor } from "@/components/availability/weekly-availability-editor";
-import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { Button, ButtonSize } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import {
   InfoCard,
-  InitialsAvatar,
   JourneySteps,
-  RequestStatusBadge,
+  TabLook,
   TabPanel,
-  Tag,
-  TagTone,
   UnderlineTabs,
 } from "@/components/student/iskur-ui";
+import { PeerCapacityCard } from "@/components/student/peer-capacity-card";
+import { PeerMentorProfileTab } from "@/components/student/peer-mentor-profile-tab";
+import { PeerMentorRequestsTab } from "@/components/student/peer-mentor-requests-tab";
+import { PeerRequestCard } from "@/components/student/peer-request-card";
 import { ActivityReportView } from "@/components/student/reports/activity-report-view";
 import { ReportDayPill } from "@/components/student/reports/report-day-pill";
 import { useAvailabilitySettingsForm } from "@/hooks/use-mentor-profile";
@@ -31,14 +32,10 @@ import {
 } from "@/hooks/use-peer-mentor-give";
 import {
   PeerMentorGateState,
-  type PeerMentoringRequest,
   type PeerMentorProfile,
 } from "@/interfaces/peer-mentoring";
-import type { PeerMentorCapacity } from "@/lib/peer-mentoring";
-import { formatDateTime, initials } from "@/lib/utils";
+import { PEER_MENTOR_WIZARD_HREF } from "@/lib/peer-mentoring";
 import { PeerGiveTab, PeerMentorJourneyStep } from "@/types/iskur-student";
-
-export const PEER_MENTOR_WIZARD_HREF = "/student/peer-mentoring/profile";
 
 const TABS_ID = "peer-give";
 const JOURNEY = [
@@ -242,69 +239,75 @@ function EarnedView({ sessionBehind }: { sessionBehind: boolean }) {
 }
 
 function PublishedView({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give");
+  const t = useTranslations("iaIskur.give.tabs");
   const tReports = useTranslations("iaIskurReports.give");
   const view = usePeerGivePublished(profile.menteeCapacity);
   const { received, loaded } = view;
+  // Every panel stays mounted (TabPanel), so an unsaved draft survives a look at another tab.
+  const tabs = [
+    {
+      id: PeerGiveTab.Requests,
+      label: t("requests"),
+      count: loaded ? received.waiting.length : undefined,
+      panel: <PeerMentorRequestsTab view={view} profile={profile} />,
+    },
+    {
+      id: PeerGiveTab.Mentees,
+      label: t("mentees"),
+      count: loaded ? received.mentees.length : undefined,
+      panel: <MenteesTab view={view} />,
+    },
+    {
+      id: PeerGiveTab.Report,
+      label: tReports("reportTab"),
+      panel: <ActivityReportView />,
+    },
+    {
+      id: PeerGiveTab.Availability,
+      label: t("availability"),
+      panel: <AvailabilityPanel />,
+    },
+    {
+      id: PeerGiveTab.Profile,
+      label: t("profile"),
+      panel: <PeerMentorProfileTab view={view} profile={profile} />,
+    },
+  ];
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <UnderlineTabs
-        label={t("tabs.label")}
+        label={t("label")}
         idPrefix={TABS_ID}
+        look={TabLook.Segment}
         selected={view.tab}
         onSelect={view.setTab}
-        tabs={[
-          {
-            id: PeerGiveTab.Mentees,
-            label: t("tabs.mentees"),
-            ...(loaded ? { count: received.waiting.length } : {}),
-          },
-          { id: PeerGiveTab.Report, label: tReports("reportTab") },
-          { id: PeerGiveTab.Profile, label: t("tabs.profile") },
-        ]}
+        tabs={tabs.map(({ id, label, count }) => ({
+          id,
+          label,
+          ...(count === undefined ? {} : { count }),
+        }))}
       />
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Mentees}
-        selected={view.tab === PeerGiveTab.Mentees}
-      >
-        <MenteesTab view={view} />
-      </TabPanel>
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Report}
-        selected={view.tab === PeerGiveTab.Report}
-      >
-        <ActivityReportView />
-      </TabPanel>
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Profile}
-        selected={view.tab === PeerGiveTab.Profile}
-      >
-        {/* The profile and availability panels stay here until the Mentor Profilim screen replaces them. The capacity
-            card lives on Menteelerim only: every panel stays mounted, so a second copy would repeat its ids. */}
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          <div className="flex min-w-0 flex-1 flex-col gap-8">
-            <ProfilePanel profile={profile} />
-            <AvailabilityPanel />
-          </div>
-          <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
-            <ProfileSummaryCard profile={profile} />
-          </aside>
-        </div>
-      </TabPanel>
+      {tabs.map(({ id, panel }) => (
+        <TabPanel
+          key={id}
+          idPrefix={TABS_ID}
+          id={id}
+          selected={view.tab === id}
+        >
+          {panel}
+        </TabPanel>
+      ))}
     </div>
   );
 }
 
-/** Menteelerim: a meeting report due, waiting requests, active mentees, capacity and this week's report. */
+/** Menteelerim (Figma 7.3): a meeting report due, the active mentees, the capacity and this week's report. */
 function MenteesTab({ view }: { view: PeerGivePublished }) {
   const t = useTranslations("iaIskur.give");
   const tReports = useTranslations("iaIskurReports.give");
   const cards = usePeerMenteesTab();
-  const { received, decision, loaded } = view;
+  const { received, loaded } = view;
 
   return (
     <div className="flex flex-col gap-6">
@@ -334,44 +337,6 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
             error={received.query.error}
           />
           <QueryNotice isLoading={false} error={cards.error} />
-          {loaded && view.capacityFull && received.waiting.length > 0 ? (
-            <p className="type-body-sm text-status-warning-text">
-              {tReports("capacityFull")}
-            </p>
-          ) : null}
-          {loaded ? (
-            <RequestList
-              requests={received.waiting}
-              empty={t("requests.empty")}
-              renderActions={(request, index) => (
-                <div className="flex gap-3">
-                  <Button
-                    variant={ButtonVariant.Secondary}
-                    fullWidth
-                    className="flex-1"
-                    disabled={decision.pendingId === request.id}
-                    onClick={() => decision.decline(request.id)}
-                  >
-                    {t("requests.decline")}
-                  </Button>
-                  <span
-                    className="flex flex-1"
-                    data-tour={index === 0 ? "peer-request-accept" : undefined}
-                  >
-                    <Button
-                      fullWidth
-                      disabled={
-                        view.capacityFull || decision.pendingId === request.id
-                      }
-                      onClick={() => decision.accept(request.id)}
-                    >
-                      {t("requests.accept")}
-                    </Button>
-                  </span>
-                </div>
-              )}
-            />
-          ) : null}
           {loaded ? (
             <section
               aria-labelledby="peer-active-mentees"
@@ -383,25 +348,30 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
               >
                 {tReports("activeMentees", { count: received.mentees.length })}
               </h2>
-              <RequestList
-                requests={received.mentees}
-                empty={t("mentees.empty")}
-              />
+              {received.mentees.length === 0 ? (
+                <Card>
+                  <p className="type-body text-text-secondary">
+                    {t("mentees.empty")}
+                  </p>
+                </Card>
+              ) : (
+                <ul className="space-y-4">
+                  {received.mentees.map((request) => (
+                    <li key={request.id}>
+                      <PeerRequestCard request={request} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           ) : null}
         </div>
         <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
           {view.capacity ? (
-            <div className="flex flex-col gap-2">
-              <CapacityCard capacity={view.capacity} />
-              <button
-                type="button"
-                onClick={() => view.setTab(PeerGiveTab.Profile)}
-                className="w-fit type-label text-text-accent hover:underline focus-visible:outline-2 focus-visible:outline-border-selected"
-              >
-                {tReports("editCapacity")}
-              </button>
-            </div>
+            <PeerCapacityCard
+              capacity={view.capacity}
+              onEdit={() => view.setTab(PeerGiveTab.Availability)}
+            />
           ) : null}
           {cards.week ? (
             <Card labelledBy="peer-week-report" className="flex flex-col gap-3">
@@ -430,179 +400,6 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
         </aside>
       </div>
     </div>
-  );
-}
-
-function RequestList({
-  requests,
-  empty,
-  renderActions,
-}: {
-  requests: PeerMentoringRequest[];
-  empty: string;
-  renderActions?: (request: PeerMentoringRequest, index: number) => ReactNode;
-}) {
-  if (requests.length === 0) {
-    return (
-      <Card>
-        <p className="type-body text-text-secondary">{empty}</p>
-      </Card>
-    );
-  }
-  return (
-    <ul className="space-y-4">
-      {requests.map((request, index) => (
-        <li key={request.id}>
-          <RequestCard request={request}>
-            {renderActions?.(request, index)}
-          </RequestCard>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function RequestCard({
-  request,
-  children,
-}: {
-  request: PeerMentoringRequest;
-  children?: ReactNode;
-}) {
-  const t = useTranslations("iaIskur.give.requests");
-  const tTopic = useTranslations("peerTopics");
-  const locale = useLocale();
-  return (
-    <article
-      aria-label={request.mentee.fullName}
-      className="flex flex-col gap-4 rounded-card border border-border-subtle bg-background-surface px-6 py-5"
-    >
-      <div className="flex items-center gap-3">
-        <InitialsAvatar initials={initials(request.mentee.fullName)} />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="truncate type-label text-text-primary">
-            {request.mentee.fullName}
-          </p>
-          <p className="type-caption text-text-secondary">
-            {t("sentAt", { date: formatDateTime(request.createdAt, locale) })}
-          </p>
-        </div>
-        <RequestStatusBadge status={request.status} />
-      </div>
-      <p className="type-body break-words text-text-primary">
-        {t("quote", { message: request.message })}
-      </p>
-      <div className="flex flex-wrap gap-1">
-        <Tag>{tTopic(request.category)}</Tag>
-      </div>
-      {children}
-    </article>
-  );
-}
-
-function CapacityCard({ capacity }: { capacity: PeerMentorCapacity }) {
-  const t = useTranslations("iaIskur.give.capacity");
-  return (
-    <Card labelledBy="peer-capacity-title" className="flex flex-col gap-3.5">
-      <h2
-        id="peer-capacity-title"
-        className="type-title-card text-text-primary"
-      >
-        {t("title")}
-      </h2>
-      <p className="flex items-end gap-1.5">
-        <span className="type-h2 text-text-primary">{capacity.used}</span>
-        <span className="type-body text-text-secondary">
-          {capacity.capacity === null
-            ? t("noLimit")
-            : t("ofCapacity", { capacity: capacity.capacity })}
-        </span>
-      </p>
-      {capacity.capacity === null ? null : (
-        <div
-          role="progressbar"
-          aria-label={t("title")}
-          aria-valuemin={0}
-          aria-valuemax={capacity.capacity}
-          aria-valuenow={capacity.filled}
-          aria-valuetext={t("valueText", {
-            used: capacity.used,
-            capacity: capacity.capacity,
-          })}
-          className="h-2 overflow-hidden rounded-full bg-background-muted"
-        >
-          <div
-            className="h-2 rounded-full bg-brand-mentor-primary"
-            style={{ width: `${capacity.percent}%` }}
-          />
-        </div>
-      )}
-      <p className="type-caption text-text-muted">
-        {t(`note.${capacity.note}`)}
-      </p>
-    </Card>
-  );
-}
-
-function ProfileSummaryCard({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give.profileCard");
-  const tTopic = useTranslations("peerTopics");
-  return (
-    <Card
-      labelledBy="peer-profile-card-title"
-      className="flex flex-col items-start gap-3"
-    >
-      <div className="flex w-full items-center justify-between gap-3">
-        <h2
-          id="peer-profile-card-title"
-          className="type-title-card text-text-primary"
-        >
-          {t("title")}
-        </h2>
-        <Tag tone={TagTone.Success}>{t("published")}</Tag>
-      </div>
-      <p className="type-body-sm text-text-secondary">
-        {profile.categories.map((category) => tTopic(category)).join(" · ")}
-      </p>
-      <Button
-        href={PEER_MENTOR_WIZARD_HREF}
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-      >
-        {t("edit")}
-      </Button>
-    </Card>
-  );
-}
-
-function ProfilePanel({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give.profilePanel");
-  const tTopic = useTranslations("peerTopics");
-  return (
-    <Card className="space-y-5">
-      <div className="space-y-2.5">
-        <h2 className="type-label text-text-primary">{t("topics")}</h2>
-        <div className="flex flex-wrap gap-2">
-          {profile.categories.map((category) => (
-            <Tag key={category} tone={TagTone.Accent}>
-              {tTopic(category)}
-            </Tag>
-          ))}
-          {profile.subTopics.map((subTopic) => (
-            <Tag key={subTopic}>{subTopic}</Tag>
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <h2 className="type-label text-text-primary">{t("helpWith")}</h2>
-        <p className="type-body whitespace-pre-line text-text-secondary">
-          {profile.helpWith}
-        </p>
-      </div>
-      <Button href={PEER_MENTOR_WIZARD_HREF} variant={ButtonVariant.Ghost}>
-        {t("edit")}
-      </Button>
-    </Card>
   );
 }
 

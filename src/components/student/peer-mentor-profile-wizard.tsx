@@ -12,14 +12,9 @@ import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
 import { StepPills } from "@/components/ia/step-pills";
-import {
-  CATEGORY_ART,
-  InitialsAvatar,
-  ISKUR_FIELD_CLASS,
-  Tag,
-  TagTone,
-} from "@/components/student/iskur-ui";
+import { CATEGORY_ART, ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { PeerMentorDocumentsStep } from "@/components/student/peer-mentor-documents-step";
+import { PeerMentorPreview } from "@/components/student/peer-mentor-preview";
 import {
   PEER_MENTOR_WIZARD_STEPS,
   PeerMentorWizardStep,
@@ -676,101 +671,19 @@ function DocumentsStep({ wizard }: { wizard: Wizard }) {
 
 function PreviewStep({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("iaIskur.wizard.preview");
-  const topicLabel = useTranslations("peerTopics");
-  const subtopicLabel = useTranslations("studentProfileCompletion.subtopics");
-  const dayLabel = useTranslations("options.weekday");
-  const person = usePeerMentorPreviewPerson();
-  const capacity = wizard.availabilitySettings.menteeCapacity;
   const linkedin = wizard.previewLinkedin;
 
   return (
     <div className="space-y-6">
       <Card className="space-y-6">
-        <div className="flex flex-wrap items-center gap-5">
-          <InitialsAvatar initials={person.initials} size="lg" />
-          <div className="space-y-2">
-            <h2 className="type-h2 text-text-primary">{person.fullName}</h2>
-            <p className="type-body text-text-secondary">
-              {person.department}
-              {person.showSeparator ? " · " : null}
-              {person.classYear
-                ? t("classYear", { classYear: person.classYear })
-                : null}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Tag>{t("peer")}</Tag>
-              {person.badgeVerified ? (
-                <Tag tone={TagTone.Success}>{t("badgeVerified")}</Tag>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <hr className="border-border-subtle" />
-        <div className="space-y-3">
-          <h3 className="type-label text-text-primary">{t("topics")}</h3>
-          <ul className="flex flex-wrap gap-2">
-            {wizard.draft.topics.map((topic) => (
-              <li key={topic}>
-                <Tag tone={TagTone.Accent}>{topicLabel(topic)}</Tag>
-              </li>
-            ))}
-            {wizard.previewSubtopics.map((sub) => (
-              <li key={sub.id}>
-                <Tag tone={TagTone.Accent}>{subtopicLabel(sub.labelKey)}</Tag>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <h3 className="type-label text-text-primary">{t("helpWith")}</h3>
-          <p className="type-body whitespace-pre-line text-text-secondary">
-            {wizard.previewHelpWith}
-          </p>
-        </div>
-        {wizard.draft.experiences.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className="type-label text-text-primary">{t("experience")}</h3>
-            <ul className="space-y-1">
-              {wizard.draft.experiences.map((card) => (
-                <li key={card.key} className="type-body-sm text-text-secondary">
-                  {card.organization
-                    ? `${card.title} — ${card.organization}`
-                    : card.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        <dl className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-          <div className="space-y-1">
-            <dt className="type-caption text-text-muted">{t("hours")}</dt>
-            <dd className="type-body-sm text-text-primary">
-              {wizard.weeklyHours.length === 0 ? (
-                t("noHours")
-              ) : (
-                <ul className="flex flex-wrap gap-x-2">
-                  {wizard.weeklyHours.map((range) => (
-                    <li key={`${range.dayOfWeek}-${range.start}-${range.end}`}>
-                      {t("hoursRange", {
-                        day: dayLabel(range.dayOfWeek),
-                        start: range.start,
-                        end: range.end,
-                      })}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </dd>
-          </div>
-          <div className="space-y-1">
-            <dt className="type-caption text-text-muted">{t("capacity")}</dt>
-            <dd className="type-body-sm text-text-primary">
-              {capacity === null
-                ? t("noCapacity")
-                : t("capacityValue", { capacity })}
-            </dd>
-          </div>
-        </dl>
+        <PeerMentorPreview
+          topics={wizard.draft.topics}
+          subTopics={wizard.previewSubtopics}
+          helpWith={wizard.previewHelpWith}
+          experiences={wizard.draft.experiences}
+          hours={wizard.weeklyHours}
+          capacity={wizard.availabilitySettings.menteeCapacity}
+        />
       </Card>
       <Card className="space-y-3">
         <h2 className="type-title-card text-text-primary">{t("links")}</h2>

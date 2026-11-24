@@ -9,6 +9,7 @@ import type {
   PeerMentorProfileDraft,
   PeerTopicCategory,
   SavedPeerMentorProfileDraft,
+  SavePeerMentorIntakeInput,
   SavePeerMentorProfileInput,
 } from "@/interfaces/peer-mentoring";
 import { UserRole } from "@/interfaces/session";
@@ -126,6 +127,17 @@ export async function savePeerMentorProfile(
   return requireSuccess(
     await httpClient.put<PeerMentorProfile>(
       "/api/peer-mentoring/profile",
+      input,
+    ),
+  );
+}
+
+export async function savePeerMentorIntake(
+  input: SavePeerMentorIntakeInput,
+): Promise<PeerMentorProfile> {
+  return requireSuccess(
+    await httpClient.put<PeerMentorProfile>(
+      "/api/peer-mentoring/profile/intake",
       input,
     ),
   );

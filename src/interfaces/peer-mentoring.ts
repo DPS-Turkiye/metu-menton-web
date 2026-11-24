@@ -73,6 +73,8 @@ export type PeerMentorCard = {
   recommendationReasons: string[];
   /** No new mentee while every place is taken. */
   capacityFull: boolean;
+  /** Off while the mentor takes no new requests ("Şu an yeni mentee almıyor"). */
+  acceptingRequests: boolean;
   /** Active badges; a card shows the achievements. */
   badges: PublicBadge[];
   /** A free slot in the coming seven days ("Bu hafta müsait"). */
@@ -165,9 +167,16 @@ export type PeerMentorProfile = {
   department: string | null;
   classYear: number | null;
   menteeCapacity: number | null;
+  acceptingRequests: boolean;
   /** Levels for the categories on show. */
   levels: PeerTopicLevels;
   experiences: PeerExperienceCard[];
+};
+
+/** "Kapasitem" (`PUT /api/peer-mentoring/profile/intake`); a null capacity keeps the saved one. */
+export type SavePeerMentorIntakeInput = {
+  menteeCapacity: number | null;
+  acceptingRequests: boolean;
 };
 
 /** The wizard's answers (`PUT /api/peer-mentoring/profile`); helpWith is 20–2000 characters. */

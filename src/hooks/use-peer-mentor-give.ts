@@ -228,13 +228,21 @@ export function usePeerRequestDecision() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const decide = useMutation({
-    mutationFn: ({ id, accept }: { id: string; accept: boolean }) =>
+    mutationFn: ({
+      id,
+      accept,
+      message,
+    }: {
+      id: string;
+      accept: boolean;
+      message?: string | undefined;
+    }) =>
       decideMentorRequest({
         id,
         status: accept
           ? MentorshipRequestStatus.Accepted
           : MentorshipRequestStatus.Declined,
-        message: accept ? t("acceptMessage") : t("declineMessage"),
+        message: message ?? (accept ? t("acceptMessage") : t("declineMessage")),
       }),
     onSuccess: (_, { accept }) => {
       void queryClient.invalidateQueries({
@@ -253,21 +261,23 @@ export function usePeerRequestDecision() {
   });
   return {
     accept: (id: string) => decide.mutate({ id, accept: true }),
-    decline: (id: string) => decide.mutate({ id, accept: false }),
+    /** The reason, when the mentor gave one, is what the student reads. */
+    decline: (id: string, message?: string) =>
+      decide.mutate({ id, accept: false, message }),
     pendingId: decide.isPending ? decide.variables.id : undefined,
   };
 }
 
 /**
- * Mentorluk Ver once the profile is published: the open tab (from the URL's `tab`, Menteelerim first), the received
- * requests, the decision actions and the "Kapasiten" card's numbers.
+ * Mentorluk Ver once the profile is published: the open tab (from the URL's `tab`, Talepler first), the received
+ * requests and the "Kapasiten" card's numbers.
  */
 export function usePeerGivePublished(profileCapacity: number | null) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const asked = params.get("tab");
-  const tab = isEnumValue(PeerGiveTab, asked) ? asked : PeerGiveTab.Mentees;
+  const tab = isEnumValue(PeerGiveTab, asked) ? asked : PeerGiveTab.Requests;
   // The report's own params (view, week, day) stay, so coming back to Faaliyet Raporum reopens the same day or week.
   const setTab = (next: PeerGiveTab) => {
     const query = new URLSearchParams(params.toString());
@@ -275,7 +285,6 @@ export function usePeerGivePublished(profileCapacity: number | null) {
     router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   };
   const received = useReceivedPeerRequests();
-  const decision = usePeerRequestDecision();
   // The availability tab saves the capacity to the settings, not the profile; read it there so the card follows a save.
   const settings = useMentorAvailabilitySettings();
   const menteeCapacity =
@@ -291,8 +300,8 @@ export function usePeerGivePublished(profileCapacity: number | null) {
     tab,
     setTab,
     received,
-    decision,
     loaded,
+    menteeCapacity,
     capacity,
     /** A full capacity disables "Kabul Et": the backend would refuse the acceptance anyway. */
     capacityFull: capacity?.note === PeerCapacityNote.Full,

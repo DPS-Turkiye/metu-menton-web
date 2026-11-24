@@ -97,6 +97,12 @@ export function InitialsAvatar({
   );
 }
 
+/** Figma draws a row of tabs underlined, or as raised segments for a second row under them (7.1). */
+export enum TabLook {
+  Underline = "underline",
+  Segment = "segment",
+}
+
 export type UnderlineTab<T extends string> = {
   id: T;
   label: string;
@@ -122,13 +128,16 @@ export function UnderlineTabs<T extends string>({
   selected,
   onSelect,
   idPrefix,
+  look = TabLook.Underline,
 }: {
   label: string;
   tabs: readonly UnderlineTab<T>[];
   selected: T;
   onSelect: (id: T) => void;
   idPrefix: string;
+  look?: TabLook;
 }) {
+  const segment = look === TabLook.Segment;
   const buttons = useRef(new Map<T, HTMLButtonElement>());
   const move = (event: KeyboardEvent, index: number) => {
     const last = tabs.length - 1;
@@ -156,7 +165,7 @@ export function UnderlineTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex gap-1 overflow-x-auto border-b border-border-subtle"
+      className={`flex overflow-x-auto ${segment ? "" : "gap-1 border-b border-border-subtle"}`}
     >
       {tabs.map((tab, index) => {
         const active = tab.id === selected;
@@ -175,13 +184,19 @@ export function UnderlineTabs<T extends string>({
             tabIndex={active ? 0 : -1}
             onClick={() => onSelect(tab.id)}
             onKeyDown={(event) => move(event, index)}
-            className={`flex min-w-max flex-1 flex-col items-center rounded-t-lg focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-selected ${
-              active ? "text-text-accent" : "text-text-secondary"
-            }`}
+            className={`flex min-w-max flex-1 flex-col items-center focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-selected ${
+              segment
+                ? `h-9 justify-center rounded-full px-4 ${active ? "bg-background-surface shadow-raised" : ""}`
+                : "rounded-t-lg"
+            } ${active ? "text-text-accent" : "text-text-secondary"}`}
           >
-            <span className="flex h-11 items-center gap-2 px-2 type-label">
-              {tab.label}
-              {tab.count === undefined ? null : (
+            <span
+              className={`flex items-center gap-2 type-label ${segment ? "" : "h-11 px-2"}`}
+            >
+              {segment && tab.count !== undefined
+                ? `${tab.label} · ${String(tab.count)}`
+                : tab.label}
+              {segment || tab.count === undefined ? null : (
                 <span
                   className={`rounded-full px-2 py-0.5 type-label-sm ${
                     active ? "bg-background-selected" : "bg-background-muted"
@@ -191,10 +206,12 @@ export function UnderlineTabs<T extends string>({
                 </span>
               )}
             </span>
-            <span
-              aria-hidden
-              className={`h-0.5 w-full rounded-[1px] ${active ? "bg-action-accent" : ""}`}
-            />
+            {segment ? null : (
+              <span
+                aria-hidden
+                className={`h-0.5 w-full rounded-[1px] ${active ? "bg-action-accent" : ""}`}
+              />
+            )}
           </button>
         );
       })}
@@ -327,12 +344,56 @@ export const CATEGORY_ART: Partial<
   },
 };
 
-export type SegmentOption<T extends string> = {
+export type ViewOption<T extends string> = {
   id: T;
   label: string;
-  /** A product-tour anchor on this segment. */
+  /** A product-tour anchor on this option. */
   tour?: string;
 };
+
+/**
+ * A two-or-three way switch drawn as full-width underline tabs (Figma 7.1 "Mentorluk al | Mentorluk ver"): toggle
+ * buttons in a group. Not tabs: it swaps whole views, not panels.
+ */
+export function ViewSwitch<T extends string>({
+  label,
+  options,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  options: readonly ViewOption<T>[];
+  selected: T;
+  onSelect: (id: T) => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className="flex gap-1 border-b border-border-subtle"
+    >
+      {options.map((option) => {
+        const active = option.id === selected;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            aria-pressed={active}
+            data-tour={option.tour}
+            onClick={() => onSelect(option.id)}
+            className={`flex h-[46px] min-w-0 flex-1 items-center justify-center border-b-2 type-label focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-selected ${
+              active
+                ? "border-action-accent text-text-accent"
+                : "border-transparent text-text-secondary"
+            }`}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * A two-or-three way segmented switch (Figma "Segment"): toggle buttons in a group, the pressed one raised and
@@ -345,7 +406,7 @@ export function Segmented<T extends string>({
   onSelect,
 }: {
   label: string;
-  options: readonly SegmentOption<T>[];
+  options: readonly ViewOption<T>[];
   selected: T;
   onSelect: (id: T) => void;
 }) {

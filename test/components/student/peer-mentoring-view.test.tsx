@@ -432,7 +432,7 @@ describe("PeerMentoringView › switch", () => {
       "aria-selected",
       "true",
     );
-    expect(screen.queryByRole("button", { name: "Mentorluk Ver" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Mentorluk ver" })).toBeNull();
   });
 
   it("opens Mentorluklarım from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
@@ -461,7 +461,7 @@ describe("PeerMentoringView › switch", () => {
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentoringView />);
 
-    const give = screen.getByRole("button", { name: "Mentorluk Ver" });
+    const give = screen.getByRole("button", { name: "Mentorluk ver" });
     expect(give).toHaveAttribute("data-tour", "peer-mentoring-give-toggle");
     await user.click(give);
     expect(replace).toHaveBeenCalledWith("/student/peer-mentoring?as=MENTOR", {

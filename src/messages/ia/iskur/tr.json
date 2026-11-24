@@ -67,45 +67,91 @@
       "signInAgain": "Rozetin yeni verildi. Mentorluk işlemleri için çıkış yapıp yeniden giriş yap."
     },
     "tabs": {
-      "label": "Mentorluk Ver",
+      "label": "Mentorluk ver",
+      "requests": "Talepler",
       "mentees": "Menteelerim",
-      "profile": "Mentor Profilim"
+      "availability": "Müsaitlik ve kapasite",
+      "profile": "Mentor profilim"
     },
     "requests": {
+      "title": "Yanıt bekleyen talepler",
+      "order": "{count} · en yeniden eskiye",
       "empty": "Yanıt bekleyen talep yok.",
-      "sentAt": "Mentorluk talebi · {date}",
+      "sentAt": "{date}",
+      "sentAtFrom": "{department} · {date}",
       "quote": "“{message}”",
-      "accept": "Kabul Et",
-      "decline": "Reddet"
+      "accept": "Kabul et",
+      "decline": "Reddet",
+      "lastPlace": "Kabul edersen kapasiten {capacity}/{capacity} olur; yeni talepler duraklatılır.",
+      "reason": {
+        "title": "Reddetme nedeni (öğrenciye iletilir)",
+        "times": "Saatlerimiz uymuyor",
+        "topic": "Konu uzmanlığım dışında",
+        "capacity": "Kapasitem dolu",
+        "cancel": "Vazgeç",
+        "confirm": "Reddet ve bildir"
+      }
     },
     "mentees": {
       "empty": "Henüz kabul ettiğin bir talep yok."
     },
     "capacity": {
       "title": "Kapasiten",
-      "ofCapacity": "/ {capacity} mentee",
-      "noLimit": "mentee",
+      "ofCapacity": "/ {capacity} aktif mentee",
+      "noLimit": "aktif mentee",
+      "edit": "Kapasiteyi düzenle",
       "note": {
-        "unset": "Kapasite belirlemedin; yeni talepler gelmeye devam eder. Mentor Profilim sekmesinden belirleyebilirsin.",
-        "open": "Yeni talepleri kabul edebilirsin.",
-        "lastPlace": "Bir talebi kabul edersen kapasiten dolacak. Yeni talepler kapasite açılana kadar sana gelmez.",
+        "unset": "Kapasite belirlemedin; yeni talepler gelmeye devam eder. Mentor profilim sekmesinden belirleyebilirsin.",
+        "open": "{free} yer boş. Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür.",
+        "lastPlace": "{free} yer boş. Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür.",
         "full": "Kapasiten dolu. Yeni talepler kapasite açılana kadar sana gelmez."
       },
       "valueText": "{used} / {capacity} mentee"
     },
     "profileCard": {
       "title": "Mentor profilin",
-      "published": "Yayında",
-      "edit": "Profili Düzenle"
-    },
-    "profilePanel": {
-      "topics": "Yardımcı olabileceğin konular",
-      "helpWith": "Öğrencilere nasıl yardımcı olabilirsin?",
-      "edit": "Profili Düzenle"
+      "active": "Aktif",
+      "paused": "Yeni talep almıyor",
+      "hours": "{day} {start}–{end}"
     },
     "availability": {
       "save": "Kaydet",
       "saving": "Kaydediliyor…"
+    },
+    "profile": {
+      "active": "Aktif",
+      "paused": "Yeni talep almıyor",
+      "classYear": "{classYear}. sınıf",
+      "badge": "Eğitim rozeti ✓",
+      "edit": "Profili düzenle",
+      "preview": "Öğrenci gözünden önizle",
+      "previewTitle": "Profilin öğrencilere böyle görünüyor",
+      "close": "Kapat",
+      "hours": {
+        "title": "Müsaitliğim",
+        "edit": "Düzenle",
+        "range": "{start} – {end}",
+        "none": "Henüz haftalık saat eklemedin.",
+        "closed": "Kapalı gün",
+        "duration": "Görüşme süresi",
+        "minutes": "{minutes} dk"
+      },
+      "intake": {
+        "title": "Kapasitem",
+        "ofCapacity": "/ {capacity} aktif mentee · {free} yer boş",
+        "noLimit": "aktif mentee · üst sınır yok",
+        "limit": "Üst sınır",
+        "unset": "Yok",
+        "decrease": "Üst sınırı azalt",
+        "increase": "Üst sınırı artır",
+        "accepting": "Yeni talep almaya açığım",
+        "hint": "Kapatırsan profilin keşifte “Şu an yeni mentee almıyor” olarak görünür.",
+        "saveFailed": "Kapasiten kaydedilemedi."
+      },
+      "protected": {
+        "title": "Onaylı görüşmelerin korunur",
+        "body": "Müsaitlik değişiklikleri yalnızca yeni talepler için geçerlidir; onaylı görüşmelerin etkilenmez."
+      }
     }
   },
   "wizard": {
@@ -320,8 +366,8 @@
     "subtitle": "ODTÜ öğrencilerinden mentorluk al. Mentorlar eğitimini tamamlamış ve rozeti doğrulanmış öğrencilerdir.",
     "switchLabel": "Akran mentörlüğü tarafı",
     "switch": {
-      "get": "Mentorluk Al",
-      "give": "Mentorluk Ver"
+      "get": "Mentorluk al",
+      "give": "Mentorluk ver"
     },
     "tabs": {
       "label": "Mentorluk Al",
@@ -353,7 +399,8 @@
       "subTopicFilter": "Alt konu",
       "allSubTopics": "Tüm alt konular",
       "availableThisWeek": "Bu hafta müsait",
-      "mentoring": "Zaten mentorun"
+      "mentoring": "Zaten mentorun",
+      "paused": "Şu an yeni mentee almıyor"
     },
     "profile": {
       "back": "Akran Mentörlüğü",

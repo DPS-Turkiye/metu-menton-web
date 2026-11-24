@@ -9,6 +9,7 @@ import {
   GET as getDraft,
   PUT as putDraft,
 } from "@/app/api/peer-mentoring/profile/draft/route";
+import { PUT as putIntake } from "@/app/api/peer-mentoring/profile/intake/route";
 import {
   GET as getRequests,
   POST as postRequest,
@@ -28,15 +29,20 @@ import {
   fetchPeerMentoringRequests,
   fetchPeerMentors,
   savePeerMentorDraft,
+  savePeerMentorIntake,
 } from "@/lib/api/peer-mentoring";
 import { getSessionUser } from "@/lib/session";
-import { peerMentorDetailFixture } from "@test/fixtures/peer-mentoring";
+import {
+  peerMentorDetailFixture,
+  peerMentorProfileFixture,
+} from "@test/fixtures/peer-mentoring";
 import { backendRefusal, backendResponse } from "@test/fixtures/route-handlers";
 
 vi.mock("@/lib/api/peer-mentoring", () => ({
   deletePeerMentorDraft: vi.fn(),
   fetchPeerMentorDraft: vi.fn(),
   savePeerMentorDraft: vi.fn(),
+  savePeerMentorIntake: vi.fn(),
   fetchPeerMentor: vi.fn(),
   fetchPeerMentorCounts: vi.fn(),
   fetchPeerMentors: vi.fn(),
@@ -99,6 +105,40 @@ describe("peer-mentoring proxy routes", () => {
       (await getMentors(request("/api/peer-mentoring/mentors"))).status,
     ).toBe(401);
     expect(fetchPeerMentors).not.toHaveBeenCalled();
+  });
+
+  it("save the signed-in mentor's capacity and request switch, within the backend's limits", async () => {
+    vi.mocked(savePeerMentorIntake).mockResolvedValue(
+      backendResponse(peerMentorProfileFixture()),
+    );
+    const put = (body: unknown) =>
+      putIntake(
+        request("/api/peer-mentoring/profile/intake", {
+          method: "PUT",
+          body: JSON.stringify(body),
+        }),
+      );
+
+    expect(
+      (await put({ menteeCapacity: null, acceptingRequests: false })).status,
+    ).toBe(200);
+    expect(savePeerMentorIntake).toHaveBeenCalledWith("student-1", {
+      menteeCapacity: null,
+      acceptingRequests: false,
+    });
+    for (const body of [
+      { menteeCapacity: 0, acceptingRequests: true },
+      { menteeCapacity: 51, acceptingRequests: true },
+      { menteeCapacity: 3 },
+      { menteeCapacity: 2.5, acceptingRequests: true },
+    ]) {
+      expect((await put(body)).status).toBe(400);
+    }
+    vi.mocked(getSessionUser).mockResolvedValue(null);
+    expect(
+      (await put({ menteeCapacity: 3, acceptingRequests: true })).status,
+    ).toBe(401);
+    expect(savePeerMentorIntake).toHaveBeenCalledTimes(1);
   });
 
   it("ask for the signed-in student's program mentors, passing only known categories", async () => {

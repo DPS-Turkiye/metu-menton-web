@@ -68,44 +68,90 @@
     },
     "tabs": {
       "label": "Give mentoring",
+      "requests": "Requests",
       "mentees": "My mentees",
+      "availability": "Availability and capacity",
       "profile": "My mentor profile"
     },
     "requests": {
+      "title": "Requests waiting for an answer",
+      "order": "{count} · newest first",
       "empty": "No requests waiting for an answer.",
-      "sentAt": "Mentoring request · {date}",
+      "sentAt": "{date}",
+      "sentAtFrom": "{department} · {date}",
       "quote": "“{message}”",
       "accept": "Accept",
-      "decline": "Decline"
+      "decline": "Decline",
+      "lastPlace": "If you accept, your capacity becomes {capacity}/{capacity} and new requests pause.",
+      "reason": {
+        "title": "Reason for declining (sent to the student)",
+        "times": "Our hours don't match",
+        "topic": "The topic is outside my expertise",
+        "capacity": "My capacity is full",
+        "cancel": "Cancel",
+        "confirm": "Decline and tell them"
+      }
     },
     "mentees": {
       "empty": "You haven't accepted a request yet."
     },
     "capacity": {
       "title": "Your capacity",
-      "ofCapacity": "/ {capacity} mentees",
-      "noLimit": "mentees",
+      "ofCapacity": "/ {capacity} active mentees",
+      "noLimit": "active mentees",
+      "edit": "Edit capacity",
       "note": {
-        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the Mentor profile tab.",
-        "open": "You can accept new requests.",
-        "lastPlace": "Accepting one more request fills your capacity. New requests won't reach you until a place opens.",
+        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the My mentor profile tab.",
+        "open": "{free} places free. When it fills up, Discover says “Not taking new mentees right now”.",
+        "lastPlace": "{free} place free. When it fills up, Discover says “Not taking new mentees right now”.",
         "full": "Your capacity is full. New requests won't reach you until a place opens."
       },
       "valueText": "{used} of {capacity} mentees"
     },
     "profileCard": {
       "title": "Your mentor profile",
-      "published": "Published",
-      "edit": "Edit profile"
-    },
-    "profilePanel": {
-      "topics": "Topics you can help with",
-      "helpWith": "How can you help students?",
-      "edit": "Edit profile"
+      "active": "Active",
+      "paused": "Not taking requests",
+      "hours": "{day} {start}–{end}"
     },
     "availability": {
       "save": "Save",
       "saving": "Saving…"
+    },
+    "profile": {
+      "active": "Active",
+      "paused": "Not taking requests",
+      "classYear": "Year {classYear}",
+      "badge": "Training badge ✓",
+      "edit": "Edit profile",
+      "preview": "Preview as a student",
+      "previewTitle": "This is how students see your profile",
+      "close": "Close",
+      "hours": {
+        "title": "My availability",
+        "edit": "Edit",
+        "range": "{start} – {end}",
+        "none": "You haven't added weekly hours yet.",
+        "closed": "Closed day",
+        "duration": "Meeting length",
+        "minutes": "{minutes} min"
+      },
+      "intake": {
+        "title": "My capacity",
+        "ofCapacity": "/ {capacity} active mentees · {free} free",
+        "noLimit": "active mentees · no limit",
+        "limit": "Limit",
+        "unset": "None",
+        "decrease": "Lower the limit",
+        "increase": "Raise the limit",
+        "accepting": "I'm open to new requests",
+        "hint": "When this is off, Discover shows your profile as “Not taking new mentees right now”.",
+        "saveFailed": "Couldn't save your capacity."
+      },
+      "protected": {
+        "title": "Your confirmed meetings stay",
+        "body": "Changes to your availability only apply to new requests; confirmed meetings are not affected."
+      }
     }
   },
   "wizard": {
@@ -353,7 +399,8 @@
       "subTopicFilter": "Sub-topic",
       "allSubTopics": "All sub-topics",
       "availableThisWeek": "Available this week",
-      "mentoring": "Already your mentor"
+      "mentoring": "Already your mentor",
+      "paused": "Not taking new mentees right now"
     },
     "profile": {
       "back": "Peer mentoring",
