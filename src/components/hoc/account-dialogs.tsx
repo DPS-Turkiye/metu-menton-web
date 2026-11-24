@@ -11,7 +11,7 @@ import { useAppSession } from "@/components/providers/session-provider";
 import { useNotificationPreferences } from "@/hooks/use-notification-preferences";
 import { usePasswordReset } from "@/hooks/use-password-reset";
 import { ENGLISH_ENABLED } from "@/lib/i18n";
-import { roleWorkspace } from "@/lib/role-workspace";
+import { workspaceForSession } from "@/lib/role-workspace";
 
 /** The account-menu items that open a dialog instead of a page. */
 export enum AccountDialog {
@@ -57,7 +57,7 @@ function DialogFrame({
 export function AccountSettingsDialog({ onClose }: { onClose: () => void }) {
   const session = useAppSession();
   const { isSendingReset, sendPasswordReset } = usePasswordReset();
-  const { personalInfoHref } = roleWorkspace(session?.role);
+  const { personalInfoHref } = workspaceForSession(session);
   const t = useTranslations("accountDialogs");
 
   return (

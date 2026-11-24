@@ -14,8 +14,8 @@ export type RoleWorkspace = {
 
 const STUDENT_WORKSPACE: RoleWorkspace = {
   homeHref: "/student",
-  profileHref: "/student",
-  personalInfoHref: "/student",
+  profileHref: "/student/profile",
+  personalInfoHref: "/student/profile",
   notificationsHref: "/student",
   showNotificationBadge: true,
   usesRoleSubtitle: false,
@@ -44,8 +44,8 @@ export function roleWorkspace(role?: UserRole | null): RoleWorkspace {
     case UserRole.Academician:
       return {
         homeHref: "/academician",
-        profileHref: "/academician",
-        personalInfoHref: "/academician",
+        profileHref: "/academician/profile",
+        personalInfoHref: "/academician/profile",
         notificationsHref: "/academician",
         showNotificationBadge: true,
         usesRoleSubtitle: true,

@@ -77,6 +77,25 @@ describe("ODTÜ workspaces", () => {
     ).toBe("/academician");
   });
 
+  it("opens an ODTÜ student's and an academician's own Profilim", () => {
+    const student = workspaceForSession(
+      session(UserRole.Mentee, {
+        institutionKinds: [IdentityKind.Student],
+        edition: Edition.Odtu,
+      }),
+    );
+    expect(student.profileHref).toBe("/student/profile");
+    expect(student.personalInfoHref).toBe("/student/profile");
+    const academician = workspaceForSession(
+      session(UserRole.Academician, {
+        institutionKinds: [IdentityKind.Academic],
+        edition: Edition.Odtu,
+      }),
+    );
+    expect(academician.profileHref).toBe("/academician/profile");
+    expect(academician.personalInfoHref).toBe("/academician/profile");
+  });
+
   it("keeps a Teknokent mentee on the Girişim dashboard", () => {
     expect(workspaceForSession(session(UserRole.Mentee)).homeHref).toBe(
       "/dashboard",

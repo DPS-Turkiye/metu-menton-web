@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ProfilePage from "@/app/profile/page";
 import StartupProfileToolsPage from "@/app/startup/profile-tools/page";
-import { UserRole, type AppSession } from "@/interfaces/session";
+import { Edition } from "@/interfaces/edition";
+import { IdentityKind, UserRole, type AppSession } from "@/interfaces/session";
 import { fetchOrganizationPrograms } from "@/lib/api/programs";
 import { getSessionUser } from "@/lib/session";
 
@@ -54,6 +55,19 @@ describe("legacy profile retirement", () => {
     await expect(StartupProfileToolsPage()).rejects.toThrow(
       "REDIRECT:/startup/process",
     );
+  });
+  it("sends an ODTÜ student to Profilim, also one with a personal organization", async () => {
+    vi.mocked(getSessionUser).mockResolvedValue({
+      role: UserRole.Mentee,
+      userId: "user-1",
+      organizationId: "org-1",
+      personalOrganization: true,
+      institutionKinds: [IdentityKind.Student],
+      edition: Edition.Odtu,
+    } as AppSession);
+    await expect(
+      ProfilePage({ searchParams: Promise.resolve({}) }),
+    ).rejects.toThrow("REDIRECT:/student/profile");
   });
   it("keeps the explicit mobile web preference", async () => {
     session(UserRole.Mentee);
