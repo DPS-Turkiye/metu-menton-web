@@ -5,6 +5,7 @@ import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
+  Info,
   Minus,
   Plus,
   Square,
@@ -12,8 +13,10 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
+import { ModalDialog } from "@/components/common/modal-dialog";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
+import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import {
   InitialsAvatar,
@@ -39,17 +42,19 @@ import {
   ISKUR_TASK_TITLE_MAX,
   iskurTaskHref,
   isPlanFull,
+  memberTaskCounts,
   orderedTasks,
+  planPercent,
 } from "@/lib/iskur-tasks";
 import { formatReportDay } from "@/lib/peer-weekly-report";
 import { initials } from "@/lib/utils";
-import { IskurTeamTab } from "@/types/iskur-tasks";
+import { IskurAssignMode, IskurTeamTab } from "@/types/iskur-tasks";
 
 const TABS_ID = "iskur-team";
 
 type Team = ReturnType<typeof useIskurTeam>;
 
-/** Ekibim (Figma 2.1): the week's team tasks by person, the leader's "Görev ata" form, and the team's people. */
+/** Ekibim (Figma 9.1): the team's plan and tasks for the week, the leader's task form, and the team's people. */
 export function IskurTeamView() {
   const t = useTranslations("iskurTeam");
   const team = useIskurTeam();
@@ -141,6 +146,9 @@ export function IskurTeamView() {
           <TaskList team={team} data={data} />
           {data.canAssign ? <AssignForm team={team} /> : null}
         </div>
+        {team.cancelling ? (
+          <CancelDialog team={team} task={team.cancelling} />
+        ) : null}
       </TabPanel>
       {leader ? (
         <TabPanel
@@ -164,6 +172,7 @@ export function IskurTeamView() {
 
 function TaskList({ team, data }: { team: Team; data: IskurTeamTasks }) {
   const t = useTranslations("iskurTeam");
+  const leader = data.viewerRole === IskurTeamRole.Leader;
   return (
     <section
       aria-labelledby="iskur-team-tasks"
@@ -171,13 +180,14 @@ function TaskList({ team, data }: { team: Team; data: IskurTeamTasks }) {
       className="space-y-4"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="iskur-team-tasks" className="type-h3 text-text-primary">
-          {t(
-            data.viewerRole === IskurTeamRole.Leader
-              ? "tasksTitleLeader"
-              : "tasksTitleMember",
-          )}
-        </h2>
+        <div>
+          <h2 id="iskur-team-tasks" className="type-h3 text-text-primary">
+            {t(leader ? "tasksTitleLeader" : "tasksTitleMember")}
+          </h2>
+          {leader ? (
+            <p className="type-body-sm text-text-muted">{t("workloadHint")}</p>
+          ) : null}
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -198,11 +208,282 @@ function TaskList({ team, data }: { team: Team; data: IskurTeamTasks }) {
           </button>
         </div>
       </div>
-      {data.members.map((member) => (
-        <MemberTasks key={member.userId} member={member} />
-      ))}
-      <p className="type-caption text-text-muted">{t("footnote")}</p>
+      {leader ? (
+        <>
+          <Workload team={team} members={data.members} />
+          <p className="flex items-center gap-2 type-body-sm text-text-muted">
+            <Info aria-hidden className="size-4 shrink-0" />
+            {t("footnote")}
+          </p>
+          {team.shown ? <ShownTasks team={team} member={team.shown} /> : null}
+        </>
+      ) : (
+        <>
+          {data.members.map((member) => (
+            <MemberTasks key={member.userId} member={member} />
+          ))}
+          <p className="type-caption text-text-muted">{t("footnote")}</p>
+        </>
+      )}
     </section>
+  );
+}
+
+/** The team's plan for the week (Figma 9.1): each member's time against their target, and "Görev ata". */
+function Workload({
+  team,
+  members,
+}: {
+  team: Team;
+  members: readonly IskurTeamTasksMember[];
+}) {
+  return (
+    <ul className="divide-y divide-border-default overflow-hidden rounded-card border border-border-default bg-background-surface">
+      {members.map((member) => (
+        <WorkloadRow key={member.userId} team={team} member={member} />
+      ))}
+    </ul>
+  );
+}
+
+function WorkloadRow({
+  team,
+  member,
+}: {
+  team: Team;
+  member: IskurTeamTasksMember;
+}) {
+  const t = useTranslations("iskurTeam");
+  const tDay = useTranslations("iskurOnboarding.days.short");
+  const duration = useReportDuration();
+  const shown = team.shown?.userId === member.userId;
+  const assigning =
+    team.mode === IskurAssignMode.Create &&
+    team.form.assigneeId === member.userId;
+  const full = isPlanFull(member);
+  const counts = memberTaskCounts(member);
+  const percent = planPercent(member);
+  const meta = [
+    member.weeklyDays == null
+      ? t("daysMissing")
+      : member.workDays.length > 0
+        ? t("memberMeta", {
+            days: member.weeklyDays,
+            workDays: member.workDays.map((day) => tDay(day)).join(", "),
+          })
+        : t("memberMetaNoDays", { days: member.weeklyDays }),
+    full
+      ? t("memberFull")
+      : [
+          ...(counts.tasks > 0 || !counts.project
+            ? [t("memberTasks", { count: counts.tasks })]
+            : []),
+          ...(counts.project ? [t("memberProject")] : []),
+        ].join(" + "),
+  ].join(" · ");
+
+  return (
+    <li
+      className={`flex flex-wrap items-center gap-4 px-5 py-3.5 ${shown ? "bg-background-selected" : ""}`}
+    >
+      <button
+        type="button"
+        aria-pressed={shown}
+        aria-label={t("showTasks", { name: member.fullName })}
+        onClick={() => team.show(member.userId)}
+        className="flex min-w-[200px] flex-1 items-center gap-4 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-border-selected"
+      >
+        <InitialsAvatar initials={initials(member.fullName)} />
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="type-label text-text-primary">
+            {member.fullName}
+          </span>
+          <span className="type-body-sm text-text-muted">{meta}</span>
+        </span>
+      </button>
+      <div className="flex w-[180px] flex-col gap-1">
+        <p
+          className={`type-label-sm ${full ? "text-status-warning-text" : "text-text-primary"}`}
+        >
+          {member.teamMinutes == null
+            ? t("plannedOnly", { planned: duration(member.plannedMinutes) })
+            : t("planned", {
+                planned: duration(member.plannedMinutes),
+                target: duration(member.teamMinutes),
+              })}
+        </p>
+        {percent == null ? null : (
+          <div
+            aria-hidden
+            className="h-2 overflow-hidden rounded-full bg-background-muted"
+          >
+            <div
+              className={`h-2 rounded-full ${full ? "bg-status-warning-icon" : "bg-action-accent"}`}
+              style={{ width: `${String(percent)}%` }}
+            />
+          </div>
+        )}
+      </div>
+      {member.assignable ? (
+        <Button
+          size={ButtonSize.Small}
+          variant={
+            assigning
+              ? ButtonVariant.Primary
+              : full
+                ? ButtonVariant.Ghost
+                : ButtonVariant.Secondary
+          }
+          aria-label={t("assignToName", {
+            action: t(assigning ? "assigning" : "assignTo"),
+            name: member.fullName,
+          })}
+          onClick={() => team.startAssign(member.userId)}
+        >
+          {assigning || full ? null : <Plus aria-hidden className="size-4" />}
+          {t(assigning ? "assigning" : "assignTo")}
+        </Button>
+      ) : null}
+    </li>
+  );
+}
+
+/** The chosen member's tasks, each with the leader's actions: edit, give to another member, cancel. */
+function ShownTasks({
+  team,
+  member,
+}: {
+  team: Team;
+  member: IskurTeamTasksMember;
+}) {
+  const t = useTranslations("iskurTeam");
+  const tasks = orderedTasks(member.tasks);
+  return (
+    <section
+      aria-labelledby="iskur-shown-tasks"
+      className="rounded-card border border-border-default bg-background-surface px-5 py-2"
+    >
+      <h3
+        id="iskur-shown-tasks"
+        className="py-3 type-label-lg text-text-primary"
+      >
+        {t("shownTitle", { name: member.fullName })}
+      </h3>
+      {tasks.length === 0 ? (
+        <p className="border-t border-border-default py-3 type-body-sm text-text-muted">
+          {t("noTasks")}
+        </p>
+      ) : (
+        <>
+          <ul className="divide-y divide-border-default border-t border-border-default">
+            {tasks.map((task) => (
+              <ShownTask key={task.id} team={team} task={task} />
+            ))}
+          </ul>
+          <p className="py-2 type-caption text-text-muted">{t("rowHint")}</p>
+        </>
+      )}
+    </section>
+  );
+}
+
+const TASK_TONES: Record<IskurTaskStatus, StatusTone> = {
+  [IskurTaskStatus.Open]: StatusTone.Neutral,
+  [IskurTaskStatus.Done]: StatusTone.Success,
+  [IskurTaskStatus.HandedOver]: StatusTone.Info,
+};
+
+function ShownTask({ team, task }: { team: Team; task: IskurTask }) {
+  const t = useTranslations("iskurTeam");
+  const tKind = useTranslations("iskurTask.kinds");
+  const locale = useLocale();
+  const duration = useReportDuration();
+  const day = formatReportDay(task.dueDate, locale);
+  return (
+    <li className="flex flex-wrap items-center gap-4 py-2.5">
+      <Link
+        href={iskurTaskHref(task.id)}
+        className="flex min-w-[200px] flex-1 flex-col gap-1 rounded-lg focus-visible:outline-2 focus-visible:outline-border-selected"
+      >
+        <span className="type-label text-text-primary hover:underline">
+          {task.title}
+        </span>
+        <span className="type-body-sm text-text-muted">
+          {t("rowMeta", {
+            kind: tKind(task.kind),
+            day: `${day.weekday} ${day.date}`,
+            duration: duration(task.estimatedMinutes),
+          })}
+        </span>
+      </Link>
+      <StatusBadge tone={TASK_TONES[task.status]}>
+        {t(`status.${task.status}`)}
+      </StatusBadge>
+      {task.canManage ? (
+        <RowActionsMenu
+          label={t("rowMenu", { title: task.title })}
+          actions={[
+            // A done task is locked until it is reopened on its own page.
+            ...(task.status === IskurTaskStatus.Done
+              ? []
+              : [
+                  {
+                    id: "edit",
+                    label: t("actions.edit"),
+                    onSelect: () => team.startEdit(task),
+                  },
+                  {
+                    id: "reassign",
+                    label: t("actions.reassign"),
+                    onSelect: () => team.startReassign(task),
+                  },
+                ]),
+            {
+              id: "cancel",
+              label: t("actions.cancel"),
+              onSelect: () => team.askCancel(task),
+              destructive: true,
+            },
+          ]}
+        />
+      ) : null}
+    </li>
+  );
+}
+
+function CancelDialog({ team, task }: { team: Team; task: IskurTask }) {
+  const t = useTranslations("iskurTeam.cancelDialog");
+  return (
+    <ModalDialog
+      labelledBy="iskur-cancel-title"
+      onClose={team.dismissCancel}
+      panelClassName="w-full max-w-[480px] rounded-[28px] bg-background-surface p-7 shadow-modal outline-none"
+    >
+      <div className="flex flex-col gap-5">
+        <h2 id="iskur-cancel-title" className="type-h3 text-text-primary">
+          {t("title")}
+        </h2>
+        <p className="type-body-sm text-text-secondary">
+          {t("body", { title: task.title, name: task.assignee.fullName })}
+        </p>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            variant={ButtonVariant.Ghost}
+            disabled={team.isCancelling}
+            onClick={team.dismissCancel}
+          >
+            {t("keep")}
+          </Button>
+          <Button
+            variant={ButtonVariant.Destructive}
+            disabled={team.isCancelling}
+            onClick={team.confirmCancel}
+          >
+            {t("confirm")}
+          </Button>
+        </div>
+      </div>
+    </ModalDialog>
   );
 }
 
@@ -312,6 +593,7 @@ function AssignForm({ team }: { team: Team }) {
   const tKind = useTranslations("iskurTask.kinds");
   const duration = useReportDuration();
   const { form, preview } = team;
+  const editing = team.mode !== IskurAssignMode.Create;
   return (
     <Card labelledBy="iskur-assign-title" className="h-fit">
       <form
@@ -322,7 +604,13 @@ function AssignForm({ team }: { team: Team }) {
         }}
       >
         <h2 id="iskur-assign-title" className="type-h3 text-text-primary">
-          {t("title")}
+          {team.mode === IskurAssignMode.Reassign
+            ? t("reassignTitle")
+            : team.assigneeName
+              ? t(editing ? "editTitle" : "titleFor", {
+                  name: team.assigneeName,
+                })
+              : t("title")}
         </h2>
         <label className="block space-y-2">
           <span className="type-label text-text-primary">{t("task")}</span>
@@ -349,6 +637,14 @@ function AssignForm({ team }: { team: Team }) {
               </Chip>
             ))}
           </div>
+          {team.otherProject === null ? null : (
+            <p className="type-caption text-text-muted">
+              {t("otherProject", {
+                name: team.assigneeName,
+                title: team.otherProject,
+              })}
+            </p>
+          )}
         </fieldset>
         <fieldset className="space-y-2">
           <legend className="type-label-sm text-text-secondary">
@@ -411,7 +707,7 @@ function AssignForm({ team }: { team: Team }) {
             <input
               type="date"
               value={form.dueDate}
-              min={team.today}
+              min={team.earliestDue}
               onChange={(event) => team.setDueDate(event.target.value)}
               className={ISKUR_FIELD_CLASS}
             />
@@ -482,10 +778,16 @@ function AssignForm({ team }: { team: Team }) {
             disabled={!team.canSubmit}
             aria-busy={team.submitting}
           >
-            {t("submit")}
+            {t(editing ? "save" : "submit")}
           </Button>
         </div>
-        <p className="type-caption text-text-muted">{t("footnote")}</p>
+        <p className="type-caption text-text-muted">
+          {team.mode === IskurAssignMode.Reassign
+            ? t("reassignNote")
+            : editing
+              ? t("changed", { name: team.assigneeName })
+              : t("footnote")}
+        </p>
       </form>
     </Card>
   );

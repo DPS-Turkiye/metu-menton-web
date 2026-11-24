@@ -101,6 +101,56 @@ export function emptyAssignForm(
   };
 }
 
+/** A task back in the form, for "Düzenle" and "Başka üyeye ata". */
+export function editAssignForm(task: IskurTask): IskurAssignForm {
+  return {
+    title: task.title,
+    kind: task.kind,
+    assigneeId: task.assignee.userId,
+    estimatedMinutes: task.estimatedMinutes,
+    dueDate: task.dueDate,
+    needsOutput: task.needsOutput,
+    description: task.description ?? "",
+  };
+}
+
+/** The title of the person's open contribution project, which a second one may not join; the edited task aside. */
+export function otherContributionProject(
+  member: IskurTeamTasksMember | null,
+  editedTaskId: string | null,
+): string | null {
+  return (
+    member?.tasks.find(
+      (task) =>
+        task.kind === IskurTaskKind.ContributionProject &&
+        task.status === IskurTaskStatus.Open &&
+        task.id !== editedTaskId,
+    )?.title ?? null
+  );
+}
+
+/** "2 görev + katkı projesi" on a member's row: their tasks this week, the contribution project aside. */
+export function memberTaskCounts(member: IskurTeamTasksMember) {
+  const project = member.tasks.some(
+    (task) => task.kind === IskurTaskKind.ContributionProject,
+  );
+  return {
+    tasks: member.tasks.filter(
+      (task) => task.kind !== IskurTaskKind.ContributionProject,
+    ).length,
+    project,
+  };
+}
+
+/** How full the plan is against the target, 0–100; null without a target. */
+export function planPercent(member: IskurTeamTasksMember) {
+  if (!member.teamMinutes) return null;
+  return Math.min(
+    100,
+    Math.floor((member.plannedMinutes / member.teamMinutes) * 100),
+  );
+}
+
 /** The form as the backend takes it; null while the title or the assignee is missing. */
 export function assignInput(form: IskurAssignForm): IskurTaskInput | null {
   const title = form.title.trim();
@@ -146,13 +196,22 @@ export function dueOnWorkDay(
   return member.workDays.includes(weekday);
 }
 
-/** "Mert: 12 → 14 sa / 16,5 sa": the assignee's planned time before and after this task, against their target. */
+/**
+ * "Mert: 12 → 14 sa / 16,5 sa": the assignee's planned time before and after this task, against their target. A task
+ * being edited leaves its own saved time out of the plan it already counts in.
+ */
 export function planPreview(
   member: IskurTeamTasksMember | null,
   estimatedMinutes: number,
+  edited: IskurTask | null = null,
 ): IskurPlanPreview | null {
   if (!member) return null;
-  const after = member.plannedMinutes + estimatedMinutes;
+  const counted =
+    edited?.assignee.userId === member.userId &&
+    edited.status !== IskurTaskStatus.HandedOver
+      ? edited.estimatedMinutes
+      : 0;
+  const after = member.plannedMinutes - counted + estimatedMinutes;
   return {
     fullName: member.fullName,
     before: member.plannedMinutes,

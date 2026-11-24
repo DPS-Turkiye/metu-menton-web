@@ -8,14 +8,18 @@ import {
   assignInput,
   completeBlock,
   dueOnWorkDay,
+  editAssignForm,
   emptyAssignForm,
   isHttpsLink,
   iskurTaskHref,
   isPlanFull,
   linkSavable,
+  memberTaskCounts,
   minutesSavable,
   orderedTasks,
+  otherContributionProject,
   parseMinutes,
+  planPercent,
   planPreview,
   stepEstimate,
   taskCount,
@@ -52,6 +56,61 @@ describe("İŞKUR task helpers", () => {
     expect(stepEstimate(120, -1)).toBe(90);
     expect(stepEstimate(60, -1)).toBe(60);
     expect(stepEstimate(450, 1)).toBe(450);
+  });
+
+  it("puts a task back in the form, and leaves its own time out of the plan it already counts in", () => {
+    const task = createIskurTask({ estimatedMinutes: 120, description: null });
+    expect(editAssignForm(task)).toEqual({
+      title: task.title,
+      kind: task.kind,
+      assigneeId: MEMBER_ID,
+      estimatedMinutes: 120,
+      dueDate: task.dueDate,
+      needsOutput: false,
+      description: "",
+    });
+    const member = createIskurTeamMember({ plannedMinutes: 720 });
+    expect(planPreview(member, 180, task)?.after).toBe(780);
+    const handedOver = createIskurTask({ status: IskurTaskStatus.HandedOver });
+    expect(planPreview(member, 180, handedOver)?.after).toBe(900);
+    const other = createIskurTeamMember({ userId: LEADER_ID });
+    expect(planPreview(other, 180, task)?.after).toBe(
+      other.plannedMinutes + 180,
+    );
+  });
+
+  it("finds a person's other open contribution project", () => {
+    const project = createIskurTask({
+      id: "project",
+      title: "Staj rehberi",
+      kind: IskurTaskKind.ContributionProject,
+    });
+    const member = createIskurTeamMember({ tasks: [project] });
+    expect(otherContributionProject(member, null)).toBe("Staj rehberi");
+    expect(otherContributionProject(member, "project")).toBeNull();
+    expect(
+      otherContributionProject(
+        createIskurTeamMember({
+          tasks: [{ ...project, status: IskurTaskStatus.Done }],
+        }),
+        null,
+      ),
+    ).toBeNull();
+    expect(otherContributionProject(null, null)).toBeNull();
+  });
+
+  it("counts a member's tasks and how full their plan is", () => {
+    const member = createIskurTeamMember({
+      plannedMinutes: 495,
+      tasks: [
+        createIskurTask(),
+        createIskurTask({ kind: IskurTaskKind.ContributionProject }),
+      ],
+    });
+    expect(memberTaskCounts(member)).toEqual({ tasks: 1, project: true });
+    expect(planPercent(member)).toBe(50);
+    expect(planPercent({ ...member, plannedMinutes: 2000 })).toBe(100);
+    expect(planPercent({ ...member, teamMinutes: null })).toBeNull();
   });
 
   it("offers the leader and their sub-group, and starts the form on the first member", () => {
