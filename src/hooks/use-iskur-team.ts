@@ -202,9 +202,11 @@ export function useIskurTeam() {
     taskCount: taskCount(team),
     memberCount: team?.roster.length ?? 0,
     reviews,
-    /** The earliest due date the form takes: today, or a late task's own date while it stays. */
+    /** Today, or a late task's own date while it stays with its person; someone new gets a date ahead. */
     earliestDue:
-      edited && edited.task.dueDate < today ? edited.task.dueDate : today,
+      edited?.mode === IskurAssignMode.Edit && edited.task.dueDate < today
+        ? edited.task.dueDate
+        : today,
     form,
     people,
     /** The member whose tasks are listed under the team's workload. */

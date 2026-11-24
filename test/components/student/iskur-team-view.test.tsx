@@ -208,6 +208,10 @@ describe("IskurTeamView", () => {
       const user = await openMenu("Başka üyeye ata");
 
       const form = screen.getByRole("region", { name: "Başka üyeye ata" });
+      // The task's own date has passed, so whoever takes it gets a new one.
+      const due = within(form).getByLabelText(/^Son tarih/);
+      await user.clear(due);
+      await user.type(due, "2099-11-20");
       await user.click(
         within(form).getByRole("button", { name: "Aslı Yıldız" }),
       );
