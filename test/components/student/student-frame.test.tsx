@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AcademicianFrame } from "@/components/academician/academician-frame";
@@ -104,6 +105,16 @@ describe("StudentFrame", () => {
     render(<StudentFrame>x</StudentFrame>);
     expect(screen.getByText("Öğrenci")).toBeInTheDocument();
     expect(screen.queryByText("Girişim Ekibi")).toBeNull();
+  });
+
+  it("opens Profilim from the account menu", async () => {
+    const user = userEvent.setup();
+    render(<StudentFrame>x</StudentFrame>);
+    await user.click(screen.getByRole("button", { name: /Ayşe Yılmaz/ }));
+    expect(screen.getByRole("menuitem", { name: "Profilim" })).toHaveAttribute(
+      "href",
+      "/student/profile",
+    );
   });
 
   it("opens for an ODTÜ student", () => {
