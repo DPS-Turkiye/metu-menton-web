@@ -30,9 +30,9 @@ import {
   entryDrafts,
   ISKUR_REVIEW_QUEUE_KEY,
   ISKUR_SUPPORT_DEFAULT_MINUTES,
-  ISKUR_WEEK_KEY,
   iskurWeekDays,
   iskurWeekLabel,
+  iskurWeekQueryKey,
   lineProblem,
   overflowingDays,
   teamDraft,
@@ -49,8 +49,7 @@ import { useToast } from "@/stores/toast-store";
 import type { IskurEntryDraft } from "@/types/iskur-weeks";
 import type { PeerReportView } from "@/types/peer-reports";
 
-export const iskurWeekQueryKey = (weekStart: string | null) =>
-  [ISKUR_WEEK_KEY, weekStart ?? "current"] as const;
+export { iskurWeekQueryKey } from "@/lib/iskur-weeks";
 
 function isNotPlaced(error: unknown) {
   return error instanceof ClientApiError && error.status === 404;

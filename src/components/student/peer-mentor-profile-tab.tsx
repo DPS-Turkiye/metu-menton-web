@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
@@ -10,6 +9,7 @@ import { ModalDialog } from "@/components/common/modal-dialog";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
+import { LimitStepper } from "@/components/ia/limit-stepper";
 import { StatusTone } from "@/components/ia/status-badge";
 import { Toggle } from "@/components/ia/toggle";
 import { InitialsAvatar, Tag, TagTone } from "@/components/student/iskur-ui";
@@ -233,9 +233,6 @@ function HoursRow({ label, children }: { label: string; children: string }) {
   );
 }
 
-const STEP_BUTTON =
-  "grid h-9 w-10 place-items-center rounded-button-sm bg-action-secondary-bg text-action-secondary-fg hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-selected disabled:bg-background-disabled disabled:text-text-disabled";
-
 function IntakeCard({
   view,
   profile,
@@ -274,32 +271,19 @@ function IntakeCard({
       ) : null}
       <div className="flex items-center gap-3">
         <span className="type-body-sm text-text-secondary">{t("limit")}</span>
-        <button
-          type="button"
-          aria-label={t("decrease")}
-          disabled={!intake.canDecrease || intake.isSaving}
-          onClick={intake.decrease}
-          className={STEP_BUTTON}
-        >
-          <ChevronLeft aria-hidden className="size-4" />
-        </button>
-        <span aria-live="polite" className="type-metric-sm text-text-primary">
-          {view.menteeCapacity ?? t("unset")}
-        </span>
-        <button
-          type="button"
-          aria-label={t("increase")}
-          disabled={!intake.canIncrease || intake.isSaving}
-          onClick={intake.increase}
-          className={STEP_BUTTON}
-        >
-          <ChevronRight aria-hidden className="size-4" />
-        </button>
+        <LimitStepper
+          value={view.menteeCapacity ?? t("unset")}
+          decreaseLabel={t("decrease")}
+          increaseLabel={t("increase")}
+          canDecrease={intake.canDecrease}
+          canIncrease={intake.canIncrease}
+          onDecrease={intake.decrease}
+          onIncrease={intake.increase}
+        />
       </div>
       <Toggle
         label={t("accepting")}
         checked={profile.acceptingRequests}
-        disabled={intake.isSaving}
         onChange={intake.setAccepting}
       />
       <p className="type-caption text-text-muted">{t("hint")}</p>

@@ -7,13 +7,11 @@ import { useInstitutionRecord } from "@/hooks/use-institution-record";
 import { iskurOnboardingQueryKey } from "@/hooks/use-iskur-onboarding";
 import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import { getIskurWeek } from "@/lib/client/iskur-weeks";
-import { ISKUR_WEEK_KEY } from "@/lib/iskur-weeks";
+import { iskurWeekQueryKey } from "@/lib/iskur-weeks";
 import type { AvailabilityDraft } from "@/lib/mentor-availability";
 import { isInsideDuty, type DutyRange } from "@/lib/mentor-duty-hours";
 
 const NO_DUTY: DutyRange[] = [];
-/** This week, as Bu Haftam caches it. */
-const THIS_WEEK_KEY = [ISKUR_WEEK_KEY, "current"] as const;
 
 /**
  * An İŞKUR intern's work hours and weekly mentoring target, which their mentoring hours must fit in (Figma 6.8). Empty
@@ -33,7 +31,7 @@ export function useMentorDutyHours() {
   const form = onboarding.data?.form;
   const duty = form?.submittedAt ? form.schedule : NO_DUTY;
   const week = useQuery({
-    queryKey: THIS_WEEK_KEY,
+    queryKey: iskurWeekQueryKey(null),
     queryFn: () => getIskurWeek(null),
     enabled: duty.length > 0,
     retry: false,

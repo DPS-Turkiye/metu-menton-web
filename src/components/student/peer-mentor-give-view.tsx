@@ -526,6 +526,14 @@ function AvailabilityPanel() {
       {availability.isSaving ? t("saving") : t("save")}
     </Button>
   );
+  // Until the work hours are known, neither editor: the plain one would not check them.
+  if (hours.isLoading) {
+    return (
+      <p role="status" className="type-body-sm text-text-muted">
+        {tHours("loading")}
+      </p>
+    );
+  }
   if (hours.duty.length === 0) {
     return (
       <Card className="space-y-4">

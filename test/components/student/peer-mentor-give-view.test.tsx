@@ -697,6 +697,35 @@ describe("PeerMentorGiveView", () => {
       );
     });
 
+    it("keeps a limit changed on Mentor profilim while these hours are being edited", async () => {
+      vi.mocked(savePeerMentorIntake).mockResolvedValue(publishedProfile());
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+      await user.click(
+        await screen.findByRole("button", { name: "Çarşamba için saat ekle" }),
+      );
+      const settings = await getAvailabilitySettings();
+      vi.mocked(getAvailabilitySettings).mockResolvedValue({
+        ...settings,
+        menteeCapacity: 5,
+      });
+      const profile = screen
+        .getAllByRole("button", { name: "Üst sınırı artır", hidden: true })
+        .at(-1);
+      if (!profile) throw new Error("profile tab stepper missing");
+      await user.click(profile);
+      await waitFor(() => expect(savePeerMentorIntake).toHaveBeenCalled());
+      const summary = screen.getByRole("region", { name: "Haftalık özet" });
+      expect(await within(summary).findByText("5")).toBeVisible();
+      await user.click(screen.getByRole("button", { name: "Kaydet" }));
+      await waitFor(() =>
+        expect(
+          vi.mocked(updateAvailabilitySettings).mock.calls[0]?.[0]
+            .menteeCapacity,
+        ).toBe(5),
+      );
+    });
+
     it("refuses hours outside the work hours", async () => {
       const user = userEvent.setup();
       renderWithQueryClient(<PeerMentorGiveView />);
@@ -825,7 +854,6 @@ describe("PeerMentorGiveView", () => {
       const accepting = screen.getByRole("switch", {
         name: "Yeni talep almaya açığım",
       });
-      await waitFor(() => expect(accepting).toBeEnabled());
       expect(accepting).toHaveAttribute("aria-checked", "true");
       await user.click(accepting);
       await waitFor(() =>

@@ -1,32 +1,32 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Lock, Plus, X } from "lucide-react";
+import { Lock, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
+import { LimitStepper } from "@/components/ia/limit-stepper";
 import { StatusTone } from "@/components/ia/status-badge";
 import { ISKUR_FIELD_CLASS, Segmented } from "@/components/student/iskur-ui";
 import type { MentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import { useReportDuration } from "@/hooks/use-report-format";
 import type { WeeklyAvailabilityForm } from "@/hooks/use-weekly-availability-form";
-import { Weekday } from "@/interfaces/mentor";
 import { exceptionLabel } from "@/lib/mentor-availability";
 import {
   chartPlace,
   chartSpan,
   dutyMinutes,
   firstOffer,
+  isDayShown,
   isInsideDuty,
+  meetingLengths,
   offeredMinutes,
+  outsideDuty,
   spanLabel,
 } from "@/lib/mentor-duty-hours";
 import { PEER_CAPACITY_MAX, PEER_CAPACITY_MIN } from "@/lib/peer-mentoring";
-
-const WEEKEND: readonly Weekday[] = [Weekday.Saturday, Weekday.Sunday];
-const MEETING_LENGTHS = ["30", "45", "60"];
 
 type Editor = WeeklyAvailabilityForm;
 
@@ -77,12 +77,8 @@ export function PeerMentorHoursEditor({
         </div>
         <ul className="divide-y divide-border-default rounded-card border border-border-default bg-background-surface px-5 py-1">
           {editor.days
-            // Work days can be Saturdays; an empty weekend day is left out, as drawn.
-            .filter(
-              ({ day, ranges }) =>
-                !WEEKEND.includes(day) ||
-                ranges.length > 0 ||
-                dutyMinutes(hours.duty, day) > 0,
+            .filter(({ day, ranges }) =>
+              isDayShown(hours.duty, day, ranges.length),
             )
             .map((row) => (
               <DayRow
@@ -132,7 +128,7 @@ function DayRow({
   const { day, label, ranges } = row;
   const duty = hours.duty.filter((range) => range.day === day);
   const work = dutyMinutes(hours.duty, day);
-  const outside = ranges.filter((range) => !isInsideDuty(hours.duty, range));
+  const outside = outsideDuty(hours.duty, ranges);
   const open = editing && ranges.length > 0;
 
   return (
@@ -407,9 +403,6 @@ function ClosedDays({ editor }: { editor: Editor }) {
   );
 }
 
-const STEP_BUTTON =
-  "grid h-9 w-10 place-items-center rounded-button-sm bg-action-secondary-bg text-action-secondary-fg hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-selected disabled:bg-background-disabled disabled:text-text-disabled";
-
 function Summary({
   editor,
   hours,
@@ -422,9 +415,7 @@ function Summary({
   const { draft } = editor;
   if (!draft) return null;
   const length = draft.defaultMeetingDurationMinutes;
-  const lengths = MEETING_LENGTHS.includes(length)
-    ? MEETING_LENGTHS
-    : [...MEETING_LENGTHS, length];
+  const lengths = meetingLengths(length);
   const limit = Number(draft.menteeCapacity);
   return (
     <section
@@ -469,27 +460,15 @@ function Summary({
       </div>
       <p className="type-label text-text-primary">{t("limit")}</p>
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          aria-label={t("decrease")}
-          disabled={limit <= PEER_CAPACITY_MIN}
-          onClick={() => editor.stepNumber("menteeCapacity", -1)}
-          className={STEP_BUTTON}
-        >
-          <ChevronLeft aria-hidden className="size-4" />
-        </button>
-        <span aria-live="polite" className="type-metric-sm text-text-primary">
-          {draft.menteeCapacity || t("noLimit")}
-        </span>
-        <button
-          type="button"
-          aria-label={t("increase")}
-          disabled={limit >= PEER_CAPACITY_MAX}
-          onClick={() => editor.stepNumber("menteeCapacity", 1)}
-          className={STEP_BUTTON}
-        >
-          <ChevronRight aria-hidden className="size-4" />
-        </button>
+        <LimitStepper
+          value={draft.menteeCapacity || t("noLimit")}
+          decreaseLabel={t("decrease")}
+          increaseLabel={t("increase")}
+          canDecrease={limit > PEER_CAPACITY_MIN}
+          canIncrease={limit < PEER_CAPACITY_MAX}
+          onDecrease={() => editor.stepNumber("menteeCapacity", -1)}
+          onIncrease={() => editor.stepNumber("menteeCapacity", 1)}
+        />
         <span className="type-body-sm text-text-muted">{t("suggested")}</span>
       </div>
       <p className="type-caption text-text-muted">{t("limitHint")}</p>

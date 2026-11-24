@@ -1,4 +1,4 @@
-import type { Weekday } from "@/interfaces/mentor";
+import { Weekday } from "@/interfaces/mentor";
 import { minutesOfDay } from "@/lib/utils";
 
 /** One range of an İŞKUR intern's work days, "HH:mm" to "HH:mm" (their onboarding form). */
@@ -49,6 +49,32 @@ export function isInsideDuty(
   return dutyOf(duty, range.dayOfWeek).some(
     (work) => from >= work.from && to <= work.to,
   );
+}
+
+export function outsideDuty<T extends OfferedRange>(
+  duty: readonly DutyRange[],
+  ranges: readonly T[],
+) {
+  return ranges.filter((range) => !isInsideDuty(duty, range));
+}
+
+/** Weekdays always show; a weekend day only when there is work or an offer on it. */
+export function isDayShown(
+  duty: readonly DutyRange[],
+  day: Weekday,
+  offers: number,
+) {
+  const weekend = day === Weekday.Saturday || day === Weekday.Sunday;
+  return !weekend || offers > 0 || dutyMinutes(duty, day) > 0;
+}
+
+const USUAL_LENGTHS = ["30", "45", "60"];
+
+/** The meeting lengths offered, with the saved one when it is another. */
+export function meetingLengths(saved: string): readonly string[] {
+  return USUAL_LENGTHS.includes(saved)
+    ? USUAL_LENGTHS
+    : [...USUAL_LENGTHS, saved];
 }
 
 export function dutyMinutes(duty: readonly DutyRange[], day: Weekday) {

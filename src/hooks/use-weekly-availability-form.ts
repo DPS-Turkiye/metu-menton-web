@@ -50,6 +50,18 @@ export type WeeklyAvailabilitySource = {
   quiet?: boolean;
 };
 
+function withSavedNumbers(
+  edits: AvailabilityDraft,
+  saved: AvailabilityDraft,
+  touched: readonly AvailabilityNumberField[],
+): AvailabilityDraft {
+  const kept = { ...edits };
+  for (const field of ALL_NUMBER_FIELDS) {
+    if (!touched.includes(field)) kept[field] = saved[field];
+  }
+  return kept;
+}
+
 /**
  * Edits one owner's weekly availability: time ranges per weekday, the number fields and
  * unavailable dates. The owner (a mentor today; a peer mentor or an academician later) only
@@ -74,14 +86,20 @@ export function useWeeklyAvailabilityForm(
   const [error, setError] = useState<string | null>(null);
   const [isAddingException, setIsAddingException] = useState(false);
   const nextKey = useRef(0);
-  const draft = edits ?? loaded;
+  // A number the owner left alone here follows what is saved, so a limit changed elsewhere is not undone by this form.
+  const [touched, setTouched] = useState<readonly AvailabilityNumberField[]>(
+    [],
+  );
+  const draft =
+    edits && loaded ? withSavedNumbers(edits, loaded, touched) : loaded;
 
   const change = (
     update: (current: AvailabilityDraft) => AvailabilityDraft,
   ) => {
     setError(null);
     setEdits((current) => {
-      const base = current ?? loaded;
+      const base =
+        current && loaded ? withSavedNumbers(current, loaded, touched) : loaded;
       return base ? update(base) : current;
     });
   };
@@ -143,14 +161,20 @@ export function useWeeklyAvailabilityForm(
       ),
     }));
 
-  const setNumber = (field: AvailabilityNumberField, value: string) =>
+  const touch = (field: AvailabilityNumberField) =>
+    setTouched((current) => [...current, field]);
+
+  const setNumber = (field: AvailabilityNumberField, value: string) => {
+    touch(field);
     change((current) => ({ ...current, [field]: value }));
+  };
 
   const stepNumber = (field: AvailabilityNumberField, direction: 1 | -1) => {
     const bounds = AVAILABILITY_NUMBER_FIELDS.find(
       (item) => item.field === field,
     );
     if (!bounds) return;
+    touch(field);
     change((current) => ({
       ...current,
       [field]: stepNumberValue(current[field], bounds, direction),
@@ -214,6 +238,7 @@ export function useWeeklyAvailabilityForm(
     try {
       await source.save(toAvailabilityPayload(draft));
       setEdits(null);
+      setTouched([]);
       if (!source.quiet)
         showToast({ message: t("saved"), tone: ToastTone.Success });
       onSaved();

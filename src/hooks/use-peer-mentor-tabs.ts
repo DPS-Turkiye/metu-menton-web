@@ -13,7 +13,10 @@ import {
   usePeerRequestDecision,
 } from "@/hooks/use-peer-mentor-give";
 import { PROFILE_COMPLETION_CATEGORIES_QUERY_KEY } from "@/hooks/use-student-profile-completion";
-import type { PeerMentorProfile } from "@/interfaces/peer-mentoring";
+import type {
+  PeerMentorProfile,
+  SavePeerMentorIntakeInput,
+} from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
 import { savePeerMentorIntake } from "@/lib/client/peer-mentoring";
 import { getProfileCompletionCategories } from "@/lib/client/student-profile-completion";
@@ -110,13 +113,13 @@ export function usePeerMentorIntake(
         tone: ToastTone.Error,
       }),
   });
+  // A press while the last one is being saved is dropped; the controls stay enabled so the keyboard keeps its place.
+  const send = (input: SavePeerMentorIntakeInput) => {
+    if (!save.isPending) save.mutate(input);
+  };
   const setCapacity = (menteeCapacity: number) =>
-    save.mutate({
-      menteeCapacity,
-      acceptingRequests: profile.acceptingRequests,
-    });
+    send({ menteeCapacity, acceptingRequests: profile.acceptingRequests });
   return {
-    isSaving: save.isPending,
     canDecrease: capacity !== null && capacity > PEER_CAPACITY_MIN,
     canIncrease: capacity === null || capacity < PEER_CAPACITY_MAX,
     decrease: () => {
@@ -126,6 +129,6 @@ export function usePeerMentorIntake(
     increase: () =>
       setCapacity(capacity === null ? PEER_CAPACITY_MIN : capacity + 1),
     setAccepting: (acceptingRequests: boolean) =>
-      save.mutate({ menteeCapacity: null, acceptingRequests }),
+      send({ menteeCapacity: null, acceptingRequests }),
   };
 }

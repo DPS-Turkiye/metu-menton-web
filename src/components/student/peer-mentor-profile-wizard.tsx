@@ -135,6 +135,7 @@ export function PeerMentorProfileWizard() {
               />
             ) : null}
             {step === PeerMentorWizardStep.Availability &&
+            !wizard.dutyHours.isLoading &&
             wizard.dutyHours.duty.length === 0 ? (
               <Card>
                 <h2 className="mb-4 type-title-card text-text-primary">
