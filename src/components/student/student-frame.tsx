@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { RoleFrame, type RoleNavItem } from "@/components/common/role-frame";
 import { IskurMessagesMenu } from "@/components/iskur/iskur-messages-menu";
 import { Workspace } from "@/interfaces/workspace";
+import { studentNotificationHref } from "@/lib/student-notification-href";
 
 export const STUDENT_HOME = "/student";
 
@@ -53,6 +54,7 @@ export function StudentFrame({ children }: { children: ReactNode }) {
       nav={STUDENT_NAV}
       roleLabel={t("student")}
       headerExtras={<IskurMessagesMenu />}
+      notificationHref={studentNotificationHref}
     >
       {children}
     </RoleFrame>

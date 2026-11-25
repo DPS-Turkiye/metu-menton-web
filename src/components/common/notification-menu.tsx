@@ -21,10 +21,13 @@ export function NotificationMenu({
   showBadge = true,
   minimal = false,
   appearance = "default",
+  hrefFor = (href) => href,
 }: {
   showBadge?: boolean;
   minimal?: boolean;
   appearance?: "default" | "admin";
+  /** Where a notification's link leads in the frame the menu is in. */
+  hrefFor?: ((href: string) => string) | undefined;
 }) {
   const t = useTranslations("notificationMenu");
   const locale = useLocale();
@@ -146,7 +149,7 @@ export function NotificationMenu({
                     <div className="min-w-0 flex-1">
                       {notification.href ? (
                         <Link
-                          href={notification.href}
+                          href={hrefFor(notification.href)}
                           onClick={() => {
                             if (!notification.readAt)
                               void markRead(notification.id);
