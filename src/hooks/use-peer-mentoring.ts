@@ -56,10 +56,7 @@ import {
 } from "@/lib/peer-mentoring";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import {
-  PeerRequestAvailability,
-  type PeerTakeTab,
-} from "@/types/iskur-student";
+import { PeerRequestAvailability, PeerTakeTab } from "@/types/iskur-student";
 
 export const PEER_MENTORS_QUERY_KEY = ["peer-mentors"] as const;
 export const PEER_MENTOR_QUERY_KEY = ["peer-mentor"] as const;
