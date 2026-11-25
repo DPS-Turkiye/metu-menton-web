@@ -47,6 +47,7 @@ describe("calendarSummary", () => {
           item("held", 3, AppointmentStatus.Confirmed),
           item("ahead", 20, AppointmentStatus.Confirmed),
           item("waiting", 21, AppointmentStatus.Pending),
+          item("lapsed", 4, AppointmentStatus.Pending),
           item("cancelled", 22, AppointmentStatus.Cancelled),
           peerAppointment({
             id: "other-month",

@@ -218,7 +218,7 @@ export function AppointmentTimeGrid({
           >
             {items.map((item) => {
               const place = gridPlacement(item);
-              const dashed = isAwaitingAnswer(item);
+              const confirmed = item.status === AppointmentStatus.Confirmed;
               const isSelected = selectedId === item.id;
               return (
                 <li
@@ -239,7 +239,7 @@ export function AppointmentTimeGrid({
                       {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                     </span>
                     <span className={secondLine(place.height)}>
-                      {dashed ? t(item.status) : item.topic}
+                      {confirmed ? item.topic : t(item.status)}
                     </span>
                   </button>
                 </li>

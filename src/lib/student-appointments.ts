@@ -1,5 +1,5 @@
 import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
-import { currentTime, splitAppointments } from "@/lib/appointments";
+import { currentTime, isUpcoming, splitAppointments } from "@/lib/appointments";
 import {
   isSameDay,
   monthLabel,
@@ -72,7 +72,10 @@ export function calendarSummary(shown: readonly Appointment[], now: Date) {
     meetings: confirmed.length,
     done: confirmed.filter((item) => Date.parse(item.endsAt) <= now.getTime())
       .length,
-    waiting: shown.filter(isAwaitingAnswer).length,
+    // Only those Talepler still lists: one whose time has passed is over.
+    waiting: shown.filter(
+      (item) => isAwaitingAnswer(item) && isUpcoming(item, now),
+    ).length,
   };
 }
 
