@@ -23,17 +23,15 @@ export function fetchOwnPeerMentorDocuments(actorId: string) {
   });
 }
 
-/** The form carries the file, its type and visibility; the backend takes the uploader from the bearer token. */
-export function uploadPeerMentorDocument(formData: FormData, idToken: string) {
-  return backendRequest<PeerMentorDocument>(
-    {
-      method: HttpMethod.Post,
-      url: PROFILE_DOCUMENTS,
-      data: formData,
-      timeout: UPLOAD_TIMEOUT_MS,
-    },
-    { idToken },
-  );
+/** The form carries the file, its type and visibility; the uploader is the session's, as with every other call. */
+export function uploadPeerMentorDocument(actorId: string, formData: FormData) {
+  return backendRequest<PeerMentorDocument>({
+    method: HttpMethod.Post,
+    url: PROFILE_DOCUMENTS,
+    params: { actorId },
+    data: formData,
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
 }
 
 export function addPeerMentorLink(
