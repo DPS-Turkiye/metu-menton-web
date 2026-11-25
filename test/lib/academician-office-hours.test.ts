@@ -10,10 +10,7 @@ import {
   rangeMinutes,
   shiftDay,
   slotWhenLabel,
-  turkeyDay,
-  turkeyTime,
   turkeyTimeRange,
-  turkeyWallClock,
   waitsForAcademician,
   weekdayOfDay,
 } from "@/lib/academician-office-hours";
@@ -88,12 +85,6 @@ describe("slotWhenLabel", () => {
 });
 
 describe("Turkey days", () => {
-  it("counts a moment on its Turkey day, whatever the browser's zone", () => {
-    // 22:30 in Istanbul on the 10th is still the 10th in UTC, but 21:30 UTC is already the 11th in Istanbul.
-    expect(turkeyDay("2026-11-10T22:30:00+03:00")).toBe("2026-11-10");
-    expect(turkeyDay(new Date("2026-11-10T21:30:00Z"))).toBe("2026-11-11");
-  });
-
   it("steps and measures days across a month end", () => {
     expect(shiftDay("2026-11-30", 1)).toBe("2026-12-01");
     expect(shiftDay("2026-03-01", -1)).toBe("2026-02-28");
@@ -135,20 +126,5 @@ describe("acceptableTime", () => {
     expect(
       acceptableTime(academicianRequest({ requestedTimes: [] })),
     ).toBeNull();
-  });
-});
-
-describe("turkeyTime", () => {
-  it("shows a moment in Turkey time", () => {
-    expect(turkeyTime("2026-11-10T07:00:00Z", "tr")).toBe("10:00");
-  });
-});
-
-describe("turkeyWallClock", () => {
-  it("reads Turkey's wall clock in the local fields", () => {
-    const wall = turkeyWallClock("2026-11-10T21:30:00Z");
-    expect([wall.getDate(), wall.getHours(), wall.getMinutes()]).toEqual([
-      11, 0, 30,
-    ]);
   });
 });

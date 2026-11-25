@@ -10,12 +10,12 @@ import {
 } from "@/interfaces/academician-office-hours";
 import type { AppointmentTime } from "@/interfaces/appointment";
 import type { CalendarSource } from "@/lib/academician-calendar";
-import { TURKEY_TIME_ZONE } from "@/lib/academician-office-hours";
 import {
   proposableDays,
   proposalPayload,
   toggleProposed,
 } from "@/lib/academician-proposals";
+import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 
 /**
  * "Alternatif saat öner": pick up to three free times, from any of the next weekdays, and an optional note. The

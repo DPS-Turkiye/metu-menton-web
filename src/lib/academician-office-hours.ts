@@ -9,6 +9,11 @@ import {
 } from "@/interfaces/appointment";
 import { WEEKDAY_ORDER, type Weekday } from "@/interfaces/mentor";
 import { formatDateRange } from "@/lib/format";
+import {
+  formatTurkishTime,
+  TURKEY_OFFSET_MS,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
 
 /** Every academician Office Hours query sits under this key, so one answer refreshes them all. */
 export const ACADEMICIAN_OFFICE_HOURS_QUERY_KEY = [
@@ -64,8 +69,6 @@ export function groupAppointments(
   };
 }
 
-const TURKEY_OFFSET_MS = 3 * 60 * 60 * 1000;
-
 /** A "YYYY-MM-DDTHH:mm" time typed in Turkey (no daylight saving) as a time range of `minutes`. */
 export function turkeyTimeRange(
   local: string,
@@ -82,44 +85,6 @@ export function turkeyTimeRange(
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** Office Hours times are Turkey times: every academician screen shows them as such, wherever the browser is. */
-export const TURKEY_TIME_ZONE = "Europe/Istanbul";
-
-/**
- * A moment as a Date whose local fields read Turkey's wall clock. The calendar grid does its day and hour math on
- * local fields, so feeding it these keeps every block in Turkey time; in a browser in Turkey nothing changes.
- */
-export function turkeyWallClock(at: Date | string) {
-  const time = typeof at === "string" ? Date.parse(at) : at.getTime();
-  const turkey = new Date(time + TURKEY_OFFSET_MS);
-  return new Date(
-    turkey.getUTCFullYear(),
-    turkey.getUTCMonth(),
-    turkey.getUTCDate(),
-    turkey.getUTCHours(),
-    turkey.getUTCMinutes(),
-    turkey.getUTCSeconds(),
-  );
-}
-
-/** "10:00" of a moment in Turkey time. */
-export function turkeyTime(value: string | Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: TURKEY_TIME_ZONE,
-  }).format(typeof value === "string" ? new Date(value) : value);
-}
-
-/**
- * The Turkey calendar day ("YYYY-MM-DD") a moment falls on. Office Hours times are Turkey times (see
- * turkeyTimeRange), so days are counted there too, whatever time zone the browser is in.
- */
-export function turkeyDay(at: Date | string) {
-  const time = typeof at === "string" ? Date.parse(at) : at.getTime();
-  return new Date(time + TURKEY_OFFSET_MS).toISOString().slice(0, 10);
-}
 
 /** The day `days` after a "YYYY-MM-DD" day. */
 export function shiftDay(day: string, days: number) {
@@ -162,7 +127,7 @@ export function turkeyShortDay(value: string | Date, locale: string) {
 
 /** "Per 12 Kas · 14:30 – 15:00" */
 export function slotShortLabel(time: AppointmentTime, locale: string) {
-  return `${turkeyShortDay(time.startsAt, locale)} · ${turkeyTime(time.startsAt, locale)} – ${turkeyTime(time.endsAt, locale)}`;
+  return `${turkeyShortDay(time.startsAt, locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
 }
 
 /** "12 Kasım, 14:00–14:30": a requested or booked time on the academician's screens. */

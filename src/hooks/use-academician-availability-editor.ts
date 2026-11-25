@@ -30,15 +30,17 @@ import {
 import {
   ACADEMICIAN_AVAILABILITY_QUERY_KEY,
   ACADEMICIAN_OFFICE_HOURS_QUERY_KEY,
-  TURKEY_TIME_ZONE,
-  turkeyDay,
-  turkeyWallClock,
 } from "@/lib/academician-office-hours";
 import {
   getAcademicianAvailability,
   saveAcademicianAvailability,
 } from "@/lib/client/academician-office-hours";
 import { formatDateRange } from "@/lib/format";
+import {
+  toTurkishDate,
+  toTurkishWallClock,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
 import { calendarDay } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 import { AvailabilityItemKind } from "@/types/academician-office-hours";
@@ -85,7 +87,7 @@ function idOf(item: AvailabilityItem) {
 
 /** "HH:mm" of a moment on Turkey's clock, for a time input. */
 function clockOf(value: string) {
-  const date = turkeyWallClock(value);
+  const date = toTurkishWallClock(value);
   const pad = (part: number) => String(part).padStart(2, "0");
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
@@ -106,7 +108,7 @@ function fieldsFor(item: AvailabilityItem): Fields {
       return {
         ...EMPTY_FIELDS,
         oneOff: {
-          date: turkeyDay(item.oneOff.startsAt),
+          date: toTurkishDate(item.oneOff.startsAt),
           startTime: clockOf(item.oneOff.startsAt),
           endTime: clockOf(item.oneOff.endsAt),
           place: item.oneOff.place ?? "",

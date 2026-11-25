@@ -20,13 +20,13 @@ import type {
   StudentOfficeHoursSlot,
 } from "@/interfaces/student-office-hours";
 import {
-  isSameDay,
+  isSameCalendarDay,
   shortWeekday,
-  timeLabel,
   weekdayName,
   weekRangeLabel,
 } from "@/lib/calendar";
 import { academicianName } from "@/lib/student-office-hours";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatDayMonthLong, formatWeekdayDayMonth } from "@/lib/utils";
 
 type Booking = ReturnType<typeof useOfficeHoursBooking>;
@@ -69,7 +69,7 @@ export function OfficeHoursBookingView({
 
 /** "Per 12 Kas · 14:00 – 14:30" */
 function whenLine(slot: StudentOfficeHoursSlot, locale: string) {
-  return `${formatWeekdayDayMonth(new Date(slot.startsAt), locale)} · ${timeLabel(slot.startsAt, locale)} – ${timeLabel(slot.endsAt, locale)}`;
+  return `${formatWeekdayDayMonth(toTurkishWallClock(slot.startsAt), locale)} · ${formatTurkishTime(slot.startsAt, locale)} – ${formatTurkishTime(slot.endsAt, locale)}`;
 }
 
 /** A step replaces the page, so its title takes focus as a page change would. */
@@ -192,7 +192,7 @@ function SlotPicker({
             freeCount={column.freeCount}
             active={
               booking.day !== null &&
-              isSameDay(column.day.toISOString(), booking.day.day)
+              isSameCalendarDay(column.day, booking.day.day)
             }
             onPick={booking.pickDay}
           />
@@ -229,7 +229,7 @@ function SlotPicker({
                         : "border-transparent bg-background-muted text-text-disabled"
                   }`}
                 >
-                  {timeLabel(slot.startsAt, locale)}
+                  {formatTurkishTime(slot.startsAt, locale)}
                 </button>
               );
             })}

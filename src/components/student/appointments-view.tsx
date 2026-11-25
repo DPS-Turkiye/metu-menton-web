@@ -47,7 +47,7 @@ import {
   type AppointmentTime,
 } from "@/interfaces/appointment";
 import { currentTime } from "@/lib/appointments";
-import { monthName, timeLabel } from "@/lib/calendar";
+import { monthName } from "@/lib/calendar";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
 import {
@@ -61,6 +61,7 @@ import {
   canWithdrawOfficeHours,
   offeredTimes,
 } from "@/lib/student-office-hours";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 import {
   AppointmentRequestGroup,
@@ -547,7 +548,7 @@ function AppointmentDetail({
       ? offeredTimes(appointment)
       : [];
   const when = (time: AppointmentTime) =>
-    `${formatWeekdayDayMonth(new Date(time.startsAt), locale)} · ${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`;
+    `${formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
   return (
     <section aria-labelledby="appointment-detail-title" className={SIDE_CARD}>
       <p className="type-overline text-text-secondary">{t("picked")}</p>
@@ -683,7 +684,7 @@ function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
                 className="flex flex-col items-start gap-1.5 py-3 first:pt-0"
               >
                 <p className="type-label break-words text-text-primary">
-                  {`${timeLabel(currentTime(item).startsAt, locale)} · ${item.topic}`}
+                  {`${formatTurkishTime(currentTime(item).startsAt, locale)} · ${item.topic}`}
                 </p>
                 <p className="type-body-sm text-text-muted">
                   {`${shortPersonName(item.counterpart.fullName)} · ${tKind(item.kind)}`}

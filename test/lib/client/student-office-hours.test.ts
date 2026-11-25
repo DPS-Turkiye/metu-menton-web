@@ -33,6 +33,7 @@ import {
   getStudentOfficeHoursAppointments,
   requestOfficeHours,
 } from "@/lib/client/student-office-hours";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 vi.mock("@/lib/client/office-hours-me", () => ({
   answerOfficeHoursAlternative: vi.fn(),
@@ -157,6 +158,34 @@ describe("student Office Hours client", () => {
     ]);
     vi.useRealTimers();
   });
+
+  it.each(BROWSER_TIME_ZONES)(
+    "reads the window as Turkey days in a browser in %s",
+    async (zone) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-11-20T12:00:00+03:00"));
+      vi.mocked(getAcademicianOpenSlots).mockResolvedValue([
+        // 00:30 on Monday the 23rd in Istanbul, still Sunday in UTC and London.
+        {
+          startsAt: "2026-11-23T00:30:00+03:00",
+          endsAt: "2026-11-23T01:00:00+03:00",
+        },
+        {
+          startsAt: "2026-11-30T00:30:00+03:00",
+          endsAt: "2026-11-30T01:00:00+03:00",
+        },
+      ]);
+
+      const slots = await inTimeZone(zone, () =>
+        getOfficeHoursSlots("oh-1", new Date(2026, 10, 23), 7),
+      );
+
+      expect(slots.map((slot) => slot.startsAt)).toEqual([
+        "2026-11-23T00:30:00+03:00",
+      ]);
+      vi.useRealTimers();
+    },
+  );
 
   it("never offers a time already past, and none once the academician is no longer listed", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });

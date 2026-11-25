@@ -13,9 +13,9 @@ import {
   byStart,
   daysBetween,
   groupAppointments,
-  turkeyDay,
   waitsForAcademician,
 } from "@/lib/academician-office-hours";
+import { toTurkishDate } from "@/lib/turkey-time";
 
 /** How many waiting requests Ana Sayfa shows before "Tümü". */
 export const HOME_REQUEST_PREVIEW = 3;
@@ -48,7 +48,7 @@ export function homeSummary({
   const waiting = requests
     .filter(waitsForAcademician)
     .toSorted((a, b) => Date.parse(a.requestedAt) - Date.parse(b.requestedAt));
-  const today = turkeyDay(now);
+  const today = toTurkishDate(now);
   return {
     pendingCount: waiting.length,
     oldestRequestedAt: waiting[0]?.requestedAt ?? null,
@@ -58,7 +58,7 @@ export function homeSummary({
       .filter(
         (item) =>
           item.status === AppointmentStatus.Confirmed &&
-          turkeyDay(item.startsAt) === today,
+          toTurkishDate(item.startsAt) === today,
       )
       .toSorted(byStart),
     upcomingCount: groupAppointments(appointments, now.getTime()).upcoming
@@ -70,7 +70,7 @@ export function homeSummary({
 
 /** Whole Turkey calendar days from `value` to `now` ("2 gün önce"). */
 export function daysSince(value: string, now: Date) {
-  return daysBetween(turkeyDay(value), turkeyDay(now));
+  return daysBetween(toTurkishDate(value), toTurkishDate(now));
 }
 
 /** "Elif" from "Elif Şahin": the design greets an academician by first name ("Günaydın, Elif Hocam"). */

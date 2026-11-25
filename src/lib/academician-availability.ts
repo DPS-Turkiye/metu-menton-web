@@ -12,10 +12,10 @@ import {
 import {
   rangeMinutes,
   shiftDay,
-  turkeyDay,
   turkeyTimeRange,
   weekdayOfDay,
 } from "@/lib/academician-office-hours";
+import { toTurkishDate } from "@/lib/turkey-time";
 import { minutesOfDay } from "@/lib/utils";
 import {
   AvailabilityFormError,
@@ -77,7 +77,7 @@ export function availabilitySummary(
   availability: AcademicianAvailability,
   now: Date,
 ): AvailabilityItem[] {
-  const today = turkeyDay(now);
+  const today = toTurkishDate(now);
   const recurring = availability.rules
     .toSorted(
       (a, b) =>
@@ -114,7 +114,7 @@ export function weekAvailability(
   availability: AcademicianAvailability,
   now: Date,
 ): WeekAvailability {
-  const today = turkeyDay(now);
+  const today = toTurkishDate(now);
   const monday = shiftDay(today, -WEEKDAY_ORDER.indexOf(weekdayOfDay(today)));
   let minutes = 0;
   const weekdays: Weekday[] = [];
@@ -127,7 +127,7 @@ export function weekAvailability(
         .filter((rule) => rule.dayOfWeek === weekday)
         .reduce((sum, rule) => sum + ruleMinutes(rule), 0) +
       availability.oneOffs
-        .filter((oneOff) => turkeyDay(oneOff.startsAt) === day)
+        .filter((oneOff) => toTurkishDate(oneOff.startsAt) === day)
         .reduce((sum, oneOff) => sum + rangeMinutes(oneOff), 0);
     if (dayMinutes > 0) {
       minutes += dayMinutes;
@@ -394,7 +394,7 @@ export function dayOffError(
   );
   if (clash) return AvailabilityFormError.Overlap;
   const hidesOneOff = availability.oneOffs.some((oneOff) => {
-    const day = turkeyDay(oneOff.startsAt);
+    const day = toTurkishDate(oneOff.startsAt);
     return (
       Date.parse(oneOff.endsAt) > now.getTime() &&
       input.startsOn <= day &&

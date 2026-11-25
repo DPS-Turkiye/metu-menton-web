@@ -28,6 +28,7 @@ import {
   peerAppointment,
   STUDENT_APPOINTMENTS,
 } from "@test/fixtures/student-appointments";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 const at = (day: number, hour: number, minute = 0) =>
   new Date(2026, 10, day, hour, minute).toISOString();
@@ -298,5 +299,40 @@ describe("wasHeld", () => {
     expect(
       wasHeld(peerAppointment({ status: AppointmentStatus.Cancelled })),
     ).toBe(false);
+  });
+});
+
+describe.each(BROWSER_TIME_ZONES)("the calendar in a browser in %s", (zone) => {
+  it("places a session at its Turkey hour", () => {
+    inTimeZone(zone, () => {
+      expect(
+        gridPlacement(
+          peerAppointment({
+            startsAt: "2026-11-12T10:30:00+03:00",
+            endsAt: "2026-11-12T11:30:00+03:00",
+          }),
+        ),
+      ).toEqual({ top: 1.5, height: 1 });
+    });
+  });
+
+  it("keeps a session just after midnight on its Turkey day", () => {
+    inTimeZone(zone, () => {
+      const late = peerAppointment({
+        startsAt: "2026-11-13T00:30:00+03:00",
+        endsAt: "2026-11-13T01:00:00+03:00",
+      });
+      expect(appointmentsOnDay([late], new Date(2026, 10, 12))).toEqual([]);
+      expect(appointmentsOnDay([late], new Date(2026, 10, 13))).toEqual([late]);
+    });
+  });
+
+  it("draws the now line at Turkey's time", () => {
+    inTimeZone(zone, () => {
+      // 09:18 UTC is 12:18 in Istanbul: 3.3 hours below the 09:00 row.
+      expect(
+        nowLineOffset(new Date("2026-11-13T09:18:00Z"), new Date(2026, 10, 13)),
+      ).toBeCloseTo(3.3);
+    });
   });
 });

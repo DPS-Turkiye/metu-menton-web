@@ -35,8 +35,6 @@ import {
   ACADEMICIAN_AVAILABILITY_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   turkeyShortDay,
-  turkeyTime,
-  turkeyWallClock,
 } from "@/lib/academician-office-hours";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
 import { adviseeIds } from "@/lib/academician-students";
@@ -48,6 +46,7 @@ import {
 } from "@/lib/client/academician-office-hours";
 import { isoDay, weekdayLabel } from "@/lib/coordinator-calendar";
 import { formatDateRange } from "@/lib/format";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import {
   AppointmentsCalendarView,
   CalendarEntryKind,
@@ -255,14 +254,14 @@ export function useAcademicianAppointmentsCalendar(
     }
   };
 
-  const today = isoDay(turkeyWallClock(now));
+  const today = isoDay(toTurkishWallClock(now));
   const toRailRequest = (request: OfficeHoursRequest): RailRequest => {
     const first = request.requestedTimes[0];
     return {
       id: request.id,
       studentName: request.student.fullName,
       when: first
-        ? `${turkeyShortDay(first.startsAt, locale)} · ${turkeyTime(first.startsAt, locale)}`
+        ? `${turkeyShortDay(first.startsAt, locale)} · ${formatTurkishTime(first.startsAt, locale)}`
         : "",
       open: () => {
         openRequest(request.id);
@@ -377,7 +376,7 @@ export function useAcademicianAppointmentsCalendar(
           return {
             ...toRailRequest(request),
             proposedWhen: proposed
-              ? `${turkeyShortDay(proposed.startsAt, locale)} ${turkeyTime(proposed.startsAt, locale)}`
+              ? `${turkeyShortDay(proposed.startsAt, locale)} ${formatTurkishTime(proposed.startsAt, locale)}`
               : null,
           };
         }),

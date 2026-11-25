@@ -5,7 +5,7 @@ import type {
   ProgramOfficeHoursStudentRequests,
   ProgramOfficeHoursStudentsQuery,
 } from "@/interfaces/program-office-hours";
-import { TURKEY_TIME_ZONE, turkeyTime } from "@/lib/academician-office-hours";
+import { formatTurkishTime, TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 
 /** The statuses Randevular can filter by; the backend has no others yet (İptal Edildi arrives with the cancel PR). */
 export const APPOINTMENT_STATUS_FILTERS = [
@@ -97,8 +97,8 @@ export function appointmentHours(
   endsAt: string | null,
   locale: string,
 ) {
-  const start = turkeyTime(startsAt, locale);
-  return endsAt ? `${start} – ${turkeyTime(endsAt, locale)}` : start;
+  const start = formatTurkishTime(startsAt, locale);
+  return endsAt ? `${start} – ${formatTurkishTime(endsAt, locale)}` : start;
 }
 
 /** "10 Kas · 16:20": when a history step happened, in Turkey. */
@@ -108,7 +108,7 @@ export function historyTime(at: string, locale: string) {
     month: "short",
     timeZone: TURKEY_TIME_ZONE,
   }).format(new Date(at));
-  return `${day} · ${turkeyTime(at, locale)}`;
+  return `${day} · ${formatTurkishTime(at, locale)}`;
 }
 
 export type StudentFilters = {

@@ -33,11 +33,12 @@ import type {
   PeerMentoringRequest,
 } from "@/interfaces/peer-mentoring";
 import { currentTime } from "@/lib/appointments";
-import { timeLabel, weekdayName } from "@/lib/calendar";
+import { weekdayName } from "@/lib/calendar";
 import {
   appointmentProfileHref,
   peerMentorHref,
 } from "@/lib/peer-profile-links";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatDayMonthLong, formatWeekdayDayMonth } from "@/lib/utils";
 
 const OFFICE_HOURS_HREF = "/student/office-hours";
@@ -134,7 +135,7 @@ const LIST =
 /** "Sal 10 Kas · 14:00 – 14:30" */
 function whenLine(appointment: Appointment, locale: string) {
   const time = currentTime(appointment);
-  return `${formatWeekdayDayMonth(new Date(time.startsAt), locale)} · ${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`;
+  return `${formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
 }
 
 function counterpartName({ counterpart }: Appointment) {
@@ -222,7 +223,7 @@ function ReplyNeeded({ appointment }: { appointment: Appointment }) {
   const t = useTranslations("iaStudent.home.reply");
   const locale = useLocale();
   const short = (startsAt: string) =>
-    `${formatWeekdayDayMonth(new Date(startsAt), locale)} ${timeLabel(startsAt, locale)}`;
+    `${formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale)} ${formatTurkishTime(startsAt, locale)}`;
   return (
     <section
       aria-labelledby="student-reply"
@@ -481,7 +482,7 @@ function AwaitingAppointment({ appointment }: { appointment: Appointment }) {
         </ProfilePictureLink>
       }
       name={counterpartName(appointment)}
-      detail={`${tKind(appointment.kind)} · ${formatWeekdayDayMonth(new Date(startsAt), locale)} ${timeLabel(startsAt, locale)}`}
+      detail={`${tKind(appointment.kind)} · ${formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale)} ${formatTurkishTime(startsAt, locale)}`}
       status={<AppointmentStatusBadge status={appointment.status} />}
     />
   );

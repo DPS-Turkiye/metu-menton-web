@@ -11,12 +11,12 @@ import {
 import { isEnumValue } from "@/lib/enum";
 import {
   fromIsoDay,
-  REPORT_TIME_ZONE,
   reportWeekDays,
   reportWeekStart,
   shiftReportDay,
 } from "@/lib/peer-reports";
 import { weeklyDayCards } from "@/lib/peer-weekly-report";
+import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import { ISO_DAY_PATTERN } from "@/lib/utils";
 import type {
   ActivityForm,
@@ -173,7 +173,7 @@ export function activityInput(
 export function activityTimeLabel(createdAt: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
     timeStyle: "short",
-    timeZone: REPORT_TIME_ZONE,
+    timeZone: TURKEY_TIME_ZONE,
   }).format(new Date(createdAt));
 }
 

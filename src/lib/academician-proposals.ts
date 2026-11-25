@@ -13,13 +13,12 @@ import {
 import { isDayOff } from "@/lib/academician-availability";
 import {
   byStart,
-  turkeyDay,
   turkeyTimeRange,
-  turkeyWallClock,
   waitsForAcademician,
 } from "@/lib/academician-office-hours";
 import { addDays, isoDay } from "@/lib/coordinator-calendar";
 import { weekdayOf } from "@/lib/mentor-availability";
+import { toTurkishDate, toTurkishWallClock } from "@/lib/turkey-time";
 import { minutesOfDay } from "@/lib/utils";
 
 /**
@@ -61,10 +60,10 @@ function windowsOf(date: Date, availability: AcademicianAvailability) {
       end: minutesOfDay(rule.endTime),
     }));
   const oneOffs = availability.oneOffs
-    .filter((oneOff) => turkeyDay(oneOff.startsAt) === day)
+    .filter((oneOff) => toTurkishDate(oneOff.startsAt) === day)
     .map((oneOff) => {
-      const start = turkeyWallClock(oneOff.startsAt);
-      const end = turkeyWallClock(oneOff.endsAt);
+      const start = toTurkishWallClock(oneOff.startsAt);
+      const end = toTurkishWallClock(oneOff.endsAt);
       return {
         start: start.getHours() * 60 + start.getMinutes(),
         end: end.getHours() * 60 + end.getMinutes(),
@@ -113,7 +112,7 @@ export function proposableDays(
   const held = heldTimes(requests, excludeRequestId);
 
   // Days are Turkey days, drawn as wall-clock dates; "past" is still checked against the real moment.
-  const today = turkeyWallClock(now);
+  const today = toTurkishWallClock(now);
   const days: Date[] = [];
   for (
     let date = new Date(today.getFullYear(), today.getMonth(), today.getDate());

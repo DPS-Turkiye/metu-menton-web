@@ -5,6 +5,7 @@ import type {
 } from "@/interfaces/peer-mentoring";
 import { splitAppointments } from "@/lib/appointments";
 import { OPEN_PEER_REQUEST_STATUSES } from "@/lib/peer-mentoring";
+import { toTurkishDate } from "@/lib/turkey-time";
 
 /** Ana Sayfa shows this many rows per list (upcoming, waiting requests). */
 export const STUDENT_HOME_PREVIEW = 3;
@@ -29,13 +30,9 @@ function needsReply(appointment: Appointment) {
 
 /** "BUGÜN" or "YARIN" beside the next session, in Istanbul's calendar; null further ahead. */
 export function nearDay(startsAt: string, now: Date) {
-  const day = (date: Date) =>
-    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(
-      date,
-    );
-  const start = day(new Date(startsAt));
-  if (start === day(now)) return "today" as const;
-  return start === day(new Date(now.getTime() + DAY_MS))
+  const start = toTurkishDate(startsAt);
+  if (start === toTurkishDate(now)) return "today" as const;
+  return start === toTurkishDate(new Date(now.getTime() + DAY_MS))
     ? ("tomorrow" as const)
     : null;
 }

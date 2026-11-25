@@ -9,10 +9,7 @@ import { AppointmentStatus } from "@/interfaces/appointment";
 import {
   ACADEMICIAN_APPOINTMENTS_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
-  TURKEY_TIME_ZONE,
-  turkeyDay,
   turkeyShortDay,
-  turkeyTime,
 } from "@/lib/academician-office-hours";
 import { studentProfileHref } from "@/lib/academician-routes";
 import { adviseeRows, filterAdvisees } from "@/lib/academician-students";
@@ -20,6 +17,11 @@ import {
   getAcademicianAppointments,
   getAcademicianRequests,
 } from "@/lib/client/academician-office-hours";
+import {
+  formatTurkishTime,
+  toTurkishDate,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
 import {
   AdviseeNextKind,
   StudentProfileOrigin,
@@ -87,7 +89,7 @@ export function useAcademicianAdvisees() {
       appointments.dataUpdatedAt,
     ),
   );
-  const today = turkeyDay(now);
+  const today = toTurkishDate(now);
   const shortDay = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -96,9 +98,9 @@ export function useAcademicianAdvisees() {
 
   const nextLabel = (kind: AdviseeNextKind, startsAt: string) => ({
     label:
-      turkeyDay(startsAt) === today
-        ? t("today", { time: turkeyTime(startsAt, locale) })
-        : `${turkeyShortDay(startsAt, locale)} ${turkeyTime(startsAt, locale)}`,
+      toTurkishDate(startsAt) === today
+        ? t("today", { time: formatTurkishTime(startsAt, locale) })
+        : `${turkeyShortDay(startsAt, locale)} ${formatTurkishTime(startsAt, locale)}`,
     status: NEXT_STATUS[kind],
   });
 
