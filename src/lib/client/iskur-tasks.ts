@@ -37,6 +37,12 @@ export async function updateIskurTask(
   );
 }
 
+export async function editIskurTask(taskId: string, input: IskurTaskInput) {
+  return requireSuccess(
+    await httpClient.put<IskurTeamTasks>(taskUrl(taskId), input),
+  );
+}
+
 export async function deleteIskurTask(taskId: string) {
   return requireSuccess(
     await httpClient.delete<IskurTeamTasks>(taskUrl(taskId)),
