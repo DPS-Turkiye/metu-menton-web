@@ -5,16 +5,15 @@ import { useState } from "react";
 
 import { useMinuteClock } from "@/hooks/use-minute-clock";
 import type { Appointment } from "@/interfaces/appointment";
-import { currentTime } from "@/lib/appointments";
 import { monthGridCells } from "@/lib/calendar";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
 import { startOfDay } from "@/lib/mobile-calendar";
 import {
   appointmentRequestGroups,
+  appointmentsInMonth,
   appointmentsOnDay,
   appointmentTabs,
-  defaultOpenGroups,
-  monthSummary,
+  calendarSummary,
   nowLineOffset,
   shiftAnchor,
   visibleDays,
@@ -23,7 +22,6 @@ import { isAwaitingAnswer } from "@/lib/student-home";
 import {
   AppointmentsTab,
   AppointmentsView,
-  type AppointmentRequestGroup,
 } from "@/types/student-appointments";
 
 export const STUDENT_APPOINTMENTS_QUERY_KEY = ["student-appointments"] as const;
@@ -43,8 +41,7 @@ function today() {
 }
 
 /**
- * Randevularım: the list tabs, the day, week and month calendars, and the Taleplerim groups beside them, over the
- * same appointments.
+ * Randevularım: the list tabs, the day, week and month calendars, over the same appointments.
  */
 export function useStudentAppointments({
   filter,
@@ -59,17 +56,15 @@ export function useStudentAppointments({
   const [anchor, setAnchor] = useState(today);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState(today);
-  // Null until the student opens or closes a group; until then the groups follow what waits for an answer.
-  const [openGroups, setOpenGroups] =
-    useState<ReadonlySet<AppointmentRequestGroup> | null>(null);
   const clock = useMinuteClock();
 
   // As of the last load, so a render stays pure; each refetch moves it forward.
   const now = new Date(query.dataUpdatedAt);
   const all = (query.data ?? []).filter((item) => filter?.(item) ?? true);
   const tabs = appointmentTabs(all, now);
-  const requestGroups = appointmentRequestGroups(tabs);
-  const open = openGroups ?? new Set(defaultOpenGroups(requestGroups));
+  const requestGroups = appointmentRequestGroups(
+    tabs[AppointmentsTab.Requests],
+  );
   const days = visibleDays(view, anchor).map((day) => ({
     day,
     items: appointmentsOnDay(all, day),
@@ -101,22 +96,6 @@ export function useStudentAppointments({
     setSelectedId(null);
   };
 
-  const toggleGroup = (group: AppointmentRequestGroup) => {
-    setOpenGroups((current) => {
-      const next = new Set(current ?? open);
-      if (!next.delete(group)) next.add(group);
-      return next;
-    });
-  };
-
-  // A Taleplerim row: the calendar moves to the day the session sits on and the side panel opens it.
-  const focus = (appointment: Appointment) => {
-    const day = startOfDay(new Date(currentTime(appointment).startsAt));
-    setAnchor(day);
-    setSelectedDay(day);
-    setSelectedId(appointment.id);
-  };
-
   return {
     isLoading: query.isLoading,
     error: query.error,
@@ -138,9 +117,12 @@ export function useStudentAppointments({
     goToday: () => move(today()),
     days,
     month,
-    /** Null outside the month view. */
-    monthSummary:
-      view === AppointmentsView.Month ? monthSummary(all, anchor, now) : null,
+    summary: calendarSummary(
+      view === AppointmentsView.Month
+        ? appointmentsInMonth(all, anchor)
+        : inRange,
+      now,
+    ),
     selected,
     select: (appointment: Appointment) => setSelectedId(appointment.id),
     selectedDay,
@@ -152,9 +134,11 @@ export function useStudentAppointments({
         : null,
     clock,
     requestGroups,
-    isGroupOpen: (group: AppointmentRequestGroup) => open.has(group),
-    toggleGroup,
-    focus,
+    /** "Günü aç" on the month's picked day. */
+    openSelectedDay: () => {
+      setAnchor(selectedDay);
+      changeView(AppointmentsView.Day);
+    },
     showInList: (listTab: AppointmentsTab) => {
       changeView(AppointmentsView.List);
       setTab(listTab);

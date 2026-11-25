@@ -4,16 +4,13 @@ import { AppointmentStatus } from "@/interfaces/appointment";
 import {
   APPOINTMENT_GRID_HOURS,
   appointmentRequestGroups,
+  appointmentsInMonth,
   appointmentsOnDay,
   appointmentTabs,
+  calendarSummary,
   calendarTitle,
-  defaultOpenGroups,
   gridPlacement,
-  monthSummary,
   nowLineOffset,
-  REQUEST_GROUP_PREVIEW,
-  requestGroupListTab,
-  requestRowTime,
   selectedDayTitle,
   sentToParam,
   shiftAnchor,
@@ -35,8 +32,8 @@ import {
 const at = (day: number, hour: number, minute = 0) =>
   new Date(2026, 10, day, hour, minute).toISOString();
 
-describe("monthSummary", () => {
-  it("counts the month's confirmed sessions, those held, and open requests", () => {
+describe("calendarSummary", () => {
+  it("counts a month's confirmed sessions, those held, and open requests", () => {
     const item = (id: string, day: number, status: AppointmentStatus) =>
       peerAppointment({
         id,
@@ -44,20 +41,22 @@ describe("monthSummary", () => {
         startsAt: at(day, 10),
         endsAt: at(day, 11),
       });
-    const summary = monthSummary(
-      [
-        item("held", 3, AppointmentStatus.Confirmed),
-        item("ahead", 20, AppointmentStatus.Confirmed),
-        item("waiting", 21, AppointmentStatus.Pending),
-        item("cancelled", 22, AppointmentStatus.Cancelled),
-        peerAppointment({
-          id: "other-month",
-          status: AppointmentStatus.Confirmed,
-          startsAt: new Date(2026, 11, 3, 10).toISOString(),
-          endsAt: new Date(2026, 11, 3, 11).toISOString(),
-        }),
-      ],
-      new Date(2026, 10, 1),
+    const summary = calendarSummary(
+      appointmentsInMonth(
+        [
+          item("held", 3, AppointmentStatus.Confirmed),
+          item("ahead", 20, AppointmentStatus.Confirmed),
+          item("waiting", 21, AppointmentStatus.Pending),
+          item("cancelled", 22, AppointmentStatus.Cancelled),
+          peerAppointment({
+            id: "other-month",
+            status: AppointmentStatus.Confirmed,
+            startsAt: new Date(2026, 11, 3, 10).toISOString(),
+            endsAt: new Date(2026, 11, 3, 11).toISOString(),
+          }),
+        ],
+        new Date(2026, 10, 1),
+      ),
       new Date(2026, 10, 12),
     );
     expect(summary).toEqual({ meetings: 2, done: 1, waiting: 1 });
@@ -259,38 +258,12 @@ describe("appointmentRequestGroups", () => {
     APPOINTMENTS_NOW,
   );
 
-  it("splits the requests by who answers next and keeps the tabs' other lists", () => {
-    const groups = appointmentRequestGroups(tabs);
+  it("splits the requests by who answers next", () => {
+    const groups = appointmentRequestGroups(tabs[AppointmentsTab.Requests]);
     const ids = (group: AppointmentRequestGroup) =>
       groups[group].map((item) => item.id);
     expect(ids(AppointmentRequestGroup.AwaitingYou)).toEqual(["offered"]);
     expect(ids(AppointmentRequestGroup.AwaitingThem)).toEqual(["asked"]);
-    expect(ids(AppointmentRequestGroup.Confirmed)).toEqual([
-      "meeting-2",
-      "meeting-1",
-    ]);
-    expect(ids(AppointmentRequestGroup.Past)).toEqual([
-      "meeting-4",
-      "meeting-3",
-    ]);
-  });
-
-  it("opens what waits for an answer, else the confirmed sessions, else nothing", () => {
-    expect(defaultOpenGroups(appointmentRequestGroups(tabs))).toEqual([
-      AppointmentRequestGroup.AwaitingYou,
-      AppointmentRequestGroup.AwaitingThem,
-    ]);
-    const settled = appointmentRequestGroups(
-      appointmentTabs(STUDENT_APPOINTMENTS, APPOINTMENTS_NOW),
-    );
-    expect(defaultOpenGroups(settled)).toEqual([
-      AppointmentRequestGroup.Confirmed,
-    ]);
-    expect(
-      defaultOpenGroups(
-        appointmentRequestGroups(appointmentTabs([], APPOINTMENTS_NOW)),
-      ),
-    ).toEqual([]);
   });
 });
 
@@ -318,69 +291,11 @@ describe("selectedDayTitle", () => {
   });
 });
 
-describe("requestRowTime", () => {
-  const session = peerAppointment({
-    startsAt: at(12, 11),
-    endsAt: at(12, 11, 30),
-  });
-
-  it("gives the date tile and the weekday with the hours", () => {
-    expect(
-      requestRowTime(session, AppointmentRequestGroup.Confirmed, "tr"),
-    ).toEqual({ tile: { day: "12", month: "KAS" }, when: "Per 11:00 – 11:30" });
-  });
-
-  it("gives a past row its start only", () => {
-    expect(
-      requestRowTime(session, AppointmentRequestGroup.Past, "tr").when,
-    ).toBe("Per 11:00");
-  });
-
-  it("reads a proposal at the offered time", () => {
-    const proposed = peerAppointment({
-      status: AppointmentStatus.AlternativeProposed,
-      startsAt: at(12, 11),
-      endsAt: at(12, 11, 30),
-      alternative: { startsAt: at(13, 10, 30), endsAt: at(13, 11) },
-    });
-    expect(
-      requestRowTime(proposed, AppointmentRequestGroup.AwaitingYou, "tr"),
-    ).toEqual({ tile: { day: "13", month: "KAS" }, when: "Cum 10:30 – 11:00" });
-  });
-});
-
 describe("wasHeld", () => {
   it("counts a confirmed past session as held and nothing else", () => {
     expect(wasHeld(peerAppointment())).toBe(true);
     expect(
       wasHeld(peerAppointment({ status: AppointmentStatus.Cancelled })),
     ).toBe(false);
-  });
-});
-
-describe("requestGroupListTab", () => {
-  it("always links Onaylanan and Geçmiş to their tabs once they hold a row", () => {
-    expect(requestGroupListTab(AppointmentRequestGroup.Confirmed, 1)).toBe(
-      AppointmentsTab.Upcoming,
-    );
-    expect(requestGroupListTab(AppointmentRequestGroup.Past, 3)).toBe(
-      AppointmentsTab.Past,
-    );
-    expect(requestGroupListTab(AppointmentRequestGroup.Past, 0)).toBeNull();
-  });
-
-  it("links a request group to Talepler only when it overflows the panel", () => {
-    expect(
-      requestGroupListTab(
-        AppointmentRequestGroup.AwaitingThem,
-        REQUEST_GROUP_PREVIEW,
-      ),
-    ).toBeNull();
-    expect(
-      requestGroupListTab(
-        AppointmentRequestGroup.AwaitingYou,
-        REQUEST_GROUP_PREVIEW + 1,
-      ),
-    ).toBe(AppointmentsTab.Requests);
   });
 });

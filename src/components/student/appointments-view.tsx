@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Info } from "lucide-react";
+import {
+  AlarmClock,
+  ChevronLeft,
+  ChevronRight,
+  Info,
+  MapPin,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -8,20 +14,17 @@ import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
 import { StatusTone } from "@/components/ia/status-badge";
 import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   AppointmentDayGrid,
   AppointmentMonthGrid,
   AppointmentTimeGrid,
-  kindSwatch,
 } from "@/components/student/ia/appointment-calendar";
 import {
   AppointmentReplyCard,
   AppointmentRow,
 } from "@/components/student/ia/appointment-list-card";
-import { AppointmentRequestsPanel } from "@/components/student/ia/appointment-requests-panel";
 import {
   OfficeHoursAlternativeActions,
   OfficeHoursWithdrawAction,
@@ -41,11 +44,12 @@ import {
   AppointmentKind,
   AppointmentStatus,
   type Appointment,
+  type AppointmentTime,
 } from "@/interfaces/appointment";
-import { ProgramType } from "@/interfaces/program";
 import { currentTime } from "@/lib/appointments";
 import { monthName, timeLabel } from "@/lib/calendar";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
+import { titledName } from "@/lib/profile-completion";
 import {
   calendarTitle,
   selectedDayTitle,
@@ -57,7 +61,7 @@ import {
   canWithdrawOfficeHours,
   offeredTimes,
 } from "@/lib/student-office-hours";
-import { formatDayMonth } from "@/lib/utils";
+import { formatWeekdayDayMonth } from "@/lib/utils";
 import {
   AppointmentRequestGroup,
   AppointmentsTab,
@@ -67,10 +71,6 @@ import {
 const FIND_MENTOR_HREF = "/student/peer-mentoring";
 const VIEWS = Object.values(AppointmentsView);
 const TABS = Object.values(AppointmentsTab);
-const KIND_PROGRAM_TYPE: Record<AppointmentKind, ProgramType> = {
-  [AppointmentKind.OfficeHours]: ProgramType.OfficeHours,
-  [AppointmentKind.PeerMentoring]: ProgramType.PeerMentoring,
-};
 
 /** The ARIA tabs keys: arrows move to the neighbouring tab (wrapping), Home and End to the ends. */
 function tabAfterKey(current: AppointmentsTab, key: string) {
@@ -124,7 +124,7 @@ function actionsFor(
 }
 
 /**
- * Randevularım (Figma 3.6 list, 99:2 / 99:228 / 99:390 calendars). Extension points for other student
+ * Randevularım (Figma 3.6 list, 3.7 calendars). Extension points for other student
  * editions: `filter` narrows every view, `toolbar` renders under the header (İŞKUR's role filter), and
  * `renderActions` adds a kind's answer buttons to a card (Office Hours' accept / decline).
  */
@@ -437,41 +437,47 @@ function CalendarView({
   const isMonth = appointments.view === AppointmentsView.Month;
   const day = appointments.days[0];
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-      <Card labelledBy="appointments-calendar-title">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <section
+      aria-labelledby="appointments-calendar-title"
+      className="flex flex-col gap-6"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            aria-label={t("previous")}
+            onClick={appointments.previous}
+            className="w-11"
+          >
+            <ChevronLeft aria-hidden className="size-4" strokeWidth={1.5} />
+          </Button>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            aria-label={t("next")}
+            onClick={appointments.next}
+            className="w-11"
+          >
+            <ChevronRight aria-hidden className="size-4" strokeWidth={1.5} />
+          </Button>
           <h2
             id="appointments-calendar-title"
             className="type-h4 text-text-primary"
           >
             {calendarTitle(appointments.view, appointments.anchor, locale)}
           </h2>
-          <div className="flex items-center gap-1">
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              onClick={appointments.goToday}
-            >
-              {t("today")}
-            </Button>
-            <button
-              type="button"
-              aria-label={t("previous")}
-              onClick={appointments.previous}
-              className="grid size-9 place-items-center rounded-xl text-icon-default hover:bg-background-subtle"
-            >
-              <ChevronLeft aria-hidden className="size-5" strokeWidth={1.5} />
-            </button>
-            <button
-              type="button"
-              aria-label={t("next")}
-              onClick={appointments.next}
-              className="grid size-9 place-items-center rounded-xl text-icon-default hover:bg-background-subtle"
-            >
-              <ChevronRight aria-hidden className="size-5" strokeWidth={1.5} />
-            </button>
-          </div>
+          <Button
+            variant={ButtonVariant.Ghost}
+            size={ButtonSize.Small}
+            onClick={appointments.goToday}
+          >
+            {t("today")}
+          </Button>
         </div>
+        <ColorLegend />
+      </div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         {isMonth ? (
           <AppointmentMonthGrid
             cells={appointments.month}
@@ -496,40 +502,32 @@ function CalendarView({
             onSelect={appointments.select}
           />
         )}
-        <ColorLegend />
-      </Card>
-      <aside className="flex flex-col gap-6">
-        {isMonth ? (
-          <>
+        <aside className="flex min-w-0 flex-col gap-6">
+          {isMonth ? (
             <DayList appointments={appointments} />
-            <MonthSummary appointments={appointments} />
-          </>
-        ) : appointments.selected ? (
-          <AppointmentDetail
-            appointment={appointments.selected}
-            actions={actionsFor(
-              appointments.selected,
-              renderActions,
-              appointments.now,
-            )}
-          />
-        ) : (
-          <Card>
-            <p className="type-body-sm text-text-muted">{t("nothingInView")}</p>
-          </Card>
-        )}
-        <AppointmentRequestsPanel
-          groups={appointments.requestGroups}
-          isOpen={appointments.isGroupOpen}
-          onToggle={appointments.toggleGroup}
-          selectedId={appointments.selected?.id ?? null}
-          onSelect={appointments.focus}
-          onShowList={appointments.showInList}
-        />
-      </aside>
-    </div>
+          ) : appointments.selected ? (
+            <AppointmentDetail
+              appointment={appointments.selected}
+              actions={actionsFor(
+                appointments.selected,
+                renderActions,
+                appointments.now,
+              )}
+            />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-border-default p-6 type-body-sm text-text-muted">
+              {t("nothingInView")}
+            </p>
+          )}
+          <CalendarSummary appointments={appointments} />
+        </aside>
+      </div>
+    </section>
   );
 }
+
+const SIDE_CARD =
+  "flex flex-col gap-4 rounded-2xl border border-border-strong bg-background-surface p-6";
 
 function AppointmentDetail({
   appointment,
@@ -540,102 +538,126 @@ function AppointmentDetail({
 }) {
   const t = useTranslations("iaStudent.appointments.calendar");
   const tList = useTranslations("iaStudent.appointments");
+  const tKind = useTranslations("iaStudent.common.kind");
   const tTopic = useTranslations("peerTopics");
   const locale = useLocale();
+  const { counterpart } = appointment;
   const proposed =
     appointment.status === AppointmentStatus.AlternativeProposed
       ? offeredTimes(appointment)
       : [];
-  const shown = proposed.length > 0 ? proposed : [appointment];
-  const name = [appointment.counterpart.title, appointment.counterpart.fullName]
-    .filter(Boolean)
-    .join(" ");
+  const when = (time: AppointmentTime) =>
+    `${formatWeekdayDayMonth(new Date(time.startsAt), locale)} · ${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`;
   return (
-    <Card labelledBy="appointment-detail-title">
-      <div className="flex flex-wrap gap-2">
-        <ProgramTypeBadge type={KIND_PROGRAM_TYPE[appointment.kind]} />
+    <section aria-labelledby="appointment-detail-title" className={SIDE_CARD}>
+      <p className="type-overline text-text-secondary">{t("picked")}</p>
+      <div>
         <AppointmentStatusBadge status={appointment.status} />
       </div>
-      <h2
+      <h3
         id="appointment-detail-title"
-        className="mt-4 type-h4 break-words text-text-primary"
+        className="type-h4 break-words text-text-primary"
       >
         {appointment.category
           ? tTopic(appointment.category)
           : appointment.topic}
-      </h2>
-      <p className="mt-3 flex items-center gap-2 type-label text-text-primary">
+      </h3>
+      <div className="flex items-center gap-4">
         <ProfilePictureLink
           href={appointmentProfileHref(appointment)}
-          name={appointment.counterpart.fullName}
+          name={counterpart.fullName}
         >
-          <InitialsAvatar name={appointment.counterpart.fullName} size="sm" />
+          <InitialsAvatar name={counterpart.fullName} size="sm" />
         </ProfilePictureLink>
-        {name}
-      </p>
-      <div
-        className={`mt-4 rounded-2xl px-4 py-3 ${
-          proposed.length > 0
-            ? "bg-status-info-bg text-status-info-text"
-            : "bg-background-subtle text-text-primary"
-        }`}
-      >
-        <p className="type-caption">
-          {proposed.length > 0 ? t("proposedTime") : t("time")}
-        </p>
-        {shown.map((time) => (
-          <p key={time.startsAt} className="type-label-lg">
-            {`${formatDayMonth(new Date(time.startsAt), locale)} · ${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`}
+        <div className="min-w-0">
+          <p className="type-label text-text-primary">
+            {titledName(counterpart.title, counterpart.fullName)}
           </p>
-        ))}
+          <p className="type-body-sm text-text-muted">
+            {tKind(appointment.kind)}
+          </p>
+        </div>
       </div>
+      {proposed.length > 0 ? (
+        <div className="flex flex-col gap-1 rounded-xl bg-background-subtle px-3.5 py-3">
+          {proposed.map((time) => (
+            <p key={time.startsAt} className="type-label text-text-primary">
+              {t("proposed", { time: when(time) })}
+            </p>
+          ))}
+          <p className="type-body-sm text-text-muted">
+            {t("asked", { time: when(appointment) })}
+          </p>
+        </div>
+      ) : (
+        <p className="flex items-center gap-2 type-body-sm text-text-secondary">
+          <AlarmClock
+            aria-hidden
+            className="size-4 shrink-0 text-icon-default"
+            strokeWidth={1.5}
+          />
+          {when(appointment)}
+        </p>
+      )}
+      {appointment.place ? (
+        <p className="flex items-center gap-2 type-body-sm break-words text-text-secondary">
+          <MapPin
+            aria-hidden
+            className="size-4 shrink-0 text-icon-default"
+            strokeWidth={1.5}
+          />
+          {appointment.place}
+        </p>
+      ) : null}
       {appointment.counterpartMessage ? (
-        <p className="mt-3 type-body-sm break-words text-text-secondary">
+        <p className="type-body-sm break-words text-text-secondary">
           {tList("counterpartMessage", {
             message: appointment.counterpartMessage,
           })}
         </p>
       ) : null}
-      {actions ? (
-        <div className="mt-4 flex flex-wrap gap-3">{actions}</div>
+      {proposed.length > 0 ? (
+        <p className="type-body-sm text-text-muted">{t("notSetYet")}</p>
       ) : null}
-    </Card>
+      {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
+    </section>
   );
 }
 
-/** "Seçili gün" rows take their kind's tint with a bar in its colour (Figma 258:4684). */
-const DAY_ROW_TONE: Record<AppointmentKind, { row: string; bar: string }> = {
-  [AppointmentKind.OfficeHours]: {
-    row: "bg-status-info-bg",
-    bar: "bg-status-info-icon",
-  },
-  [AppointmentKind.PeerMentoring]: {
-    row: "bg-brand-mentee-bg",
-    bar: "bg-action-primary-bg",
-  },
-};
-
-function MonthSummary({
+function CalendarSummary({
   appointments,
 }: {
   appointments: StudentAppointmentsModel;
 }) {
   const t = useTranslations("iaStudent.appointments.calendar.summary");
   const locale = useLocale();
-  const summary = appointments.monthSummary;
-  if (!summary) return null;
+  const { summary, view } = appointments;
   return (
     <section
-      aria-labelledby="appointments-month-summary"
-      className="flex flex-col gap-1.5"
+      aria-labelledby="appointments-summary"
+      className="flex flex-col items-start gap-1.5"
     >
-      <h2
-        id="appointments-month-summary"
-        className="type-label text-text-primary"
-      >
-        {t("title", { month: monthName(appointments.anchor, locale) })}
-      </h2>
+      <h3 id="appointments-summary" className="type-label text-text-primary">
+        {view === AppointmentsView.Month
+          ? t("title", { month: monthName(appointments.anchor, locale) })
+          : view === AppointmentsView.Day
+            ? t("day")
+            : t("week")}
+      </h3>
       <p className="type-body-sm text-text-secondary">{t("body", summary)}</p>
+      <button
+        type="button"
+        onClick={() =>
+          appointments.showInList(
+            summary.waiting > 0
+              ? AppointmentsTab.Requests
+              : AppointmentsTab.Upcoming,
+          )
+        }
+        className="h-9 px-1 type-button-sm text-text-link hover:underline"
+      >
+        {summary.waiting > 0 ? t("requestsInList") : t("allInList")}
+      </button>
     </section>
   );
 }
@@ -644,87 +666,87 @@ function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
   const t = useTranslations("iaStudent.appointments.calendar");
   const tKind = useTranslations("iaStudent.common.kind");
   const locale = useLocale();
+  const items = appointments.selectedDayItems;
   return (
-    <Card labelledBy="appointments-day-title">
-      <h2
-        id="appointments-day-title"
-        className="type-title-card text-text-primary"
-      >
+    <section aria-labelledby="appointments-day-title" className={SIDE_CARD}>
+      <h3 id="appointments-day-title" className="type-h4 text-text-primary">
         {selectedDayTitle(appointments.selectedDay, locale)}
-      </h2>
-      {appointments.selectedDayItems.length === 0 ? (
-        <p className="mt-3 type-body-sm text-text-muted">{t("emptyDay")}</p>
+      </h3>
+      {items.length === 0 ? (
+        <p className="type-body-sm text-text-muted">{t("emptyDay")}</p>
       ) : (
-        <ul className="mt-3 flex flex-col gap-3">
-          {appointments.selectedDayItems.map((item) => (
-            <li
-              key={item.id}
-              className={`flex items-center gap-3 rounded-2xl p-3 ${DAY_ROW_TONE[item.kind].row}`}
-            >
-              <span
-                aria-hidden
-                className={`h-10 w-1 shrink-0 rounded-sm ${DAY_ROW_TONE[item.kind].bar}`}
-              />
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <>
+          <ul className="divide-y divide-border-default">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="flex flex-col items-start gap-1.5 py-3 first:pt-0"
+              >
                 <p className="type-label break-words text-text-primary">
                   {`${timeLabel(currentTime(item).startsAt, locale)} · ${item.topic}`}
                 </p>
-                <p className="type-caption text-text-secondary">
+                <p className="type-body-sm text-text-muted">
                   {`${shortPersonName(item.counterpart.fullName)} · ${tKind(item.kind)}`}
                 </p>
-              </div>
-              <AppointmentStatusBadge status={item.status} />
-            </li>
-          ))}
-        </ul>
+                <AppointmentStatusBadge status={item.status} />
+              </li>
+            ))}
+          </ul>
+          <div>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              onClick={appointments.openSelectedDay}
+            >
+              {t("openDay")}
+            </Button>
+          </div>
+        </>
       )}
-    </Card>
+    </section>
   );
 }
 
-/** "Renkler" under the grid (Figma 258:4065): what each colour and the dashed frame stand for, side by side. */
+const LEGEND_SWATCH: Record<AppointmentKind, string> = {
+  [AppointmentKind.OfficeHours]: "border-border-control bg-background-selected",
+  [AppointmentKind.PeerMentoring]: "border-border-control bg-status-info-bg",
+};
+
+/** What each colour and the dashed frame stand for, beside the calendar's title (Figma 3.7). */
 function ColorLegend() {
   const t = useTranslations("iaStudent.appointments.colors");
+  const tKind = useTranslations("iaStudent.common.kind");
   return (
-    <Card compact labelledBy="appointments-colors" className="mt-4">
-      <h3 id="appointments-colors" className="sr-only">
-        {t("title")}
-      </h3>
-      <ul className="grid gap-3 sm:grid-cols-3">
-        {Object.values(AppointmentKind).map((kind) => (
-          <LegendRow
-            key={kind}
-            swatch={kindSwatch(kind, false)}
-            title={t(`${kind}.title`)}
-            body={t(`${kind}.body`)}
-          />
-        ))}
-        <LegendRow
-          swatch="border border-dashed border-border-strong"
-          title={t("dashed.title")}
-          body={t("dashed.body")}
-        />
-      </ul>
-    </Card>
+    <ul
+      aria-label={t("title")}
+      className="flex flex-wrap gap-x-3 gap-y-2 type-body-sm text-text-secondary"
+    >
+      {Object.values(AppointmentKind).map((kind) => (
+        <LegendItem key={kind} className={LEGEND_SWATCH[kind]}>
+          {tKind(kind)}
+        </LegendItem>
+      ))}
+      <LegendItem className="border-dashed border-status-warning-icon">
+        {t("dashed")}
+      </LegendItem>
+    </ul>
   );
 }
 
-function LegendRow({
-  swatch,
-  title,
-  body,
+function LegendItem({
+  className,
+  children,
 }: {
-  swatch: string;
-  title: string;
-  body: string;
+  className: string;
+  children: ReactNode;
 }) {
   return (
-    <li className="flex min-w-0 items-center gap-2.5">
-      <span aria-hidden className={`size-4 shrink-0 rounded ${swatch}`} />
-      <span className="flex min-w-0 flex-col">
-        <span className="type-label text-text-primary">{title}</span>
-        <span className="type-caption text-text-muted">{body}</span>
-      </span>
+    <li className="flex items-center gap-1.5">
+      <span
+        aria-hidden
+        className={`size-3.5 shrink-0 rounded-[3px] border ${className}`}
+      />
+      {children}
     </li>
   );
 }

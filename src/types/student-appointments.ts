@@ -13,14 +13,10 @@ export enum AppointmentsTab {
   Past = "past",
 }
 
-/** Taleplerim's accordion groups beside the calendar (Figma 258:3698), in the order they are listed. */
+/** Talepler's two sections (Figma 3.6), in the order they are listed. */
 export enum AppointmentRequestGroup {
-  /** A time the other side offered instead; the student answers it ("Yanıtını bekleyen öneriler"). */
+  /** A time the other side offered instead; the student answers it ("Yanıtını bekliyor"). */
   AwaitingYou = "awaitingYou",
-  /** A request the academician or mentor has not answered yet ("Onay bekleyen taleplerim"). */
+  /** A request the academician or mentor has not answered yet ("Yanıt bekleniyor"). */
   AwaitingThem = "awaitingThem",
-  /** Confirmed sessions ahead ("Onaylanan randevularım"). */
-  Confirmed = "confirmed",
-  /** Held, refused, cancelled or lapsed ("Geçmiş"). */
-  Past = "past",
 }

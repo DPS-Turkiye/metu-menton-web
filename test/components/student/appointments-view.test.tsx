@@ -464,13 +464,15 @@ describe("StudentAppointmentsView", () => {
     const detail = screen.getByRole("region", {
       name: "CV ve yüksek lisans seçenekleri",
     });
-    expect(within(detail).getByText("Önerilen saat")).toBeVisible();
+    expect(within(detail).getByText(/^Önerilen: Cum 13 Kas · /)).toBeVisible();
+    expect(
+      within(detail).getByText(/^Talep ettiğin: Per 12 Kas · /),
+    ).toBeVisible();
 
     await userEvent.click(screen.getByRole("button", { name: /M\. Yılmaz/ }));
     expect(
       screen.getByRole("region", { name: "Uluslararası Fırsatlar" }),
     ).toBeVisible();
-    expect(screen.getByRole("region", { name: "Renkler" })).toBeVisible();
   });
 
   it("lists every offered time in the picked request's detail", async () => {
@@ -496,8 +498,12 @@ describe("StudentAppointmentsView", () => {
     const detail = screen.getByRole("region", {
       name: "CV ve yüksek lisans seçenekleri",
     });
-    expect(within(detail).getByText(/^13 Kas · .* – /)).toBeVisible();
-    expect(within(detail).getByText(/^16 Kas · .* – /)).toBeVisible();
+    expect(
+      within(detail).getByText(/^Önerilen: Cum 13 Kas · .* – /),
+    ).toBeVisible();
+    expect(
+      within(detail).getByText(/^Önerilen: Pzt 16 Kas · .* – /),
+    ).toBeVisible();
     expect(
       within(detail).getAllByRole("button", { name: /önerisini kabul et$/ }),
     ).toHaveLength(2);
@@ -564,152 +570,54 @@ describe("StudentAppointmentsView", () => {
     ).toBeVisible();
   });
 
-  describe("Taleplerim beside the calendar", () => {
-    async function openWeek() {
-      renderWithQueryClient(<StudentAppointmentsView />);
-      await panel();
-      await userEvent.click(screen.getByRole("button", { name: "Hafta" }));
-      return screen.getByRole("region", { name: "Taleplerim" });
-    }
-
-    function group(requests: HTMLElement, name: RegExp) {
-      return within(requests).getByRole("button", { name });
-    }
-
-    it("opens the proposals waiting for the student and keeps the rest closed", async () => {
-      const requests = await openWeek();
-      expect(
-        group(requests, /^Yanıtını bekleyen öneriler, 1 randevu$/),
-      ).toHaveAttribute("aria-expanded", "true");
-      const proposals = within(requests).getByRole("region", {
-        name: /Yanıtını bekleyen öneriler/,
-      });
-      expect(
-        within(proposals).getByText(
-          "Önerilen saati kabul etmeden randevu onaylanmaz.",
-        ),
-      ).toBeVisible();
-      expect(
-        within(proposals).getByText(
-          "Önerilen: Cum 10:30 – 11:00 · Office Hours",
-        ),
-      ).toBeVisible();
-      expect(
-        group(requests, /^Onay bekleyen taleplerim, randevu yok$/),
-      ).toHaveAttribute("aria-expanded", "false");
-      expect(
-        group(requests, /^Onaylanan randevularım, 2 randevu$/),
-      ).toHaveAttribute("aria-expanded", "false");
-    });
-
-    it("opens a group on its heading and a row in the side panel", async () => {
-      const requests = await openWeek();
-      const confirmed = group(requests, /^Onaylanan randevularım/);
-      await userEvent.click(confirmed);
-      expect(confirmed).toHaveAttribute("aria-expanded", "true");
-
-      const row = within(requests).getByRole("button", {
-        name: /Mert Yılmaz/,
-      });
-      await userEvent.click(row);
-      expect(row).toHaveAttribute("aria-pressed", "true");
-      expect(
-        screen.getByRole("region", { name: "Uluslararası Fırsatlar" }),
-      ).toBeVisible();
-
-      await userEvent.click(confirmed);
-      expect(
-        within(requests).queryByRole("button", { name: /Mert Yılmaz/ }),
-      ).not.toBeInTheDocument();
-    });
-
-    it("says how each past session ended", async () => {
-      const requests = await openWeek();
-      await userEvent.click(group(requests, /^Geçmiş, 2 randevu$/));
-      const past = within(requests).getByRole("region", { name: /Geçmiş/ });
-      expect(within(past).getByText("Tamamlandı")).toBeVisible();
-      expect(within(past).getByText("İptal Edildi")).toBeVisible();
-    });
-
-    it("opens the list on Talepler, or on a group's own tab", async () => {
-      const requests = await openWeek();
-      await userEvent.click(
-        within(requests).getByRole("button", { name: "Liste" }),
-      );
-      expect(screen.getByRole("tab", { name: /Talepler/ })).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-
-      await userEvent.click(screen.getByRole("button", { name: "Hafta" }));
-      const again = screen.getByRole("region", { name: "Taleplerim" });
-      await userEvent.click(group(again, /^Geçmiş/));
-      await userEvent.click(
-        within(again).getByRole("button", { name: "Tüm geçmişi listede gör" }),
-      );
-      expect(screen.getByRole("tab", { name: /Geçmiş/ })).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-    });
-
-    it("shows four requests and sends the rest to Talepler", async () => {
-      vi.mocked(getStudentAppointments).mockResolvedValue(
-        Array.from({ length: 5 }, (_, index) =>
-          peerAppointment({
-            id: `asked-${index}`,
-            status: AppointmentStatus.Pending,
-            counterpart: {
-              userId: `mentor-${index}`,
-              fullName: `Mentor ${index}`,
-              title: null,
-              department: null,
-            },
-            startsAt: `2026-11-1${index}T10:00:00.000Z`,
-            endsAt: `2026-11-1${index}T10:30:00.000Z`,
-          }),
-        ),
-      );
-      const requests = await openWeek();
-      const waiting = within(requests).getByRole("region", {
-        name: /Onay bekleyen taleplerim/,
-      });
-      expect(
-        within(waiting).getByText(
-          "Akademisyen ya da mentor yanıtlayana kadar kesinleşmez.",
-        ),
-      ).toBeVisible();
-      expect(within(waiting).getAllByRole("listitem")).toHaveLength(4);
-      await userEvent.click(
-        within(waiting).getByRole("button", {
-          name: "Tüm talepleri listede gör",
-        }),
-      );
-      expect(screen.getByRole("tab", { name: /Talepler/ })).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-      expect(within(await panel()).getAllByRole("article")).toHaveLength(5);
-    });
-
-    it("says what nothing in a group means", async () => {
-      const requests = await openWeek();
-      await userEvent.click(group(requests, /^Onay bekleyen taleplerim/));
-      expect(
-        within(requests).getByText("Bu grupta randevu yok."),
-      ).toBeVisible();
-    });
-  });
-
-  it("explains the colours under the calendar", async () => {
+  it("sums up what is in view and opens Talepler in the list", async () => {
     renderWithQueryClient(<StudentAppointmentsView />);
     await panel();
     await userEvent.click(screen.getByRole("button", { name: "Hafta" }));
-    const colours = screen.getByRole("region", { name: "Renkler" });
-    expect(within(colours).getByText("Henüz Onaylanmadı")).toBeVisible();
+    const summary = screen.getByRole("region", { name: "Haftanın özeti" });
+    expect(summary).toHaveTextContent("1 yanıt bekleyen talep");
+    await userEvent.click(
+      within(summary).getByRole("button", { name: "Talepleri listede gör" }),
+    );
+    expect(screen.getByRole("tab", { name: /Talepler/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("opens the list on Yaklaşan when nothing in view waits", async () => {
+    renderWithQueryClient(<StudentAppointmentsView />);
+    await panel();
+    await userEvent.click(screen.getByRole("button", { name: "Gün" }));
+    const summary = screen.getByRole("region", { name: "Günün özeti" });
+    await userEvent.click(
+      within(summary).getByRole("button", { name: "Tümünü listede gör" }),
+    );
+    expect(screen.getByRole("tab", { name: /Yaklaşan/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("opens the month's picked day in the day view", async () => {
+    renderWithQueryClient(<StudentAppointmentsView />);
+    await panel();
+    await userEvent.click(screen.getByRole("button", { name: "Ay" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "12 Kas, 1 randevu" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Günü aç" }));
     expect(
-      within(colours).getByText("Onay Bekliyor veya Alternatif Saat Önerildi"),
+      screen.getByRole("heading", { name: "12 Kasım 2026, Perşembe" }),
     ).toBeVisible();
+  });
+
+  it("explains the colours beside the calendar's title", async () => {
+    renderWithQueryClient(<StudentAppointmentsView />);
+    await panel();
+    await userEvent.click(screen.getByRole("button", { name: "Hafta" }));
+    const colours = screen.getByRole("list", { name: "Renkler" });
+    expect(within(colours).getAllByRole("listitem")).toHaveLength(3);
   });
 
   it("offers a way to find a mentor when there are no appointments", async () => {

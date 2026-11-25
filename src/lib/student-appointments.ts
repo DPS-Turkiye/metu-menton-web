@@ -3,14 +3,11 @@ import { currentTime, splitAppointments } from "@/lib/appointments";
 import {
   isSameDay,
   monthLabel,
-  shortWeekday,
   startOfWeek,
-  timeLabel,
   weekdayName,
   weekDays,
   weekRangeLabel,
 } from "@/lib/calendar";
-import { dateTile } from "@/lib/coordinator-program-detail";
 import { startOfDay } from "@/lib/mobile-calendar";
 import { isAwaitingAnswer } from "@/lib/student-home";
 import { splitFullName } from "@/lib/utils";
@@ -52,35 +49,37 @@ export function appointmentsOnDay(appointments: Appointment[], day: Date) {
     .toSorted((a, b) => Date.parse(startOf(a)) - Date.parse(startOf(b)));
 }
 
-/** "Kasım özeti" under the month view (Figma 3.7c): the month's confirmed sessions, those held, and open requests. */
-export function monthSummary(
+/** The appointments that stand in `month` ("Kasım özeti"). */
+export function appointmentsInMonth(
   appointments: readonly Appointment[],
   month: Date,
-  now: Date,
 ) {
-  const inMonth = appointments.filter((item) => {
+  return appointments.filter((item) => {
     const start = new Date(currentTime(item).startsAt);
     return (
       start.getFullYear() === month.getFullYear() &&
       start.getMonth() === month.getMonth()
     );
   });
-  const confirmed = inMonth.filter(
+}
+
+/** The line under the calendar (Figma 3.7): the confirmed sessions in view, those held, and open requests. */
+export function calendarSummary(shown: readonly Appointment[], now: Date) {
+  const confirmed = shown.filter(
     (item) => item.status === AppointmentStatus.Confirmed,
   );
   return {
     meetings: confirmed.length,
     done: confirmed.filter((item) => Date.parse(item.endsAt) <= now.getTime())
       .length,
-    waiting: inMonth.filter(isAwaitingAnswer).length,
+    waiting: shown.filter(isAwaitingAnswer).length,
   };
 }
 
-/** Taleplerim's groups, each in the order the list tabs keep: requests split by who answers next. */
+/** Talepler's two sections: who answers next. */
 export function appointmentRequestGroups(
-  tabs: Record<AppointmentsTab, Appointment[]>,
+  requests: readonly Appointment[],
 ): Record<AppointmentRequestGroup, Appointment[]> {
-  const requests = tabs[AppointmentsTab.Requests];
   return {
     [AppointmentRequestGroup.AwaitingYou]: requests.filter(
       (item) => item.status === AppointmentStatus.AlternativeProposed,
@@ -88,74 +87,6 @@ export function appointmentRequestGroups(
     [AppointmentRequestGroup.AwaitingThem]: requests.filter(
       (item) => item.status === AppointmentStatus.Pending,
     ),
-    [AppointmentRequestGroup.Confirmed]: tabs[AppointmentsTab.Upcoming],
-    [AppointmentRequestGroup.Past]: tabs[AppointmentsTab.Past],
-  };
-}
-
-/** A group shows this many rows; "Tümünü listede gör" opens the rest in the list. */
-export const REQUEST_GROUP_PREVIEW = 4;
-
-const REQUEST_GROUP_LIST_TAB: Record<AppointmentRequestGroup, AppointmentsTab> =
-  {
-    [AppointmentRequestGroup.AwaitingYou]: AppointmentsTab.Requests,
-    [AppointmentRequestGroup.AwaitingThem]: AppointmentsTab.Requests,
-    [AppointmentRequestGroup.Confirmed]: AppointmentsTab.Upcoming,
-    [AppointmentRequestGroup.Past]: AppointmentsTab.Past,
-  };
-
-/**
- * The list tab a group's "listede gör" link opens, or null for no link. Onaylanan and Geçmiş always link (Figma
- * 258:3830 / 258:3907); the request groups only once they hold more rows than the panel shows.
- */
-export function requestGroupListTab(
-  group: AppointmentRequestGroup,
-  count: number,
-): AppointmentsTab | null {
-  switch (group) {
-    case AppointmentRequestGroup.AwaitingYou:
-    case AppointmentRequestGroup.AwaitingThem:
-      return count > REQUEST_GROUP_PREVIEW
-        ? REQUEST_GROUP_LIST_TAB[group]
-        : null;
-    case AppointmentRequestGroup.Confirmed:
-    case AppointmentRequestGroup.Past:
-      return count > 0 ? REQUEST_GROUP_LIST_TAB[group] : null;
-  }
-}
-
-/** The groups open on arrival: whatever waits for an answer, else the confirmed sessions ahead. */
-export function defaultOpenGroups(
-  groups: Record<AppointmentRequestGroup, Appointment[]>,
-): AppointmentRequestGroup[] {
-  const waiting = [
-    AppointmentRequestGroup.AwaitingYou,
-    AppointmentRequestGroup.AwaitingThem,
-  ].filter((group) => groups[group].length > 0);
-  if (waiting.length > 0) return waiting;
-  return groups[AppointmentRequestGroup.Confirmed].length > 0
-    ? [AppointmentRequestGroup.Confirmed]
-    : [];
-}
-
-/**
- * A Taleplerim row's date tile ("12" / "KAS") and weekday with hours ("Per 11:00 – 11:30"), at the time the
- * appointment stands at now. Past rows give the start only: the length no longer matters there, the outcome does.
- */
-export function requestRowTime(
-  appointment: Appointment,
-  group: AppointmentRequestGroup,
-  locale: string,
-) {
-  const time = currentTime(appointment);
-  const start = timeLabel(time.startsAt, locale);
-  const hours =
-    group === AppointmentRequestGroup.Past
-      ? start
-      : `${start} – ${timeLabel(time.endsAt, locale)}`;
-  return {
-    tile: dateTile(time.startsAt, locale),
-    when: `${shortWeekday(new Date(time.startsAt), locale)} ${hours}`,
   };
 }
 
