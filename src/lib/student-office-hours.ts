@@ -146,6 +146,15 @@ export function canAnswerAlternative(appointment: Appointment) {
   );
 }
 
+/** An Office Hours request the academician has not answered, while the backend lets the student take it back. */
+export function canWithdrawOfficeHours(appointment: Appointment) {
+  return (
+    appointment.kind === AppointmentKind.OfficeHours &&
+    appointment.status === AppointmentStatus.Pending &&
+    appointment.canWithdraw === true
+  );
+}
+
 /** The backend's limit on a cancel reason (`@Size(max = 2000)`), so the field stops there instead of a 400. */
 export const OFFICE_HOURS_CANCEL_REASON_MAX = 2000;
 

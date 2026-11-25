@@ -160,8 +160,8 @@ export function requestRowTime(
 }
 
 /** In Geçmiş a confirmed session is one that was held ("Tamamlandı"); every other status says its own outcome. */
-export function wasHeld(appointment: Appointment) {
-  return appointment.status === AppointmentStatus.Confirmed;
+export function wasHeld({ status }: Pick<Appointment, "status">) {
+  return status === AppointmentStatus.Confirmed;
 }
 
 /** Where the "Şu an" line crosses the day grid, in hours from its first row; null on another day or off the grid. */

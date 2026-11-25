@@ -415,11 +415,14 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
         }),
       ]),
   });
-  const respond = async (time: string | null) => {
+  const respond = async (
+    time: string | null,
+    done: "accepted" | "declined" | "withdrawn",
+  ) => {
     try {
       await answer.mutateAsync(time);
       showToast({
-        message: t(time === null ? "declined" : "accepted"),
+        message: t(done),
         tone: ToastTone.Success,
       });
     } catch (error) {
@@ -432,8 +435,10 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
   return {
     times: offeredTimes(appointment),
     canDecline: appointment.canWithdraw ?? true,
-    accept: (time: string) => respond(time),
-    decline: () => respond(null),
+    accept: (time: string) => respond(time, "accepted"),
+    decline: () => respond(null, "declined"),
+    /** The same withdrawal, on a request nobody has answered yet. */
+    withdraw: () => respond(null, "withdrawn"),
     isAnswering: answer.isPending,
   };
 }

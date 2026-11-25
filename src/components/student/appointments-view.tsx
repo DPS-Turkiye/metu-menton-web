@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
@@ -17,13 +17,20 @@ import {
   AppointmentTimeGrid,
   kindSwatch,
 } from "@/components/student/ia/appointment-calendar";
-import { AppointmentListCard } from "@/components/student/ia/appointment-list-card";
+import {
+  AppointmentReplyCard,
+  AppointmentRow,
+} from "@/components/student/ia/appointment-list-card";
 import { AppointmentRequestsPanel } from "@/components/student/ia/appointment-requests-panel";
-import { OfficeHoursAlternativeActions } from "@/components/student/ia/office-hours-alternative-actions";
+import {
+  OfficeHoursAlternativeActions,
+  OfficeHoursWithdrawAction,
+} from "@/components/student/ia/office-hours-alternative-actions";
 import { OfficeHoursCancelAction } from "@/components/student/ia/office-hours-cancel-action";
 import {
   AppointmentStatusBadge,
   InitialsAvatar,
+  SectionHeader,
 } from "@/components/student/ia/ui";
 import {
   useStudentAppointments,
@@ -47,27 +54,23 @@ import {
 import {
   canAnswerAlternative,
   canCancelOfficeHours,
+  canWithdrawOfficeHours,
   offeredTimes,
 } from "@/lib/student-office-hours";
 import { formatDayMonth } from "@/lib/utils";
 import {
+  AppointmentRequestGroup,
   AppointmentsTab,
   AppointmentsView,
 } from "@/types/student-appointments";
 
 const FIND_MENTOR_HREF = "/student/peer-mentoring";
-const SIDE_PREVIEW = 3;
 const VIEWS = Object.values(AppointmentsView);
 const TABS = Object.values(AppointmentsTab);
 const KIND_PROGRAM_TYPE: Record<AppointmentKind, ProgramType> = {
   [AppointmentKind.OfficeHours]: ProgramType.OfficeHours,
   [AppointmentKind.PeerMentoring]: ProgramType.PeerMentoring,
 };
-const LEGEND_STATUSES = [
-  AppointmentStatus.Pending,
-  AppointmentStatus.AlternativeProposed,
-  AppointmentStatus.Confirmed,
-] as const;
 
 /** The ARIA tabs keys: arrows move to the neighbouring tab (wrapping), Home and End to the ends. */
 function tabAfterKey(current: AppointmentsTab, key: string) {
@@ -100,10 +103,14 @@ function actionsFor(
   const cancel = canCancelOfficeHours(appointment, now) ? (
     <OfficeHoursCancelAction appointment={appointment} />
   ) : null;
+  const withdraw = canWithdrawOfficeHours(appointment) ? (
+    <OfficeHoursWithdrawAction appointment={appointment} />
+  ) : null;
   const own =
-    answer || cancel ? (
+    answer || cancel || withdraw ? (
       <>
         {answer}
+        {withdraw}
         {cancel}
       </>
     ) : null;
@@ -117,7 +124,7 @@ function actionsFor(
 }
 
 /**
- * Randevularım (Figma 82:496 list, 99:2 / 99:228 / 99:390 calendars). Extension points for other student
+ * Randevularım (Figma 3.6 list, 99:2 / 99:228 / 99:390 calendars). Extension points for other student
  * editions: `filter` narrows every view, `toolbar` renders under the header (İŞKUR's role filter), and
  * `renderActions` adds a kind's answer buttons to a card (Office Hours' accept / decline).
  */
@@ -139,22 +146,27 @@ export function StudentAppointmentsView({
     initialTab: sentTo ? AppointmentsTab.Requests : AppointmentsTab.Upcoming,
   });
 
+  const banner = sentTo ? (
+    <div data-tour="appointment-request-sent">
+      <InlineAlert
+        tone={StatusTone.Success}
+        title={t("sent.title")}
+        className="bg-status-success-bg"
+      >
+        {t("sent.body", { name: sentTo })}
+      </InlineAlert>
+    </div>
+  ) : null;
+
   return (
     <div className="flex flex-col gap-8">
-      {sentTo ? (
-        <div data-tour="appointment-request-sent">
-          <InlineAlert tone={StatusTone.Success} title={t("sent.title")}>
-            {t("sent.body", { name: sentTo })}
-          </InlineAlert>
-        </div>
-      ) : null}
       <PageHeader
         title={t("title")}
         actions={
           <div
             role="group"
             aria-label={t("viewLabel")}
-            className="flex rounded-2xl bg-background-muted p-1"
+            className="flex flex-wrap"
           >
             {VIEWS.map((view) => (
               <button
@@ -162,7 +174,7 @@ export function StudentAppointmentsView({
                 type="button"
                 aria-pressed={appointments.view === view}
                 onClick={() => appointments.setView(view)}
-                className={`h-9 rounded-xl px-4 type-label ${
+                className={`h-9 rounded-full px-4 type-label ${
                   appointments.view === view
                     ? "bg-background-surface text-text-accent shadow-raised"
                     : "text-text-secondary hover:text-text-primary"
@@ -173,13 +185,14 @@ export function StudentAppointmentsView({
             ))}
           </div>
         }
-      >
-        <p className="type-body text-text-secondary">{t("subtitle")}</p>
-      </PageHeader>
+      />
       {toolbar}
+      {/* The list puts it under its tabs (Figma 3.6). */}
+      {appointments.view === AppointmentsView.List ? null : banner}
       <AppointmentsBody
         appointments={appointments}
         renderActions={renderActions}
+        banner={banner}
       />
     </div>
   );
@@ -188,9 +201,11 @@ export function StudentAppointmentsView({
 function AppointmentsBody({
   appointments,
   renderActions,
+  banner,
 }: {
   appointments: StudentAppointmentsModel;
   renderActions: RenderActions;
+  banner: ReactNode;
 }) {
   const t = useTranslations("iaStudent.appointments");
   if (appointments.isLoading) {
@@ -225,7 +240,11 @@ function AppointmentsBody({
     );
   }
   return appointments.view === AppointmentsView.List ? (
-    <ListView appointments={appointments} renderActions={renderActions} />
+    <ListView
+      appointments={appointments}
+      renderActions={renderActions}
+      banner={banner}
+    />
   ) : (
     <CalendarView appointments={appointments} renderActions={renderActions} />
   );
@@ -234,21 +253,24 @@ function AppointmentsBody({
 function ListView({
   appointments,
   renderActions,
+  banner,
 }: {
   appointments: StudentAppointmentsModel;
   renderActions: RenderActions;
+  banner: ReactNode;
 }) {
   const t = useTranslations("iaStudent.appointments");
-  const items = appointments.tabs[appointments.tab];
-  const upcoming = appointments.tabs[AppointmentsTab.Upcoming];
+  const { tab, requestGroups } = appointments;
+  const actions = (item: Appointment) =>
+    actionsFor(item, renderActions, appointments.now);
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div
         role="tablist"
         aria-label={t("tabLabel")}
-        className="grid grid-cols-3 border-b border-border-subtle"
+        className="flex flex-wrap"
         onKeyDown={(event) => {
-          const next = tabAfterKey(appointments.tab, event.key);
+          const next = tabAfterKey(tab, event.key);
           if (!next) return;
           event.preventDefault();
           appointments.setTab(next);
@@ -257,138 +279,149 @@ function ListView({
             ?.focus();
         }}
       >
-        {TABS.map((tab) => {
-          const active = appointments.tab === tab;
+        {TABS.map((item) => {
+          const active = tab === item;
           return (
             <button
-              key={tab}
+              key={item}
               type="button"
               role="tab"
-              id={`appointments-tab-${tab}`}
+              id={`appointments-tab-${item}`}
               aria-selected={active}
               aria-controls="appointments-panel"
               tabIndex={active ? 0 : -1}
-              onClick={() => appointments.setTab(tab)}
-              className={`-mb-px flex items-center justify-center gap-2 border-b-2 py-3 type-label ${
+              onClick={() => appointments.setTab(item)}
+              className={`flex h-12 items-center gap-2 border-b-2 px-2 type-label ${
                 active
                   ? "border-action-accent text-text-accent"
                   : "border-transparent text-text-secondary hover:text-text-primary"
               }`}
             >
-              {t(`tabs.${tab}`)}
-              {tab === AppointmentsTab.Past ? null : (
+              {t(`tabs.${item}`)}
+              {item === AppointmentsTab.Past ? null : (
                 <span
-                  className={`grid min-w-5 place-items-center rounded-full px-1.5 type-caption ${
+                  className={`grid h-5 min-w-6 place-items-center rounded-full px-1.5 type-label-sm ${
                     active
                       ? "bg-background-selected text-text-accent"
                       : "bg-background-muted text-text-secondary"
                   }`}
                 >
-                  {appointments.tabs[tab].length}
+                  {appointments.tabs[item].length}
                 </span>
               )}
             </button>
           );
         })}
       </div>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div
-          role="tabpanel"
-          id="appointments-panel"
-          aria-labelledby={`appointments-tab-${appointments.tab}`}
-        >
-          {items.length === 0 ? (
-            <p className="rounded-card border border-dashed border-border-default p-6 type-body-sm text-text-muted">
-              {t(`tabEmpty.${appointments.tab}`)}
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-4">
-              {items.map((item, index) => (
-                <li key={item.id}>
-                  <AppointmentListCard
-                    appointment={item}
-                    actions={actionsFor(item, renderActions, appointments.now)}
-                    tourAnchor={
-                      appointments.tab === AppointmentsTab.Upcoming &&
-                      index === 0
-                        ? "appointments-first-row"
-                        : undefined
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <aside className="flex flex-col gap-6">
-          <Card labelledBy="appointments-legend">
-            <h2 id="appointments-legend" className="type-h4 text-text-primary">
-              {t("legend.title")}
-            </h2>
-            <dl className="mt-4 flex flex-col gap-4">
-              {LEGEND_STATUSES.map((status) => (
-                <div key={status} className="flex flex-col gap-1.5">
-                  <dt>
-                    <AppointmentStatusBadge status={status} />
-                  </dt>
-                  <dd className="type-body-sm text-text-secondary">
-                    {t(`legend.${status}`)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </Card>
-          {upcoming.length > 0 &&
-          appointments.tab !== AppointmentsTab.Upcoming ? (
-            <Card labelledBy="appointments-side-upcoming">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2
-                  id="appointments-side-upcoming"
-                  className="type-h4 text-text-primary"
-                >
-                  {t("tabs.upcoming")}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => appointments.setTab(AppointmentsTab.Upcoming)}
-                  className="type-label text-text-link hover:underline"
-                >
-                  {t("seeAll")} <span aria-hidden>→</span>
-                </button>
-              </div>
-              <ul className="mt-4 flex flex-col gap-4">
-                {upcoming.slice(0, SIDE_PREVIEW).map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <SideLine appointment={item} />
-                    <AppointmentStatusBadge status={item.status} />
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
-        </aside>
+      {banner}
+      <div
+        role="tabpanel"
+        id="appointments-panel"
+        aria-labelledby={`appointments-tab-${tab}`}
+        className="flex flex-col gap-8"
+      >
+        {appointments.tabs[tab].length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-border-default p-6 type-body-sm text-text-muted">
+            {t(`tabEmpty.${tab}`)}
+          </p>
+        ) : tab === AppointmentsTab.Requests ? (
+          <>
+            <RequestSection
+              id="appointments-awaiting-you"
+              title={t("sections.awaitingYou")}
+              items={requestGroups[AppointmentRequestGroup.AwaitingYou]}
+            >
+              {(items) => (
+                <ul className="flex flex-col gap-4">
+                  {items.map((item) => (
+                    <li key={item.id}>
+                      <AppointmentReplyCard
+                        appointment={item}
+                        actions={actions(item)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </RequestSection>
+            <RequestSection
+              id="appointments-awaiting-them"
+              title={t("sections.awaitingThem")}
+              items={requestGroups[AppointmentRequestGroup.AwaitingThem]}
+            >
+              {(items) => <Rows items={items} actions={actions} />}
+            </RequestSection>
+          </>
+        ) : (
+          <Rows
+            items={appointments.tabs[tab]}
+            actions={actions}
+            outcome={tab === AppointmentsTab.Past}
+            tourAnchor={
+              tab === AppointmentsTab.Upcoming
+                ? "appointments-first-row"
+                : undefined
+            }
+          />
+        )}
       </div>
+      <p className="flex items-start gap-2 type-body-sm text-text-muted">
+        <Info
+          aria-hidden
+          className="mt-0.5 size-4 shrink-0"
+          strokeWidth={1.5}
+        />
+        {t("statusHint")}
+      </p>
     </div>
   );
 }
 
-function SideLine({ appointment }: { appointment: Appointment }) {
-  const tKind = useTranslations("iaStudent.common.kind");
-  const locale = useLocale();
+function RequestSection({
+  id,
+  title,
+  items,
+  children,
+}: {
+  id: string;
+  title: string;
+  items: Appointment[];
+  children: (items: Appointment[]) => ReactNode;
+}) {
+  if (items.length === 0) return null;
   return (
-    <div className="min-w-0">
-      <p className="type-label text-text-primary">
-        {[appointment.counterpart.title, appointment.counterpart.fullName]
-          .filter(Boolean)
-          .join(" ")}
-      </p>
-      <p className="type-caption text-text-muted">
-        {`${formatDayMonth(new Date(appointment.startsAt), locale)} · ${timeLabel(appointment.startsAt, locale)} · ${tKind(appointment.kind)}`}
-      </p>
-    </div>
+    <section aria-labelledby={id} className="flex flex-col gap-6">
+      <SectionHeader id={id} title={title} hint={String(items.length)} />
+      {children(items)}
+    </section>
+  );
+}
+
+function Rows({
+  items,
+  actions,
+  outcome = false,
+  tourAnchor,
+}: {
+  items: Appointment[];
+  actions: (appointment: Appointment) => ReactNode;
+  outcome?: boolean;
+  /** On the first row only. */
+  tourAnchor?: string | undefined;
+}) {
+  return (
+    <ul className="divide-y divide-border-default overflow-hidden rounded-2xl border border-border-default bg-background-surface">
+      {items.map((item, index) => (
+        <li key={item.id}>
+          <AppointmentRow
+            appointment={item}
+            actions={actions(item)}
+            outcome={outcome}
+            tourAnchor={index === 0 ? tourAnchor : undefined}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }
 

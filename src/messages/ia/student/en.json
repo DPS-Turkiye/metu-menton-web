@@ -66,7 +66,6 @@
   },
   "appointments": {
     "title": "My appointments",
-    "subtitle": "Your Office Hours and peer mentoring appointments in one place.",
     "viewLabel": "View",
     "views": {
       "list": "List",
@@ -85,10 +84,9 @@
       "requests": "You have no requests awaiting an answer.",
       "past": "You have no past appointments."
     },
-    "seeAll": "All",
     "sent": {
       "title": "Your appointment request was sent",
-      "body": "We'll notify you when {name} replies."
+      "body": "You will be notified when {name} answers."
     },
     "alternative": {
       "requested": "You asked for",
@@ -96,12 +94,6 @@
     },
     "rejectReason": "Reason: {reason}",
     "counterpartMessage": "The academician's message: {message}",
-    "legend": {
-      "title": "What do the statuses mean?",
-      "PENDING": "The academician or mentor hasn't answered yet. The appointment isn't set.",
-      "ALTERNATIVE_PROPOSED": "The appointment isn't confirmed until you accept the new time.",
-      "CONFIRMED": "The appointment is set and shows in both calendars."
-    },
     "calendar": {
       "today": "Today",
       "previous": "Previous",
@@ -160,7 +152,14 @@
       "proposed": "Proposed: {time}",
       "held": "Held",
       "empty": "No appointments in this group."
-    }
+    },
+    "quote": "“{message}”",
+    "declineHint": "If you decline, the request closes; you can pick a new time.",
+    "sections": {
+      "awaitingYou": "Waiting for your answer",
+      "awaitingThem": "Waiting for an answer"
+    },
+    "statusHint": "Awaiting approval: no answer yet. Alternative time: not set until you accept. Approved: on both calendars."
   },
   "officeHours": {
     "list": {
@@ -252,7 +251,9 @@
       "decline": "Decline",
       "accepted": "You accepted the proposed time; your appointment is confirmed.",
       "declined": "You declined the proposed time; your request was withdrawn.",
-      "failed": "Your answer could not be sent. Try again."
+      "failed": "Your answer could not be sent. Try again.",
+      "withdraw": "Withdraw request",
+      "withdrawn": "Your request was withdrawn."
     },
     "cancel": {
       "button": "Cancel appointment",

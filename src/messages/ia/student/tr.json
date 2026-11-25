@@ -66,7 +66,6 @@
   },
   "appointments": {
     "title": "Randevularım",
-    "subtitle": "Office Hours ve akran mentörlüğü randevuların tek yerde.",
     "viewLabel": "Görünüm",
     "views": {
       "list": "Liste",
@@ -85,10 +84,9 @@
       "requests": "Yanıt bekleyen talebin yok.",
       "past": "Geçmiş randevun yok."
     },
-    "seeAll": "Tümü",
     "sent": {
       "title": "Randevu talebin gönderildi",
-      "body": "{name} yanıtladığında sana bildirim göndereceğiz."
+      "body": "{name} yanıtladığında bildirim alacaksın."
     },
     "alternative": {
       "requested": "Talep ettiğin",
@@ -96,12 +94,6 @@
     },
     "rejectReason": "Gerekçe: {reason}",
     "counterpartMessage": "Akademisyenin mesajı: {message}",
-    "legend": {
-      "title": "Durumlar ne anlama geliyor?",
-      "PENDING": "Akademisyen veya mentor henüz yanıtlamadı. Randevu kesinleşmedi.",
-      "ALTERNATIVE_PROPOSED": "Yeni saati sen kabul edene kadar randevu onaylanmaz.",
-      "CONFIRMED": "Randevu kesinleşti; iki tarafın takviminde görünür."
-    },
     "calendar": {
       "today": "Bugün",
       "previous": "Önceki",
@@ -160,7 +152,14 @@
       "proposed": "Önerilen: {time}",
       "held": "Tamamlandı",
       "empty": "Bu grupta randevu yok."
-    }
+    },
+    "quote": "“{message}”",
+    "declineHint": "Reddedersen talep kapanır; dilersen yeni bir saat seçebilirsin.",
+    "sections": {
+      "awaitingYou": "Yanıtını bekliyor",
+      "awaitingThem": "Yanıt bekleniyor"
+    },
+    "statusHint": "Onay Bekliyor: henüz yanıt yok. Alternatif Saat: sen kabul edene kadar randevu kesinleşmez. Onaylandı: iki tarafın takviminde görünür."
   },
   "officeHours": {
     "list": {
@@ -247,15 +246,17 @@
       "changeTime": "Saati değiştir"
     },
     "answer": {
-      "accept": "Önerilen Saati Kabul Et",
+      "accept": "Önerilen saati kabul et",
       "acceptTime": "{time} önerisini kabul et",
       "decline": "Reddet",
       "accepted": "Önerilen saati kabul ettin; randevun onaylandı.",
       "declined": "Önerilen saati reddettin; talebin geri çekildi.",
-      "failed": "Yanıt gönderilemedi. Tekrar dene."
+      "failed": "Yanıt gönderilemedi. Tekrar dene.",
+      "withdraw": "Talebi geri çek",
+      "withdrawn": "Talebin geri çekildi."
     },
     "cancel": {
-      "button": "Randevuyu İptal Et",
+      "button": "Randevuyu iptal et",
       "title": "Randevuyu iptal etmek istiyor musun?",
       "body": "{name} bildirim alır. Bu işlem geri alınamaz.",
       "reasonLabel": "İptal nedeni (opsiyonel)",

@@ -163,7 +163,7 @@ describe("StudentHomeView", () => {
     const pending = screen.getByRole("region", { name: "Bekleyen taleplerim" });
     expect(within(pending).getByText("2")).toBeVisible();
     expect(within(pending).getByRole("link", { name: "Tümü" })).toBeVisible();
-    expect(within(pending).getByText("Alternatif Önerildi")).toBeVisible();
+    expect(within(pending).getByText("Alternatif Saat Önerildi")).toBeVisible();
     expect(within(pending).getByText(request.mentor.fullName)).toBeVisible();
     expect(within(pending).getByText("Onay Bekliyor")).toBeVisible();
   });

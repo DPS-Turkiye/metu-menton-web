@@ -25,6 +25,7 @@ import {
 } from "@/hooks/use-student-office-hours";
 import type { OfficeHoursCourse } from "@/interfaces/student-office-hours";
 import { timeLabel } from "@/lib/calendar";
+import { wasHeld } from "@/lib/student-appointments";
 import { academicianName, slotsByDay } from "@/lib/student-office-hours";
 import { formatDayMonth, formatWeekdayDayMonth, initials } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export function OfficeHoursProfileView({
 }) {
   const t = useTranslations("iaStudent.officeHours.profile");
   const tStatus = useTranslations("appointments.status");
+  const tHeld = useTranslations("iaStudent.appointments.requests");
   const locale = useLocale();
   const profile = useOfficeHoursProfile(academicianId);
   const { academician } = profile;
@@ -148,7 +150,9 @@ export function OfficeHoursProfileView({
                   {t("past", {
                     topic: item.topic,
                     day: formatDayMonth(new Date(item.startsAt), locale),
-                    status: tStatus(item.status),
+                    status: wasHeld(item)
+                      ? tHeld("held")
+                      : tStatus(item.status),
                   })}
                 </li>
               ))}

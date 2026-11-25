@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
-import { Button, ButtonVariant } from "@/components/ia/button";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { useOfficeHoursAlternativeAnswer } from "@/hooks/use-student-office-hours";
 import type { Appointment } from "@/interfaces/appointment";
 import { timeLabel } from "@/lib/calendar";
@@ -25,7 +25,7 @@ export function OfficeHoursAlternativeActions({
     <>
       {answer.canDecline ? (
         <Button
-          variant={ButtonVariant.Ghost}
+          variant={ButtonVariant.Secondary}
           disabled={answer.isAnswering}
           onClick={() => void answer.decline()}
         >
@@ -54,5 +54,25 @@ export function OfficeHoursAlternativeActions({
         ))
       )}
     </>
+  );
+}
+
+/** "Talebi geri çek" on an Office Hours request still waiting for the academician. */
+export function OfficeHoursWithdrawAction({
+  appointment,
+}: {
+  appointment: Appointment;
+}) {
+  const t = useTranslations("iaStudent.officeHours.answer");
+  const answer = useOfficeHoursAlternativeAnswer(appointment);
+  return (
+    <Button
+      variant={ButtonVariant.Ghost}
+      size={ButtonSize.Small}
+      disabled={answer.isAnswering}
+      onClick={() => void answer.withdraw()}
+    >
+      {t("withdraw")}
+    </Button>
   );
 }

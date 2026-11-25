@@ -16,6 +16,7 @@ import type { ReactNode } from "react";
 
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { AppointmentStatus } from "@/interfaces/appointment";
+import { wasHeld } from "@/lib/student-appointments";
 import { initials } from "@/lib/utils";
 
 const AVATAR_SIZES = {
@@ -83,6 +84,24 @@ export function AppointmentStatusBadge({
       icon={<Icon aria-hidden className="size-4" strokeWidth={1.5} />}
     >
       {t(status)}
+    </StatusBadge>
+  );
+}
+
+/** Geçmiş mixes outcomes, so each one says its own; a confirmed meeting in the past was held. */
+export function AppointmentOutcomeBadge({
+  status,
+}: {
+  status: AppointmentStatus;
+}) {
+  const t = useTranslations("iaStudent.appointments.requests");
+  if (!wasHeld({ status })) return <AppointmentStatusBadge status={status} />;
+  return (
+    <StatusBadge
+      tone={StatusTone.Neutral}
+      icon={<Check aria-hidden className="size-4" strokeWidth={1.5} />}
+    >
+      {t("held")}
     </StatusBadge>
   );
 }
