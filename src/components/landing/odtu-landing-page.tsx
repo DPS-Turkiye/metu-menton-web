@@ -1,240 +1,298 @@
 "use client";
 
+import { ArrowRight, ArrowUp, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 import { MentonWordmark } from "@/components/common/menton-wordmark";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { OdtuLandingHeader } from "@/components/landing/odtu-landing-header";
+import {
+  LandingEyebrow,
+  LandingHeading,
+  LandingLead,
+  LandingStory,
+  StoryTone,
+} from "@/components/landing/odtu-landing-story";
+import styles from "@/components/landing/odtu-landing.module.css";
 import { usePublicSessionDestination } from "@/hooks/use-public-session-destination";
 import { SUPPORT_EMAIL } from "@/lib/const";
+import {
+  ODTU_LANDING_QUESTIONS,
+  ODTU_LANDING_TOPICS,
+} from "@/lib/const/odtu-landing";
 import { IaAccent } from "@/types/ia-theme";
 
-const FEATURES = [
+const PATHS = [
+  {
+    key: "peer",
+    href: "#akran-mentorluk",
+    image: "/ia/landing/peer-mentoring.webp",
+    width: 132,
+    tone: "text-brand-odtu-primary",
+    hover: "hover:border-action-secondary-border",
+  },
   {
     key: "officeHours",
-    image: "/ia/illustrations/office-hours-calendar.png",
-    featured: true,
-  },
-  {
-    key: "peerMentoring",
-    image: "/ia/illustrations/peer-mentor-magnifier.png",
-    featured: false,
-  },
-  {
-    key: "appointments",
-    image: "/ia/illustrations/waiting-chairs.png",
-    featured: false,
-  },
-  {
-    key: "advisor",
-    image: "/ia/illustrations/open-book.png",
-    featured: false,
+    href: "#office-hours",
+    image: "/ia/landing/office-hours.webp",
+    width: 198,
+    tone: "text-status-info-text",
+    hover: "hover:border-status-info-border",
   },
 ] as const;
 
-const AUDIENCES = ["student", "iskur", "academic"] as const;
+/** Open section spacing: 72 px on phones, 120 px on desktop. */
+const SECTION = "scroll-mt-[72px] py-[72px] sm:py-[88px] lg:py-[120px]";
+const WRAP = "mx-auto max-w-[1160px] px-5 sm:px-10";
 
-const POINTS = ["first", "second", "third"] as const;
-
-/**
- * The ODTÜ deployment's front page, built from the IA Revizyon screens and the menton v1.2 design system (ODTÜ
- * Primary mode): the plain header, a hero with the campus illustration, the student home's quick-action cards, one
- * card per role and the "ODTÜ ile giriş" banner. Teknokent's landing sells startup mentoring, which ODTÜ does not run.
- */
+/** The ODTÜ deployment's front page: hocam by menton, for students. */
 export function OdtuLandingPage() {
-  const copy = useTranslations("odtuLanding");
-  const destination = usePublicSessionDestination();
-  const helpHref = `mailto:${SUPPORT_EMAIL}`;
-
+  const t = useTranslations("odtuLanding");
   return (
     <div
       data-ia-accent={IaAccent.Odtu}
+      id="top"
       className="flex min-h-screen flex-col bg-background-surface text-text-primary"
     >
-      <header className="border-b border-border-subtle">
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-4 sm:px-8 lg:px-20">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-4 focus:z-[60] focus:rounded-button-sm focus:bg-background-inverse focus:px-3.5 focus:py-2.5 focus:text-text-inverse"
+      >
+        {t("skip")}
+      </a>
+      <OdtuLandingHeader />
+      <main id="main" className="flex-1 overflow-x-clip">
+        <Hero />
+        <LandingStory
+          id="akran-mentorluk"
+          story="peer"
+          image="/ia/landing/peer-mentoring.webp"
+          imageHeight={308}
+        />
+        <LandingStory
+          id="office-hours"
+          story="officeHours"
+          image="/ia/landing/office-hours.webp"
+          imageHeight={205}
+          tone={StoryTone.Info}
+          flip
+        />
+        <Topics />
+        <LandingStory
+          id="mentor-ol"
+          story="mentor"
+          image="/ia/landing/share.webp"
+          imageHeight={277}
+        />
+        <Community />
+        <Questions />
+      </main>
+      <footer className="border-t border-border-subtle py-9">
+        <div
+          className={`${WRAP} flex flex-wrap items-center justify-between gap-6`}
+        >
           <MentonWordmark />
-          <nav
-            aria-label={copy("navLabel")}
-            className="flex items-center gap-4 type-label sm:gap-6"
-          >
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 type-body-sm text-text-muted">
+            <span>{t("footer")}</span>
             {/* A plain link: the help address is a mailto, which next/link does not handle. */}
             <a
-              href={helpHref}
-              className="text-text-secondary hover:text-text-primary"
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="underline hover:text-text-primary"
             >
-              {copy("help")}
+              {SUPPORT_EMAIL}
             </a>
-            <Button href={destination.href} size={ButtonSize.Small}>
-              {destination.label}
-            </Button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-20 px-4 pt-12 pb-20 sm:px-8 lg:gap-24 lg:px-20 lg:pt-20">
-        <section
-          aria-labelledby="odtu-landing-title"
-          className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_440px]"
-        >
-          <div className="flex flex-col gap-6">
-            <p className="type-overline text-text-accent">{copy("overline")}</p>
-            <h1
-              id="odtu-landing-title"
-              className="type-h1 text-balance text-text-primary lg:type-display"
-            >
-              {copy("title")}
-            </h1>
-            <p className="max-w-[560px] type-body-lg text-text-secondary">
-              {copy("intro")}
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button href={destination.href} size={ButtonSize.Large}>
-                {destination.label}
-              </Button>
-              {destination.signup ? (
-                <Button
-                  href={destination.signup.href}
-                  variant={ButtonVariant.Ghost}
-                  size={ButtonSize.Large}
-                >
-                  {copy("signupAction")}
-                </Button>
-              ) : null}
-            </div>
-            <p className="flex flex-wrap items-center gap-2 type-caption text-text-muted">
-              <span className="rounded-full bg-brand-odtu-bg px-2.5 py-1 type-label-sm text-brand-odtu-primary">
-                {copy("noSignupTag")}
-              </span>
-              {copy("noSignupText")}
-            </p>
           </div>
-          <div className="hidden justify-center rounded-featured border border-card-featured-border bg-card-featured-bg p-10 lg:flex">
-            <Image
-              src="/ia/illustrations/campus-flag.png"
-              alt=""
-              width={320}
-              height={308}
-              priority
-            />
-          </div>
-        </section>
-
-        <section aria-labelledby="odtu-landing-features" className="space-y-6">
-          <h2 id="odtu-landing-features" className="type-h3">
-            {copy("featuresTitle")}
-          </h2>
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {FEATURES.map((feature) => (
-              <li
-                key={feature.key}
-                className={`flex items-center gap-4 rounded-[20px] p-5 ${
-                  feature.featured
-                    ? "bg-brand-odtu-bg"
-                    : "border border-border-default bg-background-surface"
-                }`}
-              >
-                <Image
-                  src={feature.image}
-                  alt=""
-                  width={88}
-                  height={88}
-                  className="size-[88px] shrink-0 object-contain"
-                />
-                <div className="flex min-w-0 flex-col gap-1">
-                  <h3 className="type-title-card">
-                    {copy(`features.${feature.key}.title`)}
-                  </h3>
-                  <p className="type-caption text-text-muted">
-                    {copy(`features.${feature.key}.caption`)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-labelledby="odtu-landing-audience" className="space-y-6">
-          <h2 id="odtu-landing-audience" className="type-h3">
-            {copy("audienceTitle")}
-          </h2>
-          <div className="grid gap-5 md:grid-cols-3">
-            {AUDIENCES.map((audience) => (
-              <article
-                key={audience}
-                aria-labelledby={`odtu-audience-${audience}`}
-                className="flex flex-col gap-4 rounded-card border border-border-default bg-background-surface p-6"
-              >
-                <span className="w-fit rounded-full bg-brand-odtu-bg px-3 py-1 type-label-sm text-brand-odtu-primary">
-                  {copy(`audience.${audience}.badge`)}
-                </span>
-                <h3
-                  id={`odtu-audience-${audience}`}
-                  className="type-h4 text-text-primary"
-                >
-                  {copy(`audience.${audience}.title`)}
-                </h3>
-                <span aria-hidden className="h-px bg-border-subtle" />
-                <ul className="flex flex-col gap-3">
-                  {POINTS.map((point) => (
-                    <li
-                      key={point}
-                      className="flex items-center gap-2 type-body-sm text-text-primary"
-                    >
-                      <Image
-                        src="/ia/icons/check.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                      />
-                      {copy(`audience.${audience}.points.${point}`)}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section
-          aria-labelledby="odtu-landing-banner"
-          className="flex flex-col gap-4 rounded-2xl border border-border-subtle px-6 py-[22px] sm:flex-row sm:items-center sm:gap-5"
-        >
-          <Image
-            src="/ia/odtu/odtu-logo.png"
-            alt=""
-            width={48}
-            height={40}
-            className="h-10 w-12 shrink-0 object-contain"
-          />
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2
-                id="odtu-landing-banner"
-                className="text-[18px] font-semibold text-text-primary"
-              >
-                {copy("banner.title")}
-              </h2>
-              <span className="text-[11.5px] font-medium text-brand-odtu-primary">
-                {copy("noSignupTag")}
-              </span>
-            </div>
-            <p className="type-body-sm text-text-secondary">
-              {copy("banner.text")}
-            </p>
-          </div>
-          <Button href={destination.href}>{destination.label}</Button>
-        </section>
-      </main>
-
-      <footer className="border-t border-border-subtle">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-6 type-caption text-text-muted sm:px-8 lg:px-20">
-          <span>{copy("footer")}</span>
-          <a href={helpHref} className="hover:text-text-primary">
-            {SUPPORT_EMAIL}
-          </a>
+          <Button
+            href="#top"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Ghost}
+          >
+            {t("backToTop")}
+            <ArrowUp aria-hidden className="size-4" strokeWidth={1.6} />
+          </Button>
         </div>
       </footer>
     </div>
+  );
+}
+
+function Hero() {
+  const t = useTranslations("odtuLanding.hero");
+  return (
+    <section
+      id="baslangic"
+      aria-labelledby="odtu-landing-title"
+      className="scroll-mt-[72px] px-5 pt-[72px] pb-20 text-center sm:px-10 lg:pt-[120px] lg:pb-[112px]"
+    >
+      <div className="mx-auto max-w-[960px]">
+        <h1
+          id="odtu-landing-title"
+          className="font-display text-[46px] leading-[52px] font-extrabold tracking-[-0.04em] sm:text-[64px] sm:leading-[68px] lg:text-[88px] lg:leading-[92px]"
+        >
+          {t.rich("title", {
+            accent: (chunks) => (
+              <span className="text-brand-odtu-primary">{chunks}</span>
+            ),
+          })}
+        </h1>
+        <p className="mx-auto mt-7 max-w-[640px] text-[16.5px] leading-[27px] text-balance text-text-secondary sm:text-[20px] sm:leading-8">
+          {t("lead")}
+        </p>
+        <div className="mx-auto mt-9 grid max-w-[760px] gap-3.5 sm:mt-[52px] sm:grid-cols-2 sm:gap-5">
+          {PATHS.map((path) => (
+            <a
+              key={path.key}
+              href={path.href}
+              className={`group flex flex-col items-center gap-1.5 rounded-featured border border-border-subtle bg-background-surface px-6 pt-7 pb-[26px] shadow-raised transition hover:-translate-y-1 hover:shadow-modal motion-reduce:transform-none ${path.hover}`}
+            >
+              <Image
+                src={path.image}
+                alt=""
+                width={path.width}
+                height={132}
+                priority
+                className="mb-2.5 h-24 w-auto transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 motion-reduce:transform-none sm:h-[132px]"
+              />
+              <span className="font-display text-[22px] leading-7 font-extrabold tracking-[-0.02em] sm:text-[26px] sm:leading-8">
+                {t(`paths.${path.key}.title`)}
+              </span>
+              <span className="text-[14.5px] leading-[22px] text-text-secondary">
+                {t(`paths.${path.key}.caption`)}
+              </span>
+              <span
+                className={`mt-2.5 inline-flex items-center gap-1.5 text-[14px] font-semibold ${path.tone}`}
+              >
+                {t(`paths.${path.key}.action`)}
+                <ArrowRight aria-hidden className="size-4" strokeWidth={1.6} />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Topics() {
+  const t = useTranslations("odtuLanding.topics");
+  return (
+    <section id="konular" aria-labelledby="konular-title" className={SECTION}>
+      <div className={WRAP}>
+        <div className={`max-w-[720px] ${styles.reveal ?? ""}`}>
+          <LandingEyebrow>{t("eyebrow")}</LandingEyebrow>
+          <LandingHeading id="konular-title">{t("title")}</LandingHeading>
+          <LandingLead>{t("lead")}</LandingLead>
+        </div>
+        <ul className="mt-12 grid gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
+          {ODTU_LANDING_TOPICS.map((topic) => (
+            <li
+              key={topic.key}
+              className={`group grid grid-cols-[72px_minmax(0,1fr)] items-start gap-x-4 rounded-[26px] border border-border-subtle bg-background-surface px-[22px] pt-[26px] pb-6 transition-[border-color,box-shadow] duration-300 hover:border-action-secondary-border hover:shadow-hover sm:block ${styles.reveal ?? ""}`}
+            >
+              <Image
+                src={topic.image}
+                alt=""
+                width={92}
+                height={92}
+                className="row-span-2 size-[72px] object-contain transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 motion-reduce:transform-none sm:size-[92px]"
+              />
+              <h3 className="mt-1 font-display text-[19px] leading-[25px] font-extrabold tracking-[-0.015em] sm:mt-[18px]">
+                {t(`items.${topic.key}.title`)}
+              </h3>
+              <p className="mt-1.5 text-[13.5px] leading-[22px] text-text-secondary sm:mt-3">
+                {t(`items.${topic.key}.body`)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function Community() {
+  const t = useTranslations("odtuLanding.community");
+  const tShared = useTranslations("sharedUi");
+  return (
+    <section
+      id="karsilikli"
+      aria-labelledby="karsilikli-title"
+      className="relative scroll-mt-16 overflow-hidden bg-status-error-icon py-24 text-white lg:py-[136px]"
+    >
+      <div
+        aria-hidden
+        className={`font-display font-extrabold ${styles.watermark ?? ""}`}
+      >
+        {tShared("wordmark")}
+      </div>
+      <div className={`relative ${WRAP}`}>
+        <p className="mb-4 text-[13px] font-semibold text-[#ffb9c2]">
+          {t("eyebrow")}
+        </p>
+        <h2
+          id="karsilikli-title"
+          className="max-w-[960px] font-display text-[40px] leading-[46px] font-extrabold tracking-[-0.04em] sm:text-[54px] sm:leading-[58px] lg:text-[76px] lg:leading-[80px]"
+        >
+          {t.rich("title", {
+            accent: (chunks) => (
+              <span className="text-[#ffb9c2]">{chunks}</span>
+            ),
+          })}
+        </h2>
+        <p className="mt-7 max-w-[620px] text-[16px] leading-[26px] text-white/85 sm:text-[19px] sm:leading-[30px]">
+          {t("lead")}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function Questions() {
+  const t = useTranslations("odtuLanding.questions");
+  const destination = usePublicSessionDestination();
+  return (
+    <section id="sss" aria-labelledby="sss-title" className={SECTION}>
+      <div
+        className={`${WRAP} grid items-start gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16`}
+      >
+        <div>
+          <LandingHeading id="sss-title">{t("title")}</LandingHeading>
+          <LandingLead>{t("lead")}</LandingLead>
+          <div className="mt-7">
+            <Button
+              href={destination.primaryAction.href}
+              size={ButtonSize.Large}
+            >
+              {destination.signup ? t("join") : destination.primaryAction.label}
+            </Button>
+          </div>
+        </div>
+        <div className="border-t border-border-subtle">
+          {/* One name: the browser keeps a single answer open. */}
+          {ODTU_LANDING_QUESTIONS.map((question, index) => (
+            <details
+              key={question}
+              name="odtu-landing-faq"
+              open={index === 0}
+              className="group border-b border-border-subtle"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-1 py-[22px] font-display text-[17px] leading-6 font-bold [&::-webkit-details-marker]:hidden">
+                <h3>{t(`items.${question}.title`)}</h3>
+                <span
+                  aria-hidden
+                  className="grid size-8 shrink-0 place-items-center rounded-full bg-background-subtle transition group-open:rotate-45 group-open:bg-brand-odtu-bg group-open:text-brand-odtu-primary motion-reduce:transition-none"
+                >
+                  <Plus className="size-4" strokeWidth={1.6} />
+                </span>
+              </summary>
+              <p className="pr-12 pb-[22px] pl-1 text-[15px] leading-[25px] text-text-secondary">
+                {t(`items.${question}.body`)}
+              </p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

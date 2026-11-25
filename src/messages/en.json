@@ -7196,69 +7196,132 @@
     "availabilityExtraSlot": "{day} · {time} ({minutes} min)"
   },
   "odtuLanding": {
-    "navLabel": "Sign-in and help",
-    "help": "Help",
-    "overline": "menton for METU",
-    "title": "Office Hours and peer mentoring in one place",
-    "intro": "Book time with your academics, ask İŞKUR students with a verified badge for peer mentoring and follow all your appointments in one calendar.",
-    "signupAction": "Sign up as an İŞKUR student",
-    "noSignupTag": "No sign-up needed",
-    "noSignupText": "If you are a METU student or academic, your METU account is all you need.",
-    "featuresTitle": "What you can do",
-    "features": {
+    "metaTitle": "hocam by menton",
+    "skip": "Skip to content",
+    "sectionsLabel": "Page sections",
+    "signUp": "Sign up",
+    "backToTop": "Back to top",
+    "footer": "Peer mentoring and Office Hours for METU students.",
+    "sections": {
+      "start": "What is hocam?",
+      "peer": "Peer mentoring",
+      "officeHours": "Office Hours",
+      "topics": "Mentoring topics",
+      "mentor": "Becoming a mentor",
+      "community": "Learning together",
+      "faq": "Questions"
+    },
+    "hero": {
+      "title": "You know something, <accent>hocam.</accent>",
+      "lead": "At METU, experience grows when it is shared. Get support from your peers, meet academics in Office Hours and manage your meetings in one place.",
+      "paths": {
+        "peer": {
+          "title": "Peer mentoring",
+          "caption": "Get support from experienced METU students",
+          "action": "Find a mentor"
+        },
+        "officeHours": {
+          "title": "Office Hours",
+          "caption": "Request an appointment with academics",
+          "action": "Discover Office Hours"
+        }
+      }
+    },
+    "stories": {
+      "peer": {
+        "eyebrow": "Peer mentoring",
+        "title": "Meet your peer mentors.",
+        "lead": "On hocam you meet experienced METU students on what you are curious about, from courses to internships, from technical skills to campus life.",
+        "stepsLabel": "Peer mentoring steps",
+        "steps": {
+          "first": "Choose your topic",
+          "second": "Find your mentor",
+          "third": "Send a request"
+        },
+        "note": "Your mentorship starts when your mentor accepts the request."
+      },
       "officeHours": {
-        "title": "Request an appointment",
-        "caption": "Office Hours"
+        "eyebrow": "Office Hours",
+        "title": "Book Office Hours with academics.",
+        "lead": "See when your academic advisor, or any METU academic you want to meet, is available and request an appointment.",
+        "stepsLabel": "Office Hours steps",
+        "steps": {
+          "first": "Choose the academic",
+          "second": "Choose a time",
+          "third": "Wait for approval"
+        },
+        "note": "Your appointment is confirmed when the academic approves it. Meeting another academic does not change your advisor."
       },
-      "peerMentoring": {
-        "title": "Find a mentor",
-        "caption": "Peer mentoring"
-      },
-      "appointments": {
-        "title": "Follow your appointments",
-        "caption": "My appointments"
-      },
-      "advisor": {
-        "title": "Reach your advisor",
-        "caption": "Academic advising"
+      "mentor": {
+        "eyebrow": "Becoming a peer mentor",
+        "title": "Share what you know.",
+        "lead": "A course you passed, an internship you did or something you learned on campus can shorten someone else's way.",
+        "note": "After you finish the mentoring training and get your badge, you create your mentor profile and set your topics, experience and availability."
       }
     },
-    "audienceTitle": "Who is it for?",
-    "audience": {
-      "student": {
-        "badge": "Student",
-        "title": "METU students",
-        "points": {
-          "first": "Book Office Hours",
-          "second": "Find a peer mentor who fits you",
-          "third": "Follow your appointments in one calendar"
-        }
-      },
-      "iskur": {
-        "badge": "İŞKUR Student",
-        "title": "Peer mentors",
-        "points": {
-          "first": "Finish the mentoring training and earn your badge",
-          "second": "Answer mentoring requests",
-          "third": "Manage your meetings and appointments"
-        }
-      },
-      "academic": {
-        "badge": "Academic",
-        "title": "METU academics",
-        "points": {
-          "first": "Add your weekly availability",
-          "second": "Answer appointment requests",
-          "third": "See your advisees in one place"
+    "topics": {
+      "eyebrow": "Mentoring topics",
+      "title": "What would you like to learn, hocam?",
+      "lead": "You can get support from peer mentors on these four topics.",
+      "items": {
+        "career": {
+          "title": "Career and internships",
+          "body": "CV preparation, internship applications, interview preparation, choosing a sector, LinkedIn profile"
+        },
+        "technical": {
+          "title": "Technical and digital skills",
+          "body": "Python, data analysis, Excel, design tools, web development"
+        },
+        "academic": {
+          "title": "Academic growth and course experience",
+          "body": "Course selection, exam preparation, study techniques, double major / minor, summer school"
+        },
+        "campus": {
+          "title": "University and campus life",
+          "body": "Time management and experiences of university life"
         }
       }
     },
-    "banner": {
-      "title": "Are you a METU student or academic?",
-      "text": "Sign in with your METU account. Office Hours, peer mentoring and your academic advisor open based on your account."
+    "community": {
+      "eyebrow": "Learning from each other",
+      "title": "At METU, learning goes both ways, <accent>hocam.</accent>",
+      "lead": "Sometimes you look for an answer, sometimes you have the answer someone else is looking for."
     },
-    "footer": "menton · METU",
-    "metaTitle": "menton · METU"
+    "questions": {
+      "title": "Start with a question.",
+      "lead": "Are you ready to learn something new or to share what you know?",
+      "join": "Join hocam",
+      "items": {
+        "what": {
+          "title": "What is hocam?",
+          "body": "hocam is a platform where METU students get mentoring from their peers and request Office Hours appointments with academics. You follow both kinds of meetings together in My appointments."
+        },
+        "peer": {
+          "title": "How does peer mentoring work?",
+          "body": "You choose the categories and sub-topics you want support on. Mentors are suggested from these choices, and the reason for each suggestion (topic, experience, availability) is shown. You read mentor profiles and send a request with a short message to the one that fits you."
+        },
+        "officeHours": {
+          "title": "What are Office Hours?",
+          "body": "Office Hours are the times METU academics set aside to meet students. You choose a time, write your topic and request an appointment. The academic's approval confirms it; they can also suggest another time."
+        },
+        "otherAdvisor": {
+          "title": "Can I meet someone other than my own academic advisor?",
+          "body": "Yes. There is no department limit; you can request an appointment with any METU academic. Booking another academic does not change your academic advisor."
+        },
+        "afterRequest": {
+          "title": "What happens after I send a mentoring request?",
+          "body": "Your request shows as waiting for approval. When the mentor accepts it, your mentorship starts and you can plan meetings. You follow your requests and active mentorship in My mentorships, and your meetings in My appointments."
+        },
+        "becomeMentor": {
+          "title": "Can I become a peer mentor too?",
+          "body": "Yes. After you finish the mentoring training and get your badge, you create your mentor profile: categories, sub-topics, related experience, how you can help, availability and capacity. Your mentee and mentor activities stay in the same account."
+        },
+        "where": {
+          "title": "Where can I follow my appointments?",
+          "body": "My appointments has Upcoming, Requests and Past tabs. You see the status of your requests and follow your meetings as a list or in a day, week or month calendar."
+        }
+      }
+    }
   },
   "programAppointments": {
     "status": {
