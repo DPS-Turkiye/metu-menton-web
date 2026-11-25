@@ -3,11 +3,14 @@ import type {
   PeerDocumentVisibility,
   PeerEvidenceType,
   PeerMentorDocument,
+  PeerMentorFormDocument,
+  UsePeerMentorFormDocumentInput,
 } from "@/interfaces/peer-mentor-documents";
 import { ClientApiError, requireSuccess } from "@/lib/client/api";
 import { httpClient, UPLOAD_TIMEOUT_MS } from "@/lib/http-client";
 
 const PROFILE_DOCUMENTS = "/api/peer-mentoring/profile/documents";
+const FORM_DOCUMENTS = "/api/peer-mentoring/profile/form-documents";
 
 function documentUrl(documentId: string) {
   return `${PROFILE_DOCUMENTS}/${encodeURIComponent(documentId)}`;
@@ -32,6 +35,24 @@ export async function uploadPeerMentorDocument(
   data.set("visibility", visibility);
   return requireSuccess(
     await httpClient.post<PeerMentorDocument>(PROFILE_DOCUMENTS, data, {
+      timeout: UPLOAD_TIMEOUT_MS,
+    }),
+  );
+}
+
+export async function getPeerMentorFormDocuments(): Promise<
+  PeerMentorFormDocument[]
+> {
+  return requireSuccess(
+    await httpClient.get<PeerMentorFormDocument[]>(FORM_DOCUMENTS),
+  );
+}
+
+export async function addPeerMentorFormDocument(
+  input: UsePeerMentorFormDocumentInput,
+): Promise<PeerMentorDocument> {
+  return requireSuccess(
+    await httpClient.post<PeerMentorDocument>(FORM_DOCUMENTS, input, {
       timeout: UPLOAD_TIMEOUT_MS,
     }),
   );

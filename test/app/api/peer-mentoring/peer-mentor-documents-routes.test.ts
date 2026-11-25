@@ -12,6 +12,10 @@ import {
   GET as getOwnDocuments,
   POST as postDocument,
 } from "@/app/api/peer-mentoring/profile/documents/route";
+import {
+  GET as getFormDocuments,
+  POST as postFormDocument,
+} from "@/app/api/peer-mentoring/profile/form-documents/route";
 import { POST as postLink } from "@/app/api/peer-mentoring/profile/links/route";
 import {
   PeerDocumentVisibility,
@@ -19,11 +23,13 @@ import {
 } from "@/interfaces/peer-mentor-documents";
 import { UserRole } from "@/interfaces/session";
 import {
+  addPeerMentorFormDocument,
   addPeerMentorLink,
   deletePeerMentorDocument,
   fetchOwnPeerMentorDocuments,
   fetchPeerMentorDocumentContent,
   fetchPeerMentorDocuments,
+  fetchPeerMentorFormDocuments,
   updatePeerMentorDocument,
   uploadPeerMentorDocument,
 } from "@/lib/api/peer-mentor-documents";
@@ -52,6 +58,8 @@ vi.mock("@/lib/api/peer-mentor-documents", () => ({
   fetchPeerMentorDocuments: vi.fn(),
   updatePeerMentorDocument: vi.fn(),
   uploadPeerMentorDocument: vi.fn(),
+  addPeerMentorFormDocument: vi.fn(),
+  fetchPeerMentorFormDocuments: vi.fn(),
 }));
 vi.mock("@/lib/session", () => ({ getSessionUser: vi.fn() }));
 
@@ -94,6 +102,49 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe("the form's files", () => {
+  const post = (body: object) =>
+    postFormDocument(
+      tokenRequest(
+        "http://localhost/api/peer-mentoring/profile/form-documents",
+        { method: "POST", body },
+      ),
+    );
+
+  it("are listed and used as the signed-in mentor, never as a named one", async () => {
+    vi.mocked(fetchPeerMentorFormDocuments).mockResolvedValue(
+      backendResponse([]),
+    );
+    vi.mocked(addPeerMentorFormDocument).mockResolvedValue(
+      backendResponse(peerFileFixture(), 201),
+    );
+    expect((await getFormDocuments()).status).toBe(200);
+    expect(fetchPeerMentorFormDocuments).toHaveBeenCalledWith("mentor-1");
+    const response = await post({
+      slot: "CV",
+      visibility: PeerDocumentVisibility.VerificationOnly,
+      actorId: "someone-else",
+    });
+    expect(response.status).toBe(201);
+    expect(addPeerMentorFormDocument).toHaveBeenCalledWith("mentor-1", {
+      slot: "CV",
+      visibility: PeerDocumentVisibility.VerificationOnly,
+    });
+  });
+
+  it("need a session and known values", async () => {
+    expect(
+      (await post({ slot: "PASSPORT", visibility: "PROFILE" })).status,
+    ).toBe(400);
+    vi.mocked(getSessionUser).mockResolvedValue(null);
+    expect((await getFormDocuments()).status).toBe(401);
+    expect((await post({ slot: "CV", visibility: "PROFILE" })).status).toBe(
+      401,
+    );
+    expect(addPeerMentorFormDocument).not.toHaveBeenCalled();
+  });
+});
 
 describe("peer mentor document routes", () => {
   it("need a session", async () => {

@@ -348,7 +348,12 @@
       "uploadFailed": "Dosya yüklenemedi.",
       "linkFailed": "Bağlantı eklenemedi.",
       "visibilityFailed": "Görünürlük değiştirilemedi.",
-      "removeFailed": "Kaldırılamadı."
+      "removeFailed": "Kaldırılamadı.",
+      "fromForm": {
+        "title": "İŞKUR formundaki dosyan: {name}",
+        "note": "Önce yalnızca program koordinatörün görür; istersen sonra profilinde gösterebilirsin.",
+        "use": "Bunu kullan"
+      }
     },
     "availability": {
       "title": "Haftalık müsaitlik"

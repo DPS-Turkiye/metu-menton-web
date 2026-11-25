@@ -348,7 +348,12 @@
       "uploadFailed": "The file couldn't be uploaded.",
       "linkFailed": "The link couldn't be added.",
       "visibilityFailed": "The visibility couldn't be changed.",
-      "removeFailed": "It couldn't be removed."
+      "removeFailed": "It couldn't be removed.",
+      "fromForm": {
+        "title": "The file on your İŞKUR form: {name}",
+        "note": "At first only your program coordinator sees it; you can show it on your profile afterwards.",
+        "use": "Use this"
+      }
     },
     "availability": {
       "title": "Weekly availability"
