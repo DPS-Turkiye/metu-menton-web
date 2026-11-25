@@ -7141,7 +7141,7 @@
     "toList": "Back to the list",
     "roles": {
       "MENTOR": "Mentor",
-      "MENTEE": "Founder"
+      "MENTEE": "Student"
     },
     "statuses": {
       "APPROVED": "Approved",
@@ -7182,12 +7182,13 @@
       "MENTEE": "Participant"
     },
     "mentorPending": "Request to join awaiting approval",
-    "activity": "On Menton",
-    "activeMentees": "Active startups",
+    "activity": "On hocam",
+    "activeMentees": "Active mentees",
     "completedMentorships": "Completed mentorships",
     "registered": "Registered",
     "open": "View profile",
     "openFor": "View profile: {name}",
+    "pictureFor": "Open {name}'s profile",
     "availability": "Available times",
     "availabilityEmpty": "No available times added yet.",
     "availabilityWeekly": "Weekly",

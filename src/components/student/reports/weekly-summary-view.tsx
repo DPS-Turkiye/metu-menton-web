@@ -9,6 +9,7 @@ import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   InitialsAvatar,
   ISKUR_FIELD_CLASS,
@@ -22,6 +23,7 @@ import {
 } from "@/hooks/use-report-format";
 import { useWeeklyReport } from "@/hooks/use-weekly-report";
 import type { PeerWeeklyReport } from "@/interfaces/peer-reports";
+import { peerMenteeHref } from "@/lib/peer-profile-links";
 import { meetingReportHref, reportDayHref } from "@/lib/peer-reports";
 import {
   formatReportDeadline,
@@ -336,7 +338,12 @@ function OutcomeRow({ outcome }: { outcome: WeeklyOutcome }) {
   const actions = outcomeActionProgress(outcome);
   return (
     <li className="flex gap-4 border-t border-border-subtle px-6 py-[18px] sm:px-7">
-      <InitialsAvatar initials={initials(outcome.fullName)} />
+      <ProfilePictureLink
+        href={peerMenteeHref(outcome.menteeId)}
+        name={outcome.fullName}
+      >
+        <InitialsAvatar initials={initials(outcome.fullName)} />
+      </ProfilePictureLink>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <p className="flex flex-wrap items-baseline gap-2">

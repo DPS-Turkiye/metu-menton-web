@@ -9,6 +9,7 @@ import { Button, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   InitialsAvatar,
   ISKUR_FIELD_CLASS,
@@ -42,6 +43,7 @@ import {
   PRODUCTIVITY_CHOICES,
   reportMentoringMinutes,
 } from "@/lib/peer-meeting-report";
+import { peerMenteeHref } from "@/lib/peer-profile-links";
 import {
   dailyReportHref,
   meetingReportHref,
@@ -621,7 +623,12 @@ function MenteeCard({ report }: { report: PeerMeetingReport }) {
   return (
     <Card compact>
       <div className="flex items-center gap-3">
-        <InitialsAvatar initials={initials(report.mentee.fullName)} />
+        <ProfilePictureLink
+          href={peerMenteeHref(report.mentee.id)}
+          name={report.mentee.fullName}
+        >
+          <InitialsAvatar initials={initials(report.mentee.fullName)} />
+        </ProfilePictureLink>
         <div className="flex flex-col">
           <span className="type-label text-text-primary">
             {report.mentee.fullName}

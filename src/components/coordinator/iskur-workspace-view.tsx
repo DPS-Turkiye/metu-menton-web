@@ -14,6 +14,7 @@ import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { StaffPictureLink } from "@/components/people/staff-picture-link";
 import {
   useIskurApplications,
   type IskurApplicationsState,
@@ -221,7 +222,9 @@ function PersonLine({ person }: { person: IskurPerson }) {
   const t = useTranslations("iskurWorkspace");
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <InitialsAvatar name={person.fullName} />
+      <StaffPictureLink userId={person.userId} name={person.fullName}>
+        <InitialsAvatar name={person.fullName} />
+      </StaffPictureLink>
       <div className="min-w-0">
         <p className="truncate type-label text-text-primary">
           {person.fullName}
@@ -412,7 +415,9 @@ function PlacementRow({
     >
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <InitialsAvatar name={person.fullName} />
+          <StaffPictureLink userId={person.userId} name={person.fullName}>
+            <InitialsAvatar name={person.fullName} />
+          </StaffPictureLink>
           <span className="type-label text-text-primary">
             {person.fullName}
           </span>

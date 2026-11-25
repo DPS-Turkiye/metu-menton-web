@@ -2,7 +2,7 @@
 
 import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { StudentAvatar } from "@/components/academician/student-avatar";
@@ -12,6 +12,7 @@ import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { StudentInterests } from "@/components/people/student-interests";
 import {
   useAcademicianStudent,
   type AcademicianStudent,
@@ -168,56 +169,8 @@ function InterestsCard({ userId }: { userId: string }) {
         onRetry={interests.retry}
         isRetrying={interests.isRetrying}
       />
-      <InterestsBody interests={interests} />
+      {interests.profile ? <StudentInterests interests={interests} /> : null}
     </Card>
-  );
-}
-
-/** The saved topics and goal; nothing while loading or after a failure, which the card's state line covers. */
-function InterestsBody({
-  interests,
-}: {
-  interests: ReturnType<typeof useAdviseeInterests>;
-}) {
-  const t = useTranslations("iaAcademician.student.interests");
-  const tSub = useTranslations("studentProfileCompletion.subtopics");
-  const topicLabel = useTranslations("peerTopics");
-  if (interests.profile === null) return null;
-  if (interests.isEmpty) {
-    return <p className="type-body-sm text-text-muted">{t("empty")}</p>;
-  }
-  return (
-    <dl className="space-y-4">
-      {interests.topics.length === 0 ? null : (
-        <div className="space-y-2">
-          <dt className="type-caption text-text-muted">{t("topics")}</dt>
-          <dd>
-            <ul className="flex flex-wrap gap-2">
-              {interests.topics.map((topic) => (
-                <Chip key={topic}>{topicLabel(topic)}</Chip>
-              ))}
-              {interests.subtopics.map((sub) => (
-                <Chip key={sub.id}>{tSub(sub.labelKey)}</Chip>
-              ))}
-            </ul>
-          </dd>
-        </div>
-      )}
-      <div className="space-y-1">
-        <dt className="type-caption text-text-muted">{t("goal")}</dt>
-        <dd className="type-body-sm whitespace-pre-line text-text-primary">
-          {interests.goal || t("noGoal")}
-        </dd>
-      </div>
-    </dl>
-  );
-}
-
-function Chip({ children }: { children: ReactNode }) {
-  return (
-    <li className="rounded-full bg-background-selected px-3 py-1.5 type-label-sm text-text-accent">
-      {children}
-    </li>
   );
 }
 

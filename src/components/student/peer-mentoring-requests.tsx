@@ -8,6 +8,7 @@ import { ModalDialog } from "@/components/common/modal-dialog";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   InitialsAvatar,
   RequestStatusBadge,
@@ -20,6 +21,7 @@ import {
 } from "@/hooks/use-peer-mentoring";
 import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
 import { mentorshipSince, peerMentorProfileHref } from "@/lib/peer-mentoring";
+import { peerMentorHref } from "@/lib/peer-profile-links";
 import { formatDateTime, initials } from "@/lib/utils";
 
 const APPOINTMENTS_HREF = "/student/appointments";
@@ -205,7 +207,12 @@ function RequestSummary({ request }: { request: PeerMentoringRequest }) {
   const locale = useLocale();
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <InitialsAvatar initials={initials(request.mentor.fullName)} />
+      <ProfilePictureLink
+        href={peerMentorHref(request.mentor.userId)}
+        name={request.mentor.fullName}
+      >
+        <InitialsAvatar initials={initials(request.mentor.fullName)} />
+      </ProfilePictureLink>
       <div className="min-w-0">
         <p className="truncate type-title-card text-text-primary">
           {request.mentor.fullName}
@@ -245,7 +252,12 @@ function ActiveMentorship({
       className="flex flex-col gap-4 rounded-card border border-card-featured-border bg-card-featured-bg p-6 md:flex-row md:items-center md:justify-between"
     >
       <div className="flex min-w-0 items-center gap-4">
-        <InitialsAvatar initials={initials(request.mentor.fullName)} />
+        <ProfilePictureLink
+          href={peerMentorHref(request.mentor.userId)}
+          name={request.mentor.fullName}
+        >
+          <InitialsAvatar initials={initials(request.mentor.fullName)} />
+        </ProfilePictureLink>
         <div className="min-w-0 space-y-1">
           <h3 className="type-h4 text-text-primary">
             {request.mentor.fullName}
