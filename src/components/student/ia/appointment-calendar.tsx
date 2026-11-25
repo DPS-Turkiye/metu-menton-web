@@ -1,6 +1,10 @@
 import { useLocale, useTranslations } from "next-intl";
 
-import { AppointmentKind, type Appointment } from "@/interfaces/appointment";
+import {
+  AppointmentKind,
+  AppointmentStatus,
+  type Appointment,
+} from "@/interfaces/appointment";
 import { currentTime } from "@/lib/appointments";
 import {
   isSameDay,
@@ -17,24 +21,40 @@ import {
 import { isAwaitingAnswer } from "@/lib/student-home";
 import { formatDayMonth } from "@/lib/utils";
 
-const HOUR_HEIGHT = 46;
-/** The day view has one wide column, so each hour gets more room (Figma 258:4290). */
-const DAY_HOUR_HEIGHT = 60;
+const HOUR_HEIGHT = 60;
 
-/** Office Hours in the info indigo, peer mentoring in the theme accent; a dashed frame while not confirmed. */
-const KIND_SOLID: Record<AppointmentKind, string> = {
-  [AppointmentKind.OfficeHours]: "bg-status-info-icon text-text-inverse",
-  [AppointmentKind.PeerMentoring]: "bg-action-primary-bg text-text-inverse",
+/** Office Hours in the theme's tint, peer mentoring in the info indigo (Figma 3.7). */
+const KIND_FILL: Record<AppointmentKind, string> = {
+  [AppointmentKind.OfficeHours]: "bg-background-selected text-text-primary",
+  [AppointmentKind.PeerMentoring]: "bg-status-info-bg text-text-primary",
 };
-const KIND_DASHED: Record<AppointmentKind, string> = {
-  [AppointmentKind.OfficeHours]:
-    "border border-dashed border-status-info-icon bg-background-surface text-status-info-text",
-  [AppointmentKind.PeerMentoring]:
-    "border border-dashed border-action-primary-bg bg-background-surface text-text-accent",
+const KIND_EDGE: Record<AppointmentKind, string> = {
+  [AppointmentKind.OfficeHours]: "border-l-[3px] border-action-accent",
+  [AppointmentKind.PeerMentoring]: "border-l-[3px] border-status-info-icon",
 };
+/** Not confirmed yet. */
+const AWAITING_FILL = "bg-background-surface text-status-warning-text";
+const AWAITING_EDGE = "border-2 border-dashed border-status-warning-icon";
+/** Refused, cancelled or lapsed: it will not happen. */
+const OFF_FILL = "bg-background-muted text-text-muted line-through";
+const SELECTED_EDGE = "border-2 border-action-accent shadow-raised";
+/** From here on a block has room for a second line. */
+const TWO_LINE_HOURS = 0.6;
 
-export function kindSwatch(kind: AppointmentKind, dashed: boolean) {
-  return dashed ? KIND_DASHED[kind] : KIND_SOLID[kind];
+/** The block's look: its kind's colours, a dashed frame while it waits, the accent frame while it is picked. */
+function blockClass(item: Appointment, selected = false) {
+  if (isAwaitingAnswer(item)) {
+    return `${AWAITING_FILL} ${selected ? SELECTED_EDGE : AWAITING_EDGE}`;
+  }
+  if (item.status !== AppointmentStatus.Confirmed) {
+    return `${OFF_FILL} ${selected ? SELECTED_EDGE : ""}`;
+  }
+  return `${KIND_FILL[item.kind]} ${selected ? SELECTED_EDGE : KIND_EDGE[item.kind]}`;
+}
+
+/** A short block keeps its second line for screen readers only. */
+function secondLine(hours: number) {
+  return hours < TWO_LINE_HOURS ? "sr-only" : "truncate";
 }
 
 function dayKey(day: Date) {
@@ -42,7 +62,7 @@ function dayKey(day: Date) {
 }
 
 /**
- * The day grid (Figma 258:4290): one wide column with the hours, each session spelling out its time, who and its
+ * The day grid (Figma 3.7b): one wide column with the hours, each session spelling out its time, who and its
  * status, and the "Şu an" line across the grid while today is shown.
  */
 export function AppointmentDayGrid({
@@ -64,15 +84,15 @@ export function AppointmentDayGrid({
   const t = useTranslations("appointments.status");
   const tCalendar = useTranslations("iaStudent.appointments.calendar");
   const locale = useLocale();
-  const height = APPOINTMENT_GRID_HOURS.length * DAY_HOUR_HEIGHT;
+  const height = APPOINTMENT_GRID_HOURS.length * HOUR_HEIGHT;
   return (
-    <div className="grid grid-cols-[60px_minmax(0,1fr)] pt-2">
+    <div className="grid grid-cols-[64px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-border-default bg-background-surface">
       <div className="relative" style={{ height }}>
         {APPOINTMENT_GRID_HOURS.map((hour, index) => (
           <span
             key={hour}
-            className="absolute left-0 -translate-y-1/2 type-caption text-text-muted"
-            style={{ top: index * DAY_HOUR_HEIGHT }}
+            className="absolute left-3 pt-1 type-caption text-text-muted"
+            style={{ top: index * HOUR_HEIGHT }}
           >
             {`${String(hour).padStart(2, "0")}:00`}
           </span>
@@ -83,32 +103,27 @@ export function AppointmentDayGrid({
           aria-label={formatDayMonth(day, locale)}
           className="absolute inset-0"
           style={{
-            backgroundImage: `repeating-linear-gradient(to bottom, var(--color-border-subtle) 0 1px, transparent 1px ${DAY_HOUR_HEIGHT}px)`,
+            backgroundImage: `repeating-linear-gradient(to bottom, var(--color-border-subtle) 0 1px, transparent 1px ${HOUR_HEIGHT}px)`,
           }}
         >
           {items.map((item) => {
             const place = gridPlacement(item);
             const time = currentTime(item);
-            const dashed = isAwaitingAnswer(item);
             const isSelected = selectedId === item.id;
             return (
               <li
                 key={item.id}
                 className="absolute inset-x-2"
                 style={{
-                  top: place.top * DAY_HOUR_HEIGHT + 1,
-                  height: place.height * DAY_HOUR_HEIGHT - 2,
+                  top: place.top * HOUR_HEIGHT + 1,
+                  height: place.height * HOUR_HEIGHT - 2,
                 }}
               >
                 <button
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => onSelect(item)}
-                  className={`flex size-full flex-col gap-0.5 overflow-hidden rounded-lg px-3 pt-2 pb-1.5 text-left type-caption ${kindSwatch(item.kind, dashed)} ${
-                    isSelected
-                      ? "ring-2 ring-border-selected ring-offset-1"
-                      : ""
-                  }`}
+                  className={`flex size-full flex-col justify-center gap-0.5 overflow-hidden rounded-lg px-3 py-0.5 text-left type-caption ${blockClass(item, isSelected)}`}
                 >
                   <span className="truncate type-label-sm">
                     {[
@@ -120,7 +135,7 @@ export function AppointmentDayGrid({
                       t(item.status),
                     ].join(" · ")}
                   </span>
-                  <span className="truncate">{item.topic}</span>
+                  <span className={secondLine(place.height)}>{item.topic}</span>
                 </button>
               </li>
             );
@@ -129,7 +144,7 @@ export function AppointmentDayGrid({
         {nowLine === null ? null : (
           <div
             className="pointer-events-none absolute inset-x-0 h-0.5 bg-status-error-icon"
-            style={{ top: nowLine * DAY_HOUR_HEIGHT }}
+            style={{ top: nowLine * HOUR_HEIGHT }}
           >
             <span className="sr-only">
               {tCalendar("now", {
@@ -143,7 +158,7 @@ export function AppointmentDayGrid({
   );
 }
 
-/** The week time grid (Figma 99:228 / 258:3993): one column per day, sessions placed by their hours. */
+/** The week time grid (Figma 3.7): one column per day, sessions placed by their hours. */
 export function AppointmentTimeGrid({
   days,
   today,
@@ -158,32 +173,33 @@ export function AppointmentTimeGrid({
   const t = useTranslations("appointments.status");
   const locale = useLocale();
   const height = APPOINTMENT_GRID_HOURS.length * HOUR_HEIGHT;
+  const gridTemplateColumns = `56px repeat(${days.length}, minmax(0, 1fr))`;
   return (
     <div className="overflow-x-auto">
-      <div
-        className="grid min-w-[560px]"
-        style={{
-          gridTemplateColumns: `52px repeat(${days.length}, minmax(0, 1fr))`,
-        }}
-      >
-        <div />
+      <div className="mb-5 grid min-w-[640px]" style={{ gridTemplateColumns }}>
+        <span />
         {days.map(({ day }) => (
           <p
             key={dayKey(day)}
-            className={`px-1.5 pb-2 type-caption ${
+            className={`grid h-9 place-items-center rounded-lg type-body-sm ${
               isSameDay(day.toISOString(), today)
-                ? "text-text-accent"
+                ? "bg-background-selected text-text-accent"
                 : "text-text-secondary"
             }`}
           >
             {`${shortWeekday(day, locale)} ${day.getDate()}`}
           </p>
         ))}
+      </div>
+      <div
+        className="grid min-w-[640px] overflow-hidden rounded-2xl border border-border-default bg-background-surface"
+        style={{ gridTemplateColumns }}
+      >
         <div className="relative" style={{ height }}>
           {APPOINTMENT_GRID_HOURS.map((hour, index) => (
             <span
               key={hour}
-              className="absolute right-2 type-caption text-text-muted"
+              className="absolute left-2 pt-1 type-caption text-text-muted"
               style={{ top: index * HOUR_HEIGHT }}
             >
               {`${String(hour).padStart(2, "0")}:00`}
@@ -194,12 +210,15 @@ export function AppointmentTimeGrid({
           <ul
             key={dayKey(day)}
             aria-label={formatDayMonth(day, locale)}
-            className="relative border-l border-border-subtle bg-[repeating-linear-gradient(to_bottom,var(--color-border-subtle)_0_1px,transparent_1px_46px)]"
-            style={{ height }}
+            className="relative border-l border-border-subtle"
+            style={{
+              height,
+              backgroundImage: `repeating-linear-gradient(to bottom, var(--color-border-subtle) 0 1px, transparent 1px ${HOUR_HEIGHT}px)`,
+            }}
           >
             {items.map((item) => {
               const place = gridPlacement(item);
-              const dashed = isAwaitingAnswer(item);
+              const confirmed = item.status === AppointmentStatus.Confirmed;
               const isSelected = selectedId === item.id;
               return (
                 <li
@@ -214,17 +233,13 @@ export function AppointmentTimeGrid({
                     type="button"
                     aria-pressed={isSelected}
                     onClick={() => onSelect(item)}
-                    className={`flex size-full flex-col overflow-hidden rounded-lg px-2 py-1 text-left type-caption ${kindSwatch(item.kind, dashed)} ${
-                      isSelected
-                        ? "ring-2 ring-border-selected ring-offset-1"
-                        : ""
-                    }`}
+                    className={`flex size-full flex-col justify-center overflow-hidden rounded-md px-2 py-0.5 text-left type-caption ${blockClass(item, isSelected)}`}
                   >
                     <span className="truncate">
                       {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                     </span>
-                    <span className="truncate opacity-90">
-                      {dashed ? t(item.status) : item.topic}
+                    <span className={secondLine(place.height)}>
+                      {confirmed ? item.topic : t(item.status)}
                     </span>
                   </button>
                 </li>
@@ -237,7 +252,7 @@ export function AppointmentTimeGrid({
   );
 }
 
-/** The month grid (Figma 99:390): a chip per session; picking a day lists it beside the grid. */
+/** The month grid (Figma 3.7c): a chip per session; picking a day lists it beside the grid. */
 export function AppointmentMonthGrid({
   cells,
   today,
@@ -253,7 +268,7 @@ export function AppointmentMonthGrid({
   const t = useTranslations("iaStudent.appointments.calendar");
   return (
     <div className="overflow-x-auto">
-      <div className="grid min-w-[560px] grid-cols-7">
+      <div className="grid min-w-[640px] grid-cols-7">
         {cells.slice(0, 7).map((cell) => (
           <p
             key={cell.date.getDay()}
@@ -276,8 +291,10 @@ export function AppointmentMonthGrid({
                 count: cell.items.length,
               })}
               onClick={() => onSelectDay(cell.date)}
-              className={`flex min-h-24 flex-col gap-1 border border-border-subtle p-2 text-left ${
-                isSelected ? "bg-background-selected" : "bg-background-surface"
+              className={`flex min-h-24 flex-col gap-1 p-2 text-left ${
+                isSelected
+                  ? "border-2 border-action-accent bg-background-selected"
+                  : `border border-border-subtle ${cell.inCurrentMonth ? "bg-background-surface" : "bg-background-subtle"}`
               }`}
             >
               <span
@@ -295,7 +312,7 @@ export function AppointmentMonthGrid({
                 <span
                   key={item.id}
                   aria-hidden
-                  className={`truncate rounded-md px-1.5 py-0.5 type-caption ${kindSwatch(item.kind, isAwaitingAnswer(item))}`}
+                  className={`truncate rounded-md px-1.5 py-0.5 type-caption ${blockClass(item)}`}
                 >
                   {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                 </span>

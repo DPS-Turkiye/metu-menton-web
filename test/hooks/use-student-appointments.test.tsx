@@ -136,42 +136,28 @@ describe("useStudentAppointments", () => {
     expect(result.current.selectedDay).toEqual(new Date(2026, 11, 1));
   });
 
-  it("groups Taleplerim and opens what waits for an answer", async () => {
+  it("splits the requests by who answers next", async () => {
     const { result } = await loaded();
     expect(
       result.current.requestGroups[AppointmentRequestGroup.AwaitingThem],
     ).toEqual([request]);
     expect(
-      result.current.isGroupOpen(AppointmentRequestGroup.AwaitingThem),
-    ).toBe(true);
-    expect(result.current.isGroupOpen(AppointmentRequestGroup.Confirmed)).toBe(
-      false,
-    );
-
-    act(() => result.current.toggleGroup(AppointmentRequestGroup.AwaitingThem));
-    act(() => result.current.toggleGroup(AppointmentRequestGroup.Confirmed));
-    expect(
-      result.current.isGroupOpen(AppointmentRequestGroup.AwaitingThem),
-    ).toBe(false);
-    expect(result.current.isGroupOpen(AppointmentRequestGroup.Confirmed)).toBe(
-      true,
-    );
+      result.current.requestGroups[AppointmentRequestGroup.AwaitingYou],
+    ).toEqual([]);
   });
 
-  it("moves the calendar to a row picked in Taleplerim and opens it", async () => {
+  it("opens the month's picked day in the day view", async () => {
     const { result } = await loaded();
     act(() => result.current.setView(AppointmentsView.Month));
-    const held = result.current.requestGroups[AppointmentRequestGroup.Past][1];
-    expect(held?.id).toBe("meeting-3");
-    act(() => {
-      if (held) result.current.focus(held);
-    });
-    expect(result.current.selected?.id).toBe("meeting-3");
-    expect(result.current.selectedDay).toEqual(new Date(2026, 10, 2));
-    expect(result.current.anchor).toEqual(new Date(2026, 10, 2));
+    expect(result.current.summary.waiting).toBe(1);
+    act(() => result.current.selectDay(new Date(2026, 10, 12)));
+    act(() => result.current.openSelectedDay());
+    expect(result.current.view).toBe(AppointmentsView.Day);
+    expect(result.current.anchor).toEqual(new Date(2026, 10, 12));
+    expect(result.current.selected?.id).toBe("meeting-1");
   });
 
-  it("opens a list tab from Taleplerim", async () => {
+  it("opens a list tab from the calendar", async () => {
     const { result } = await loaded();
     act(() => result.current.setView(AppointmentsView.Week));
     act(() => result.current.showInList(AppointmentsTab.Past));

@@ -99,30 +99,26 @@
       "previous": "Önceki",
       "next": "Sonraki",
       "day": "{date}, {count, plural, =0 {randevu yok} other {# randevu}}",
-      "time": "Saat",
-      "proposedTime": "Önerilen saat",
       "nothingInView": "Bu aralıkta randevun yok.",
       "emptyDay": "Bu gün randevun yok.",
       "now": "Şu an: {time}",
       "summary": {
         "title": "{month} özeti",
-        "body": "{meetings, plural, =0 {onaylı randevu yok} other {# onaylı randevu}} · {done} tamamlandı · {waiting, plural, =0 {yanıt bekleyen talep yok} other {# yanıt bekleyen talep}}"
-      }
+        "body": "{meetings, plural, =0 {onaylı randevu yok} other {# onaylı randevu}} · {done} tamamlandı · {waiting, plural, =0 {yanıt bekleyen talep yok} other {# yanıt bekleyen talep}}",
+        "day": "Günün özeti",
+        "week": "Haftanın özeti",
+        "requestsInList": "Talepleri listede gör",
+        "allInList": "Tümünü listede gör"
+      },
+      "picked": "Seçili randevu",
+      "proposed": "Önerilen: {time}",
+      "asked": "Talep ettiğin: {time}",
+      "notSetYet": "Kabul edene kadar randevu kesinleşmez.",
+      "openDay": "Günü aç"
     },
     "colors": {
       "title": "Renkler",
-      "OFFICE_HOURS": {
-        "title": "Office Hours",
-        "body": "Akademisyenle randevu"
-      },
-      "PEER_MENTORING": {
-        "title": "Akran Mentörlüğü",
-        "body": "Akran mentoruyla görüşme"
-      },
-      "dashed": {
-        "title": "Henüz Onaylanmadı",
-        "body": "Onay Bekliyor veya Alternatif Saat Önerildi"
-      }
+      "dashed": "Onay bekliyor / alternatif saat"
     },
     "loading": "Randevular yükleniyor…",
     "error": "Randevular yüklenemedi.",
@@ -131,27 +127,7 @@
     "emptyBody": "Bir akran mentordan ya da Office Hours'tan randevu iste; burada görünür.",
     "findMentor": "Mentor bul",
     "requests": {
-      "title": "Taleplerim",
-      "list": "Liste",
-      "count": ", {count, plural, =0 {randevu yok} other {# randevu}}",
-      "groups": {
-        "awaitingYou": "Yanıtını bekleyen öneriler",
-        "awaitingThem": "Onay bekleyen taleplerim",
-        "confirmed": "Onaylanan randevularım",
-        "past": "Geçmiş"
-      },
-      "hints": {
-        "awaitingYou": "Önerilen saati kabul etmeden randevu onaylanmaz.",
-        "awaitingThem": "Akademisyen ya da mentor yanıtlayana kadar kesinleşmez."
-      },
-      "seeInList": {
-        "upcoming": "Tümünü listede gör",
-        "requests": "Tüm talepleri listede gör",
-        "past": "Tüm geçmişi listede gör"
-      },
-      "proposed": "Önerilen: {time}",
-      "held": "Tamamlandı",
-      "empty": "Bu grupta randevu yok."
+      "held": "Tamamlandı"
     },
     "quote": "“{message}”",
     "declineHint": "Reddedersen talep kapanır; dilersen yeni bir saat seçebilirsin.",

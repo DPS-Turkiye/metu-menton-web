@@ -99,30 +99,26 @@
       "previous": "Previous",
       "next": "Next",
       "day": "{date}, {count, plural, =0 {no appointments} one {# appointment} other {# appointments}}",
-      "time": "Time",
-      "proposedTime": "Proposed time",
       "nothingInView": "You have no appointments in this range.",
       "emptyDay": "You have no appointments on this day.",
       "now": "Now: {time}",
       "summary": {
         "title": "{month} summary",
-        "body": "{meetings, plural, =0 {no confirmed meetings} one {# confirmed meeting} other {# confirmed meetings}} · {done} done · {waiting, plural, =0 {no requests waiting} one {# request waiting} other {# requests waiting}}"
-      }
+        "body": "{meetings, plural, =0 {no confirmed meetings} one {# confirmed meeting} other {# confirmed meetings}} · {done} done · {waiting, plural, =0 {no requests waiting} one {# request waiting} other {# requests waiting}}",
+        "day": "The day",
+        "week": "The week",
+        "requestsInList": "See the requests in the list",
+        "allInList": "See all in the list"
+      },
+      "picked": "Picked appointment",
+      "proposed": "Proposed: {time}",
+      "asked": "You asked for: {time}",
+      "notSetYet": "The appointment isn't set until you accept.",
+      "openDay": "Open the day"
     },
     "colors": {
       "title": "Colours",
-      "OFFICE_HOURS": {
-        "title": "Office Hours",
-        "body": "Appointment with an academician"
-      },
-      "PEER_MENTORING": {
-        "title": "Peer Mentoring",
-        "body": "Session with a peer mentor"
-      },
-      "dashed": {
-        "title": "Not confirmed yet",
-        "body": "Awaiting approval or an alternative time proposed"
-      }
+      "dashed": "Awaiting approval / another time"
     },
     "loading": "Loading appointments…",
     "error": "Appointments could not be loaded.",
@@ -131,27 +127,7 @@
     "emptyBody": "Ask a peer mentor or Office Hours for an appointment; it will show up here.",
     "findMentor": "Find a mentor",
     "requests": {
-      "title": "My requests",
-      "list": "List",
-      "count": ", {count, plural, =0 {no appointments} one {# appointment} other {# appointments}}",
-      "groups": {
-        "awaitingYou": "Proposals awaiting your answer",
-        "awaitingThem": "Requests awaiting approval",
-        "confirmed": "My confirmed appointments",
-        "past": "Past"
-      },
-      "hints": {
-        "awaitingYou": "The appointment is not confirmed until you accept the proposed time.",
-        "awaitingThem": "Not final until the academician or mentor answers."
-      },
-      "seeInList": {
-        "upcoming": "See all in the list",
-        "requests": "See all requests in the list",
-        "past": "See all past in the list"
-      },
-      "proposed": "Proposed: {time}",
-      "held": "Held",
-      "empty": "No appointments in this group."
+      "held": "Held"
     },
     "quote": "“{message}”",
     "declineHint": "If you decline, the request closes; you can pick a new time.",
