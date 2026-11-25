@@ -9,7 +9,6 @@ import {
   apiText,
   backendResponse,
 } from "@/lib/server/api-response";
-import { readBearerToken } from "@/lib/server/bearer-token";
 import { readPeerEvidenceUpload } from "@/lib/server/peer-evidence-upload";
 import { SessionRequiredError } from "@/lib/server/session-error";
 import { getSessionUser } from "@/lib/session";
@@ -26,19 +25,14 @@ export async function GET() {
   }
 }
 
-/**
- * The fallback when the browser cannot reach the backend directly (lib/client/documents.ts). Like /api/documents, the
- * signed-in person's Firebase token is the identity here: the backend verifies it and files the upload under them, so
- * no id from the browser is ever passed on.
- */
 export async function POST(request: NextRequest) {
   try {
-    const idToken = readBearerToken(request);
-    if (!idToken) throw new SessionRequiredError();
+    const session = await getSessionUser();
+    if (!session) throw new SessionRequiredError();
     const upload = await readPeerEvidenceUpload(request);
     if (!upload.ok) return upload.response;
     return backendResponse(
-      await uploadPeerMentorDocument(upload.form, idToken),
+      await uploadPeerMentorDocument(session.userId, upload.form),
     );
   } catch (error) {
     return apiErrorResponse(error, {

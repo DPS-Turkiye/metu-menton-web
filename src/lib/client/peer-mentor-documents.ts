@@ -5,8 +5,7 @@ import type {
   PeerMentorDocument,
 } from "@/interfaces/peer-mentor-documents";
 import { ClientApiError, requireSuccess } from "@/lib/client/api";
-import { postUpload } from "@/lib/client/documents";
-import { httpClient } from "@/lib/http-client";
+import { httpClient, UPLOAD_TIMEOUT_MS } from "@/lib/http-client";
 
 const PROFILE_DOCUMENTS = "/api/peer-mentoring/profile/documents";
 
@@ -22,7 +21,7 @@ export async function getOwnPeerMentorDocuments(): Promise<
   );
 }
 
-export function uploadPeerMentorDocument(
+export async function uploadPeerMentorDocument(
   file: File,
   evidenceType: PeerEvidenceType,
   visibility: PeerDocumentVisibility,
@@ -31,7 +30,11 @@ export function uploadPeerMentorDocument(
   data.set("file", file);
   data.set("evidenceType", evidenceType);
   data.set("visibility", visibility);
-  return postUpload<PeerMentorDocument>(PROFILE_DOCUMENTS, data);
+  return requireSuccess(
+    await httpClient.post<PeerMentorDocument>(PROFILE_DOCUMENTS, data, {
+      timeout: UPLOAD_TIMEOUT_MS,
+    }),
+  );
 }
 
 export async function addPeerMentorLink(
