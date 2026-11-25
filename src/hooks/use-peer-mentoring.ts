@@ -56,7 +56,10 @@ import {
 } from "@/lib/peer-mentoring";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import { PeerTakeTab } from "@/types/iskur-student";
+import {
+  PeerRequestAvailability,
+  type PeerTakeTab,
+} from "@/types/iskur-student";
 
 export const PEER_MENTORS_QUERY_KEY = ["peer-mentors"] as const;
 export const PEER_MENTOR_QUERY_KEY = ["peer-mentor"] as const;
@@ -256,6 +259,7 @@ export function usePeerMentor(mentorId: string) {
   const context = usePeerMentorContext();
   const [requesting, setRequesting] = useState(false);
   const mentor = detail.data ?? null;
+  const availability = mentor ? context.availabilityOf(mentor) : null;
   return {
     requesting,
     openRequest: () => setRequesting(true),
@@ -270,7 +274,13 @@ export function usePeerMentor(mentorId: string) {
     weeklyHours: mentor ? weeklyHours(mentor.weeklyHours) : [],
     reasons: mentor ? context.reasonsOf(mentor) : [],
     badgeVerified: mentor ? hasPeerMentorBadge(mentor.badges) : false,
-    availability: mentor ? context.availabilityOf(mentor) : null,
+    availability,
+    /** The mentor takes nobody now; a request of the student's own is said on the button instead. */
+    closedReason:
+      availability === PeerRequestAvailability.Full ||
+      availability === PeerRequestAvailability.Paused
+        ? availability
+        : undefined,
   };
 }
 

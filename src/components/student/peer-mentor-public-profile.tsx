@@ -215,7 +215,10 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
                   ))}
                 </dl>
               )}
-              <AvailabilityLine mentor={mentor} />
+              <AvailabilityLine
+                mentor={mentor}
+                availability={view.closedReason}
+              />
             </section>
             <div className="flex flex-col gap-4 border-t border-border-default pt-5">
               <RequestButton

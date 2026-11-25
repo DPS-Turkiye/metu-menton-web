@@ -444,7 +444,6 @@
       "nameSuffix": ", {name}",
       "mentorCount": "{count, plural, one {# mentor} other {# mentors}}",
       "subTopicFilter": "Sub-topic",
-      "allSubTopics": "All sub-topics",
       "availableThisWeek": "Free this week",
       "mentoring": "Already your mentor",
       "paused": "Not taking new mentees right now",

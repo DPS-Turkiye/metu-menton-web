@@ -175,11 +175,13 @@ export function PeerMentorDirectory() {
                 className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-5"
               >
                 <MentorHeading mentor={mentor} />
-                <p className="flex flex-wrap gap-1.5">
-                  {mentor.categories.map((category) => (
-                    <Chip key={category}>{tTopic(category)}</Chip>
-                  ))}
-                </p>
+                {mentor.categories.length > 0 ? (
+                  <p className="flex flex-wrap gap-1.5">
+                    {mentor.categories.map((category) => (
+                      <Chip key={category}>{tTopic(category)}</Chip>
+                    ))}
+                  </p>
+                ) : null}
                 <div className="lg:w-48">
                   <AvailabilityLine
                     mentor={mentor}
@@ -294,7 +296,7 @@ export function AvailabilityLine({
 }: {
   mentor: PeerMentorCard;
   /** Left out where the request button already says why it can't be sent. */
-  availability?: PeerRequestAvailability;
+  availability?: PeerRequestAvailability | undefined;
 }) {
   const t = useTranslations("iaIskur.take.discover");
   const closed = {
