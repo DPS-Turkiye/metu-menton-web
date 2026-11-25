@@ -17,6 +17,7 @@ import {
   splitFullName,
   typedUrlOrNull,
 } from "@/lib/utils";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("dayPart", () => {
   it("follows the time of day", () => {
@@ -187,3 +188,22 @@ describe("formatLongDateRange", () => {
     expect(formatLongDateRange("20270-01-01", "2027-06-30")).toBe("");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "date formatters in a browser in %s",
+  (zone) => {
+    it("show a moment's Turkey time and day", () => {
+      inTimeZone(zone, () => {
+        expect(formatTime("2026-11-10T07:00:00Z", "tr")).toBe("10:00");
+        // 21:30 UTC on the 10th is the 11th in Istanbul.
+        expect(formatLongDate("2026-11-10T21:30:00Z", "tr")).toBe(
+          "11 Kasım 2026",
+        );
+        expect(formatShortDate("2026-11-10T21:30:00Z", "tr")).toBe(
+          "11 Kas 2026",
+        );
+        expect(dayPart(new Date("2026-11-10T06:00:00Z"))).toBe("morning");
+      });
+    });
+  },
+);

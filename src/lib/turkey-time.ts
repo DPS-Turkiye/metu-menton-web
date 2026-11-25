@@ -49,6 +49,11 @@ export function startOfTurkishDay(at: Date | string) {
   return day;
 }
 
+/** The moment of a day ("YYYY-MM-DD") and clock time ("HH:mm") typed in Turkey, as an ISO string for the API. */
+export function parseTurkishDateTime(day: string, time: string) {
+  return new Date(`${day}T${time}:00+03:00`).toISOString();
+}
+
 /** The Turkey calendar day ("YYYY-MM-DD") a moment falls on. */
 export function toTurkishDate(at: Date | string) {
   const time = typeof at === "string" ? Date.parse(at) : at.getTime();

@@ -38,12 +38,12 @@ import {
   recordingNote,
   sameDay,
   slotLabel,
-  timeLabel,
   weekdayLabel,
   type CalendarTexts,
   type EventDraft,
 } from "@/lib/coordinator-calendar";
 import { coordinatorMessageHref } from "@/lib/coordinator-mentorships";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { initials } from "@/lib/utils";
 
 const ROW = 56;
@@ -135,6 +135,7 @@ export function CoordinatorCalendarView() {
                 items={calendar.items}
                 selected={selected}
                 capacity={data.recordingCapacity}
+                today={calendar.today}
                 onSelect={calendar.select}
               />
             ) : calendar.view === CalendarView.Month ? (
@@ -143,9 +144,10 @@ export function CoordinatorCalendarView() {
                 month={(
                   calendar.days[10] ??
                   calendar.days[0] ??
-                  new Date()
+                  calendar.today
                 ).getMonth()}
                 items={calendar.items}
+                today={calendar.today}
                 onSelect={calendar.select}
               />
             ) : (
@@ -295,7 +297,7 @@ function itemDetail(
   item: CoordinatorCalendarItem,
   { t, locale }: CalendarTexts,
 ) {
-  const time = timeLabel(item.startsAt, locale);
+  const time = formatTurkishTime(item.startsAt, locale);
   if (item.proposalId) return `${time} · ${t("proposedSlot")}`;
   if (item.kind === CoordinatorAgendaKind.Meeting) {
     return item.topic ? `${time} · ${item.topic}` : time;
@@ -310,17 +312,18 @@ function WeekGrid({
   items,
   capacity,
   selected,
+  today,
   onSelect,
 }: {
   days: Date[];
   items: CoordinatorCalendarItem[];
   selected: CoordinatorCalendarItem | null;
   capacity: number;
+  today: Date;
   onSelect: (id: string | null) => void;
 }) {
   const texts = useCalendarTexts();
   const { t, locale } = texts;
-  const today = new Date();
   const hours = Array.from(
     { length: GRID_HOURS },
     (_, index) => GRID_START_HOUR + index,
@@ -444,15 +447,16 @@ function MonthGrid({
   days,
   month,
   items,
+  today,
   onSelect,
 }: {
   days: Date[];
   month: number;
   items: CoordinatorCalendarItem[];
+  today: Date;
   onSelect: (id: string) => void;
 }) {
   const { t, locale } = useCalendarTexts();
-  const today = new Date();
   return (
     <div className="overflow-x-auto rounded-[28px] border border-[#e9ecef] bg-white">
       <div className="grid min-w-[760px] grid-cols-7">
@@ -496,7 +500,8 @@ function MonthGrid({
                     >
                       <KindDot item={item} />
                       <span className="truncate">
-                        {timeLabel(item.startsAt, locale)} {itemName(item, t)}
+                        {formatTurkishTime(item.startsAt, locale)}{" "}
+                        {itemName(item, t)}
                       </span>
                     </button>
                   </li>
@@ -556,7 +561,7 @@ function ListView({
                   className="grid w-full grid-cols-[64px_16px_1fr_auto] items-center gap-2 py-2.5 text-left"
                 >
                   <span className="text-[12.5px] text-[#858c96]">
-                    {timeLabel(item.startsAt, locale)}
+                    {formatTurkishTime(item.startsAt, locale)}
                   </span>
                   <KindDot item={item} />
                   <span className="min-w-0">

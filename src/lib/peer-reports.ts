@@ -1,7 +1,7 @@
 import { PeerReportStatus } from "@/interfaces/peer-reports";
 import { addDays, isoDay, startOfWeek } from "@/lib/coordinator-calendar";
 import { PEER_MENTOR_GIVE_HREF } from "@/lib/peer-mentoring";
-import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
+import { toTurkishWallClock, TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import { PeerReportBadge } from "@/types/peer-reports";
 
 /** A report week is Monday to Friday: the working days a daily report is due on. */
@@ -38,12 +38,9 @@ export function isPeerReportEditable(status: PeerReportStatus | null) {
   );
 }
 
-/**
- * The Monday ("yyyy-mm-dd") of the week a moment falls in, in the runtime's time zone. Call it in the browser: on
- * the server (UTC) a Turkish Monday before 03:00 would still be last week.
- */
+/** The Monday ("yyyy-mm-dd") of the Turkey week a moment falls in, on the server and in any browser alike. */
 export function reportWeekStart(now: Date) {
-  return isoDay(startOfWeek(now));
+  return isoDay(startOfWeek(toTurkishWallClock(now)));
 }
 
 /** Another week's Monday, `weeks` before (negative) or after this one. */

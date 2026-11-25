@@ -4,7 +4,9 @@ import type {
   CoordinatorAgendaItem,
   CoordinatorNextMeeting,
 } from "@/interfaces/coordinator-overview";
+import { isSameCalendarDay } from "@/lib/calendar";
 import { formatDateRange } from "@/lib/format";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { relativeDayLabel } from "@/lib/utils";
 
 export enum AgendaWindow {
@@ -17,19 +19,14 @@ export type CoordinatorHomeTexts = {
   locale: string;
 };
 
-function sameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
 export function agendaForToday(
   agenda: CoordinatorAgendaItem[],
   now = new Date(),
 ) {
-  return agenda.filter((item) => sameDay(new Date(item.at), now));
+  const today = toTurkishWallClock(now);
+  return agenda.filter((item) =>
+    isSameCalendarDay(toTurkishWallClock(item.at), today),
+  );
 }
 
 function dayMonth(date: Date, locale: string) {
@@ -52,9 +49,12 @@ export function agendaWhen(
   { t, locale }: CoordinatorHomeTexts,
   now = new Date(),
 ) {
-  const at = new Date(item.at);
+  // Days and times are read on Turkey's clock; the formatters below then show the wall-clock fields as they are.
+  const at = toTurkishWallClock(item.at);
   return {
-    day: sameDay(at, now) ? relativeDayLabel(0, locale) : dayMonth(at, locale),
+    day: isSameCalendarDay(at, toTurkishWallClock(now))
+      ? relativeDayLabel(0, locale)
+      : dayMonth(at, locale),
     time: item.allDay ? t("allDay") : clock(locale).format(at),
   };
 }
@@ -65,12 +65,13 @@ export function meetingSlotLabel(
   locale: string,
   now = new Date(),
 ) {
-  const start = new Date(meeting.scheduledAt);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const day = sameDay(start, now)
+  const start = toTurkishWallClock(meeting.scheduledAt);
+  const today = toTurkishWallClock(now);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const day = isSameCalendarDay(start, today)
     ? relativeDayLabel(0, locale)
-    : sameDay(start, tomorrow)
+    : isSameCalendarDay(start, tomorrow)
       ? relativeDayLabel(1, locale)
       : dayMonth(start, locale);
   const end = new Date(

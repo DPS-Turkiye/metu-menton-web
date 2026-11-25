@@ -13,6 +13,7 @@ import {
   parsePreferredSlotsFromMessage,
   parseProposedSlotsFromMessage,
   preferredSlotsMessageLines,
+  preferredSlotStartsAt,
   proposedSlotsMessageLines,
   requestOutcomeFromMessage,
   slotDayLabel,
@@ -22,6 +23,7 @@ import {
   upcomingPreferenceDays,
 } from "@/lib/mentor-availability-days";
 import { freezeDate } from "@test/test-utils";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 function slot(
   id: string,
@@ -252,5 +254,26 @@ describe("slotTimeLabel", () => {
     const at = new Date(2026, 9, 13, 14, 15).toISOString();
     expect(slotTimeLabel(at, "en")).toBe("14:15");
     expect(slotTimeLabel(at, "tr")).toBe("14:15");
+  });
+});
+
+describe.each(BROWSER_TIME_ZONES)("chosen times in a browser in %s", (zone) => {
+  it("sends a chosen day and time as Turkey's", () => {
+    inTimeZone(zone, () => {
+      expect(preferredSlotStartsAt({ date: "2026-11-19", time: "14:00" })).toBe(
+        "2026-11-19T11:00:00.000Z",
+      );
+    });
+  });
+
+  it("reads a slot back as its Turkey day and time", () => {
+    inTimeZone(zone, () => {
+      // 00:30 on the 20th in Istanbul is still the 19th in UTC and London.
+      expect(slotFromStartsAt("2026-11-19T21:30:00Z")).toEqual({
+        date: "2026-11-20",
+        time: "00:30",
+      });
+      expect(slotTimeLabel("2026-11-19T11:00:00Z")).toBe("14:00");
+    });
   });
 });

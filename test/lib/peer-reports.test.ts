@@ -17,6 +17,7 @@ import {
   splitMinutes,
 } from "@/lib/peer-reports";
 import { PeerReportBadge } from "@/types/peer-reports";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("peerReportBadge", () => {
   it("shows the stored status, and nothing for a report nobody started", () => {
@@ -152,3 +153,17 @@ describe("reportDayOf", () => {
     expect(reportDayOf("2026-11-12T20:59:00Z")).toBe("2026-11-12");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "the report week in a browser in %s",
+  (zone) => {
+    it("starts on Turkey's Monday", () => {
+      inTimeZone(zone, () => {
+        // Sunday 22:30 UTC is already Monday 16 November in Istanbul.
+        expect(reportWeekStart(new Date("2026-11-15T22:30:00Z"))).toBe(
+          "2026-11-16",
+        );
+      });
+    });
+  },
+);

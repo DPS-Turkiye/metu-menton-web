@@ -23,6 +23,11 @@ export const MENTEE_CALENDAR_FILTERS = [
   CalendarFilter.Deliverable,
 ];
 
+/*
+ * hourOf, timeLabel and isSameDay read the browser's own clock. Only the Girişim screens (mentor dashboard, mentee
+ * calendar) still use them; ODTÜ accounts never open those (see workspaces.ts). Every ODTÜ screen reads Turkey time
+ * through lib/turkey-time and the day helpers below.
+ */
 export function hourOf(iso: string) {
   return new Date(iso).getHours();
 }
