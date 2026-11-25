@@ -177,6 +177,9 @@ describe("OfficeHoursBookingView", () => {
       screen.getByRole("button", { name: "Saati değiştir" }),
     );
     expect(screen.queryByRole("form")).toBeNull();
+    expect(
+      screen.getByRole("heading", { name: "Gün ve saat seç" }),
+    ).toHaveFocus();
 
     await userEvent.click(screen.getByRole("button", { name: "Devam et" }));
     expect(screen.getByLabelText(/Görüşme konusu/)).toHaveValue("Yarım");

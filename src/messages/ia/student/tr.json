@@ -252,7 +252,6 @@
       "accepted": "Önerilen saati kabul ettin; randevun onaylandı.",
       "declined": "Önerilen saati reddettin; talebin geri çekildi.",
       "failed": "Yanıt gönderilemedi. Tekrar dene.",
-      "withdraw": "Talebi geri çek",
       "withdrawn": "Talebin geri çekildi."
     },
     "cancel": {
@@ -266,6 +265,12 @@
       "done": "Randevu iptal edildi.",
       "failed": "Randevu iptal edilemedi. Tekrar dene.",
       "started": "Görüşme başladı; artık iptal edilemez."
+    },
+    "withdraw": {
+      "button": "Talebi geri çek",
+      "title": "Talebini geri çekmek istiyor musun?",
+      "body": "{name} bilgilendirilir. Aynı saat için yeniden talep gönderebilirsin.",
+      "keep": "Vazgeç"
     }
   },
   "profile": {

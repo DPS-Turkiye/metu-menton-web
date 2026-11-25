@@ -252,7 +252,6 @@
       "accepted": "You accepted the proposed time; your appointment is confirmed.",
       "declined": "You declined the proposed time; your request was withdrawn.",
       "failed": "Your answer could not be sent. Try again.",
-      "withdraw": "Withdraw request",
       "withdrawn": "Your request was withdrawn."
     },
     "cancel": {
@@ -266,6 +265,12 @@
       "done": "Appointment cancelled.",
       "failed": "The appointment couldn't be cancelled. Try again.",
       "started": "The meeting has started; it can't be cancelled any more."
+    },
+    "withdraw": {
+      "button": "Withdraw request",
+      "title": "Withdraw your request?",
+      "body": "{name} will be told. You can send a new request for the time.",
+      "keep": "Keep it"
     }
   },
   "profile": {

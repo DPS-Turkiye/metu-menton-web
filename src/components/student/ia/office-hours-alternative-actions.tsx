@@ -2,8 +2,12 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
+import { ModalDialog } from "@/components/common/modal-dialog";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
-import { useOfficeHoursAlternativeAnswer } from "@/hooks/use-student-office-hours";
+import {
+  useOfficeHoursAlternativeAnswer,
+  useOfficeHoursWithdraw,
+} from "@/hooks/use-student-office-hours";
 import type { Appointment } from "@/interfaces/appointment";
 import { timeLabel } from "@/lib/calendar";
 import { formatDayMonth } from "@/lib/utils";
@@ -57,22 +61,56 @@ export function OfficeHoursAlternativeActions({
   );
 }
 
-/** "Talebi geri çek" on an Office Hours request still waiting for the academician. */
+/** "Talebi geri çek" on an Office Hours request still waiting for the academician, and its confirmation. */
 export function OfficeHoursWithdrawAction({
   appointment,
 }: {
   appointment: Appointment;
 }) {
-  const t = useTranslations("iaStudent.officeHours.answer");
-  const answer = useOfficeHoursAlternativeAnswer(appointment);
+  const t = useTranslations("iaStudent.officeHours.withdraw");
+  const withdraw = useOfficeHoursWithdraw(appointment);
+  const titleId = `office-hours-withdraw-${appointment.id}`;
   return (
-    <Button
-      variant={ButtonVariant.Ghost}
-      size={ButtonSize.Small}
-      disabled={answer.isAnswering}
-      onClick={() => void answer.withdraw()}
-    >
-      {t("withdraw")}
-    </Button>
+    <>
+      <Button
+        variant={ButtonVariant.Ghost}
+        size={ButtonSize.Small}
+        onClick={withdraw.open}
+      >
+        {t("button")}
+      </Button>
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      {withdraw.isOpen ? (
+        <ModalDialog
+          labelledBy={titleId}
+          onClose={withdraw.close}
+          panelClassName="flex w-full max-w-[480px] flex-col gap-5 rounded-[28px] bg-background-surface p-7 shadow-modal outline-none"
+        >
+          <div className="flex flex-col gap-2">
+            <h2 id={titleId} className="type-h3 text-text-primary">
+              {t("title")}
+            </h2>
+            <p className="type-body-sm text-text-secondary">
+              {t("body", { name: withdraw.counterpartName })}
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button
+              variant={ButtonVariant.Secondary}
+              disabled={withdraw.isWithdrawing}
+              onClick={withdraw.close}
+            >
+              {t("keep")}
+            </Button>
+            <Button
+              disabled={withdraw.isWithdrawing}
+              onClick={() => void withdraw.confirm()}
+            >
+              {t("button")}
+            </Button>
+          </div>
+        </ModalDialog>
+      ) : null}
+    </>
   );
 }

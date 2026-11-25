@@ -401,10 +401,12 @@ describe("StudentAppointmentsView", () => {
       canWithdraw: true,
     };
     vi.mocked(getStudentAppointments).mockResolvedValue([alternative, pending]);
-    vi.mocked(answerOfficeHoursAlternative).mockResolvedValue({
-      ...pending,
-      status: AppointmentStatus.Withdrawn,
-    });
+    vi.mocked(answerOfficeHoursAlternative)
+      .mockReset()
+      .mockResolvedValue({
+        ...pending,
+        status: AppointmentStatus.Withdrawn,
+      });
     renderWithQueryClient(<StudentAppointmentsView />);
     await userEvent.click(await screen.findByRole("tab", { name: /Talepler/ }));
 
@@ -418,6 +420,23 @@ describe("StudentAppointmentsView", () => {
     ).toBeVisible();
     await userEvent.click(
       within(theirs).getByRole("button", { name: "Talebi geri çek" }),
+    );
+    const dialog = screen.getByRole("dialog", {
+      name: "Talebini geri çekmek istiyor musun?",
+    });
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Vazgeç" }),
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(answerOfficeHoursAlternative).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      within(theirs).getByRole("button", { name: "Talebi geri çek" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Talebi geri çek",
+      }),
     );
     expect(answerOfficeHoursAlternative).toHaveBeenCalledWith(
       "pending",

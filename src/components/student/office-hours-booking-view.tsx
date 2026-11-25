@@ -72,6 +72,11 @@ function whenLine(slot: StudentOfficeHoursSlot, locale: string) {
   return `${formatWeekdayDayMonth(new Date(slot.startsAt), locale)} · ${timeLabel(slot.startsAt, locale)} – ${timeLabel(slot.endsAt, locale)}`;
 }
 
+/** A step replaces the page, so its title takes focus as a page change would. */
+function focusTitle(title: HTMLHeadingElement | null) {
+  title?.focus();
+}
+
 function SlotStep({
   booking,
   academician,
@@ -154,7 +159,12 @@ function SlotPicker({
       aria-labelledby="booking-slots"
       className="flex min-w-0 flex-col gap-6"
     >
-      <h1 id="booking-slots" className="type-h2 text-text-primary">
+      <h1
+        id="booking-slots"
+        ref={booking.backFromForm ? focusTitle : undefined}
+        tabIndex={-1}
+        className="type-h2 text-text-primary outline-none"
+      >
         {t("title")}
       </h1>
       <div className="flex items-center gap-2">
@@ -332,11 +342,6 @@ function LegendItem({
   );
 }
 
-/** The step replaces the page, so the title takes focus as a page change would. */
-function focusTitle(title: HTMLHeadingElement | null) {
-  title?.focus();
-}
-
 function RequestForm({
   booking,
   academician,
@@ -489,7 +494,10 @@ function Field({
       >
         <Info aria-hidden className="size-3.5 shrink-0" strokeWidth={1.5} />
         {/* Only the error is announced; a live count would read out on every key. */}
-        <span role={error ? "alert" : undefined}>{error ?? hint}</span>
+        <span role="alert" className={error ? undefined : "hidden"}>
+          {error}
+        </span>
+        {error ? null : <span>{hint}</span>}
       </p>
     </div>
   );

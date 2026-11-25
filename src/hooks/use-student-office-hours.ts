@@ -31,6 +31,7 @@ import {
   requestOfficeHours,
 } from "@/lib/client/student-office-hours";
 import { startOfDay } from "@/lib/mobile-calendar";
+import { titledName } from "@/lib/profile-completion";
 import {
   academicianName,
   ADVISOR_ACADEMICIAN_ID,
@@ -268,6 +269,8 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
     StudentOfficeHoursSlot | null | undefined
   >(undefined);
   const [formOpen, setFormOpen] = useState(false);
+  // How often the student came back from the form: the times take focus then, not on first load.
+  const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<OfficeHoursRequestErrors | null>(null);
@@ -314,6 +317,7 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
 
   const resetForm = () => {
     setFormOpen(false);
+    setStep((current) => current + 1);
     setTitle("");
     setDescription("");
     setErrors(null);
@@ -331,7 +335,7 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
   };
 
   const submit = async () => {
-    if (!academician || !selected) return;
+    if (!academician || !selected || send.isPending || send.isSuccess) return;
     const found = officeHoursRequestErrors(title);
     setErrors(found);
     setFailure(null);
@@ -367,6 +371,7 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
     select: setChosen,
     freeThisWeek: week.reduce((total, column) => total + column.freeCount, 0),
     formOpen,
+    backFromForm: step > 0,
     openForm: () => {
       if (!selected) return;
       // Fixed from here on, so a reload of the slots cannot take the time away from under the form.
@@ -374,7 +379,14 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
       setFormOpen(true);
     },
     /** Back to the times with what is written kept; "Vazgeç" drops it. */
-    changeTime: () => setFormOpen(false),
+    changeTime: () => {
+      setFormOpen(false);
+      setStep((current) => current + 1);
+      // The time may have gone to someone else meanwhile.
+      setChosen((current) =>
+        askedSlot(slots.data ?? [], current?.startsAt ?? null),
+      );
+    },
     closeForm: resetForm,
     title,
     setTitle: (value: string) => {
@@ -387,7 +399,8 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
     descriptionMax: OFFICE_HOURS_DESCRIPTION_MAX,
     errors,
     failure,
-    isSending: send.isPending,
+    // Stays on while Randevularım opens, so a second press cannot send it again.
+    isSending: send.isPending || send.isSuccess,
     submit,
   };
 }
@@ -440,6 +453,28 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
     /** The same withdrawal, on a request nobody has answered yet. */
     withdraw: () => respond(null, "withdrawn"),
     isAnswering: answer.isPending,
+  };
+}
+
+/** "Talebi geri çek": asked first, as the academician is told and the time is free for others again. */
+export function useOfficeHoursWithdraw(appointment: Appointment) {
+  const answer = useOfficeHoursAlternativeAnswer(appointment);
+  const [isOpen, setIsOpen] = useState(false);
+  return {
+    counterpartName: titledName(
+      appointment.counterpart.title,
+      appointment.counterpart.fullName,
+    ),
+    isOpen,
+    open: () => setIsOpen(true),
+    close: () => {
+      if (!answer.isAnswering) setIsOpen(false);
+    },
+    confirm: async () => {
+      await answer.withdraw();
+      setIsOpen(false);
+    },
+    isWithdrawing: answer.isAnswering,
   };
 }
 
