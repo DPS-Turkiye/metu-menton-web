@@ -4,12 +4,12 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
-import { Button, ButtonVariant } from "@/components/ia/button";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { useOfficeHoursCancel } from "@/hooks/use-student-office-hours";
 import type { Appointment } from "@/interfaces/appointment";
 
 /**
- * "Randevuyu İptal Et" on a booked Office Hours meeting, and its confirmation (Figma 2.3.6, 235:3694). The academician
+ * "Randevuyu iptal et" on a booked Office Hours meeting, and its confirmation (Figma 2.3.6, 235:3694). The academician
  * is told; the reason is optional for the student.
  */
 export function OfficeHoursCancelAction({
@@ -24,8 +24,11 @@ export function OfficeHoursCancelAction({
   const reasonId = `office-hours-cancel-reason-${appointment.id}`;
   return (
     <>
-      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
-      <Button variant={ButtonVariant.Primary} onClick={cancel.open}>
+      <Button
+        variant={ButtonVariant.Ghost}
+        size={ButtonSize.Small}
+        onClick={cancel.open}
+      >
         {t("button")}
       </Button>
       {cancel.isOpen ? (

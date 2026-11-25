@@ -20,7 +20,7 @@ export const OFFICE_HOURS_LOOKAHEAD_DAYS = 14;
 export const OFFICE_HOURS_TITLE_MAX = 120;
 export const OFFICE_HOURS_DESCRIPTION_MAX = 500;
 /** The advisor card on the list shows this many of the advisor's nearest slots. */
-export const ADVISOR_SLOT_PREVIEW = 4;
+export const ADVISOR_SLOT_PREVIEW = 3;
 
 export type OfficeHoursFilter = {
   query: string;
@@ -60,7 +60,7 @@ export function advisorAcademician(
   };
 }
 
-/** Name search (Turkish case rules), faculty and department, and "Müsait saati olanlar". */
+/** Search by name, department or topic (Turkish case rules), faculty and department, and "Müsait saati olanlar". */
 export function filterAcademicians(
   academicians: OfficeHoursAcademician[],
   filter: OfficeHoursFilter,
@@ -70,7 +70,9 @@ export function filterAcademicians(
   return academicians.filter(
     (item) =>
       (!needle ||
-        academicianName(item).toLocaleLowerCase("tr").includes(needle)) &&
+        [academicianName(item), item.department ?? "", ...item.tags].some(
+          (text) => text.toLocaleLowerCase("tr").includes(needle),
+        )) &&
       (filter.faculty === null || item.faculty === filter.faculty) &&
       (filter.department === null || item.department === filter.department) &&
       (!filter.availableOnly || hasFreeSlot(item.id)),
@@ -93,6 +95,17 @@ export function freeSlots(slots: StudentOfficeHoursSlot[]) {
   return slots
     .filter((slot) => slot.available)
     .toSorted((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
+}
+
+/** Slots under the day they fall on, in the order given. */
+export function slotsByDay(slots: StudentOfficeHoursSlot[]) {
+  const days: { day: Date; slots: StudentOfficeHoursSlot[] }[] = [];
+  for (const slot of slots) {
+    const last = days.at(-1);
+    if (last && isSameDay(slot.startsAt, last.day)) last.slots.push(slot);
+    else days.push({ day: new Date(slot.startsAt), slots: [slot] });
+  }
+  return days;
 }
 
 /** The Monday-to-Friday columns of the week holding `anchor`, each with its slots and free count. */
@@ -133,6 +146,15 @@ export function canAnswerAlternative(appointment: Appointment) {
   );
 }
 
+/** An Office Hours request the academician has not answered, while the backend lets the student take it back. */
+export function canWithdrawOfficeHours(appointment: Appointment) {
+  return (
+    appointment.kind === AppointmentKind.OfficeHours &&
+    appointment.status === AppointmentStatus.Pending &&
+    appointment.canWithdraw === true
+  );
+}
+
 /** The backend's limit on a cancel reason (`@Size(max = 2000)`), so the field stops there instead of a 400. */
 export const OFFICE_HOURS_CANCEL_REASON_MAX = 2000;
 
@@ -165,4 +187,23 @@ export function firstBookableWeekDay(today: Date) {
   if (weekday === SATURDAY) day.setDate(day.getDate() + 2);
   if (weekday === SUNDAY) day.setDate(day.getDate() + 1);
   return day;
+}
+
+/** The day of a time named in a link, when it is one to book: a real time, not before the first bookable day. */
+export function bookableDay(startsAt: string | null, firstDay: Date) {
+  const day = startsAt === null ? null : new Date(startsAt);
+  return day !== null && day.getTime() >= firstDay.getTime() ? day : null;
+}
+
+/** The still-free slot that starts at the time a link names. */
+export function askedSlot(
+  slots: StudentOfficeHoursSlot[],
+  startsAt: string | null,
+) {
+  if (startsAt === null) return null;
+  const at = Date.parse(startsAt);
+  return (
+    slots.find((slot) => slot.available && Date.parse(slot.startsAt) === at) ??
+    null
+  );
 }

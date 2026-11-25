@@ -7,6 +7,8 @@ import {
   academicianName,
   ADVISOR_ACADEMICIAN_ID,
   advisorAcademician,
+  askedSlot,
+  bookableDay,
   canAnswerAlternative,
   canCancelOfficeHours,
   filterAcademicians,
@@ -16,6 +18,7 @@ import {
   officeHoursRequestErrors,
   officeHoursWeek,
   optionsOf,
+  slotsByDay,
   type OfficeHoursFilter,
 } from "@/lib/student-office-hours";
 import { peerAppointment } from "@test/fixtures/student-appointments";
@@ -124,6 +127,32 @@ describe("freeSlots", () => {
         (item) => item.startsAt,
       ),
     ).toEqual([slot(11, 10).startsAt, slot(12, 14).startsAt]);
+  });
+});
+
+describe("slotsByDay", () => {
+  it("puts the slots under their day, in order", () => {
+    const days = slotsByDay([slot(12, 14), slot(12, 15), slot(13, 11)]);
+    expect(days.map(({ day }) => day.getDate())).toEqual([12, 13]);
+    expect(days.map(({ slots }) => slots.length)).toEqual([2, 1]);
+  });
+});
+
+describe("a time named in a link", () => {
+  const firstDay = new Date(2026, 10, 9);
+
+  it("counts only from the first bookable day on", () => {
+    expect(bookableDay(slot(12, 14).startsAt, firstDay)?.getDate()).toBe(12);
+    expect(bookableDay(slot(6, 14).startsAt, firstDay)).toBeNull();
+    expect(bookableDay("yarın", firstDay)).toBeNull();
+    expect(bookableDay(null, firstDay)).toBeNull();
+  });
+
+  it("is picked only while it is free", () => {
+    const slots = [slot(12, 14), slot(12, 15, false)];
+    expect(askedSlot(slots, slot(12, 14).startsAt)).toBe(slots[0]);
+    expect(askedSlot(slots, slot(12, 15).startsAt)).toBeNull();
+    expect(askedSlot(slots, null)).toBeNull();
   });
 });
 

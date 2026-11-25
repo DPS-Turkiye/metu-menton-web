@@ -66,7 +66,6 @@
   },
   "appointments": {
     "title": "My appointments",
-    "subtitle": "Your Office Hours and peer mentoring appointments in one place.",
     "viewLabel": "View",
     "views": {
       "list": "List",
@@ -85,10 +84,9 @@
       "requests": "You have no requests awaiting an answer.",
       "past": "You have no past appointments."
     },
-    "seeAll": "All",
     "sent": {
       "title": "Your appointment request was sent",
-      "body": "We'll notify you when {name} replies."
+      "body": "You will be notified when {name} answers."
     },
     "alternative": {
       "requested": "You asked for",
@@ -96,12 +94,6 @@
     },
     "rejectReason": "Reason: {reason}",
     "counterpartMessage": "The academician's message: {message}",
-    "legend": {
-      "title": "What do the statuses mean?",
-      "PENDING": "The academician or mentor hasn't answered yet. The appointment isn't set.",
-      "ALTERNATIVE_PROPOSED": "The appointment isn't confirmed until you accept the new time.",
-      "CONFIRMED": "The appointment is set and shows in both calendars."
-    },
     "calendar": {
       "today": "Today",
       "previous": "Previous",
@@ -160,101 +152,98 @@
       "proposed": "Proposed: {time}",
       "held": "Held",
       "empty": "No appointments in this group."
-    }
+    },
+    "quote": "“{message}”",
+    "declineHint": "If you decline, the request closes; you can pick a new time.",
+    "sections": {
+      "awaitingYou": "Waiting for your answer",
+      "awaitingThem": "Waiting for an answer"
+    },
+    "statusHint": "Awaiting approval: no answer yet. Alternative time: not set until you accept. Approved: on both calendars."
   },
   "officeHours": {
     "list": {
       "title": "Office Hours",
-      "search": "Search academicians (name)",
+      "search": "Search academicians (name or department)",
       "faculty": "Faculty",
       "department": "Department",
       "availableOnly": "With free times",
       "count": "{count} academicians",
       "empty": "No academician matches your search.",
-      "nearest": "Nearest free time: {day} {time}",
+      "nearest": "Nearest: {day} · {time}",
       "noSlots": "No free times right now",
-      "seeSlots": "See free times",
       "profile": "View profile",
-      "footnote": "No department limits: you can ask any ODTÜ academician for an appointment. Booking another academician doesn't change your advisor."
+      "footnote": "No department limits. Booking another academician doesn't change your advisor.",
+      "intro": "You can ask any ODTÜ academician for an appointment. Requests are set once the academician approves.",
+      "pickTime": "Pick a time",
+      "pickTimeOf": "Pick a time: {name}",
+      "profileOf": "View profile: {name}"
     },
     "advisor": {
       "label": "Your academic advisor",
-      "source": "From the institutional record",
-      "note": "Appointments with your advisor are also set only once the academician approves.",
-      "nearest": "Nearest free times",
-      "noSlots": "Your advisor has no free times right now.",
-      "profile": "See free times",
-      "request": "Request an appointment"
+      "nearest": "Nearest:",
+      "noSlots": "Your advisor has no free times right now."
     },
     "profile": {
       "title": "Academician profile",
       "back": "Office Hours",
       "notFound": "This academician could not be found.",
-      "officeHours": "Office Hours",
-      "request": "Request an appointment",
-      "nearest": "Nearest free time: {day} {time}",
-      "noSlots": "No free times right now",
+      "request": "Pick a time and request",
+      "nearest": "Nearest: {day} · {time}",
       "about": "About",
-      "topics": "What can you talk about?",
-      "courses": "Courses this term",
+      "topics": "What you can talk about",
+      "courses": "Courses this term · {codes}",
       "info": {
-        "title": "Office Hours details",
-        "place": "Place",
-        "duration": "Length",
-        "minutes": "{count} minutes",
-        "response": "Response time"
+        "title": "Office Hours",
+        "minutes": "{count}-minute meetings"
       },
       "thisWeek": "Free times this week",
-      "seeAll": "See all",
       "noSlotsThisWeek": "No free times this week.",
-      "past": "Your earlier appointments",
-      "footnote": "Every appointment is set only once the academician approves. Booking this academician doesn't change your academic advisor."
+      "past": "Your earlier appointment: {topic} · {day} · {status}",
+      "footnote": "The appointment is set once the academician approves. It doesn't change your advisor."
     },
     "booking": {
-      "title": "Pick a time",
-      "back": "Office Hours",
+      "title": "Pick a day and time",
+      "back": "Back",
       "notFound": "This academician could not be found.",
-      "info": "Office Hours details",
-      "duration": "Length",
-      "minutes": "{count} minutes",
-      "place": "Place",
-      "thisWeek": "This week",
-      "freeCount": "{count, plural, =0 {no free times} one {# free time} other {# free times}}",
-      "topics": "What can you talk about?",
-      "fullProfile": "View profile",
-      "slotsTitle": "Free times",
-      "slotsHint": "Pick a day and a time. Your request is set once the academician approves.",
+      "program": "Office Hours",
+      "minutes": "{count} min",
       "previousWeek": "Previous week",
       "nextWeek": "Next week",
       "days": "Days",
       "times": "Times",
-      "slotCount": "{count, plural, one {# time} other {# times}}",
-      "noneThatDay": "No free times",
+      "slotCount": "{count, plural, one {# slot} other {# slots}}",
+      "noneThatDay": "Not available",
       "noneThisWeek": "No free times this week; try the next one.",
-      "fadedHint": "Faded times are taken by another student or already past.",
+      "daySlots": "{weekday}, {day} · {count}-minute slots",
+      "legend": {
+        "free": "Free",
+        "picked": "Picked",
+        "taken": "Taken or past (cannot be picked)"
+      },
       "selected": "Selected time",
       "nothingSelected": "No time picked yet",
+      "nextStep": "Next you write what the meeting is about. The request is set once the academician approves.",
       "continue": "Continue"
     },
     "request": {
-      "title": "Request an appointment",
-      "close": "Close",
-      "academician": "Academician",
-      "date": "Date",
-      "time": "Time",
-      "subject": "Meeting title",
+      "title": "Appointment request",
+      "subject": "Meeting topic",
       "subjectPlaceholder": "E.g. CV and master's options",
-      "subjectHint": "The coordinator only sees the title, the date and who takes part.",
-      "subjectRequired": "Write a title for the meeting.",
+      "subjectHint": "{count} / {max} characters · The coordinator only sees the topic, the date and who takes part.",
+      "subjectRequired": "Write a topic for the meeting.",
       "description": "Short description (optional)",
-      "descriptionHint": "Optional. Only the academician sees this; it helps them prepare. {count} / {max}",
+      "descriptionHint": "Optional · only the academician sees this, it helps them prepare · {count} / {max}",
       "required": "(required)",
-      "approvalTitle": "Approval needed",
-      "approvalBody": "Your request shows as \"Awaiting approval\" until the academician answers.",
       "cancel": "Cancel",
       "submit": "Send request",
       "sent": "Your appointment request was sent.",
-      "failed": "The request could not be sent. Try again."
+      "failed": "The request could not be sent. Try again.",
+      "intro": "Give a little detail and send your request. Once the academician approves, the appointment is set and you are notified.",
+      "back": "Back to the times",
+      "program": "Office Hours ({count} min)",
+      "change": "Change",
+      "changeTime": "Change the time"
     },
     "answer": {
       "accept": "Accept the proposed time",
@@ -262,7 +251,8 @@
       "decline": "Decline",
       "accepted": "You accepted the proposed time; your appointment is confirmed.",
       "declined": "You declined the proposed time; your request was withdrawn.",
-      "failed": "Your answer could not be sent. Try again."
+      "failed": "Your answer could not be sent. Try again.",
+      "withdrawn": "Your request was withdrawn."
     },
     "cancel": {
       "button": "Cancel appointment",
@@ -275,6 +265,12 @@
       "done": "Appointment cancelled.",
       "failed": "The appointment couldn't be cancelled. Try again.",
       "started": "The meeting has started; it can't be cancelled any more."
+    },
+    "withdraw": {
+      "button": "Withdraw request",
+      "title": "Withdraw your request?",
+      "body": "{name} will be told. You can send a new request for the time.",
+      "keep": "Keep it"
     }
   },
   "profile": {

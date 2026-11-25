@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  Check,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -14,15 +13,13 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 
 import { Card } from "@/components/ia/card";
-import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
-import { AppointmentStatusBadge } from "@/components/student/ia/ui";
+import { AppointmentOutcomeBadge } from "@/components/student/ia/ui";
 import type { Appointment } from "@/interfaces/appointment";
 import { titledName } from "@/lib/profile-completion";
 import {
   REQUEST_GROUP_PREVIEW,
   requestGroupListTab,
   requestRowTime,
-  wasHeld,
 } from "@/lib/student-appointments";
 import {
   AppointmentRequestGroup,
@@ -276,7 +273,9 @@ function RequestRow({
         <span className="type-caption break-words text-text-secondary">
           {isAction ? t("proposed", { time: when }) : when}
         </span>
-        {isPast ? <PastStatus appointment={appointment} /> : null}
+        {isPast ? (
+          <AppointmentOutcomeBadge status={appointment.status} />
+        ) : null}
       </span>
       <ChevronRight
         aria-hidden
@@ -284,21 +283,5 @@ function RequestRow({
         strokeWidth={1.5}
       />
     </button>
-  );
-}
-
-/** Geçmiş mixes outcomes, so each row says its own. */
-function PastStatus({ appointment }: { appointment: Appointment }) {
-  const t = useTranslations("iaStudent.appointments.requests");
-  if (!wasHeld(appointment)) {
-    return <AppointmentStatusBadge status={appointment.status} />;
-  }
-  return (
-    <StatusBadge
-      tone={StatusTone.Neutral}
-      icon={<Check aria-hidden className="size-4" strokeWidth={1.5} />}
-    >
-      {t("held")}
-    </StatusBadge>
   );
 }

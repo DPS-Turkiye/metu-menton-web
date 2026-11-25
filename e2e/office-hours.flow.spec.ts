@@ -113,7 +113,7 @@ test("the student finds the academician and asks for a slot", async ({
   await page
     .getByRole("group", { name: "Günler" })
     .getByRole("button")
-    .filter({ hasNotText: "Müsait saat yok" })
+    .filter({ hasNotText: "Müsait değil" })
     .first()
     .click();
   await page
@@ -122,13 +122,13 @@ test("the student finds the academician and asks for a slot", async ({
     .and(page.locator(":enabled"))
     .first()
     .click();
-  await page.getByRole("button", { name: "Devam Et" }).click();
+  await page.getByRole("button", { name: "Devam et" }).click();
 
-  await page.getByLabel("Görüşme başlığı").fill(BOOKED_TOPIC);
+  await page.getByLabel("Görüşme konusu").fill(BOOKED_TOPIC);
   await page
     .getByLabel("Kısa açıklama (isteğe bağlı)")
     .fill("Uçtan uca test: yüksek lisans seçeneklerini konuşmak istiyorum.");
-  await page.getByRole("button", { name: "Randevu Talebi Gönder" }).click();
+  await page.getByRole("button", { name: "Talebi gönder" }).click();
 
   await expect(page).toHaveURL(/\/student\/appointments/);
   await expect(

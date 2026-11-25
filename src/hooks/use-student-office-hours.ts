@@ -31,11 +31,14 @@ import {
   requestOfficeHours,
 } from "@/lib/client/student-office-hours";
 import { startOfDay } from "@/lib/mobile-calendar";
+import { titledName } from "@/lib/profile-completion";
 import {
   academicianName,
   ADVISOR_ACADEMICIAN_ID,
   ADVISOR_SLOT_PREVIEW,
   advisorAcademician,
+  askedSlot,
+  bookableDay,
   canCancelOfficeHours,
   filterAcademicians,
   firstBookableWeekDay,
@@ -67,8 +70,10 @@ export function officeHoursProfileHref(id: string) {
   return `${STUDENT_OFFICE_HOURS_HREF}/${encodeURIComponent(id)}`;
 }
 
-export function officeHoursBookingHref(id: string) {
-  return `${officeHoursProfileHref(id)}/book`;
+/** The booking page, with a time already picked when `slot` (its start) is given. */
+export function officeHoursBookingHref(id: string, slot?: string) {
+  const href = `${officeHoursProfileHref(id)}/book`;
+  return slot ? `${href}?slot=${encodeURIComponent(slot)}` : href;
 }
 
 function startOfToday() {
@@ -133,7 +138,7 @@ function useAcademicianEntry(id: string) {
   };
 }
 
-/** Office Hours (Figma 80:400): the advisor on top, then every academician with their nearest free slot. */
+/** Office Hours (Figma 3.2): the advisor on top, then every academician with their nearest free slot. */
 export function useStudentOfficeHours() {
   const academicians = useQuery({
     queryKey: OFFICE_HOURS_ACADEMICIANS_QUERY_KEY,
@@ -215,7 +220,7 @@ export function useStudentOfficeHours() {
   };
 }
 
-/** Akademisyen Profili (Figma 116:126): who they are, this week's free slots and past sessions with them. */
+/** Akademisyen Profili (Figma 3.3): who they are, this week's free slots and past sessions with them. */
 export function useOfficeHoursProfile(id: string) {
   const entry = useAcademicianEntry(id);
   const [from] = useState(startOfToday);
@@ -247,8 +252,8 @@ export function useOfficeHoursProfile(id: string) {
   };
 }
 
-/** Saat seç + Randevu talep et (Figma 82:2, 82:194, 82:345). */
-export function useOfficeHoursBooking(id: string) {
+/** Gün ve saat seç, then Randevu talebi (Figma 3.4, 3.5); `slot` is the start of a time picked on the profile. */
+export function useOfficeHoursBooking(id: string, slot: string | null = null) {
   const t = useTranslations("iaStudent.officeHours.request");
   const entry = useAcademicianEntry(id);
   const { academician } = entry;
@@ -256,10 +261,16 @@ export function useOfficeHoursBooking(id: string) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [firstDay] = useState(() => firstBookableWeekDay(new Date()));
-  const [anchor, setAnchor] = useState(firstDay);
-  const [pickedDay, setPickedDay] = useState<Date | null>(null);
-  const [selected, setSelected] = useState<StudentOfficeHoursSlot | null>(null);
+  const [asked] = useState(() => bookableDay(slot, firstDay));
+  const [anchor, setAnchor] = useState(asked ?? firstDay);
+  const [pickedDay, setPickedDay] = useState<Date | null>(asked);
+  // undefined until the student picks for themselves: the time the link names stands until then, if it is still free.
+  const [chosen, setChosen] = useState<
+    StudentOfficeHoursSlot | null | undefined
+  >(undefined);
   const [formOpen, setFormOpen] = useState(false);
+  // How often the student came back from the form: the times take focus then, not on first load.
+  const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<OfficeHoursRequestErrors | null>(null);
@@ -269,6 +280,10 @@ export function useOfficeHoursBooking(id: string) {
   const slots = useQuery(
     slotsQuery(academician, weekStart, OFFICE_HOURS_WEEK_DAYS),
   );
+  const selected =
+    chosen === undefined
+      ? askedSlot(slots.data ?? [], asked === null ? null : slot)
+      : chosen;
   const week = officeHoursWeek(slots.data ?? [], anchor);
   const day =
     week.find(
@@ -302,6 +317,7 @@ export function useOfficeHoursBooking(id: string) {
 
   const resetForm = () => {
     setFormOpen(false);
+    setStep((current) => current + 1);
     setTitle("");
     setDescription("");
     setErrors(null);
@@ -315,11 +331,11 @@ export function useOfficeHoursBooking(id: string) {
       return next;
     });
     setPickedDay(null);
-    setSelected(null);
+    setChosen(null);
   };
 
   const submit = async () => {
-    if (!academician || !selected) return;
+    if (!academician || !selected || send.isPending || send.isSuccess) return;
     const found = officeHoursRequestErrors(title);
     setErrors(found);
     setFailure(null);
@@ -349,14 +365,27 @@ export function useOfficeHoursBooking(id: string) {
     day,
     pickDay: (next: Date) => {
       setPickedDay(next);
-      setSelected(null);
+      setChosen(null);
     },
     selected,
-    select: setSelected,
+    select: setChosen,
     freeThisWeek: week.reduce((total, column) => total + column.freeCount, 0),
     formOpen,
+    backFromForm: step > 0,
     openForm: () => {
-      if (selected) setFormOpen(true);
+      if (!selected) return;
+      // Fixed from here on, so a reload of the slots cannot take the time away from under the form.
+      setChosen(selected);
+      setFormOpen(true);
+    },
+    /** Back to the times with what is written kept; "Vazgeç" drops it. */
+    changeTime: () => {
+      setFormOpen(false);
+      setStep((current) => current + 1);
+      // The time may have gone to someone else meanwhile.
+      setChosen((current) =>
+        askedSlot(slots.data ?? [], current?.startsAt ?? null),
+      );
     },
     closeForm: resetForm,
     title,
@@ -370,7 +399,8 @@ export function useOfficeHoursBooking(id: string) {
     descriptionMax: OFFICE_HOURS_DESCRIPTION_MAX,
     errors,
     failure,
-    isSending: send.isPending,
+    // Stays on while Randevularım opens, so a second press cannot send it again.
+    isSending: send.isPending || send.isSuccess,
     submit,
   };
 }
@@ -398,11 +428,14 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
         }),
       ]),
   });
-  const respond = async (time: string | null) => {
+  const respond = async (
+    time: string | null,
+    done: "accepted" | "declined" | "withdrawn",
+  ) => {
     try {
       await answer.mutateAsync(time);
       showToast({
-        message: t(time === null ? "declined" : "accepted"),
+        message: t(done),
         tone: ToastTone.Success,
       });
     } catch (error) {
@@ -415,9 +448,33 @@ export function useOfficeHoursAlternativeAnswer(appointment: Appointment) {
   return {
     times: offeredTimes(appointment),
     canDecline: appointment.canWithdraw ?? true,
-    accept: (time: string) => respond(time),
-    decline: () => respond(null),
+    accept: (time: string) => respond(time, "accepted"),
+    decline: () => respond(null, "declined"),
+    /** The same withdrawal, on a request nobody has answered yet. */
+    withdraw: () => respond(null, "withdrawn"),
     isAnswering: answer.isPending,
+  };
+}
+
+/** "Talebi geri çek": asked first, as the academician is told and the time is free for others again. */
+export function useOfficeHoursWithdraw(appointment: Appointment) {
+  const answer = useOfficeHoursAlternativeAnswer(appointment);
+  const [isOpen, setIsOpen] = useState(false);
+  return {
+    counterpartName: titledName(
+      appointment.counterpart.title,
+      appointment.counterpart.fullName,
+    ),
+    isOpen,
+    open: () => setIsOpen(true),
+    close: () => {
+      if (!answer.isAnswering) setIsOpen(false);
+    },
+    confirm: async () => {
+      await answer.withdraw();
+      setIsOpen(false);
+    },
+    isWithdrawing: answer.isAnswering,
   };
 }
 

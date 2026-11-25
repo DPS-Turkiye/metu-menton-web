@@ -3439,7 +3439,7 @@
       "PENDING": "Onay Bekliyor",
       "CONFIRMED": "Onaylandı",
       "REJECTED": "Reddedildi",
-      "ALTERNATIVE_PROPOSED": "Alternatif Önerildi",
+      "ALTERNATIVE_PROPOSED": "Alternatif Saat Önerildi",
       "CANCELLED": "İptal Edildi",
       "EXPIRED": "Süresi Doldu",
       "WITHDRAWN": "Geri Çekildi"

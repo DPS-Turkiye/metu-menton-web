@@ -91,7 +91,7 @@ describe("StudentAppointmentsView", () => {
     expect(within(card).getByText("Prof. Dr. Ahmet Kaya")).toBeVisible();
     expect(within(card).getByText("Talep ettiğin")).toBeVisible();
     expect(within(card).getByText("Önerilen")).toBeVisible();
-    expect(within(card).getByText("Alternatif Önerildi")).toBeVisible();
+    expect(within(card).getByText("Alternatif Saat Önerildi")).toBeVisible();
   });
 
   it("lets the student accept an Office Hours alternative time", async () => {
@@ -104,7 +104,7 @@ describe("StudentAppointmentsView", () => {
     const card = within(await panel()).getByRole("article");
     expect(within(card).getByRole("button", { name: "Reddet" })).toBeVisible();
     await userEvent.click(
-      within(card).getByRole("button", { name: "Önerilen Saati Kabul Et" }),
+      within(card).getByRole("button", { name: "Önerilen saati kabul et" }),
     );
     expect(answerOfficeHoursAlternative).toHaveBeenCalledWith(
       "alt",
@@ -172,9 +172,7 @@ describe("StudentAppointmentsView", () => {
     const card = within(await panel()).getByRole("article");
 
     expect(
-      within(card).getByText(
-        "Akademisyenin mesajı: Perşembe dolu, bunlardan biri olur mu?",
-      ),
+      within(card).getByText("“Perşembe dolu, bunlardan biri olur mu?”"),
     ).toBeVisible();
     expect(
       within(card).queryByRole("button", { name: "Reddet" }),
@@ -230,7 +228,7 @@ describe("StudentAppointmentsView", () => {
       renderWithQueryClient(<StudentAppointmentsView />);
       const card = within(await panel()).getByRole("article");
       await userEvent.click(
-        within(card).getByRole("button", { name: "Randevuyu İptal Et" }),
+        within(card).getByRole("button", { name: "Randevuyu iptal et" }),
       );
       return screen.getByRole("dialog", {
         name: "Randevuyu iptal etmek istiyor musun?",
@@ -321,7 +319,7 @@ describe("StudentAppointmentsView", () => {
       const card = within(await panel()).getByRole("article");
 
       expect(
-        within(card).queryByRole("button", { name: "Randevuyu İptal Et" }),
+        within(card).queryByRole("button", { name: "Randevuyu iptal et" }),
       ).not.toBeInTheDocument();
     });
   });
@@ -346,10 +344,10 @@ describe("StudentAppointmentsView", () => {
     const { container } = renderWithQueryClient(
       <StudentAppointmentsView sentTo="Prof. Dr. Ahmet Kaya" />,
     );
-    expect(screen.getByText("Randevu talebin gönderildi")).toBeVisible();
+    expect(await screen.findByText("Randevu talebin gönderildi")).toBeVisible();
     expect(
       screen.getByText(
-        "Prof. Dr. Ahmet Kaya yanıtladığında sana bildirim göndereceğiz.",
+        "Prof. Dr. Ahmet Kaya yanıtladığında bildirim alacaksın.",
       ),
     ).toBeVisible();
     expect(
@@ -388,17 +386,71 @@ describe("StudentAppointmentsView", () => {
     expect(upcoming).toHaveAttribute("aria-selected", "true");
   });
 
-  it("explains the statuses beside the list", async () => {
+  it("explains the statuses under the list", async () => {
     renderWithQueryClient(<StudentAppointmentsView />);
     await panel();
-    const legend = screen.getByRole("region", {
-      name: "Durumlar ne anlama geliyor?",
-    });
+    expect(screen.getByText(/^Onay Bekliyor: henüz yanıt yok\./)).toBeVisible();
+  });
+
+  it("splits Talepler by who answers next, and lets the student take a request back", async () => {
+    const pending = {
+      ...alternative,
+      id: "pending",
+      status: AppointmentStatus.Pending,
+      alternative: null,
+      canWithdraw: true,
+    };
+    vi.mocked(getStudentAppointments).mockResolvedValue([alternative, pending]);
+    vi.mocked(answerOfficeHoursAlternative)
+      .mockReset()
+      .mockResolvedValue({
+        ...pending,
+        status: AppointmentStatus.Withdrawn,
+      });
+    renderWithQueryClient(<StudentAppointmentsView />);
+    await userEvent.click(await screen.findByRole("tab", { name: /Talepler/ }));
+
+    const mine = screen.getByRole("region", { name: "Yanıtını bekliyor" });
     expect(
-      within(legend).getByText(
-        "Yeni saati sen kabul edene kadar randevu onaylanmaz.",
-      ),
+      within(mine).getByRole("button", { name: "Önerilen saati kabul et" }),
     ).toBeVisible();
+    const theirs = screen.getByRole("region", { name: "Yanıt bekleniyor" });
+    expect(
+      within(theirs).getByText(/^Office Hours · Per 12 Kas · /),
+    ).toBeVisible();
+    await userEvent.click(
+      within(theirs).getByRole("button", { name: "Talebi geri çek" }),
+    );
+    const dialog = screen.getByRole("dialog", {
+      name: "Talebini geri çekmek istiyor musun?",
+    });
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Vazgeç" }),
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(answerOfficeHoursAlternative).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      within(theirs).getByRole("button", { name: "Talebi geri çek" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Talebi geri çek",
+      }),
+    );
+    expect(answerOfficeHoursAlternative).toHaveBeenCalledWith(
+      "pending",
+      false,
+      null,
+    );
+    expect(await screen.findByText("Talebin geri çekildi.")).toBeVisible();
+  });
+
+  it("says in Geçmiş which meetings were held", async () => {
+    renderWithQueryClient(<StudentAppointmentsView />);
+    await userEvent.click(await screen.findByRole("tab", { name: /Geçmiş/ }));
+    expect(within(await panel()).getByText("Tamamlandı")).toBeVisible();
+    expect(within(await panel()).getByText("İptal Edildi")).toBeVisible();
   });
 
   it("switches to the week and shows the picked session's detail", async () => {
@@ -504,7 +556,7 @@ describe("StudentAppointmentsView", () => {
     ).toBeVisible();
     expect(screen.queryByText(/^Şu an/)).not.toBeInTheDocument();
     const block = screen.getByRole("button", {
-      name: /^10:30 – 11:00 · Prof\. Dr\. Ahmet Kaya · Alternatif Önerildi/,
+      name: /^10:30 – 11:00 · Prof\. Dr\. Ahmet Kaya · Alternatif Saat Önerildi/,
     });
     expect(block).toHaveAttribute("aria-pressed", "true");
     expect(

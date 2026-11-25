@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { AppointmentStatus } from "@/interfaces/appointment";
+import { wasHeld } from "@/lib/student-appointments";
 import { initials } from "@/lib/utils";
 
 const AVATAR_SIZES = {
@@ -37,6 +39,15 @@ export function InitialsAvatar({
       className={`grid shrink-0 place-items-center rounded-full bg-background-selected text-text-accent ${AVATAR_SIZES[size]}`}
     >
       {initials(name)}
+    </span>
+  );
+}
+
+/** A grey tag: a topic, a free time. */
+export function Chip({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex h-8 items-center rounded-full bg-background-muted px-3 type-label-sm text-text-secondary">
+      {children}
     </span>
   );
 }
@@ -73,6 +84,24 @@ export function AppointmentStatusBadge({
       icon={<Icon aria-hidden className="size-4" strokeWidth={1.5} />}
     >
       {t(status)}
+    </StatusBadge>
+  );
+}
+
+/** Geçmiş mixes outcomes, so each one says its own; a confirmed meeting in the past was held. */
+export function AppointmentOutcomeBadge({
+  status,
+}: {
+  status: AppointmentStatus;
+}) {
+  const t = useTranslations("iaStudent.appointments.requests");
+  if (!wasHeld({ status })) return <AppointmentStatusBadge status={status} />;
+  return (
+    <StatusBadge
+      tone={StatusTone.Neutral}
+      icon={<Check aria-hidden className="size-4" strokeWidth={1.5} />}
+    >
+      {t("held")}
     </StatusBadge>
   );
 }

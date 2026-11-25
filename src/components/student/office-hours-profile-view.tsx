@@ -1,24 +1,35 @@
 "use client";
 
-import { GraduationCap, Info } from "lucide-react";
+import {
+  AlarmClock,
+  BookOpen,
+  ChevronDown,
+  CircleCheck,
+  Clock,
+  GraduationCap,
+  Mail,
+  type LucideIcon,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
-import { Button } from "@/components/ia/button";
-import { Card } from "@/components/ia/card";
-import { PageHeader } from "@/components/ia/page-header";
+import { Button, ButtonSize } from "@/components/ia/button";
+import { BackButton } from "@/components/student/ia/back-button";
+import { Chip } from "@/components/student/ia/ui";
 import {
   officeHoursBookingHref,
   STUDENT_OFFICE_HOURS_HREF,
   useOfficeHoursProfile,
 } from "@/hooks/use-student-office-hours";
-import { shortWeekday, timeLabel, weekdayName } from "@/lib/calendar";
-import { academicianName } from "@/lib/student-office-hours";
-import { formatDayMonth, initials } from "@/lib/utils";
+import type { OfficeHoursCourse } from "@/interfaces/student-office-hours";
+import { timeLabel } from "@/lib/calendar";
+import { wasHeld } from "@/lib/student-appointments";
+import { academicianName, slotsByDay } from "@/lib/student-office-hours";
+import { formatDayMonth, formatWeekdayDayMonth, initials } from "@/lib/utils";
 
-/** Akademisyen Profili, tam sayfa (Figma 116:126). */
+/** Akademisyen Profili, tam sayfa (Figma 3.3). */
 export function OfficeHoursProfileView({
   academicianId,
 }: {
@@ -26,15 +37,16 @@ export function OfficeHoursProfileView({
 }) {
   const t = useTranslations("iaStudent.officeHours.profile");
   const tStatus = useTranslations("appointments.status");
+  const tHeld = useTranslations("iaStudent.appointments.requests");
   const locale = useLocale();
   const profile = useOfficeHoursProfile(academicianId);
   const { academician } = profile;
-  const back = { href: STUDENT_OFFICE_HOURS_HREF, label: t("back") };
 
   if (!academician) {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title={t("title")} back={back} />
+      <div className="flex flex-col gap-8">
+        <BackButton href={STUDENT_OFFICE_HOURS_HREF}>{t("back")}</BackButton>
+        <h1 className="type-h2 text-text-primary">{t("title")}</h1>
         <QueryNotice isLoading={profile.isLoading} error={profile.error} />
         {profile.notFound ? (
           <p className="type-body-sm text-text-muted">{t("notFound")}</p>
@@ -43,208 +55,238 @@ export function OfficeHoursProfileView({
     );
   }
 
-  const bookHref = officeHoursBookingHref(academician.id);
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title={t("title")} back={back} />
-      <section
-        aria-labelledby="office-hours-profile-name"
-        className="flex flex-col gap-6 rounded-featured border border-card-featured-border bg-card-featured-bg p-8 md:flex-row md:items-center md:justify-between"
-      >
-        <div className="flex items-center gap-7">
-          <span className="grid size-[72px] shrink-0 place-items-center rounded-full bg-background-surface type-h3 text-text-accent">
-            {initials(academician.fullName)}
-          </span>
-          <div className="flex min-w-0 flex-col gap-2">
-            <h2
-              id="office-hours-profile-name"
-              className="type-h2 text-text-primary"
+    <div className="flex flex-col gap-8">
+      <BackButton href={STUDENT_OFFICE_HOURS_HREF}>{t("back")}</BackButton>
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
+        <div className="flex min-w-0 flex-col gap-6">
+          <header className="flex items-center gap-5">
+            <span
+              aria-hidden
+              className="grid size-[72px] shrink-0 place-items-center rounded-full bg-background-selected type-h3 text-text-accent"
             >
-              {academicianName(academician)}
-            </h2>
-            <p className="type-body-lg text-text-secondary">
-              {[academician.department, academician.faculty]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-            <ul className="flex flex-wrap gap-2">
-              <li className="inline-flex items-center gap-1 rounded-full bg-background-surface px-3 py-1.5 type-label-sm text-text-primary">
-                <GraduationCap
-                  aria-hidden
-                  className="size-4"
-                  strokeWidth={1.5}
-                />
-                {t("officeHours")}
-              </li>
-              {academician.tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="rounded-full bg-background-surface px-3 py-1.5 type-label-sm text-text-primary"
-                >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 md:items-end">
-          <Button href={bookHref}>{t("request")}</Button>
-          <p className="type-caption text-text-secondary">
-            {profile.nearest
-              ? t("nearest", {
-                  day: weekdayName(new Date(profile.nearest.startsAt), locale),
-                  time: timeLabel(profile.nearest.startsAt, locale),
-                })
-              : t("noSlots")}
-          </p>
-        </div>
-      </section>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="flex flex-col gap-6">
+              {initials(academician.fullName)}
+            </span>
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <h1 className="type-h2 text-text-primary">
+                {academicianName(academician)}
+              </h1>
+              <p className="type-body text-text-muted">
+                {[academician.department, academician.faculty]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              {academician.tags.length > 0 ? (
+                <ul className="flex flex-wrap gap-1.5">
+                  {academician.tags.map((tag) => (
+                    <li key={tag}>
+                      <Chip>{tag}</Chip>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </header>
           {academician.about ? (
-            <Card labelledBy="office-hours-about">
+            <section
+              aria-labelledby="office-hours-about"
+              className="flex flex-col gap-2"
+            >
               <h2 id="office-hours-about" className="type-h4 text-text-primary">
                 {t("about")}
               </h2>
-              <p className="mt-3 type-body text-text-secondary">
+              <p className="type-body text-text-secondary">
                 {academician.about}
               </p>
-            </Card>
+            </section>
           ) : null}
           {academician.topics.length > 0 ? (
-            <Card labelledBy="office-hours-topics">
+            <section
+              aria-labelledby="office-hours-topics"
+              className="flex flex-col gap-4"
+            >
               <h2
                 id="office-hours-topics"
                 className="type-h4 text-text-primary"
               >
                 {t("topics")}
               </h2>
-              <ul className="mt-4 grid gap-3 md:grid-cols-3">
+              <ul className="flex flex-col gap-5">
                 {academician.topics.map((topic) => (
-                  <li
-                    key={topic.title}
-                    className="rounded-2xl bg-background-subtle px-4 py-3"
-                  >
-                    <p className="type-label text-text-primary">
-                      {topic.title}
-                    </p>
-                    <p className="type-caption text-text-muted">{topic.body}</p>
+                  <li key={topic.title} className="flex items-center gap-4">
+                    <CircleCheck
+                      aria-hidden
+                      className="size-4 shrink-0 text-icon-default"
+                      strokeWidth={1.5}
+                    />
+                    <div className="min-w-0">
+                      <p className="type-label text-text-primary">
+                        {topic.title}
+                      </p>
+                      <p className="type-body-sm text-text-muted">
+                        {topic.body}
+                      </p>
+                    </div>
                   </li>
                 ))}
               </ul>
-            </Card>
+            </section>
           ) : null}
           {academician.courses.length > 0 ? (
-            <Card labelledBy="office-hours-courses">
-              <h2
-                id="office-hours-courses"
-                className="type-h4 text-text-primary"
-              >
-                {t("courses")}
-              </h2>
-              <ul className="mt-4 divide-y divide-border-subtle border-t border-border-subtle">
-                {academician.courses.map((course) => (
-                  <li key={course.code} className="flex gap-9 py-4">
-                    <span className="w-20 shrink-0 type-label text-text-primary">
-                      {course.code}
-                    </span>
-                    <span className="type-body-sm text-text-secondary">
-                      {course.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+            <Courses courses={academician.courses} />
+          ) : null}
+          {profile.past.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {profile.past.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-center gap-2 type-body-sm text-text-muted"
+                >
+                  <Clock
+                    aria-hidden
+                    className="size-4 shrink-0"
+                    strokeWidth={1.5}
+                  />
+                  {t("past", {
+                    topic: item.topic,
+                    day: formatDayMonth(new Date(item.startsAt), locale),
+                    status: wasHeld(item)
+                      ? tHeld("held")
+                      : tStatus(item.status),
+                  })}
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
-        <aside className="flex flex-col gap-6">
-          <Card labelledBy="office-hours-info">
-            <h2 id="office-hours-info" className="type-h4 text-text-primary">
-              {t("info.title")}
-            </h2>
-            <dl className="mt-4 flex flex-col gap-4">
-              {academician.place ? (
-                <InfoRow label={t("info.place")}>{academician.place}</InfoRow>
-              ) : null}
-              <InfoRow label={t("info.duration")}>
-                {t("info.minutes", { count: academician.durationMinutes })}
-              </InfoRow>
-              {academician.responseTime ? (
-                <InfoRow label={t("info.response")}>
-                  {academician.responseTime}
-                </InfoRow>
-              ) : null}
-            </dl>
-          </Card>
-          <Card labelledBy="office-hours-week">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 id="office-hours-week" className="type-h4 text-text-primary">
-                {t("thisWeek")}
-              </h2>
-              <Link
-                href={bookHref}
-                className="type-label text-text-link hover:underline"
-              >
-                {t("seeAll")}
-              </Link>
-            </div>
+        <section
+          aria-labelledby="office-hours-info"
+          className="flex flex-col gap-5 rounded-2xl border border-border-strong bg-background-surface p-6"
+        >
+          <h2 id="office-hours-info" className="type-h4 text-text-primary">
+            {t("info.title")}
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {academician.place ? (
+              <InfoRow icon={GraduationCap}>{academician.place}</InfoRow>
+            ) : null}
+            <InfoRow icon={AlarmClock}>
+              {t("info.minutes", { count: academician.durationMinutes })}
+            </InfoRow>
+            {academician.responseTime ? (
+              <InfoRow icon={Mail}>{academician.responseTime}</InfoRow>
+            ) : null}
+          </ul>
+          <section
+            aria-labelledby="office-hours-week"
+            className="flex flex-col gap-4 border-t border-border-default pt-5"
+          >
+            <h3 id="office-hours-week" className="type-label text-text-primary">
+              {t("thisWeek")}
+            </h3>
             {profile.thisWeek.length === 0 ? (
-              <p className="mt-3 type-body-sm text-text-muted">
-                {t("noSlotsThisWeek")}
+              <p className="type-body-sm text-text-muted">
+                {profile.nearest
+                  ? t("nearest", {
+                      day: formatWeekdayDayMonth(
+                        new Date(profile.nearest.startsAt),
+                        locale,
+                      ),
+                      time: timeLabel(profile.nearest.startsAt, locale),
+                    })
+                  : t("noSlotsThisWeek")}
               </p>
             ) : (
-              <ul className="mt-4 grid grid-cols-3 gap-2">
-                {profile.thisWeek.map((slot) => {
-                  const start = new Date(slot.startsAt);
-                  return (
-                    <li
-                      key={slot.startsAt}
-                      className="flex flex-col items-center rounded-xl border border-border-default py-2"
-                    >
-                      <span className="type-caption text-text-secondary">
-                        {`${shortWeekday(start, locale)} ${start.getDate()}`}
-                      </span>
-                      <span className="type-label-lg text-text-primary">
-                        {timeLabel(slot.startsAt, locale)}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
+              slotsByDay(profile.thisWeek).map(({ day, slots }) => (
+                <div key={day.toISOString()} className="flex flex-col gap-2">
+                  <p className="type-body-sm text-text-muted">
+                    {formatWeekdayDayMonth(day, locale)}
+                  </p>
+                  <ul className="flex flex-wrap gap-2">
+                    {slots.map((slot) => (
+                      <li key={slot.startsAt}>
+                        <Link
+                          href={officeHoursBookingHref(
+                            academician.id,
+                            slot.startsAt,
+                          )}
+                          className="grid h-11 w-24 place-items-center rounded-full border border-border-default type-label text-text-primary hover:bg-background-subtle"
+                        >
+                          {timeLabel(slot.startsAt, locale)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
             )}
-          </Card>
-          {profile.past.length > 0 ? (
-            <Card labelledBy="office-hours-past">
-              <h2 id="office-hours-past" className="type-h4 text-text-primary">
-                {t("past")}
-              </h2>
-              <ul className="mt-3 flex flex-col gap-3">
-                {profile.past.map((item) => (
-                  <li key={item.id}>
-                    <p className="type-label text-text-primary">{item.topic}</p>
-                    <p className="type-caption text-text-muted">
-                      {`${formatDayMonth(new Date(item.startsAt), locale)} · ${tStatus(item.status)}`}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
-        </aside>
+          </section>
+          <Button
+            href={officeHoursBookingHref(academician.id)}
+            size={ButtonSize.Large}
+            fullWidth
+          >
+            {t("request")}
+          </Button>
+          <p className="type-caption text-text-muted">{t("footnote")}</p>
+        </section>
       </div>
-      <p className="flex items-center gap-2 type-caption text-text-muted">
-        <Info aria-hidden className="size-4" strokeWidth={1.5} />
-        {t("footnote")}
-      </p>
     </div>
   );
 }
 
-function InfoRow({ label, children }: { label: string; children: ReactNode }) {
+function Courses({ courses }: { courses: OfficeHoursCourse[] }) {
+  const t = useTranslations("iaStudent.officeHours.profile");
   return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="type-body-sm text-text-secondary">{label}</dt>
-      <dd className="text-right type-label text-text-primary">{children}</dd>
-    </div>
+    <details className="group rounded-2xl border border-border-default bg-background-surface">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 type-label text-text-primary [&::-webkit-details-marker]:hidden">
+        <BookOpen
+          aria-hidden
+          className="size-4 shrink-0 text-icon-default"
+          strokeWidth={1.5}
+        />
+        <span className="min-w-0 flex-1">
+          {t("courses", {
+            codes: courses.map((course) => course.code).join(", "),
+          })}
+        </span>
+        <ChevronDown
+          aria-hidden
+          className="size-4 shrink-0 text-icon-default transition group-open:rotate-180"
+          strokeWidth={1.5}
+        />
+      </summary>
+      <ul className="divide-y divide-border-subtle border-t border-border-subtle px-5">
+        {courses.map((course) => (
+          <li key={course.code} className="flex gap-9 py-3">
+            <span className="w-20 shrink-0 type-label text-text-primary">
+              {course.code}
+            </span>
+            <span className="type-body-sm text-text-secondary">
+              {course.name}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <li className="flex items-center gap-2 type-body text-text-secondary">
+      <Icon
+        aria-hidden
+        className="size-4 shrink-0 text-icon-default"
+        strokeWidth={1.5}
+      />
+      {children}
+    </li>
   );
 }

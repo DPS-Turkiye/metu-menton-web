@@ -10,7 +10,7 @@ describe("AppointmentStatusChip", () => {
     [AppointmentStatus.Pending, "Onay Bekliyor"],
     [AppointmentStatus.Confirmed, "Onaylandı"],
     [AppointmentStatus.Rejected, "Reddedildi"],
-    [AppointmentStatus.AlternativeProposed, "Alternatif Önerildi"],
+    [AppointmentStatus.AlternativeProposed, "Alternatif Saat Önerildi"],
     [AppointmentStatus.Cancelled, "İptal Edildi"],
     [AppointmentStatus.Expired, "Süresi Doldu"],
     [AppointmentStatus.Withdrawn, "Geri Çekildi"],
