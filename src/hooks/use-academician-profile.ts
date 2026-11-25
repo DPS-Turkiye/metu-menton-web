@@ -12,7 +12,7 @@ import {
   getOfficeHoursProfileSettings,
   saveOfficeHoursProfileSettings,
 } from "@/lib/client/academician-office-hours";
-import { httpUrlOrNull, isEmailAddress } from "@/lib/utils";
+import { isEmailAddress, typedUrlOrNull } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
 export const OFFICE_HOURS_PROFILE_QUERY_KEY = [
@@ -74,7 +74,7 @@ export function useAcademicianProfile() {
     event.preventDefault();
     if (!form) return;
     const next: Partial<Record<ProfileField, string>> = {};
-    if (form.onlineLink.trim() && !httpUrlOrNull(form.onlineLink)) {
+    if (form.onlineLink.trim() && !typedUrlOrNull(form.onlineLink)) {
       next.onlineLink = t("invalidLink");
     }
     if (form.contactEmail.trim() && !isEmailAddress(form.contactEmail)) {
@@ -84,7 +84,7 @@ export function useAcademicianProfile() {
     if (Object.keys(next).length) return;
     save.mutate({
       defaultPlace: optional(form.defaultPlace),
-      onlineLink: httpUrlOrNull(form.onlineLink),
+      onlineLink: typedUrlOrNull(form.onlineLink),
       contactEmail: optional(form.contactEmail),
     });
   };
