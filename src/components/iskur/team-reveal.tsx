@@ -47,9 +47,16 @@ export function IskurTeamReveal() {
   if (!placement) {
     // TEST UI: placeholder until the design team's screen; replace when it arrives.
     return (
-      <Card className="flex flex-col gap-1">
-        <p className="type-title-card text-text-primary">{t("waitingTitle")}</p>
-        <p className="type-body-sm text-text-secondary">{t("waitingBody")}</p>
+      <Card className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="type-title-card text-text-primary">
+            {t("waitingTitle")}
+          </p>
+          <p className="type-body-sm text-text-secondary">{t("waitingBody")}</p>
+        </div>
+        <Button variant={ButtonVariant.Secondary} href={ISKUR_ONBOARDING_HREF}>
+          {t("waitingAction")}
+        </Button>
       </Card>
     );
   }

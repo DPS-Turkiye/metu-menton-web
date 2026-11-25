@@ -11,6 +11,7 @@ import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
 import { StatusTone } from "@/components/ia/status-badge";
+import { IskurFormCard } from "@/components/iskur/iskur-form-card";
 import { ProductTourReplayButton } from "@/components/product-tour/product-tour-replay-button";
 import { InitialsAvatar } from "@/components/student/ia/ui";
 import {
@@ -41,6 +42,7 @@ export function StudentProfileView() {
         <div className="flex min-w-0 flex-col gap-6">
           <InterestsCard />
           <InstitutionCard institution={institution} />
+          <IskurFormCard />
           <MyBadgesSection />
         </div>
         <aside className="flex flex-col gap-6">

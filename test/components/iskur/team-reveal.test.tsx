@@ -96,6 +96,9 @@ describe("IskurTeamReveal", () => {
     expect(
       await screen.findByText("Yerleştirme bekleniyor"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Formumu görüntüle" }),
+    ).toHaveAttribute("href", ISKUR_ONBOARDING_HREF);
     unmount();
 
     vi.mocked(getIskurTeamReveal).mockResolvedValue(

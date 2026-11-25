@@ -7757,7 +7757,9 @@
       "next": "Continue",
       "submit": "Send the form",
       "saving": "Saving…",
-      "submitting": "Sending…"
+      "submitting": "Sending…",
+      "cancelChanges": "Cancel",
+      "submitChanges": "Send changes"
     },
     "days": {
       "title": "How many days a week can you come?",
@@ -7954,7 +7956,9 @@
           "when": "Within ~1 week"
         }
       },
-      "home": "Go to home"
+      "home": "Go to home",
+      "editNote": "Until you are placed in a team, you can edit your form from My profile.",
+      "viewForm": "View the form I sent"
     },
     "reveal": {
       "provisional": "Provisional placement · Trial week {week}/4",
@@ -7990,7 +7994,8 @@
       "waitingBody": "Your form reached your coordinator. Your team shows here once they place you.",
       "reminderTitle": "Fill in the placement form",
       "reminderBody": "Your coordinator needs your work days, preferences and skills to place you in a team.",
-      "reminderAction": "Continue the form"
+      "reminderAction": "Continue the form",
+      "waitingAction": "View my form"
     },
     "coordinator": {
       "preferences": "Preferences",
@@ -8025,6 +8030,12 @@
       "skillsSaveFailed": "The skills could not be saved.",
       "skillsInvalid": "At most 30 skills, each at most 80 characters.",
       "loadFailed": "The placement forms could not be loaded."
+    },
+    "changesSent": "Your changes are sent.",
+    "profileCard": {
+      "title": "My İŞKUR form",
+      "body": "You can edit your form until your coordinator places you in a team.",
+      "action": "View my form"
     }
   },
   "iskurWeek": {

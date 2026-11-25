@@ -108,7 +108,8 @@ function DocumentSlot({
         >
           {wizard.busy ? t("uploading") : t(file ? "replace" : "choose")}
         </Button>
-        {file ? (
+        {/* A sent form keeps its CV: it can be replaced, not removed. */}
+        {file && !(required && wizard.form?.submittedAt) ? (
           <Button
             variant={ButtonVariant.Ghost}
             size={ButtonSize.Small}

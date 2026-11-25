@@ -55,6 +55,9 @@ vi.mock("@/hooks/use-product-tour", () => ({
 vi.mock("@/hooks/use-profile-photo", () => ({
   useProfilePhoto: () => ({ photoUrl: null, isUploading: false, upload }),
 }));
+vi.mock("@/components/iskur/iskur-form-card", () => ({
+  IskurFormCard: () => <p>İŞKUR formu kartı</p>,
+}));
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
   fetchInstitutionAdvisees: vi.fn(),

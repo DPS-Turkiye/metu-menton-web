@@ -4,16 +4,22 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 
-import { Button } from "@/components/ia/button";
+import { Button, ButtonVariant } from "@/components/ia/button";
 import type { IskurNextStep } from "@/types/iskur-onboarding";
 
-/** 5.6 · Kaydın alındı (Figma 469:6664): the form is in, and what happens to it next. */
+/**
+ * 5.6 · Kaydın alındı (Figma 3:21175): the form is in, what happens to it next, and the way back into it until the
+ * intern is placed.
+ */
 export function OnboardingSubmitted({
   firstName,
   nextSteps,
+  onOpenForm,
 }: {
   firstName: string;
   nextSteps: readonly IskurNextStep[];
+  /** Left out once the form is closed. */
+  onOpenForm?: (() => void) | undefined;
 }) {
   const t = useTranslations("iskurOnboarding.submitted");
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -70,7 +76,20 @@ export function OnboardingSubmitted({
           ))}
         </ol>
       </section>
-      <Button href="/student">{t("home")}</Button>
+      {onOpenForm ? (
+        <p className="flex w-full items-center gap-2 text-left type-body-sm text-text-secondary">
+          <Image src="/ia/icons/edit.svg" alt="" width={14} height={14} />
+          {t("editNote")}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap justify-center gap-3">
+        {onOpenForm ? (
+          <Button variant={ButtonVariant.Secondary} onClick={onOpenForm}>
+            {t("viewForm")}
+          </Button>
+        ) : null}
+        <Button href="/student">{t("home")}</Button>
+      </div>
     </main>
   );
 }
