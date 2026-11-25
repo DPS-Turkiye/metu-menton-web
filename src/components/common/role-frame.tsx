@@ -67,6 +67,7 @@ export function RoleFrame({
   nav,
   roleLabel,
   headerExtras,
+  notificationHref,
   children,
 }: {
   allowedRoles?: UserRole[];
@@ -77,6 +78,8 @@ export function RoleFrame({
   roleLabel?: string | undefined;
   /** Workspace-only controls next to the notification bell (the İŞKUR Mesajlar panel). */
   headerExtras?: ReactNode;
+  /** Where a notification's link leads in this workspace; as the backend sent it when left out. */
+  notificationHref?: ((href: string) => string) | undefined;
   children: ReactNode;
 }) {
   const t = useTranslations("common");
@@ -100,6 +103,7 @@ export function RoleFrame({
       nav={nav}
       roleLabel={roleLabel}
       headerExtras={headerExtras}
+      notificationHref={notificationHref}
     >
       {children}
       {workspace ? <ProductTour workspace={workspace} /> : null}
@@ -114,6 +118,7 @@ function RoleShell({
   nav,
   roleLabel: workspaceLabel,
   headerExtras,
+  notificationHref,
   children,
 }: {
   /** The design-system theme: ODTÜ red for the ODTÜ workspaces, the neutral ink theme otherwise. */
@@ -123,6 +128,7 @@ function RoleShell({
   nav: RoleNavItem[];
   roleLabel?: string | undefined;
   headerExtras?: ReactNode;
+  notificationHref?: ((href: string) => string) | undefined;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -170,7 +176,7 @@ function RoleShell({
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             {headerExtras}
-            <NotificationMenu appearance="admin" />
+            <NotificationMenu appearance="admin" hrefFor={notificationHref} />
             <span className="hidden h-6 w-px bg-[#dde1e6] sm:block" />
             <div className="relative">
               <button
