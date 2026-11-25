@@ -153,6 +153,10 @@ function Form({ wizard }: { wizard: Wizard }) {
   const last = wizard.step === IskurOnboardingStep.Preview;
   const stepRef = useRef<HTMLDivElement>(null);
   const shownStep = useRef(wizard.step);
+  // A sent form opened again: the button that opened it is gone with the screen it was on.
+  useEffect(() => {
+    if (wizard.reopened) stepRef.current?.focus();
+  }, [wizard.reopened]);
   // Devam et, Geri and the step list keep focus where they are otherwise; land the reader on the new step.
   useEffect(() => {
     if (shownStep.current === wizard.step) return;

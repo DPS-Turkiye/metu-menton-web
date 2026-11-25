@@ -290,6 +290,10 @@ describe("IskurOnboardingView", () => {
         name: "Gönderdiğim formu görüntüle",
       }),
     );
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toContainElement(
+      screen.getByRole("heading", { level: 1 }),
+    );
     expect(
       screen.getByRole("button", { name: "Değişiklikleri gönder" }),
     ).toBeDisabled();
