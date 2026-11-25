@@ -12,6 +12,10 @@ import { useDocumentPreviewStore } from "@/stores/document-preview-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { MessageNamespace } from "@test/i18n";
 
+// vmForks shares process.env between the files one worker runs; a dev-login stub a file left behind made the ODTÜ
+// button appear in the next one. Each file starts without it.
+delete process.env.NEXT_PUBLIC_ODTU_DEV_LOGIN;
+
 // The vm window is jsdom's own. It has neither Web Crypto nor web streams, whatever lib.dom says.
 const vmWindow: { crypto?: Partial<Crypto>; ReadableStream?: unknown } =
   globalThis;

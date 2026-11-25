@@ -11,6 +11,8 @@ export const STUDENT_HOME_PREVIEW = 3;
 /** Ana Sayfa recommends this many peer mentors. */
 export const STUDENT_HOME_MENTOR_COUNT = 2;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 /** Asked for but not settled yet: the student's "talep" side of the appointments. */
 const AWAITING_STATUSES: ReadonlySet<AppointmentStatus> = new Set([
   AppointmentStatus.Pending,
@@ -21,14 +23,33 @@ export function isAwaitingAnswer(appointment: Appointment) {
   return AWAITING_STATUSES.has(appointment.status);
 }
 
+function needsReply(appointment: Appointment) {
+  return appointment.status === AppointmentStatus.AlternativeProposed;
+}
+
+/** "BUGÜN" or "YARIN" beside the next session, in Istanbul's calendar; null further ahead. */
+export function nearDay(startsAt: string, now: Date) {
+  const day = (date: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(
+      date,
+    );
+  const start = day(new Date(startsAt));
+  if (start === day(now)) return "today" as const;
+  return start === day(new Date(now.getTime() + DAY_MS))
+    ? ("tomorrow" as const)
+    : null;
+}
+
 /** What Ana Sayfa needs from the student's appointments, read at `now`. */
 export function summarizeAppointments(appointments: Appointment[], now: Date) {
   const { upcoming } = splitAppointments(appointments, now);
   const awaiting = upcoming.filter(isAwaitingAnswer);
+  const reply = awaiting.find(needsReply) ?? null;
   return {
-    /** The soonest of everything ahead, settled or not. */
-    next: upcoming[0] ?? null,
-    upcoming: upcoming.slice(0, STUDENT_HOME_PREVIEW),
+    /** The soonest of everything ahead but the ones waiting on the student, which have a card of their own. */
+    next: upcoming.find((appointment) => !needsReply(appointment)) ?? null,
+    /** Another time was offered; it waits for the student's yes or no. */
+    reply,
     /** Confirmed sessions ahead; requests are counted separately. */
     confirmedCount: upcoming.length - awaiting.length,
     awaiting,

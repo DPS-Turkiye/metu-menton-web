@@ -68,7 +68,7 @@ describe("AdminFrame", () => {
   it("marks Anasayfa active only on the admin home itself", () => {
     const menu = renderAt("/admin");
 
-    expect(menu.getByRole("link", { name: "Anasayfa" })).toHaveAttribute(
+    expect(menu.getByRole("link", { name: "Ana Sayfa" })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -90,7 +90,7 @@ describe("AdminFrame", () => {
       "aria-current",
       "page",
     );
-    expect(menu.getByRole("link", { name: "Anasayfa" })).not.toHaveAttribute(
+    expect(menu.getByRole("link", { name: "Ana Sayfa" })).not.toHaveAttribute(
       "aria-current",
     );
   });

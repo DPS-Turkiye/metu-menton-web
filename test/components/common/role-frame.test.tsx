@@ -127,7 +127,7 @@ describe("RoleFrame desktop nav between lg and xl", () => {
         <p>Workspace</p>
       </RoleFrame>,
     );
-    const link = screen.getByRole("link", { name: "Anasayfa" });
+    const link = screen.getByRole("link", { name: "Ana Sayfa" });
     expect(link).toHaveAttribute("data-tour", "nav-home");
     expect(link).toHaveClass("whitespace-nowrap", "px-3", "xl:px-4");
     expect(link.querySelector("[aria-hidden]")).toHaveClass(
@@ -298,7 +298,7 @@ describe("RoleFrame nav per edition", () => {
 
   it("leaves out the other edition's pages and keeps its own", () => {
     const teknokent = renderWithQueryClient(frame);
-    expect(screen.getByRole("link", { name: "Anasayfa" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ana Sayfa" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Office Hours" })).toBeNull();
     teknokent.unmount();
 

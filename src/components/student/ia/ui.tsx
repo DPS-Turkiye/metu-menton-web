@@ -90,21 +90,21 @@ export function SectionHeader({
   action?: { href: string; label: string } | undefined;
 }) {
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+    <div className="flex min-h-9 flex-wrap items-center justify-between gap-x-3 gap-y-1">
       <div className="flex flex-wrap items-baseline gap-x-2">
-        <h2 id={id} className="type-title-card text-text-primary">
+        <h2 id={id} className="type-h4 text-text-primary">
           {title}
         </h2>
         {hint ? (
-          <span className="type-caption text-text-muted">{hint}</span>
+          <span className="type-body-sm text-text-muted">{hint}</span>
         ) : null}
       </div>
       {action ? (
         <Link
           href={action.href}
-          className="type-label text-text-link hover:underline"
+          className="px-1 type-button-sm text-text-link hover:underline"
         >
-          {action.label} <span aria-hidden>→</span>
+          {action.label}
         </Link>
       ) : null}
     </div>

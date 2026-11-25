@@ -55,7 +55,7 @@ describe("AcademicianFrame", () => {
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([
-      ["Anasayfa", "/academician"],
+      ["Ana Sayfa", "/academician"],
       ["Randevularım", "/academician/appointments"],
       ["Danışan Öğrencilerim", "/academician/advisees"],
       ["Profilim", "/academician/profile"],

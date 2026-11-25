@@ -11,13 +11,13 @@ const NAV: RoleNavItem[] = [
   {
     href: ACADEMICIAN_ROUTES.home,
     label: "home",
-    icon: "/admin/nav-home.svg",
+    icon: "/ia/nav/home.svg",
     match: (path) => path === ACADEMICIAN_ROUTES.home,
   },
   {
     href: ACADEMICIAN_ROUTES.appointments,
     label: "myAppointments",
-    icon: "/admin/nav-calendar.svg",
+    icon: "/ia/nav/calendar.svg",
     // A student's profile is opened from a request, so it stays under Randevularım as in the design.
     match: (path) =>
       path.startsWith(ACADEMICIAN_ROUTES.appointments) ||
@@ -26,13 +26,13 @@ const NAV: RoleNavItem[] = [
   {
     href: ACADEMICIAN_ROUTES.advisees,
     label: "advisees",
-    icon: "/admin/nav-users.svg",
+    icon: "/ia/nav/group.svg",
     match: (path) => path.startsWith(ACADEMICIAN_ROUTES.advisees),
   },
   {
     href: ACADEMICIAN_ROUTES.profile,
     label: "myProfile",
-    icon: "/account-menu/user.svg",
+    icon: "/ia/nav/user.svg",
     match: (path) => path.startsWith(ACADEMICIAN_ROUTES.profile),
   },
 ];

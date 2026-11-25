@@ -10,8 +10,12 @@
     "greeting": "{greeting}, {name}",
     "seeAll": "Tümünü gör",
     "next": {
-      "label": "Sıradaki randevu",
-      "view": "Randevuyu Gör"
+      "label": "Sıradaki randevun",
+      "view": "Ayrıntılar",
+      "labelDay": {
+        "today": "Sıradaki randevun · bugün",
+        "tomorrow": "Sıradaki randevun · yarın"
+      }
     },
     "quick": {
       "label": "Hızlı işlemler",
@@ -29,32 +33,35 @@
       },
       "profile": {
         "title": "Profilini güncelle",
-        "body": "İlgi alanların ve hedefin"
+        "body": "İlgi alanları ve hedef"
       }
-    },
-    "upcoming": {
-      "title": "Yaklaşan randevularım",
-      "empty": "Yaklaşan randevun yok."
     },
     "mentors": {
       "title": "Sana önerilen mentorlar",
       "hint": "Seçtiğin konulara göre",
-      "all": "Akran Mentörlüğü",
-      "role": "Akran Mentoru",
-      "profile": "Profili Gör",
-      "request": "Mentorluk Talebi Gönder"
+      "classYear": "{year}. sınıf",
+      "available": "Bu hafta müsait",
+      "why": "Neden önerildi: {reasons}",
+      "profile": "Profili gör",
+      "profileOf": "Profili gör: {name}"
     },
     "advisor": {
       "label": "Akademik danışmanın",
       "source": "Kurumsal kayıttan",
-      "request": "Randevu Talep Et"
+      "request": "Randevu talep et"
     },
     "requests": {
       "title": "Bekleyen taleplerim",
-      "all": "Tümü ({count})",
+      "all": "Tümü",
       "empty": "Yanıt bekleyen talebin yok.",
-      "reply": "Yanıtla",
-      "waiting": "Yanıt Bekliyor"
+      "peer": "Mentorluk talebi · {topic}",
+      "waiting": "Onay Bekliyor"
+    },
+    "reply": {
+      "label": "Yanıtın gerekiyor",
+      "title": "{name} yeni bir saat önerdi",
+      "change": "{from} yerine → {to}",
+      "action": "Öneriyi yanıtla"
     }
   },
   "appointments": {

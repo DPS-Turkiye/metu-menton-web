@@ -49,7 +49,7 @@ describe("CoordinatorFrame", () => {
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("link", { name: "Anasayfa" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Ana Sayfa" })).toHaveAttribute(
       "href",
       "/coordinator",
     );
