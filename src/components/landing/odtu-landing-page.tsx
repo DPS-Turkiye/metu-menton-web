@@ -144,7 +144,7 @@ function Hero() {
             <a
               key={path.key}
               href={path.href}
-              className={`group flex flex-col items-center gap-1.5 rounded-featured border border-border-subtle bg-background-surface px-6 pt-7 pb-[26px] shadow-raised transition hover:-translate-y-1 hover:shadow-modal motion-reduce:transform-none ${path.hover}`}
+              className={`group flex flex-col items-center gap-1.5 rounded-featured border border-border-subtle bg-background-surface px-6 pt-7 pb-[26px] shadow-raised transition motion-safe:hover:-translate-y-1 hover:shadow-modal ${path.hover}`}
             >
               <Image
                 src={path.image}
@@ -152,7 +152,7 @@ function Hero() {
                 width={path.width}
                 height={132}
                 priority
-                className="mb-2.5 h-24 w-auto transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 motion-reduce:transform-none sm:h-[132px]"
+                className="mb-2.5 h-24 w-auto transition-transform duration-300 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 sm:h-[132px]"
               />
               <span className="font-display text-[22px] leading-7 font-extrabold tracking-[-0.02em] sm:text-[26px] sm:leading-8">
                 {t(`paths.${path.key}.title`)}
@@ -195,7 +195,7 @@ function Topics() {
                 alt=""
                 width={92}
                 height={92}
-                className="row-span-2 size-[72px] object-contain transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 motion-reduce:transform-none sm:size-[92px]"
+                className="row-span-2 size-[72px] object-contain transition-transform duration-300 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 sm:size-[92px]"
               />
               <h3 className="mt-1 font-display text-[19px] leading-[25px] font-extrabold tracking-[-0.015em] sm:mt-[18px]">
                 {t(`items.${topic.key}.title`)}
