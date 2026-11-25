@@ -56,6 +56,19 @@ export function updateIskurTask(
   });
 }
 
+/** A leader's "Düzenle" or "Başka üyeye ata". */
+export function editIskurTask(
+  actorId: string,
+  taskId: string,
+  input: IskurTaskInput,
+) {
+  return backendRequest<IskurTeamTasks>({
+    method: HttpMethod.Put,
+    url: taskUrl(taskId),
+    data: { ...input, actorId },
+  });
+}
+
 export function deleteIskurTask(actorId: string, taskId: string) {
   return backendRequest<IskurTeamTasks>({
     method: HttpMethod.Delete,

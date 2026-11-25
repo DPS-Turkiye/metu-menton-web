@@ -13,6 +13,7 @@ import {
 import {
   DELETE as deleteTask,
   PATCH as patchTask,
+  PUT as putTask,
   GET as readTask,
 } from "@/app/api/iskur/tasks/[taskId]/route";
 import {
@@ -31,6 +32,7 @@ import {
 import {
   createIskurTask,
   deleteIskurTask,
+  editIskurTask,
   fetchIskurTask,
   fetchIskurTeamTasks,
   updateIskurTask,
@@ -42,6 +44,7 @@ vi.mock("@/lib/session", () => ({ getSessionUser: vi.fn() }));
 vi.mock("@/lib/api/iskur-tasks", () => ({
   createIskurTask: vi.fn(),
   deleteIskurTask: vi.fn(),
+  editIskurTask: vi.fn(),
   fetchIskurTask: vi.fn(),
   fetchIskurTeamTasks: vi.fn(),
   updateIskurTask: vi.fn(),
@@ -57,6 +60,7 @@ vi.mock("@/lib/api/iskur-support-activities", () => ({
 const taskCalls = [
   createIskurTask,
   deleteIskurTask,
+  editIskurTask,
   fetchIskurTask,
   fetchIskurTeamTasks,
   updateIskurTask,
@@ -115,10 +119,11 @@ describe("İŞKUR task routes", () => {
       await assign(json(validTask)),
       await readTask(new Request("http://x"), task),
       await patchTask(json({}, "PATCH"), task),
+      await putTask(json(validTask, "PUT"), task),
       await deleteTask(new Request("http://x"), task),
     ];
     expect(refused.map((response) => response.status)).toEqual([
-      401, 401, 401, 401, 401,
+      401, 401, 401, 401, 401, 401,
     ]);
     for (const call of taskCalls) expect(call).not.toHaveBeenCalled();
   });
@@ -151,6 +156,11 @@ describe("İŞKUR task routes", () => {
       outputLink: null,
       outputNote: null,
       handoverReason: null,
+    });
+    await putTask(json({ ...validTask, actorId: "x" }, "PUT"), task);
+    expect(editIskurTask).toHaveBeenCalledWith("MENTEE-1", TASK, {
+      ...validTask,
+      description: null,
     });
     await readTask(new Request("http://x"), task);
     expect(fetchIskurTask).toHaveBeenCalledWith("MENTEE-1", TASK);
@@ -186,6 +196,10 @@ describe("İŞKUR task routes", () => {
         new NextRequest("http://x/api/iskur/team/tasks?weekStart=2026-02-30"),
       ),
       await readTask(new Request("http://x"), {
+        params: Promise.resolve({ taskId: ".." }),
+      }),
+      await putTask(json({ ...validTask, estimatedMinutes: 75 }, "PUT"), task),
+      await putTask(json(validTask, "PUT"), {
         params: Promise.resolve({ taskId: ".." }),
       }),
       await assign(json({ ...validTask, estimatedMinutes: 75 })),

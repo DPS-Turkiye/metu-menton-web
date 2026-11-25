@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AcademicianFrame } from "@/components/academician/academician-frame";
@@ -48,7 +49,9 @@ vi.mock("@/components/providers/session-provider", () => ({
   useSession: () => ({ session, isLoading: false, logout: vi.fn() }),
 }));
 vi.mock("@/components/common/notification-menu", () => ({
-  NotificationMenu: () => null,
+  NotificationMenu: ({ hrefFor }: { hrefFor?: (href: string) => string }) => (
+    <a href={hrefFor?.("/mentor-request/status?request=r1")}>Bildirim</a>
+  ),
 }));
 vi.mock("@/components/iskur/iskur-messages-menu", () => ({
   IskurMessagesMenu: () => <button type="button">İŞKUR Mesajlar</button>,
@@ -100,10 +103,28 @@ describe("StudentFrame", () => {
     expect(screen.getByText("Ana içerik")).toBeInTheDocument();
   });
 
+  it("opens a peer mentoring notification inside the student workspace", () => {
+    render(<StudentFrame>x</StudentFrame>);
+    expect(screen.getByRole("link", { name: "Bildirim" })).toHaveAttribute(
+      "href",
+      "/student/peer-mentoring?tab=mine",
+    );
+  });
+
   it("names the workspace, not the account's role, under the user's name", () => {
     render(<StudentFrame>x</StudentFrame>);
     expect(screen.getByText("Öğrenci")).toBeInTheDocument();
     expect(screen.queryByText("Girişim Ekibi")).toBeNull();
+  });
+
+  it("opens Profilim from the account menu", async () => {
+    const user = userEvent.setup();
+    render(<StudentFrame>x</StudentFrame>);
+    await user.click(screen.getByRole("button", { name: /Ayşe Yılmaz/ }));
+    expect(screen.getByRole("menuitem", { name: "Profilim" })).toHaveAttribute(
+      "href",
+      "/student/profile",
+    );
   });
 
   it("opens for an ODTÜ student", () => {

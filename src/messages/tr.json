@@ -5960,7 +5960,7 @@
         "RETAKE": "Testi tekrar alacak, bildirim gönderildi",
         "ALREADY_MENTOR": "Zaten Akran mentoru, değişiklik yok",
         "NOT_FOUND": "Bu programda bulunamadı",
-        "NOT_ELIGIBLE": "Uygun değil (İŞKUR stajyeri değil ya da hesabı onaylı değil)"
+        "NOT_ELIGIBLE": "Uygun değil (hesabı onaylı değil ya da rozeti geri alınmış)"
       },
       "rowApprove": "Prism: onayla",
       "rowRetake": "Prism: testi tekrar alsın",
@@ -6634,7 +6634,7 @@
         "third": "Müfredat ve fazlar"
       },
       "PEER_MENTORING": {
-        "description": "ODTÜ öğrencileri, rozeti doğrulanmış İŞKUR öğrencilerinden mentorluk alır.",
+        "description": "ODTÜ öğrencileri, rozeti doğrulanmış öğrencilerden mentorluk alır.",
         "first": "Öğrenciler · Akran Mentorları",
         "second": "Mentorluk talepleri ve eşleşmeler",
         "third": "Aktif mentorluk kategorileri"
@@ -6719,7 +6719,7 @@
     },
     "typeNotes": {
       "STARTUP_MENTORING": "Mevcut yapı aynen: Takımlar · Mentor Havuzu · Eşleşmeler · Onaylar",
-      "PEER_MENTORING": "Mentee: ODTÜ öğrencileri · Mentor: rozeti doğrulanmış İŞKUR öğrencileri",
+      "PEER_MENTORING": "Mentee: ODTÜ öğrencileri · Mentor: rozeti doğrulanmış öğrenciler",
       "OFFICE_HOURS": "Tüm ODTÜ akademisyenleri dahil, davet yok · Öğrenciler randevu talep eder"
     },
     "name": "Program adı",
@@ -7564,7 +7564,14 @@
       "submit": "Görevi ata",
       "footnote": "Atanan görev kişinin Ana Sayfa’sındaki Bu Haftam alanına ve çalışma kaydına düşer; kişi bildirim alır.",
       "workDay": "{name} için görev günü ✓",
-      "notWorkDay": "Bu gün {name} için görev günü değil."
+      "notWorkDay": "Bu gün {name} için görev günü değil.",
+      "titleFor": "Görev ata · {name}",
+      "editTitle": "Görevi düzenle · {name}",
+      "reassignTitle": "Başka üyeye ata",
+      "save": "Kaydet",
+      "otherProject": "{name} için bir katkı projesi zaten var ({title}); ikinci katkı projesi açılamaz.",
+      "changed": "Kaydedince {name} bildirim alır.",
+      "reassignNote": "Görev yeni üyede baştan başlar; önceki üyenin kaydettiği süre korunur."
     },
     "roster": {
       "title": "Ekipteki kişiler",
@@ -7583,7 +7590,35 @@
       "privacy": "Mentorluk tarafında yalnızca süre, görüşme sayısı ve rapor durumu görünür.",
       "loading": "Haftalık kayıtlar yükleniyor…",
       "failed": "Haftalık kayıtlar yüklenemedi."
-    }
+    },
+    "workloadHint": "Planlı süre / Ekip Çalışmaları hedefi",
+    "memberMeta": "{days} gün · {workDays}",
+    "memberMetaNoDays": "{days} gün",
+    "memberTasks": "{count, plural, =0 {görev yok} other {# görev}}",
+    "memberProject": "katkı projesi",
+    "memberFull": "Kapasite dolu",
+    "assignTo": "Görev ata",
+    "assigning": "Atanıyor",
+    "showTasks": "{name} görevlerini göster",
+    "shownTitle": "{name} · bu haftaki görevler",
+    "rowMenu": "{title}: diğer işlemler",
+    "rowMeta": "{kind} · son tarih {day} · {duration}",
+    "rowHint": "İptal edilen görevin üyesi bildirim alır, kaydettiği süre korunur.",
+    "actions": {
+      "edit": "Düzenle",
+      "reassign": "Başka üyeye ata",
+      "cancel": "İptal et"
+    },
+    "cancelDialog": {
+      "title": "Görev iptal edilsin mi?",
+      "body": "“{title}” silinir, {name} bildirim alır. Kaydettiği süre korunur.",
+      "keep": "Vazgeç",
+      "confirm": "Görevi iptal et"
+    },
+    "edited": "Görev güncellendi.",
+    "cancelled": "Görev iptal edildi.",
+    "cancelFailed": "Görev iptal edilemedi.",
+    "assignToName": "{action} · {name}"
   },
   "iskurTask": {
     "loading": "Görev yükleniyor…",

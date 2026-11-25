@@ -5958,7 +5958,7 @@
         "RETAKE": "Will take the test again, notified",
         "ALREADY_MENTOR": "Already an Akran mentor, no change",
         "NOT_FOUND": "Not found in this program",
-        "NOT_ELIGIBLE": "Not eligible (not an İŞKUR intern, or account not approved)"
+        "NOT_ELIGIBLE": "Not eligible (account not approved, or badge taken back)"
       },
       "rowApprove": "Prism: approve",
       "rowRetake": "Prism: take the test again",
@@ -6632,7 +6632,7 @@
         "third": "Curriculum and phases"
       },
       "PEER_MENTORING": {
-        "description": "METU students get mentoring from badge-verified İŞKUR students.",
+        "description": "METU students get mentoring from badge-verified students.",
         "first": "Students · Peer mentors",
         "second": "Mentoring requests and matches",
         "third": "Active mentoring categories"
@@ -6717,7 +6717,7 @@
     },
     "typeNotes": {
       "STARTUP_MENTORING": "Today’s structure as is: Teams · Mentor pool · Matching · Approvals",
-      "PEER_MENTORING": "Mentees: METU students · Mentors: İŞKUR students with a verified badge",
+      "PEER_MENTORING": "Mentees: METU students · Mentors: students with a verified badge",
       "OFFICE_HOURS": "Every METU academic included, no invitations · Students request appointments"
     },
     "name": "Program name",
@@ -7562,7 +7562,14 @@
       "submit": "Assign task",
       "footnote": "The task appears in the person's This Week area on the home page and in their work log; they get a notification.",
       "workDay": "A work day for {name} ✓",
-      "notWorkDay": "This day is not a work day for {name}."
+      "notWorkDay": "This day is not a work day for {name}.",
+      "titleFor": "Assign task · {name}",
+      "editTitle": "Edit task · {name}",
+      "reassignTitle": "Give to another member",
+      "save": "Save",
+      "otherProject": "{name} already has a contribution project ({title}); a second one cannot be opened.",
+      "changed": "{name} is told when you save.",
+      "reassignNote": "The task starts afresh for the new member; the time the previous one logged is kept."
     },
     "roster": {
       "title": "People in the team",
@@ -7581,7 +7588,35 @@
       "privacy": "On the mentoring side only time, meeting count and report status show.",
       "loading": "Loading weekly logs…",
       "failed": "Weekly logs could not be loaded."
-    }
+    },
+    "workloadHint": "Planned time / team work target",
+    "memberMeta": "{days} days · {workDays}",
+    "memberMetaNoDays": "{days} days",
+    "memberTasks": "{count, plural, =0 {no tasks} one {# task} other {# tasks}}",
+    "memberProject": "contribution project",
+    "memberFull": "Capacity full",
+    "assignTo": "Assign task",
+    "assigning": "Assigning",
+    "showTasks": "Show {name}’s tasks",
+    "shownTitle": "{name} · tasks this week",
+    "rowMenu": "{title}: more actions",
+    "rowMeta": "{kind} · due {day} · {duration}",
+    "rowHint": "The member is told when a task is cancelled, and the time they logged is kept.",
+    "actions": {
+      "edit": "Edit",
+      "reassign": "Give to another member",
+      "cancel": "Cancel"
+    },
+    "cancelDialog": {
+      "title": "Cancel this task?",
+      "body": "“{title}” is deleted and {name} is told. The time they logged is kept.",
+      "keep": "Keep it",
+      "confirm": "Cancel task"
+    },
+    "edited": "Task updated.",
+    "cancelled": "Task cancelled.",
+    "cancelFailed": "The task could not be cancelled.",
+    "assignToName": "{action} · {name}"
   },
   "iskurTask": {
     "loading": "Loading the task…",

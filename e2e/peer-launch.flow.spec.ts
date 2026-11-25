@@ -64,7 +64,7 @@ async function peerMentoring(
   await expect(
     page.getByRole("heading", { name: "Akran Mentörlüğü", level: 1 }),
   ).toBeVisible();
-  // Mentorluk Al is the default; the Al / Ver switch is there only for İŞKUR students and peer mentors.
+  // Mentorluk Al is the default; the Al / Ver switch is there for peer mentors and students who may become one.
   if (side === "Mentorluk Ver") {
     await page
       .getByRole("group", { name: "Akran mentörlüğü tarafı" })
@@ -734,7 +734,7 @@ test.describe("İŞKUR", () => {
     await expectHistory(page, FULL_HISTORY);
   });
 
-  test("Ayşe, not on the intern list, sees no İŞKUR screen but keeps the mentor list, Office Hours and Randevularım", async ({
+  test("Ayşe, not on the intern list, sees no İŞKUR screen but may become a mentor and keeps the mentor list, Office Hours and Randevularım", async ({
     page,
   }) => {
     await signInAs(page, Persona.AyseYilmaz);
@@ -747,6 +747,12 @@ test.describe("İŞKUR", () => {
     await expect(
       page.getByText("Yerleştirme formu sana açık değil"),
     ).toBeVisible();
+
+    await peerMentoring(page, "Mentorluk Ver");
+    await page.getByRole("link", { name: "Eğitime Git" }).click();
+    await expect(
+      page.getByRole("link", { name: "Prism'de aç" }),
+    ).toHaveAttribute("href", PRISM_LINK);
 
     await peerMentoring(page, "Mentorluk Al");
     await expect(mentorRow(page, Persona.MehmetKaya)).toBeVisible();

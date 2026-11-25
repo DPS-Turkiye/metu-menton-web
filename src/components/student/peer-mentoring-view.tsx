@@ -23,12 +23,12 @@ import { PeerTakeTab } from "@/types/iskur-student";
 
 const TAKE_TABS_ID = "peer-take";
 
-/** Akran Mentörlüğü: Mentorluk Al (Keşfet, Mentorluklarım), and Mentorluk Ver for İŞKUR students and peer mentors. */
+/** Akran Mentörlüğü: Mentorluk Al (Keşfet, Mentorluklarım), and Mentorluk Ver for peer mentors and future ones. */
 export function PeerMentoringView() {
   const t = useTranslations("iaIskur.take");
   const { side: asked, setSide } = usePeerMentoringSide();
   const gate = usePeerMentorGate();
-  // Mentorluk Ver is there for İŞKUR students and peer mentors only; a link to it opens Mentorluk Al for anyone else.
+  // Mentorluk Ver is there for peer mentors and students who may become one; anyone else gets Mentorluk Al.
   const canGive = gate.state !== PeerMentorGateState.Hidden;
   const side = canGive ? asked : AppointmentSide.Mentee;
 

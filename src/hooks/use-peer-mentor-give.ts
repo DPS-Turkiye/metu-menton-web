@@ -105,6 +105,25 @@ const WAITING = [
   MentorshipRequestStatus.MoreInfoRequested,
 ];
 
+/** The states in which the training page has something for the student to do or follow. */
+const OPEN_TRAINING_STATES: ReadonlySet<TrainingState> = new Set([
+  TrainingState.Video,
+  TrainingState.Quiz,
+  TrainingState.PrismTodo,
+  TrainingState.PrismPending,
+  TrainingState.PrismRetake,
+]);
+
+/** The student's training; no retry, so a backend without the training endpoint answers immediately. */
+function usePeerMentorTraining(enabled: boolean) {
+  return useQuery({
+    queryKey: STUDENT_TRAINING_QUERY_KEY,
+    queryFn: getStudentTraining,
+    enabled,
+    retry: false,
+  });
+}
+
 /** Where the student stands on the Mentorluk Ver side (see peerMentorGateState). */
 export function usePeerMentorGate() {
   const { session, refresh } = useSession();
@@ -113,9 +132,22 @@ export function usePeerMentorGate() {
   const institution = useInstitutionRecord(signedIn);
   const gateAward = latestGateAward(badges.data ?? []);
   const holdsMentor = hasPermission(session, UserRole.Mentor);
+  const iskurParticipant = institution.data?.iskurParticipant ?? false;
+  const accountLoading = badges.isLoading || institution.isLoading;
+  // Only for a student whom nothing else opens the mentor side: the training says whether they may become a mentor.
+  const trainingDecides =
+    signedIn &&
+    !accountLoading &&
+    !holdsMentor &&
+    !gateAward &&
+    !iskurParticipant;
+  const training = usePeerMentorTraining(trainingDecides);
   const state = peerMentorGateState({
     holdsMentor,
-    iskurParticipant: institution.data?.iskurParticipant ?? false,
+    iskurParticipant,
+    canTakeTraining:
+      training.data !== undefined &&
+      OPEN_TRAINING_STATES.has(training.data.state),
     gateAward,
   });
   // A badge awarded after sign-in (the training passed, or a coordinator's award) isn't in the session yet: re-read
@@ -131,22 +163,14 @@ export function usePeerMentorGate() {
     state,
     gateAward,
     expired: gateAward?.status === BadgeStatus.Expired,
-    isLoading: badges.isLoading || institution.isLoading,
+    // Rozet Yok reads the same query: its loading must not hide the page it is on.
+    isLoading: accountLoading || (trainingDecides && training.isLoading),
     sessionBehind,
   };
 }
 
 export type TrainingEntryReason =
   "loading" | "notAvailable" | "unavailable" | "internsOnly";
-
-/** The states in which the training page has something for the student to do or follow. */
-const OPEN_TRAINING_STATES: ReadonlySet<TrainingState> = new Set([
-  TrainingState.Video,
-  TrainingState.Quiz,
-  TrainingState.PrismTodo,
-  TrainingState.PrismPending,
-  TrainingState.PrismRetake,
-]);
 
 /**
  * "Eğitimi başlat" on Rozet Yok links to the training only while the student's program has a training they can take
@@ -157,12 +181,7 @@ export function usePeerMentorTrainingEntry(enabled = true): {
   href: string | null;
   reason: TrainingEntryReason | null;
 } {
-  const training = useQuery({
-    queryKey: STUDENT_TRAINING_QUERY_KEY,
-    queryFn: getStudentTraining,
-    enabled,
-    retry: false,
-  });
+  const training = usePeerMentorTraining(enabled);
   const state = training.data?.state;
   if (state !== undefined && OPEN_TRAINING_STATES.has(state)) {
     return { href: PEER_MENTOR_TRAINING_HREF, reason: null };

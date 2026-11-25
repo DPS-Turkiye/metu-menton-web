@@ -64,6 +64,22 @@ describe("NotificationMenu", () => {
     ).toBeInTheDocument();
   });
 
+  it("links where the backend says, or where its frame says instead", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<NotificationMenu />);
+    await user.click(screen.getByRole("button", { name: "Bildirimler" }));
+    expect(screen.getByRole("link", { name: /Yeni mesaj/ })).toHaveAttribute(
+      "href",
+      "/mentor-request/status?request=1",
+    );
+
+    rerender(<NotificationMenu hrefFor={() => "/student/peer-mentoring"} />);
+    expect(screen.getByRole("link", { name: /Yeni mesaj/ })).toHaveAttribute(
+      "href",
+      "/student/peer-mentoring",
+    );
+  });
+
   it("marks one notification read and can delete it", async () => {
     const user = userEvent.setup();
     render(<NotificationMenu />);

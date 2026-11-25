@@ -88,17 +88,20 @@ describe("IskurAppointmentsView", () => {
     },
   );
 
-  it("shows the plain list without a role filter to a student who only takes mentoring", async () => {
-    gate.state = PeerMentorGateState.Hidden;
-    renderWithQueryClient(<IskurAppointmentsView sentTo={null} />);
+  it.each([PeerMentorGateState.Hidden, PeerMentorGateState.NoBadge])(
+    "shows the plain list without a role filter to a student who only takes mentoring (%s)",
+    async (state) => {
+      gate.state = state;
+      renderWithQueryClient(<IskurAppointmentsView sentTo={null} />);
 
-    const panel = await screen.findByRole("tabpanel");
-    expect(await within(panel).findByText("Mert Yılmaz")).toBeVisible();
-    expect(
-      screen.queryByRole("group", { name: "Görüşmelerde rolün" }),
-    ).toBeNull();
-    expect(within(panel).queryByText("Mentor olarak")).toBeNull();
-  });
+      const panel = await screen.findByRole("tabpanel");
+      expect(await within(panel).findByText("Mert Yılmaz")).toBeVisible();
+      expect(
+        screen.queryByRole("group", { name: "Görüşmelerde rolün" }),
+      ).toBeNull();
+      expect(within(panel).queryByText("Mentor olarak")).toBeNull();
+    },
+  );
 
   it("links a held meeting the student gave to its report, and only that one", async () => {
     vi.setSystemTime(new Date("2026-11-11T11:40:00.000Z"));

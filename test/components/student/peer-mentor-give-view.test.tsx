@@ -10,6 +10,7 @@ import {
   BadgeStatus,
   type BadgeAward,
 } from "@/interfaces/badges";
+import type { InstitutionRecord } from "@/interfaces/institution";
 import { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import {
   PeerTopicCategory,
@@ -182,6 +183,22 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+function record(iskurParticipant: boolean): InstitutionRecord {
+  return {
+    kinds: [IdentityKind.Student],
+    fullName: "Zeynep Demir",
+    email: null,
+    faculty: null,
+    departmentName: "Endüstri Mühendisliği",
+    classYear: 4,
+    programLevel: null,
+    academicTitle: null,
+    iskurParticipant,
+    advisor: null,
+    syncedAt: null,
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   freezeDate("2026-11-12T13:00:00Z");
@@ -196,19 +213,7 @@ beforeEach(() => {
   });
   session = student([UserRole.Mentee, UserRole.Mentor]);
   vi.mocked(getMyBadges).mockResolvedValue([gateAward(BadgeStatus.Active)]);
-  vi.mocked(fetchInstitutionRecord).mockResolvedValue({
-    kinds: [IdentityKind.Student],
-    fullName: "Zeynep Demir",
-    email: null,
-    faculty: null,
-    departmentName: "Endüstri Mühendisliği",
-    classYear: 4,
-    programLevel: null,
-    academicTitle: null,
-    iskurParticipant: true,
-    advisor: null,
-    syncedAt: null,
-  });
+  vi.mocked(fetchInstitutionRecord).mockResolvedValue(record(true));
   vi.mocked(getPeerMentorProfile).mockResolvedValue(null);
   vi.mocked(getStudentTraining).mockResolvedValue(
     training(TrainingState.NotAvailable),
@@ -287,6 +292,62 @@ describe("PeerMentorGiveView", () => {
       ).not.toBeInTheDocument();
     },
   );
+
+  it.each([
+    TrainingState.PrismTodo,
+    TrainingState.PrismPending,
+    TrainingState.PrismRetake,
+  ])(
+    "offers the training to a student who is not in İŞKUR (%s)",
+    async (state) => {
+      session = student([UserRole.Mentee]);
+      vi.mocked(getMyBadges).mockResolvedValue([]);
+      vi.mocked(fetchInstitutionRecord).mockResolvedValue(record(false));
+      vi.mocked(getStudentTraining).mockResolvedValue(training(state));
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      expect(
+        await screen.findByRole("link", { name: "Eğitime Git" }),
+      ).toHaveAttribute("href", "/student/peer-mentoring/training");
+    },
+  );
+
+  it.each([
+    [
+      "the program has no training to take",
+      () => Promise.resolve(training(TrainingState.NotAvailable)),
+    ],
+    [
+      "the program takes only its İŞKUR interns",
+      () => Promise.resolve(training(TrainingState.InternsOnly)),
+    ],
+    [
+      "the training cannot be read",
+      () => Promise.reject(new ClientApiError("Not found", 404)),
+    ],
+  ])(
+    "shows nothing to a student who is not in İŞKUR when %s",
+    async (_case, answer) => {
+      session = student([UserRole.Mentee]);
+      vi.mocked(getMyBadges).mockResolvedValue([]);
+      vi.mocked(fetchInstitutionRecord).mockResolvedValue(record(false));
+      vi.mocked(getStudentTraining).mockImplementation(answer);
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      await waitFor(() => expect(getStudentTraining).toHaveBeenCalled());
+      await waitFor(() => expect(screen.queryByRole("status")).toBeNull());
+      expect(screen.queryByRole("heading")).toBeNull();
+      expect(screen.queryByRole("button")).toBeNull();
+    },
+  );
+
+  it("does not ask for the training of a student the badge already opens", async () => {
+    vi.mocked(fetchInstitutionRecord).mockResolvedValue(record(false));
+    renderWithQueryClient(<PeerMentorGiveView />);
+
+    await waitFor(() => expect(getPeerMentorProfile).toHaveBeenCalled());
+    expect(getStudentTraining).not.toHaveBeenCalled();
+  });
 
   // D4 seam: a revoked badge takes MENTOR away and closes the mentor side.
   it("explains a revoked badge with its reason and offers no mentor actions", async () => {
