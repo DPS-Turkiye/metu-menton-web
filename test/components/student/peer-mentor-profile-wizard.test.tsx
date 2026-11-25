@@ -94,6 +94,7 @@ beforeEach(() => {
     department: "Endüstri Mühendisliği",
     classYear: 4,
     menteeCapacity: 3,
+    acceptingRequests: true,
   }));
   vi.mocked(fetchInstitutionRecord).mockResolvedValue({
     kinds: [IdentityKind.Student],
@@ -249,6 +250,9 @@ describe("PeerMentorProfileWizard", () => {
     expect(screen.getByText("https://linkedin.com/in/zeynep")).toBeVisible();
     expect(savePeerMentorProfile).not.toHaveBeenCalled();
 
+    const check = screen.getByRole("region", { name: "Yayın kontrolü" });
+    expect(within(check).getByText("Eğitim rozeti doğrulandı")).toBeVisible();
+    expect(within(check).getByText("Haftalık saatler eklendi")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Profili Yayınla" }));
 
     await waitFor(() =>
@@ -296,6 +300,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {
         [PeerTopicCategory.CareerInternship]: PeerTopicLevel.Intermediate,
       },
@@ -527,6 +532,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {},
       experiences: [
         {
@@ -580,6 +586,7 @@ describe("PeerMentorProfileWizard", () => {
       department: "Endüstri Mühendisliği",
       classYear: 4,
       menteeCapacity: 3,
+      acceptingRequests: true,
       levels: {},
       experiences: [],
     });

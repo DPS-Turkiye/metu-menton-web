@@ -1,11 +1,20 @@
 /**
- * Mentorluk Ver's tabs once the peer mentor's profile is published (flow 3.2): Menteelerim, Faaliyet Raporum,
- * Mentor Profilim. The value is the URL's `tab`, so report links (`tab=report`) land on the right one.
+ * Mentorluk Ver's tabs once the peer mentor's profile is published (Figma 7.1, 7.3, 7.7), plus Faaliyet Raporum for
+ * the reports every peer mentor writes. The value is the URL's `tab`, so report links (`tab=report`) land on it.
  */
 export enum PeerGiveTab {
+  Requests = "requests",
   Mentees = "mentees",
   Report = "report",
+  Availability = "availability",
   Profile = "profile",
+}
+
+/** Why a peer mentor declines a request (Figma 7.1); its text goes to the student. */
+export enum PeerDeclineReason {
+  Times = "times",
+  Topic = "topic",
+  Capacity = "capacity",
 }
 
 /** What the "Kapasiten" card says under the bar. */
@@ -16,6 +25,14 @@ export enum PeerCapacityNote {
   /** One place left: accepting the next request fills it. */
   LastPlace = "lastPlace",
   Full = "full",
+}
+
+/** "Rozet durumun" before the badge (Figma 6.2). */
+export enum PeerBadgeProgress {
+  Todo = "todo",
+  /** The student said they finished; the coordinator decides. */
+  Pending = "pending",
+  Retake = "retake",
 }
 
 /** "Mentor olma adımları", in order; the Mentorluk Ver screens mark where the student is. */
@@ -40,6 +57,8 @@ export enum PeerRequestAvailability {
   /** This mentor already mentors the student (an accepted request). */
   Mentoring = "mentoring",
   /** Every place is taken. */
+  /** The mentor takes no new requests for now. */
+  Paused = "paused",
   Full = "full",
 }
 

@@ -1,25 +1,29 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { ExternalLink, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { WeeklyAvailabilityEditor } from "@/components/availability/weekly-availability-editor";
-import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { Button, ButtonSize } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
+import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import {
-  InfoCard,
-  InitialsAvatar,
   JourneySteps,
-  RequestStatusBadge,
+  TabLook,
   TabPanel,
-  Tag,
-  TagTone,
   UnderlineTabs,
 } from "@/components/student/iskur-ui";
+import { PeerCapacityCard } from "@/components/student/peer-capacity-card";
+import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
+import { PeerMentorProfileTab } from "@/components/student/peer-mentor-profile-tab";
+import { PeerMentorRequestsTab } from "@/components/student/peer-mentor-requests-tab";
+import { PeerRequestCard } from "@/components/student/peer-request-card";
 import { ActivityReportView } from "@/components/student/reports/activity-report-view";
 import { ReportDayPill } from "@/components/student/reports/report-day-pill";
+import { useMentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import { useAvailabilitySettingsForm } from "@/hooks/use-mentor-profile";
 import { usePeerMenteesTab } from "@/hooks/use-peer-mentees-tab";
 import {
@@ -31,14 +35,14 @@ import {
 } from "@/hooks/use-peer-mentor-give";
 import {
   PeerMentorGateState,
-  type PeerMentoringRequest,
   type PeerMentorProfile,
 } from "@/interfaces/peer-mentoring";
-import type { PeerMentorCapacity } from "@/lib/peer-mentoring";
-import { formatDateTime, initials } from "@/lib/utils";
-import { PeerGiveTab, PeerMentorJourneyStep } from "@/types/iskur-student";
-
-export const PEER_MENTOR_WIZARD_HREF = "/student/peer-mentoring/profile";
+import { PEER_MENTOR_WIZARD_HREF } from "@/lib/peer-mentoring";
+import {
+  PeerBadgeProgress,
+  PeerGiveTab,
+  PeerMentorJourneyStep,
+} from "@/types/iskur-student";
 
 const TABS_ID = "peer-give";
 const JOURNEY = [
@@ -60,39 +64,7 @@ export function PeerMentorGiveView() {
       </p>
     );
   }
-  if (gate.state === PeerMentorGateState.NoBadge) {
-    return (
-      <div className="space-y-5">
-        <Journey
-          current={PeerMentorJourneyStep.EarnBadge}
-          title={t("noBadge.title")}
-          body={t("noBadge.body")}
-        >
-          <TrainingEntry />
-        </Journey>
-        <div className="grid gap-5 md:grid-cols-3">
-          <InfoCard
-            icon="/ia/iskur/user.svg"
-            title={t("cards.keepGetting.title")}
-          >
-            {t("cards.keepGetting.body")}
-          </InfoCard>
-          <InfoCard
-            icon="/ia/iskur/info.svg"
-            title={t("cards.badgeMissing.title")}
-          >
-            {t("cards.badgeMissing.body")}
-          </InfoCard>
-          <InfoCard
-            icon="/ia/iskur/lock.svg"
-            title={t("cards.oneAccount.title")}
-          >
-            {t("cards.oneAccount.body")}
-          </InfoCard>
-        </div>
-      </div>
-    );
-  }
+  if (gate.state === PeerMentorGateState.NoBadge) return <NoBadgeView />;
   if (gate.state === PeerMentorGateState.Revoked) {
     return (
       <Featured
@@ -113,27 +85,159 @@ export function PeerMentorGiveView() {
   return null;
 }
 
-function TrainingEntry() {
+const BADGE_STATUSES = [
+  {
+    key: "todo",
+    tone: StatusTone.Neutral,
+    progress: [PeerBadgeProgress.Todo, PeerBadgeProgress.Retake],
+  },
+  {
+    key: "pending",
+    tone: StatusTone.Warning,
+    progress: [PeerBadgeProgress.Pending],
+  },
+  { key: "verified", tone: StatusTone.Success, progress: [] },
+] as const satisfies readonly {
+  key: string;
+  tone: StatusTone;
+  progress: readonly PeerBadgeProgress[];
+}[];
+
+/** Rozet yok (Figma 6.2): the training, the steps to becoming a mentor and where the badge stands. */
+function NoBadgeView() {
   const t = useTranslations("iaIskur.give.noBadge");
   const entry = usePeerMentorTrainingEntry();
-  if (entry.href) {
-    return (
-      <Button href={entry.href} size={ButtonSize.Large}>
-        {t("training")}
-      </Button>
-    );
-  }
+  const current =
+    entry.progress === PeerBadgeProgress.Pending
+      ? PeerMentorJourneyStep.BadgeVerified
+      : PeerMentorJourneyStep.EarnBadge;
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button size={ButtonSize.Large} disabled>
-        {t("training")}
-      </Button>
-      {entry.reason ? (
-        <p className="type-caption text-text-muted">
-          {t(`trainingReason.${entry.reason}`)}
-        </p>
-      ) : null}
+    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+      <div className="flex min-w-0 flex-1 flex-col gap-6">
+        <div className="flex flex-col items-start gap-3">
+          <h2 className="type-h2 text-text-primary">{t("title")}</h2>
+          <p className="type-body-lg text-text-secondary">{t("body")}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {entry.href ? (
+              <Button href={entry.href} size={ButtonSize.Large}>
+                <ExternalLink aria-hidden className="size-5" />
+                {t("training")}
+              </Button>
+            ) : (
+              <Button size={ButtonSize.Large} disabled>
+                {t("training")}
+              </Button>
+            )}
+            <p className="type-body-sm text-text-muted">
+              {entry.reason
+                ? t(`trainingReason.${entry.reason}`)
+                : t("trainingHint")}
+            </p>
+          </div>
+        </div>
+        <ol
+          aria-label={t("stepsLabel")}
+          className="divide-y divide-border-default rounded-card border border-border-default bg-background-surface px-6 py-2"
+        >
+          {JOURNEY.map((step, index) => {
+            const active = step === current;
+            return (
+              <li
+                key={step}
+                aria-current={active ? "step" : undefined}
+                className="flex items-center gap-3.5 py-3"
+              >
+                <span
+                  aria-hidden
+                  className={`grid size-6 shrink-0 place-items-center rounded-full type-label-sm ${
+                    active
+                      ? "bg-background-selected text-text-accent"
+                      : "bg-background-muted text-text-secondary"
+                  }`}
+                >
+                  {index + 1}
+                </span>
+                <span className="flex flex-col">
+                  <span
+                    className={`type-label-lg ${active ? "text-text-primary" : "text-text-secondary"}`}
+                  >
+                    {t(`steps.${step}.title`)}
+                  </span>
+                  <span
+                    className={`type-body-sm ${active ? "text-text-accent" : "text-text-muted"}`}
+                  >
+                    {active ? t("youAreHere") : t(`steps.${step}.hint`)}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <aside className="flex w-full flex-col gap-5 lg:w-[380px] lg:shrink-0">
+        <BadgeStatus progress={entry.progress} />
+        <ul className="flex flex-col gap-3">
+          {(["badgeMissing", "oneAccount", "keepGetting"] as const).map(
+            (note) => (
+              <li
+                key={note}
+                className="flex items-start gap-2.5 type-body-sm text-text-muted"
+              >
+                <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
+                {t(`notes.${note}`)}
+              </li>
+            ),
+          )}
+        </ul>
+      </aside>
     </div>
+  );
+}
+
+function BadgeStatus({ progress }: { progress: PeerBadgeProgress }) {
+  const t = useTranslations("iaIskur.give.noBadge.status");
+  return (
+    <Card
+      compact
+      labelledBy="peer-badge-status"
+      className="flex flex-col gap-4"
+    >
+      <h3 id="peer-badge-status" className="type-label-lg text-text-primary">
+        {t("title")}
+      </h3>
+      <ul className="flex flex-col gap-3">
+        {BADGE_STATUSES.map((status) => {
+          const current = status.progress.some((step) => step === progress);
+          return (
+            <li
+              key={status.key}
+              aria-current={current ? "true" : undefined}
+              className={`flex flex-col gap-2 rounded-xl border px-3 py-2.5 ${
+                current
+                  ? "border-border-control bg-background-subtle"
+                  : "border-transparent"
+              }`}
+            >
+              <span className="flex flex-wrap items-center gap-2">
+                <StatusBadge tone={status.tone}>
+                  {t(`${status.key}.label`)}
+                </StatusBadge>
+                {current ? (
+                  <span className="type-caption text-text-accent">
+                    {t("current")}
+                  </span>
+                ) : null}
+              </span>
+              <span className="type-body-sm text-text-muted">
+                {current && progress === PeerBadgeProgress.Retake
+                  ? t("todo.retake")
+                  : t(`${status.key}.body`)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }
 
@@ -242,69 +346,75 @@ function EarnedView({ sessionBehind }: { sessionBehind: boolean }) {
 }
 
 function PublishedView({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give");
+  const t = useTranslations("iaIskur.give.tabs");
   const tReports = useTranslations("iaIskurReports.give");
   const view = usePeerGivePublished(profile.menteeCapacity);
   const { received, loaded } = view;
+  // Every panel stays mounted (TabPanel), so an unsaved draft survives a look at another tab.
+  const tabs = [
+    {
+      id: PeerGiveTab.Requests,
+      label: t("requests"),
+      count: loaded ? received.waiting.length : undefined,
+      panel: <PeerMentorRequestsTab view={view} profile={profile} />,
+    },
+    {
+      id: PeerGiveTab.Mentees,
+      label: t("mentees"),
+      count: loaded ? received.mentees.length : undefined,
+      panel: <MenteesTab view={view} />,
+    },
+    {
+      id: PeerGiveTab.Report,
+      label: tReports("reportTab"),
+      panel: <ActivityReportView />,
+    },
+    {
+      id: PeerGiveTab.Availability,
+      label: t("availability"),
+      panel: <AvailabilityPanel />,
+    },
+    {
+      id: PeerGiveTab.Profile,
+      label: t("profile"),
+      panel: <PeerMentorProfileTab view={view} profile={profile} />,
+    },
+  ];
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <UnderlineTabs
-        label={t("tabs.label")}
+        label={t("label")}
         idPrefix={TABS_ID}
+        look={TabLook.Segment}
         selected={view.tab}
         onSelect={view.setTab}
-        tabs={[
-          {
-            id: PeerGiveTab.Mentees,
-            label: t("tabs.mentees"),
-            ...(loaded ? { count: received.waiting.length } : {}),
-          },
-          { id: PeerGiveTab.Report, label: tReports("reportTab") },
-          { id: PeerGiveTab.Profile, label: t("tabs.profile") },
-        ]}
+        tabs={tabs.map(({ id, label, count }) => ({
+          id,
+          label,
+          ...(count === undefined ? {} : { count }),
+        }))}
       />
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Mentees}
-        selected={view.tab === PeerGiveTab.Mentees}
-      >
-        <MenteesTab view={view} />
-      </TabPanel>
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Report}
-        selected={view.tab === PeerGiveTab.Report}
-      >
-        <ActivityReportView />
-      </TabPanel>
-      <TabPanel
-        idPrefix={TABS_ID}
-        id={PeerGiveTab.Profile}
-        selected={view.tab === PeerGiveTab.Profile}
-      >
-        {/* The profile and availability panels stay here until the Mentor Profilim screen replaces them. The capacity
-            card lives on Menteelerim only: every panel stays mounted, so a second copy would repeat its ids. */}
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          <div className="flex min-w-0 flex-1 flex-col gap-8">
-            <ProfilePanel profile={profile} />
-            <AvailabilityPanel />
-          </div>
-          <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
-            <ProfileSummaryCard profile={profile} />
-          </aside>
-        </div>
-      </TabPanel>
+      {tabs.map(({ id, panel }) => (
+        <TabPanel
+          key={id}
+          idPrefix={TABS_ID}
+          id={id}
+          selected={view.tab === id}
+        >
+          {panel}
+        </TabPanel>
+      ))}
     </div>
   );
 }
 
-/** Menteelerim: a meeting report due, waiting requests, active mentees, capacity and this week's report. */
+/** Menteelerim (Figma 7.3): a meeting report due, the active mentees, the capacity and this week's report. */
 function MenteesTab({ view }: { view: PeerGivePublished }) {
   const t = useTranslations("iaIskur.give");
   const tReports = useTranslations("iaIskurReports.give");
   const cards = usePeerMenteesTab();
-  const { received, decision, loaded } = view;
+  const { received, loaded } = view;
 
   return (
     <div className="flex flex-col gap-6">
@@ -334,44 +444,6 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
             error={received.query.error}
           />
           <QueryNotice isLoading={false} error={cards.error} />
-          {loaded && view.capacityFull && received.waiting.length > 0 ? (
-            <p className="type-body-sm text-status-warning-text">
-              {tReports("capacityFull")}
-            </p>
-          ) : null}
-          {loaded ? (
-            <RequestList
-              requests={received.waiting}
-              empty={t("requests.empty")}
-              renderActions={(request, index) => (
-                <div className="flex gap-3">
-                  <Button
-                    variant={ButtonVariant.Secondary}
-                    fullWidth
-                    className="flex-1"
-                    disabled={decision.pendingId === request.id}
-                    onClick={() => decision.decline(request.id)}
-                  >
-                    {t("requests.decline")}
-                  </Button>
-                  <span
-                    className="flex flex-1"
-                    data-tour={index === 0 ? "peer-request-accept" : undefined}
-                  >
-                    <Button
-                      fullWidth
-                      disabled={
-                        view.capacityFull || decision.pendingId === request.id
-                      }
-                      onClick={() => decision.accept(request.id)}
-                    >
-                      {t("requests.accept")}
-                    </Button>
-                  </span>
-                </div>
-              )}
-            />
-          ) : null}
           {loaded ? (
             <section
               aria-labelledby="peer-active-mentees"
@@ -383,25 +455,30 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
               >
                 {tReports("activeMentees", { count: received.mentees.length })}
               </h2>
-              <RequestList
-                requests={received.mentees}
-                empty={t("mentees.empty")}
-              />
+              {received.mentees.length === 0 ? (
+                <Card>
+                  <p className="type-body text-text-secondary">
+                    {t("mentees.empty")}
+                  </p>
+                </Card>
+              ) : (
+                <ul className="space-y-4">
+                  {received.mentees.map((request) => (
+                    <li key={request.id}>
+                      <PeerRequestCard request={request} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           ) : null}
         </div>
         <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
           {view.capacity ? (
-            <div className="flex flex-col gap-2">
-              <CapacityCard capacity={view.capacity} />
-              <button
-                type="button"
-                onClick={() => view.setTab(PeerGiveTab.Profile)}
-                className="w-fit type-label text-text-accent hover:underline focus-visible:outline-2 focus-visible:outline-border-selected"
-              >
-                {tReports("editCapacity")}
-              </button>
-            </div>
+            <PeerCapacityCard
+              capacity={view.capacity}
+              onEdit={() => view.setTab(PeerGiveTab.Availability)}
+            />
           ) : null}
           {cards.week ? (
             <Card labelledBy="peer-week-report" className="flex flex-col gap-3">
@@ -433,191 +510,43 @@ function MenteesTab({ view }: { view: PeerGivePublished }) {
   );
 }
 
-function RequestList({
-  requests,
-  empty,
-  renderActions,
-}: {
-  requests: PeerMentoringRequest[];
-  empty: string;
-  renderActions?: (request: PeerMentoringRequest, index: number) => ReactNode;
-}) {
-  if (requests.length === 0) {
+function AvailabilityPanel() {
+  const t = useTranslations("iaIskur.give.availability");
+  const tHours = useTranslations("iaIskur.hours");
+  const hours = useMentorDutyHours();
+  const availability = useAvailabilitySettingsForm(
+    () => undefined,
+    hours.check,
+  );
+  const save = (
+    <Button
+      disabled={!availability.draft || availability.isSaving}
+      onClick={() => void availability.save()}
+    >
+      {availability.isSaving ? t("saving") : t("save")}
+    </Button>
+  );
+  // Until the work hours are known, neither editor: the plain one would not check them.
+  if (hours.isLoading) {
     return (
-      <Card>
-        <p className="type-body text-text-secondary">{empty}</p>
+      <p role="status" className="type-body-sm text-text-muted">
+        {tHours("loading")}
+      </p>
+    );
+  }
+  if (hours.duty.length === 0) {
+    return (
+      <Card className="space-y-4">
+        <WeeklyAvailabilityEditor editor={availability} />
+        {save}
       </Card>
     );
   }
   return (
-    <ul className="space-y-4">
-      {requests.map((request, index) => (
-        <li key={request.id}>
-          <RequestCard request={request}>
-            {renderActions?.(request, index)}
-          </RequestCard>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function RequestCard({
-  request,
-  children,
-}: {
-  request: PeerMentoringRequest;
-  children?: ReactNode;
-}) {
-  const t = useTranslations("iaIskur.give.requests");
-  const tTopic = useTranslations("peerTopics");
-  const locale = useLocale();
-  return (
-    <article
-      aria-label={request.mentee.fullName}
-      className="flex flex-col gap-4 rounded-card border border-border-subtle bg-background-surface px-6 py-5"
-    >
-      <div className="flex items-center gap-3">
-        <InitialsAvatar initials={initials(request.mentee.fullName)} />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="truncate type-label text-text-primary">
-            {request.mentee.fullName}
-          </p>
-          <p className="type-caption text-text-secondary">
-            {t("sentAt", { date: formatDateTime(request.createdAt, locale) })}
-          </p>
-        </div>
-        <RequestStatusBadge status={request.status} />
-      </div>
-      <p className="type-body break-words text-text-primary">
-        {t("quote", { message: request.message })}
-      </p>
-      <div className="flex flex-wrap gap-1">
-        <Tag>{tTopic(request.category)}</Tag>
-      </div>
-      {children}
-    </article>
-  );
-}
-
-function CapacityCard({ capacity }: { capacity: PeerMentorCapacity }) {
-  const t = useTranslations("iaIskur.give.capacity");
-  return (
-    <Card labelledBy="peer-capacity-title" className="flex flex-col gap-3.5">
-      <h2
-        id="peer-capacity-title"
-        className="type-title-card text-text-primary"
-      >
-        {t("title")}
-      </h2>
-      <p className="flex items-end gap-1.5">
-        <span className="type-h2 text-text-primary">{capacity.used}</span>
-        <span className="type-body text-text-secondary">
-          {capacity.capacity === null
-            ? t("noLimit")
-            : t("ofCapacity", { capacity: capacity.capacity })}
-        </span>
-      </p>
-      {capacity.capacity === null ? null : (
-        <div
-          role="progressbar"
-          aria-label={t("title")}
-          aria-valuemin={0}
-          aria-valuemax={capacity.capacity}
-          aria-valuenow={capacity.filled}
-          aria-valuetext={t("valueText", {
-            used: capacity.used,
-            capacity: capacity.capacity,
-          })}
-          className="h-2 overflow-hidden rounded-full bg-background-muted"
-        >
-          <div
-            className="h-2 rounded-full bg-brand-mentor-primary"
-            style={{ width: `${capacity.percent}%` }}
-          />
-        </div>
-      )}
-      <p className="type-caption text-text-muted">
-        {t(`note.${capacity.note}`)}
-      </p>
-    </Card>
-  );
-}
-
-function ProfileSummaryCard({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give.profileCard");
-  const tTopic = useTranslations("peerTopics");
-  return (
-    <Card
-      labelledBy="peer-profile-card-title"
-      className="flex flex-col items-start gap-3"
-    >
-      <div className="flex w-full items-center justify-between gap-3">
-        <h2
-          id="peer-profile-card-title"
-          className="type-title-card text-text-primary"
-        >
-          {t("title")}
-        </h2>
-        <Tag tone={TagTone.Success}>{t("published")}</Tag>
-      </div>
-      <p className="type-body-sm text-text-secondary">
-        {profile.categories.map((category) => tTopic(category)).join(" · ")}
-      </p>
-      <Button
-        href={PEER_MENTOR_WIZARD_HREF}
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-      >
-        {t("edit")}
-      </Button>
-    </Card>
-  );
-}
-
-function ProfilePanel({ profile }: { profile: PeerMentorProfile }) {
-  const t = useTranslations("iaIskur.give.profilePanel");
-  const tTopic = useTranslations("peerTopics");
-  return (
-    <Card className="space-y-5">
-      <div className="space-y-2.5">
-        <h2 className="type-label text-text-primary">{t("topics")}</h2>
-        <div className="flex flex-wrap gap-2">
-          {profile.categories.map((category) => (
-            <Tag key={category} tone={TagTone.Accent}>
-              {tTopic(category)}
-            </Tag>
-          ))}
-          {profile.subTopics.map((subTopic) => (
-            <Tag key={subTopic}>{subTopic}</Tag>
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <h2 className="type-label text-text-primary">{t("helpWith")}</h2>
-        <p className="type-body whitespace-pre-line text-text-secondary">
-          {profile.helpWith}
-        </p>
-      </div>
-      <Button href={PEER_MENTOR_WIZARD_HREF} variant={ButtonVariant.Ghost}>
-        {t("edit")}
-      </Button>
-    </Card>
-  );
-}
-
-function AvailabilityPanel() {
-  const t = useTranslations("iaIskur.give.availability");
-  const availability = useAvailabilitySettingsForm(() => undefined);
-  return (
-    <Card className="space-y-4">
-      <WeeklyAvailabilityEditor editor={availability} />
-      <Button
-        disabled={!availability.draft || availability.isSaving}
-        onClick={() => void availability.save()}
-      >
-        {availability.isSaving ? t("saving") : t("save")}
-      </Button>
-    </Card>
+    <div className="flex flex-col gap-6">
+      <p className="type-body text-text-secondary">{tHours("intro")}</p>
+      <PeerMentorHoursEditor editor={availability} hours={hours} />
+      <div>{save}</div>
+    </div>
   );
 }

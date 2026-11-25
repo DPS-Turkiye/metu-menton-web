@@ -45,6 +45,10 @@ export const ISKUR_WORK_LOG_HREF = "/student/work-log";
 
 /** Query-key prefixes: every cached week, and every review queue, starts with one of these. */
 export const ISKUR_WEEK_KEY = "iskur-week";
+
+/** A week in the cache; null is this week, whichever Monday that is. */
+export const iskurWeekQueryKey = (weekStart: string | null) =>
+  [ISKUR_WEEK_KEY, weekStart ?? "current"] as const;
 export const ISKUR_REVIEW_QUEUE_KEY = "iskur-review-queue";
 
 /** Çalışma kaydı on a week, daily or weekly, optionally opened on one day. */

@@ -2,11 +2,10 @@
 
 import { useTranslations } from "next-intl";
 
-import { PageHeader } from "@/components/ia/page-header";
 import {
-  Segmented,
   TabPanel,
   UnderlineTabs,
+  ViewSwitch,
 } from "@/components/student/iskur-ui";
 import { PeerMentorDirectory } from "@/components/student/peer-mentor-directory";
 import { PeerMentorGiveView } from "@/components/student/peer-mentor-give-view";
@@ -33,29 +32,24 @@ export function PeerMentoringView() {
   const side = canGive ? asked : AppointmentSide.Mentee;
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title={t("title")}
-        actions={
-          canGive ? (
-            <Segmented
-              label={t("switchLabel")}
-              selected={side}
-              onSelect={setSide}
-              options={[
-                { id: AppointmentSide.Mentee, label: t("switch.get") },
-                {
-                  id: AppointmentSide.Mentor,
-                  label: t("switch.give"),
-                  tour: "peer-mentoring-give-toggle",
-                },
-              ]}
-            />
-          ) : null
-        }
-      >
-        <p className="type-body text-text-secondary">{t("subtitle")}</p>
-      </PageHeader>
+    <div className="space-y-6">
+      {/* Figma 4.1 and 7.1 open on the tabs; the title stays for screen readers. */}
+      <h1 className="sr-only">{t("title")}</h1>
+      {canGive ? (
+        <ViewSwitch
+          label={t("switchLabel")}
+          selected={side}
+          onSelect={setSide}
+          options={[
+            { id: AppointmentSide.Mentee, label: t("switch.get") },
+            {
+              id: AppointmentSide.Mentor,
+              label: t("switch.give"),
+              tour: "peer-mentoring-give-toggle",
+            },
+          ]}
+        />
+      ) : null}
       {side === AppointmentSide.Mentee ? <TakeSide /> : <PeerMentorGiveView />}
     </div>
   );

@@ -18,6 +18,49 @@
         "notAvailable": "Your program's training isn't published yet.",
         "unavailable": "The training can't be opened right now.",
         "internsOnly": "Peer mentoring is open to İŞKUR interns."
+      },
+      "trainingHint": "Opens in Prism",
+      "stepsLabel": "Steps to becoming a mentor",
+      "youAreHere": "You are here",
+      "steps": {
+        "earnBadge": {
+          "title": "Complete the training",
+          "hint": "The training and test in Prism"
+        },
+        "badgeVerified": {
+          "title": "Badge approval",
+          "hint": "Your coordinator reviews your result"
+        },
+        "createProfile": {
+          "title": "Create your mentor profile",
+          "hint": "Topics, experience, availability · 7 short steps"
+        },
+        "published": {
+          "title": "Profile published",
+          "hint": "Students can discover you"
+        }
+      },
+      "status": {
+        "title": "Your badge status",
+        "current": "current status",
+        "todo": {
+          "label": "Training not completed",
+          "body": "When you finish the training, press “I completed the Prism training”.",
+          "retake": "You need to take the test again. Say so on the training page when you are done."
+        },
+        "pending": {
+          "label": "Waiting for approval",
+          "body": "You said you completed the training; your coordinator is reviewing your result."
+        },
+        "verified": {
+          "label": "Verified",
+          "body": "You can create your mentor profile."
+        }
+      },
+      "notes": {
+        "badgeMissing": "The badge is awarded once your coordinator approves you. If you were approved and it isn't showing, refresh the page; if the problem persists, write to your program coordinator.",
+        "oneAccount": "Becoming a mentor doesn't create a separate account; your mentee and mentor activity stay in the same account.",
+        "keepGetting": "On the Get mentoring tab you can keep discovering mentors and following your requests."
       }
     },
     "journey": {
@@ -40,20 +83,6 @@
         "hint": "Students can discover you"
       }
     },
-    "cards": {
-      "keepGetting": {
-        "title": "Keep getting mentoring",
-        "body": "On the Get mentoring tab you can keep discovering mentors and following your requests."
-      },
-      "badgeMissing": {
-        "title": "Badge not showing?",
-        "body": "The badge is awarded once your coordinator approves you. If you were approved and it isn't showing, refresh the page; if the problem persists, write to your program coordinator."
-      },
-      "oneAccount": {
-        "title": "One account",
-        "body": "Becoming a mentor doesn't create a separate account; your mentee and mentor activity stay in the same account."
-      }
-    },
     "revoked": {
       "title": "Your badge was revoked",
       "expiredTitle": "Your badge has expired",
@@ -68,44 +97,90 @@
     },
     "tabs": {
       "label": "Give mentoring",
+      "requests": "Requests",
       "mentees": "My mentees",
+      "availability": "Availability and capacity",
       "profile": "My mentor profile"
     },
     "requests": {
+      "title": "Requests waiting for an answer",
+      "order": "{count} · newest first",
       "empty": "No requests waiting for an answer.",
-      "sentAt": "Mentoring request · {date}",
+      "sentAt": "{date}",
+      "sentAtFrom": "{department} · {date}",
       "quote": "“{message}”",
       "accept": "Accept",
-      "decline": "Decline"
+      "decline": "Decline",
+      "lastPlace": "If you accept, your capacity becomes {capacity}/{capacity} and new requests pause.",
+      "reason": {
+        "title": "Reason for declining (sent to the student)",
+        "times": "Our hours don't match",
+        "topic": "The topic is outside my expertise",
+        "capacity": "My capacity is full",
+        "cancel": "Cancel",
+        "confirm": "Decline and tell them"
+      }
     },
     "mentees": {
       "empty": "You haven't accepted a request yet."
     },
     "capacity": {
       "title": "Your capacity",
-      "ofCapacity": "/ {capacity} mentees",
-      "noLimit": "mentees",
+      "ofCapacity": "/ {capacity} active mentees",
+      "noLimit": "active mentees",
+      "edit": "Edit capacity",
       "note": {
-        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the Mentor profile tab.",
-        "open": "You can accept new requests.",
-        "lastPlace": "Accepting one more request fills your capacity. New requests won't reach you until a place opens.",
+        "unset": "You haven't set a capacity, so new requests keep coming. You can set it on the My mentor profile tab.",
+        "open": "{free} places free. When it fills up, Discover says “Not taking new mentees right now”.",
+        "lastPlace": "{free} place free. When it fills up, Discover says “Not taking new mentees right now”.",
         "full": "Your capacity is full. New requests won't reach you until a place opens."
       },
       "valueText": "{used} of {capacity} mentees"
     },
     "profileCard": {
       "title": "Your mentor profile",
-      "published": "Published",
-      "edit": "Edit profile"
-    },
-    "profilePanel": {
-      "topics": "Topics you can help with",
-      "helpWith": "How can you help students?",
-      "edit": "Edit profile"
+      "active": "Active",
+      "paused": "Not taking requests",
+      "hours": "{day} {start}–{end}"
     },
     "availability": {
       "save": "Save",
       "saving": "Saving…"
+    },
+    "profile": {
+      "active": "Active",
+      "paused": "Not taking requests",
+      "classYear": "Year {classYear}",
+      "badge": "Training badge ✓",
+      "edit": "Edit profile",
+      "preview": "Preview as a student",
+      "previewTitle": "This is how students see your profile",
+      "close": "Close",
+      "hours": {
+        "title": "My availability",
+        "edit": "Edit",
+        "range": "{start} – {end}",
+        "none": "You haven't added weekly hours yet.",
+        "closed": "Closed day",
+        "duration": "Meeting length",
+        "minutes": "{minutes} min"
+      },
+      "intake": {
+        "title": "My capacity",
+        "ofCapacity": "/ {capacity} active mentees · {free} free",
+        "noLimit": "active mentees · no limit",
+        "limit": "Limit",
+        "unset": "None",
+        "decrease": "Lower the limit",
+        "increase": "Raise the limit",
+        "accepting": "I'm open to new requests",
+        "hint": "When this is off, Discover shows your profile as “Not taking new mentees right now”.",
+        "saveFailed": "Couldn't save your capacity."
+      },
+      "protected": {
+        "title": "Your confirmed meetings stay",
+        "body": "Changes to your availability only apply to new requests; confirmed meetings are not affected."
+      }
     }
   },
   "wizard": {
@@ -293,7 +368,17 @@
       "links": "Your links",
       "linkShown": "Shown on my profile",
       "noLinks": "No links added",
-      "experience": "Relevant experience"
+      "experience": "Relevant experience",
+      "check": {
+        "title": "Before you publish",
+        "badge": "Training badge verified",
+        "documents": "Required documents uploaded",
+        "documentsMissing": "{missing, plural, one {# required document missing} other {# required documents missing}}",
+        "hours": "Weekly hours added",
+        "hoursInside": "Availability fits your work hours",
+        "hoursMissing": "You added no weekly hours; students cannot book you",
+        "note": "Once published, students can discover you. Documents uploaded for verification are not shown in the preview."
+      }
     },
     "back": "Back",
     "next": "Continue",
@@ -353,7 +438,8 @@
       "subTopicFilter": "Sub-topic",
       "allSubTopics": "All sub-topics",
       "availableThisWeek": "Available this week",
-      "mentoring": "Already your mentor"
+      "mentoring": "Already your mentor",
+      "paused": "Not taking new mentees right now"
     },
     "profile": {
       "back": "Peer mentoring",
@@ -492,6 +578,47 @@
     "legend": {
       "asMentor": "Meetings where you give mentoring",
       "asMentee": "Meetings where you get mentoring or an Office Hours slot"
+    }
+  },
+  "hours": {
+    "loading": "Loading…",
+    "legend": {
+      "duty": "Your work hours",
+      "open": "Open for mentoring",
+      "conflict": "Conflict"
+    },
+    "span": "Showing {start} – {end}",
+    "intro": "Mentoring meetings take place inside your İŞKUR work hours, which were filled in for you.",
+    "notDuty": "Not a work day",
+    "dutyOnly": "Work {work} · no mentoring",
+    "dutyAndOpen": "Work {work} · mentoring {open}",
+    "outside": "{start}–{end} is outside your work hours.",
+    "outsideError": "Your mentoring hours must be inside your work hours: {day}.",
+    "editDay": "Edit {day} hours",
+    "addDay": "Add hours on {day}",
+    "add": "Add",
+    "addRange": "Add range",
+    "range": "{day} range {number}",
+    "rangeStart": "{range} start",
+    "rangeEnd": "{range} end",
+    "removeRange": "Remove {range}",
+    "protected": "Existing meetings stay: narrowing your availability does not cancel a confirmed meeting.",
+    "closed": {
+      "title": "Closed days",
+      "add": "Add date"
+    },
+    "summary": {
+      "title": "Weekly summary",
+      "open": "open for meetings",
+      "target": "Your mentoring target is {target}: the rest is for preparation, reports and follow-up.",
+      "length": "Meeting length",
+      "minutes": "{minutes} min",
+      "limit": "Active mentee limit",
+      "noLimit": "None",
+      "decrease": "Lower the limit",
+      "increase": "Raise the limit",
+      "suggested": "Suggested: at most 3",
+      "limitHint": "When it fills up, Discover says “Not taking new mentees right now” and no new request comes."
     }
   }
 }

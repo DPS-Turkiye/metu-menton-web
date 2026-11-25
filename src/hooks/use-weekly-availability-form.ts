@@ -23,6 +23,7 @@ import {
   toAvailabilityPayload,
   type AvailabilityDraft,
   type AvailabilityNumberField,
+  type AvailabilityRange,
   type ExceptionInput,
 } from "@/lib/mentor-availability";
 import { errorMessage } from "@/lib/utils";
@@ -43,9 +44,23 @@ export type WeeklyAvailabilitySource = {
   numberFields?: readonly AvailabilityNumberField[];
   /** An owner whose number fields mean something else (a student limit, say) names them itself. */
   numberFieldLabels?: Partial<Record<AvailabilityNumberField, string>>;
+  /** One more rule of the owner's, checked before a save: what is wrong, in the words the owner reads, or null. */
+  check?: (draft: AvailabilityDraft) => string | null;
   /** A step that only keeps a draft (the peer-mentor wizard) says nothing on save; the owner confirms later. */
   quiet?: boolean;
 };
+
+function withSavedNumbers(
+  edits: AvailabilityDraft,
+  saved: AvailabilityDraft,
+  touched: readonly AvailabilityNumberField[],
+): AvailabilityDraft {
+  const kept = { ...edits };
+  for (const field of ALL_NUMBER_FIELDS) {
+    if (!touched.includes(field)) kept[field] = saved[field];
+  }
+  return kept;
+}
 
 /**
  * Edits one owner's weekly availability: time ranges per weekday, the number fields and
@@ -71,14 +86,20 @@ export function useWeeklyAvailabilityForm(
   const [error, setError] = useState<string | null>(null);
   const [isAddingException, setIsAddingException] = useState(false);
   const nextKey = useRef(0);
-  const draft = edits ?? loaded;
+  // A number the owner left alone here follows what is saved, so a limit changed elsewhere is not undone by this form.
+  const [touched, setTouched] = useState<readonly AvailabilityNumberField[]>(
+    [],
+  );
+  const draft =
+    edits && loaded ? withSavedNumbers(edits, loaded, touched) : loaded;
 
   const change = (
     update: (current: AvailabilityDraft) => AvailabilityDraft,
   ) => {
     setError(null);
     setEdits((current) => {
-      const base = current ?? loaded;
+      const base =
+        current && loaded ? withSavedNumbers(current, loaded, touched) : loaded;
       return base ? update(base) : current;
     });
   };
@@ -103,7 +124,10 @@ export function useWeeklyAvailabilityForm(
     );
   };
 
-  const addRange = (day: Weekday) => {
+  const addRange = (
+    day: Weekday,
+    first: Pick<AvailabilityRange, "startTime" | "endTime"> | null = null,
+  ) => {
     const key = newKey();
     change((current) => ({
       ...current,
@@ -112,7 +136,7 @@ export function useWeeklyAvailabilityForm(
         {
           key,
           dayOfWeek: day,
-          ...nextRangeAfter(rangesForDay(current, day)),
+          ...(first ?? nextRangeAfter(rangesForDay(current, day))),
           slotMinutes: null,
         },
       ],
@@ -137,14 +161,20 @@ export function useWeeklyAvailabilityForm(
       ),
     }));
 
-  const setNumber = (field: AvailabilityNumberField, value: string) =>
+  const touch = (field: AvailabilityNumberField) =>
+    setTouched((current) => [...current, field]);
+
+  const setNumber = (field: AvailabilityNumberField, value: string) => {
+    touch(field);
     change((current) => ({ ...current, [field]: value }));
+  };
 
   const stepNumber = (field: AvailabilityNumberField, direction: 1 | -1) => {
     const bounds = AVAILABILITY_NUMBER_FIELDS.find(
       (item) => item.field === field,
     );
     if (!bounds) return;
+    touch(field);
     change((current) => ({
       ...current,
       [field]: stepNumberValue(current[field], bounds, direction),
@@ -194,10 +224,13 @@ export function useWeeklyAvailabilityForm(
 
   const save = async () => {
     if (!draft) return;
-    const problem = availabilityDraftError(draft, {
-      capacityRequired: settings?.menteeCapacity != null,
-      fields: numberFields,
-    });
+    const problem =
+      availabilityDraftError(draft, {
+        capacityRequired: settings?.menteeCapacity != null,
+        fields: numberFields,
+      }) ??
+      source.check?.(draft) ??
+      null;
     if (problem) {
       setError(problem);
       return;
@@ -205,6 +238,7 @@ export function useWeeklyAvailabilityForm(
     try {
       await source.save(toAvailabilityPayload(draft));
       setEdits(null);
+      setTouched([]);
       if (!source.quiet)
         showToast({ message: t("saved"), tone: ToastTone.Success });
       onSaved();

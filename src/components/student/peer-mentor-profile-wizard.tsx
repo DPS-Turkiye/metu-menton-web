@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Info, Link2, Plus } from "lucide-react";
+import { Check, Info, Link2, Plus, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -12,14 +12,11 @@ import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
 import { StepPills } from "@/components/ia/step-pills";
-import {
-  CATEGORY_ART,
-  InitialsAvatar,
-  ISKUR_FIELD_CLASS,
-  Tag,
-  TagTone,
-} from "@/components/student/iskur-ui";
+import { CATEGORY_ART, ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { PeerMentorDocumentsStep } from "@/components/student/peer-mentor-documents-step";
+import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
+import { PeerMentorPreview } from "@/components/student/peer-mentor-preview";
+import { usePeerRequiredDocuments } from "@/hooks/use-peer-mentor-documents";
 import {
   PEER_MENTOR_WIZARD_STEPS,
   PeerMentorWizardStep,
@@ -61,6 +58,7 @@ type Wizard = ReturnType<typeof usePeerMentorWizard>;
  */
 export function PeerMentorProfileWizard() {
   const t = useTranslations("iaIskur.wizard");
+  const tHours = useTranslations("iaIskur.hours");
   const locale = useLocale();
   const wizard = usePeerMentorWizard();
   const { step } = wizard;
@@ -108,7 +106,10 @@ export function PeerMentorProfileWizard() {
                 {t(`headings.${key}.title`)}
               </h1>
               <p className="type-body-lg text-text-secondary">
-                {t(`headings.${key}.subtitle`)}
+                {step === PeerMentorWizardStep.Availability &&
+                wizard.dutyHours.duty.length > 0
+                  ? tHours("intro")
+                  : t(`headings.${key}.subtitle`)}
               </p>
             </header>
             {step === PeerMentorWizardStep.Categories ? (
@@ -126,7 +127,16 @@ export function PeerMentorProfileWizard() {
             {step === PeerMentorWizardStep.Links ? (
               <DocumentsStep wizard={wizard} />
             ) : null}
-            {step === PeerMentorWizardStep.Availability ? (
+            {step === PeerMentorWizardStep.Availability &&
+            wizard.dutyHours.duty.length > 0 ? (
+              <PeerMentorHoursEditor
+                editor={wizard.availability}
+                hours={wizard.dutyHours}
+              />
+            ) : null}
+            {step === PeerMentorWizardStep.Availability &&
+            !wizard.dutyHours.isLoading &&
+            wizard.dutyHours.duty.length === 0 ? (
               <Card>
                 <h2 className="mb-4 type-title-card text-text-primary">
                   {t("availability.title")}
@@ -676,121 +686,106 @@ function DocumentsStep({ wizard }: { wizard: Wizard }) {
 
 function PreviewStep({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("iaIskur.wizard.preview");
-  const topicLabel = useTranslations("peerTopics");
-  const subtopicLabel = useTranslations("studentProfileCompletion.subtopics");
-  const dayLabel = useTranslations("options.weekday");
-  const person = usePeerMentorPreviewPerson();
-  const capacity = wizard.availabilitySettings.menteeCapacity;
   const linkedin = wizard.previewLinkedin;
 
   return (
-    <div className="space-y-6">
-      <Card className="space-y-6">
-        <div className="flex flex-wrap items-center gap-5">
-          <InitialsAvatar initials={person.initials} size="lg" />
-          <div className="space-y-2">
-            <h2 className="type-h2 text-text-primary">{person.fullName}</h2>
-            <p className="type-body text-text-secondary">
-              {person.department}
-              {person.showSeparator ? " · " : null}
-              {person.classYear
-                ? t("classYear", { classYear: person.classYear })
-                : null}
+    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+      <div className="min-w-0 flex-1 space-y-6">
+        <Card className="space-y-6">
+          <PeerMentorPreview
+            topics={wizard.draft.topics}
+            subTopics={wizard.previewSubtopics}
+            helpWith={wizard.previewHelpWith}
+            experiences={wizard.draft.experiences}
+            hours={wizard.weeklyHours}
+            capacity={wizard.availabilitySettings.menteeCapacity}
+          />
+        </Card>
+        <Card className="space-y-3">
+          <h2 className="type-title-card text-text-primary">{t("links")}</h2>
+          {linkedin ? (
+            <p className="flex items-center gap-3">
+              <Link2 aria-hidden className="size-4 text-icon-default" />
+              <span className="flex flex-col">
+                <span className="type-label break-all text-text-primary">
+                  {linkedin}
+                </span>
+                <span className="type-caption text-text-muted">
+                  {t("linkShown")}
+                </span>
+              </span>
             </p>
-            <div className="flex flex-wrap gap-2">
-              <Tag>{t("peer")}</Tag>
-              {person.badgeVerified ? (
-                <Tag tone={TagTone.Success}>{t("badgeVerified")}</Tag>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <hr className="border-border-subtle" />
-        <div className="space-y-3">
-          <h3 className="type-label text-text-primary">{t("topics")}</h3>
-          <ul className="flex flex-wrap gap-2">
-            {wizard.draft.topics.map((topic) => (
-              <li key={topic}>
-                <Tag tone={TagTone.Accent}>{topicLabel(topic)}</Tag>
-              </li>
-            ))}
-            {wizard.previewSubtopics.map((sub) => (
-              <li key={sub.id}>
-                <Tag tone={TagTone.Accent}>{subtopicLabel(sub.labelKey)}</Tag>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <h3 className="type-label text-text-primary">{t("helpWith")}</h3>
-          <p className="type-body whitespace-pre-line text-text-secondary">
-            {wizard.previewHelpWith}
-          </p>
-        </div>
-        {wizard.draft.experiences.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className="type-label text-text-primary">{t("experience")}</h3>
-            <ul className="space-y-1">
-              {wizard.draft.experiences.map((card) => (
-                <li key={card.key} className="type-body-sm text-text-secondary">
-                  {card.organization
-                    ? `${card.title} — ${card.organization}`
-                    : card.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        <dl className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-          <div className="space-y-1">
-            <dt className="type-caption text-text-muted">{t("hours")}</dt>
-            <dd className="type-body-sm text-text-primary">
-              {wizard.weeklyHours.length === 0 ? (
-                t("noHours")
-              ) : (
-                <ul className="flex flex-wrap gap-x-2">
-                  {wizard.weeklyHours.map((range) => (
-                    <li key={`${range.dayOfWeek}-${range.start}-${range.end}`}>
-                      {t("hoursRange", {
-                        day: dayLabel(range.dayOfWeek),
-                        start: range.start,
-                        end: range.end,
-                      })}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </dd>
-          </div>
-          <div className="space-y-1">
-            <dt className="type-caption text-text-muted">{t("capacity")}</dt>
-            <dd className="type-body-sm text-text-primary">
-              {capacity === null
-                ? t("noCapacity")
-                : t("capacityValue", { capacity })}
-            </dd>
-          </div>
-        </dl>
-      </Card>
-      <Card className="space-y-3">
-        <h2 className="type-title-card text-text-primary">{t("links")}</h2>
-        {linkedin ? (
-          <p className="flex items-center gap-3">
-            <Link2 aria-hidden className="size-4 text-icon-default" />
-            <span className="flex flex-col">
-              <span className="type-label break-all text-text-primary">
-                {linkedin}
-              </span>
-              <span className="type-caption text-text-muted">
-                {t("linkShown")}
-              </span>
-            </span>
-          </p>
-        ) : (
-          <p className="type-body-sm text-text-secondary">{t("noLinks")}</p>
-        )}
-      </Card>
+          ) : (
+            <p className="type-body-sm text-text-secondary">{t("noLinks")}</p>
+          )}
+        </Card>
+      </div>
+      <PublishCheck wizard={wizard} />
     </div>
+  );
+}
+
+/** "Yayın kontrolü" (Figma 6.9): what is in place, and what is still missing, before publishing. */
+function PublishCheck({ wizard }: { wizard: Wizard }) {
+  const t = useTranslations("iaIskur.wizard.preview.check");
+  const person = usePeerMentorPreviewPerson();
+  const documents = usePeerRequiredDocuments(
+    wizard.draft.topics,
+    wizard.draft.linkedinUrl,
+  );
+  const missing = documents ? documents.total - documents.done : 0;
+  const hasHours = wizard.weeklyHours.length > 0;
+  const rows = [
+    ...(person.badgeVerified ? [{ ok: true, text: t("badge") }] : []),
+    ...(documents && documents.total > 0
+      ? [
+          {
+            ok: missing === 0,
+            text:
+              missing === 0
+                ? t("documents")
+                : t("documentsMissing", { missing }),
+          },
+        ]
+      : []),
+    {
+      ok: hasHours,
+      text: !hasHours
+        ? t("hoursMissing")
+        : wizard.dutyHours.duty.length > 0
+          ? t("hoursInside")
+          : t("hours"),
+    },
+  ];
+  return (
+    <Card
+      compact
+      labelledBy="peer-publish-check"
+      className="flex w-full flex-col gap-3 lg:w-[340px] lg:shrink-0"
+    >
+      <h2 id="peer-publish-check" className="type-label-lg text-text-primary">
+        {t("title")}
+      </h2>
+      <ul className="flex flex-col gap-2.5">
+        {rows.map((row) => (
+          <li
+            key={row.text}
+            className={`flex items-start gap-2 type-body-sm ${row.ok ? "text-text-primary" : "text-status-warning-text"}`}
+          >
+            {row.ok ? (
+              <Check
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-status-success-icon"
+              />
+            ) : (
+              <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+            )}
+            {row.text}
+          </li>
+        ))}
+      </ul>
+      <p className="type-caption text-text-muted">{t("note")}</p>
+    </Card>
   );
 }
 

@@ -11,6 +11,7 @@ import {
 } from "@/components/providers/session-provider";
 import { useMyBadges } from "@/hooks/use-badges";
 import { useInstitutionRecord } from "@/hooks/use-institution-record";
+import { useMentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import {
   MENTOR_AVAILABILITY_QUERY_KEY,
   MENTOR_AVAILABILITY_SETTINGS_QUERY_KEY,
@@ -74,6 +75,7 @@ import {
   PEER_MENTOR_GIVE_HREF,
   PEER_MENTOR_TRAINING_HREF,
   PEER_PROFILE_TEXT_MAX,
+  peerBadgeProgress,
   peerMentorCapacity,
   peerMentorGateState,
   subtopicGroupsWithCounts,
@@ -87,7 +89,11 @@ import {
 } from "@/lib/student-interests";
 import { errorMessage, initials } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import { PeerCapacityNote, PeerGiveTab } from "@/types/iskur-student";
+import {
+  PeerCapacityNote,
+  PeerGiveTab,
+  type PeerBadgeProgress,
+} from "@/types/iskur-student";
 
 export const PEER_MENTOR_PROFILE_QUERY_KEY = [
   "peer-mentoring",
@@ -180,17 +186,21 @@ export type TrainingEntryReason =
 export function usePeerMentorTrainingEntry(enabled = true): {
   href: string | null;
   reason: TrainingEntryReason | null;
+  /** Where the badge stands for the student: still to train, waiting for the coordinator, or to test again. */
+  progress: PeerBadgeProgress;
 } {
   const training = usePeerMentorTraining(enabled);
   const state = training.data?.state;
+  const progress = peerBadgeProgress(state);
   if (state !== undefined && OPEN_TRAINING_STATES.has(state)) {
-    return { href: PEER_MENTOR_TRAINING_HREF, reason: null };
+    return { href: PEER_MENTOR_TRAINING_HREF, reason: null, progress };
   }
-  if (training.isLoading) return { href: null, reason: "loading" };
+  if (training.isLoading) return { href: null, reason: "loading", progress };
   if (state === TrainingState.InternsOnly) {
-    return { href: null, reason: "internsOnly" };
+    return { href: null, reason: "internsOnly", progress };
   }
   return {
+    progress,
     href: null,
     reason:
       state === TrainingState.NotAvailable ? "notAvailable" : "unavailable",
@@ -228,13 +238,21 @@ export function usePeerRequestDecision() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const decide = useMutation({
-    mutationFn: ({ id, accept }: { id: string; accept: boolean }) =>
+    mutationFn: ({
+      id,
+      accept,
+      message,
+    }: {
+      id: string;
+      accept: boolean;
+      message?: string | undefined;
+    }) =>
       decideMentorRequest({
         id,
         status: accept
           ? MentorshipRequestStatus.Accepted
           : MentorshipRequestStatus.Declined,
-        message: accept ? t("acceptMessage") : t("declineMessage"),
+        message: message ?? (accept ? t("acceptMessage") : t("declineMessage")),
       }),
     onSuccess: (_, { accept }) => {
       void queryClient.invalidateQueries({
@@ -253,21 +271,23 @@ export function usePeerRequestDecision() {
   });
   return {
     accept: (id: string) => decide.mutate({ id, accept: true }),
-    decline: (id: string) => decide.mutate({ id, accept: false }),
+    /** The reason, when the mentor gave one, is what the student reads. */
+    decline: (id: string, message?: string) =>
+      decide.mutate({ id, accept: false, message }),
     pendingId: decide.isPending ? decide.variables.id : undefined,
   };
 }
 
 /**
- * Mentorluk Ver once the profile is published: the open tab (from the URL's `tab`, Menteelerim first), the received
- * requests, the decision actions and the "Kapasiten" card's numbers.
+ * Mentorluk Ver once the profile is published: the open tab (from the URL's `tab`, Talepler first), the received
+ * requests and the "Kapasiten" card's numbers.
  */
 export function usePeerGivePublished(profileCapacity: number | null) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const asked = params.get("tab");
-  const tab = isEnumValue(PeerGiveTab, asked) ? asked : PeerGiveTab.Mentees;
+  const tab = isEnumValue(PeerGiveTab, asked) ? asked : PeerGiveTab.Requests;
   // The report's own params (view, week, day) stay, so coming back to Faaliyet Raporum reopens the same day or week.
   const setTab = (next: PeerGiveTab) => {
     const query = new URLSearchParams(params.toString());
@@ -275,7 +295,6 @@ export function usePeerGivePublished(profileCapacity: number | null) {
     router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   };
   const received = useReceivedPeerRequests();
-  const decision = usePeerRequestDecision();
   // The availability tab saves the capacity to the settings, not the profile; read it there so the card follows a save.
   const settings = useMentorAvailabilitySettings();
   const menteeCapacity =
@@ -291,8 +310,8 @@ export function usePeerGivePublished(profileCapacity: number | null) {
     tab,
     setTab,
     received,
-    decision,
     loaded,
+    menteeCapacity,
     capacity,
     /** A full capacity disables "Kabul Et": the backend would refuse the acceptance anyway. */
     capacityFull: capacity?.note === PeerCapacityNote.Full,
@@ -555,6 +574,7 @@ export function usePeerMentorWizard() {
         : (savedAvailability.data ?? DEFAULT_AVAILABILITY),
     [availabilityDraft, savedAvailability.data],
   );
+  const dutyHours = useMentorDutyHours();
   const availability = useWeeklyAvailabilityForm(
     {
       settings: availabilitySettings,
@@ -565,6 +585,7 @@ export function usePeerMentorWizard() {
       },
       isSaving: false,
       numberFields: ["menteeCapacity", "defaultMeetingDurationMinutes"],
+      check: dutyHours.check,
       quiet: true,
     },
     () => setStep(PeerMentorWizardStep.Preview),
@@ -698,6 +719,7 @@ export function usePeerMentorWizard() {
     ),
     previewSubtopics: chosenSubtopics(categories, draft.subtopics),
     availability,
+    dutyHours,
     availabilitySettings,
     weeklyHours: weeklyHours(availabilitySettings.rules),
     helpWithLength: draft.helpWith.trim().length,

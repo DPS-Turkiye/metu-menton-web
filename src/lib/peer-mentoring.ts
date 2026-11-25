@@ -13,15 +13,18 @@ import {
   PeerExperienceKind,
   PeerMentorGateState,
   type PeerExperienceCard,
+  type PeerMentorCard,
   type PeerTopicCategory,
   type PeerTopicLevels,
 } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
+import { TrainingState } from "@/interfaces/training";
 import { currentTime, isUpcoming } from "@/lib/appointments";
 import { toTimeInput } from "@/lib/mentor-availability";
 import {
   ExperienceCardProblem,
   IskurHomeMode,
+  PeerBadgeProgress,
   PeerCapacityNote,
   PeerRequestAvailability,
   PeerTakeTab,
@@ -107,6 +110,15 @@ export function peerMentorGateState({
   return PeerMentorGateState.Hidden;
 }
 
+/** Where a student without the badge stands, from their training's state. */
+export function peerBadgeProgress(
+  state: TrainingState | undefined,
+): PeerBadgeProgress {
+  if (state === TrainingState.PrismPending) return PeerBadgeProgress.Pending;
+  if (state === TrainingState.PrismRetake) return PeerBadgeProgress.Retake;
+  return PeerBadgeProgress.Todo;
+}
+
 /** The newest Akran Mentoru award among the student's badges, whatever its status. */
 export function latestGateAward<
   T extends Pick<BadgeAward, "code" | "awardedAt">,
@@ -171,6 +183,13 @@ export function peerMentorCapacity(
   };
 }
 
+/** The wizard that creates or edits the peer mentor's profile. */
+export const PEER_MENTOR_WIZARD_HREF = "/student/peer-mentoring/profile";
+
+/** The backend's limits on a peer mentor's mentee capacity. */
+export const PEER_CAPACITY_MIN = 1;
+export const PEER_CAPACITY_MAX = 50;
+
 /** The backend's limits on the peer-mentor profile's texts. */
 export const PEER_HELP_WITH_MIN = 20;
 export const PEER_HELP_WITH_MAX = 2000;
@@ -178,6 +197,25 @@ export const PEER_PROFILE_TEXT_MAX = 2000;
 export const PEER_ERASMUS_MAX = 500;
 
 export type WeeklyHours = { dayOfWeek: Weekday; start: string; end: string };
+
+/** Days that share the same hours, together ("Salı, Perşembe"), in week order of their first day. */
+export function hoursByDays(hours: readonly WeeklyHours[]) {
+  const byDay = new Map<Weekday, { start: string; end: string }[]>();
+  for (const { dayOfWeek, start, end } of hours) {
+    byDay.set(dayOfWeek, [...(byDay.get(dayOfWeek) ?? []), { start, end }]);
+  }
+  const groups = new Map<
+    string,
+    { days: Weekday[]; ranges: { start: string; end: string }[] }
+  >();
+  for (const [day, ranges] of byDay) {
+    const key = ranges.map(({ start, end }) => `${start}-${end}`).join(",");
+    const group = groups.get(key);
+    if (group) group.days.push(day);
+    else groups.set(key, { days: [day], ranges });
+  }
+  return [...groups.values()];
+}
 
 /** The weekly ranges in week order, earliest first within a day, as HH:mm ("Salı 18:00 – 20:00" in the preview). */
 export function weeklyHours(
@@ -273,16 +311,17 @@ export function splitPeerRequests<
 
 /**
  * Whether the student can ask this mentor now. A running mentorship comes first, then an open request (the student
- * already asked, full or not), then a full capacity.
+ * already asked, full or not), then a mentor who paused new requests, then a full capacity.
  */
 export function peerRequestAvailability(
   hasOpenRequest: boolean,
-  capacityFull: boolean,
+  mentor: Pick<PeerMentorCard, "capacityFull" | "acceptingRequests">,
   isMentoring = false,
 ): PeerRequestAvailability {
   if (isMentoring) return PeerRequestAvailability.Mentoring;
   if (hasOpenRequest) return PeerRequestAvailability.Requested;
-  if (capacityFull) return PeerRequestAvailability.Full;
+  if (!mentor.acceptingRequests) return PeerRequestAvailability.Paused;
+  if (mentor.capacityFull) return PeerRequestAvailability.Full;
   return PeerRequestAvailability.Open;
 }
 

@@ -154,7 +154,7 @@ function usePeerMentorContext() {
     availabilityOf: (mentor: PeerMentorCard) =>
       peerRequestAvailability(
         openRequestMentorIds.has(mentor.mentorId),
-        mentor.capacityFull,
+        mentor,
         currentMentorIds.has(mentor.mentorId),
       ),
   };

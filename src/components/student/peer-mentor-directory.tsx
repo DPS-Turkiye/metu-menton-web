@@ -370,7 +370,9 @@ export function RequestButton({
         ? t("mentoring")
         : availability === PeerRequestAvailability.Requested
           ? t("requested")
-          : t("full")}
+          : availability === PeerRequestAvailability.Paused
+            ? t("paused")
+            : t("full")}
     </Button>
   );
 }

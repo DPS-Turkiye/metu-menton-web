@@ -77,6 +77,7 @@ const PROFILE: PeerMentorProfile = {
   department: "Endüstri Mühendisliği",
   classYear: 4,
   menteeCapacity: 4,
+  acceptingRequests: true,
   levels: {},
   experiences: [],
 };

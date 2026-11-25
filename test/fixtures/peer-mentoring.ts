@@ -36,6 +36,7 @@ export const PEER_MENTORS_FIXTURE: PeerMentorCard[] = [
       "Yazılım stajı başvuruları, CV ve teknik mülakatlara hazırlık konusunda yardımcı olabilirim.",
     recommendationReasons: ["Bu derste güçlü: CENG 242", "Aynı bölüm"],
     capacityFull: false,
+    acceptingRequests: true,
     availableThisWeek: true,
     badges: [
       {
@@ -59,6 +60,7 @@ export const PEER_MENTORS_FIXTURE: PeerMentorCard[] = [
       "Erasmus başvurusu, ders denkliği ve yurt dışında bir dönem geçirmek üzerine konuşabiliriz.",
     recommendationReasons: ["Yurt dışı deneyimi var"],
     capacityFull: false,
+    acceptingRequests: true,
     availableThisWeek: false,
     badges: [],
   },
@@ -75,6 +77,7 @@ export const PEER_MENTORS_FIXTURE: PeerMentorCard[] = [
       "Bir proje fikrini prototipe çevirmek ve lisans araştırma projelerine katılmak konusunda deneyimimi paylaşırım.",
     recommendationReasons: ["Benzer bir projede çalıştı"],
     capacityFull: true,
+    acceptingRequests: true,
     availableThisWeek: false,
     badges: [],
   },
@@ -91,6 +94,7 @@ export const PEER_MENTORS_FIXTURE: PeerMentorCard[] = [
       "Kampüse uyum, zaman yönetimi ve kulüplerde sorumluluk almak konusunda yanındayım.",
     recommendationReasons: [],
     capacityFull: false,
+    acceptingRequests: true,
     availableThisWeek: true,
     badges: [],
   },
@@ -280,6 +284,7 @@ export function peerMentorProfileFixture(): PeerMentorProfile {
     department: "Endüstri Mühendisliği",
     classYear: 4,
     menteeCapacity: 4,
+    acceptingRequests: true,
     levels: {},
     experiences: [],
   };

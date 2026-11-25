@@ -61,12 +61,14 @@ export function waitingPreview(
   };
 }
 
-/** Mentors with a free place and a reason to show, in the backend's (best match first) order. */
+/** Mentors who take new requests, with a free place and a reason to show, in the backend's (best match first) order. */
 export function recommendedPeerMentors(mentors: PeerMentorCard[]) {
   return mentors
     .filter(
       (mentor) =>
-        !mentor.capacityFull && mentor.recommendationReasons.length > 0,
+        mentor.acceptingRequests &&
+        !mentor.capacityFull &&
+        mentor.recommendationReasons.length > 0,
     )
     .slice(0, STUDENT_HOME_MENTOR_COUNT);
 }
