@@ -10,8 +10,12 @@
     "greeting": "{greeting}, {name}",
     "seeAll": "See all",
     "next": {
-      "label": "Next appointment",
-      "view": "View appointment"
+      "label": "Your next appointment",
+      "view": "Details",
+      "labelDay": {
+        "today": "Your next appointment · today",
+        "tomorrow": "Your next appointment · tomorrow"
+      }
     },
     "quick": {
       "label": "Quick actions",
@@ -32,17 +36,14 @@
         "body": "Your interests and goal"
       }
     },
-    "upcoming": {
-      "title": "My upcoming appointments",
-      "empty": "You have no upcoming appointments."
-    },
     "mentors": {
       "title": "Mentors recommended for you",
       "hint": "Based on the topics you chose",
-      "all": "Peer Mentoring",
-      "role": "Peer Mentor",
+      "classYear": "Year {year}",
+      "available": "Available this week",
+      "why": "Why recommended: {reasons}",
       "profile": "View profile",
-      "request": "Send a mentoring request"
+      "profileOf": "View profile: {name}"
     },
     "advisor": {
       "label": "Your academic advisor",
@@ -51,10 +52,16 @@
     },
     "requests": {
       "title": "My pending requests",
-      "all": "All ({count})",
+      "all": "All",
       "empty": "You have no requests awaiting an answer.",
-      "reply": "Reply",
+      "peer": "Mentoring request · {topic}",
       "waiting": "Awaiting reply"
+    },
+    "reply": {
+      "label": "Your answer is needed",
+      "title": "{name} offered another time",
+      "change": "Instead of {from} → {to}",
+      "action": "Answer the offer"
     }
   },
   "appointments": {

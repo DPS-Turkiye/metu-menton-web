@@ -97,6 +97,20 @@ export function formatDayMonth(date: Date, locale = "tr") {
   }).format(date);
 }
 
+/** "9 Kasım" */
+export function formatDayMonthLong(date: Date, locale = "tr") {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+  }).format(date);
+}
+
+/** "Sal 10 Kas": the weekday first, as the hocam pages write it. */
+export function formatWeekdayDayMonth(date: Date, locale = "tr") {
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  return `${weekday.format(date)} ${formatDayMonth(date, locale)}`;
+}
+
 /** "12 Eyl 2026" */
 export function formatShortDate(value: string, locale = "tr") {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(

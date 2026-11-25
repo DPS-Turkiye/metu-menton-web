@@ -8,10 +8,12 @@ import {
   PEER_MENTORS_QUERY_KEY,
   usePeerMentoringRequests,
 } from "@/hooks/use-peer-mentoring";
+import { currentTime } from "@/lib/appointments";
 import { getPeerMentors } from "@/lib/client/peer-mentoring";
 import { getStudentHome } from "@/lib/client/student-home";
 import {
   greetingName,
+  nearDay,
   openPeerRequests,
   recommendedPeerMentors,
   summarizeAppointments,
@@ -62,7 +64,11 @@ export function useStudentHome() {
       ? STUDENT_PROFILE_HREF
       : STUDENT_PROFILE_COMPLETION_HREF,
     next: appointments.next,
-    upcoming: appointments.upcoming,
+    nextDay: appointments.next
+      ? nearDay(currentTime(appointments.next).startsAt, now)
+      : null,
+    reply: appointments.reply,
+    today: home.data ? now : null,
     confirmedCount: appointments.confirmedCount,
     awaiting: waiting.awaiting,
     peerRequests: waiting.peerRequests,

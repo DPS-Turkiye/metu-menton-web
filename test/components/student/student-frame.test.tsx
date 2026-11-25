@@ -82,10 +82,9 @@ describe("StudentFrame", () => {
       screen.getByRole("button", { name: "İŞKUR Mesajlar" }),
     ).toBeInTheDocument();
     const nav = desktopNav("Öğrenci menüsü");
-    expect(within(nav).getByRole("link", { name: "Anasayfa" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(
+      within(nav).getByRole("link", { name: "Ana Sayfa" }),
+    ).toHaveAttribute("aria-current", "page");
     expect(
       within(nav).getByRole("link", { name: "Akran Mentörlüğü" }),
     ).toHaveAttribute("href", "/student/peer-mentoring");
@@ -113,7 +112,9 @@ describe("StudentFrame", () => {
 
   it("names the workspace, not the account's role, under the user's name", () => {
     render(<StudentFrame>x</StudentFrame>);
-    expect(screen.getByText("Öğrenci")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ayşe Yılmaz, Öğrenci" }),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Girişim Ekibi")).toBeNull();
   });
 
@@ -168,16 +169,17 @@ describe("AcademicianFrame", () => {
     pathname = "/academician";
     render(<AcademicianFrame>x</AcademicianFrame>);
     const nav = desktopNav("Akademisyen menüsü");
-    expect(within(nav).getByRole("link", { name: "Anasayfa" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(
+      within(nav).getByRole("link", { name: "Ana Sayfa" }),
+    ).toHaveAttribute("aria-current", "page");
     for (const label of ACADEMICIAN_SCREENS_BUILT) {
       expect(within(nav).getByRole("link", { name: label })).toBeVisible();
     }
     for (const label of ACADEMICIAN_SCREENS_GONE) {
       expect(within(nav).queryByRole("link", { name: label })).toBeNull();
     }
-    expect(screen.getByText("Akademisyen")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /, Akademisyen$/ }),
+    ).toBeInTheDocument();
   });
 });

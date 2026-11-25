@@ -1,5 +1,4 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StudentHomeView } from "@/components/student/home-view";
@@ -15,11 +14,6 @@ import { studentHomeModel } from "@test/fixtures/student-home";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/hooks/use-student-home", () => ({ useStudentHome: vi.fn() }));
-vi.mock("@/components/student/peer-mentor-request-dialog", () => ({
-  PeerMentorRequestDialog: ({ mentor }: { mentor: { fullName: string } }) => (
-    <div role="dialog" aria-label={mentor.fullName} />
-  ),
-}));
 
 const officeHours = peerAppointment({
   id: "oh-1",
@@ -70,49 +64,58 @@ describe("StudentHomeView", () => {
     ).toBeVisible();
   });
 
-  it("puts the next session in the banner with its status and a link to Randevularım", () => {
-    homeReturns({ next: officeHours, upcoming: [officeHours] });
+  it("dates the day above the greeting", () => {
+    renderWithQueryClient(<StudentHomeView />);
+    expect(screen.getByText("Pazartesi, 9 Kasım")).toBeVisible();
+  });
+
+  it("puts the next session on its card with its status, place and a link to Randevularım", () => {
+    homeReturns({
+      next: { ...officeHours, place: "A-204" },
+      nextDay: "tomorrow",
+    });
     renderWithQueryClient(<StudentHomeView />);
 
-    const banner = screen.getByRole("region", { name: "Sıradaki randevu" });
-    expect(within(banner).getByText("Ders seçimi ve staj planı")).toBeVisible();
-    expect(within(banner).getByText("Onaylandı")).toBeVisible();
+    const card = screen.getByRole("region", {
+      name: "Sıradaki randevun · yarın",
+    });
+    expect(within(card).getByText("Ders seçimi ve staj planı")).toBeVisible();
+    expect(within(card).getByText("Onaylandı")).toBeVisible();
+    expect(within(card).getByText("Office Hours · A-204")).toBeVisible();
     expect(
-      within(banner).getByRole("link", { name: "Randevuyu Gör" }),
+      within(card).getByRole("link", { name: "Ayrıntılar" }),
     ).toHaveAttribute("href", "/student/appointments");
   });
 
-  it("shows the proposed time, not the passed asked-for one, for a request with another time proposed", () => {
-    const moved = {
-      ...alternative,
-      alternative: {
-        startsAt: "2026-11-13T07:30:00.000Z",
-        endsAt: "2026-11-13T08:00:00.000Z",
+  it("asks for an answer to another offered time, old and new side by side", () => {
+    homeReturns({
+      reply: {
+        ...alternative,
+        startsAt: "2026-11-12T08:00:00.000Z",
+        alternative: {
+          startsAt: "2026-11-13T07:30:00.000Z",
+          endsAt: "2026-11-13T08:00:00.000Z",
+        },
       },
-    };
-    homeReturns({ next: moved, upcoming: [moved] });
-    renderWithQueryClient(<StudentHomeView />);
-
-    const banner = screen.getByRole("region", { name: "Sıradaki randevu" });
-    expect(within(banner).getByText(/13 Kas/)).toBeVisible();
-    expect(within(banner).queryByText(/12 Kas/)).toBeNull();
-  });
-
-  it("lists the upcoming sessions as dated cards", () => {
-    homeReturns({ upcoming: [officeHours] });
-    renderWithQueryClient(<StudentHomeView />);
-
-    const list = screen.getByRole("region", { name: "Yaklaşan randevularım" });
-    const row = within(list).getByRole("link", {
-      name: /Doç\. Dr\. Elif Şahin/,
     });
-    expect(row).toHaveAttribute("href", "/student/appointments");
-    expect(within(row).getByText(/Office Hours/)).toBeVisible();
+    renderWithQueryClient(<StudentHomeView />);
+
+    const card = screen.getByRole("region", { name: "Yanıtın gerekiyor" });
+    expect(
+      within(card).getByText("Prof. Dr. Ahmet Kaya yeni bir saat önerdi"),
+    ).toBeVisible();
+    expect(
+      within(card).getByText("Per 12 Kas 11:00 yerine → Cum 13 Kas 10:30"),
+    ).toBeVisible();
+    expect(
+      within(card).getByRole("link", { name: "Öneriyi yanıtla" }),
+    ).toHaveAttribute("href", "/student/appointments");
   });
 
-  it("says so when nothing is ahead", () => {
+  it("leaves both cards out when nothing is ahead", () => {
     renderWithQueryClient(<StudentHomeView />);
-    expect(screen.getByText("Yaklaşan randevun yok.")).toBeVisible();
+    expect(screen.queryByText(/Sıradaki randevun/)).toBeNull();
+    expect(screen.queryByText("Yanıtın gerekiyor")).toBeNull();
     expect(screen.getByText("Yanıt bekleyen talebin yok.")).toBeVisible();
   });
 
@@ -136,9 +139,9 @@ describe("StudentHomeView", () => {
 
   it("shows the advisor with a way to ask for Office Hours", () => {
     renderWithQueryClient(<StudentHomeView />);
-    const advisor = screen.getByRole("region", { name: "Doç. Dr. Elif Şahin" });
+    const advisor = screen.getByRole("region", { name: "Akademik danışmanın" });
     expect(
-      within(advisor).getByRole("link", { name: "Randevu Talep Et" }),
+      within(advisor).getByRole("link", { name: "Randevu talep et" }),
     ).toHaveAttribute("href", "/student/office-hours");
   });
 
@@ -148,7 +151,7 @@ describe("StudentHomeView", () => {
     expect(screen.queryByText("Akademik danışmanın")).not.toBeInTheDocument();
   });
 
-  it("lists waiting requests and asks for a reply to an alternative time", () => {
+  it("lists waiting requests with their state", () => {
     const request = itemAt(peerMentoringRequestsFixture(), 0);
     homeReturns({
       awaiting: [alternative],
@@ -158,18 +161,14 @@ describe("StudentHomeView", () => {
     renderWithQueryClient(<StudentHomeView />);
 
     const pending = screen.getByRole("region", { name: "Bekleyen taleplerim" });
-    expect(
-      within(pending).getByRole("link", { name: "Tümü (2)" }),
-    ).toBeVisible();
+    expect(within(pending).getByText("2")).toBeVisible();
+    expect(within(pending).getByRole("link", { name: "Tümü" })).toBeVisible();
     expect(within(pending).getByText("Alternatif Önerildi")).toBeVisible();
-    expect(
-      within(pending).getByRole("link", { name: "Yanıtla" }),
-    ).toBeVisible();
     expect(within(pending).getByText(request.mentor.fullName)).toBeVisible();
-    expect(within(pending).getByText("Yanıt Bekliyor")).toBeVisible();
+    expect(within(pending).getByText("Onay Bekliyor")).toBeVisible();
   });
 
-  it("recommends mentors with their reasons and opens the request dialog", async () => {
+  it("recommends mentors as rows with the first reasons, each leading to the mentor's page", () => {
     const mentor = itemAt(PEER_MENTORS_FIXTURE, 0);
     homeReturns({ mentors: [mentor] });
     renderWithQueryClient(<StudentHomeView />);
@@ -177,28 +176,34 @@ describe("StudentHomeView", () => {
     const section = screen.getByRole("region", {
       name: "Sana önerilen mentorlar",
     });
-    expect(within(section).getByText("Neden önerildi?")).toBeVisible();
-    for (const reason of mentor.recommendationReasons) {
-      expect(within(section).getByText(reason)).toBeVisible();
-    }
-
-    await userEvent.click(
-      within(section).getByRole("button", { name: "Mentorluk Talebi Gönder" }),
+    expect(
+      within(section).getByText(
+        `Neden önerildi: ${mentor.recommendationReasons.slice(0, 2).join(" · ")}`,
+      ),
+    ).toBeVisible();
+    expect(
+      within(section).getByRole("link", {
+        name: `Profili gör: ${mentor.fullName}`,
+      }),
+    ).toHaveAttribute(
+      "href",
+      `/student/peer-mentoring/mentors/${mentor.mentorId}`,
     );
-    expect(screen.getByRole("dialog", { name: mentor.fullName })).toBeVisible();
   });
 
-  it("keeps the mentor cards, the advisor and the replies off the red Primary", () => {
+  it("keeps the red Primary for the answer that waits on the student", () => {
     homeReturns({
+      next: officeHours,
       awaiting: [alternative],
       mentors: PEER_MENTORS_FIXTURE.slice(0, 2),
     });
-    renderWithQueryClient(<StudentHomeView />);
-
-    expect(
-      screen.getAllByRole("button", { name: "Mentorluk Talebi Gönder" }),
-    ).toHaveLength(2);
+    const { unmount } = renderWithQueryClient(<StudentHomeView />);
     expect(primaryButtons()).toHaveLength(0);
+    unmount();
+
+    homeReturns({ reply: alternative });
+    renderWithQueryClient(<StudentHomeView />);
+    expect(primaryButtons()).toHaveLength(1);
   });
 
   it("renders the extra blocks another edition adds", () => {

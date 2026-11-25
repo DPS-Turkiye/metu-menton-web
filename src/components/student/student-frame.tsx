@@ -15,31 +15,31 @@ export const STUDENT_NAV: RoleNavItem[] = [
   {
     href: STUDENT_HOME,
     label: "home",
-    icon: "/admin/nav-home.svg",
+    icon: "/ia/nav/home.svg",
     match: (path) => path === STUDENT_HOME,
   },
   {
     href: "/student/peer-mentoring",
     label: "peerMentoring",
-    icon: "/admin/nav-lamp.svg",
+    icon: "/ia/nav/group.svg",
     match: (path) => path.startsWith("/student/peer-mentoring"),
   },
   {
     href: "/student/office-hours",
     label: "officeHours",
-    icon: "/mentor-dashboard/revised/clock.svg",
+    icon: "/ia/nav/academic.svg",
     match: (path) => path.startsWith("/student/office-hours"),
   },
   {
     href: "/student/appointments",
     label: "myAppointments",
-    icon: "/admin/nav-calendar.svg",
+    icon: "/ia/nav/calendar.svg",
     match: (path) => path.startsWith("/student/appointments"),
   },
   {
     href: "/student/profile",
     label: "myProfile",
-    icon: "/account-menu/user.svg",
+    icon: "/ia/nav/user.svg",
     match: (path) => path.startsWith("/student/profile"),
   },
 ];

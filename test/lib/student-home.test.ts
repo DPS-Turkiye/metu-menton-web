@@ -5,6 +5,7 @@ import { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import {
   greetingName,
   isAwaitingAnswer,
+  nearDay,
   openPeerRequests,
   recommendedPeerMentors,
   STUDENT_HOME_MENTOR_COUNT,
@@ -37,35 +38,44 @@ describe("summarizeAppointments", () => {
     );
 
     expect(summary.next?.id).toBe("meeting-2");
-    expect(summary.upcoming.map((item) => item.id)).toEqual([
-      "meeting-2",
-      "meeting-1",
-      "pending",
-    ]);
     expect(summary.confirmedCount).toBe(2);
     expect(summary.awaiting.map((item) => item.id)).toEqual(["pending"]);
   });
 
-  it(`shows at most ${STUDENT_HOME_PREVIEW} upcoming rows`, () => {
-    const many = Array.from({ length: 5 }, (_, index) =>
-      peerAppointment({
-        id: `m-${index}`,
-        startsAt: `2026-11-2${index}T08:00:00.000Z`,
-        endsAt: `2026-11-2${index}T08:30:00.000Z`,
-      }),
+  it("gives an offered other time a card of its own, never the next session's", () => {
+    const offered = peerAppointment({
+      id: "offered",
+      status: AppointmentStatus.AlternativeProposed,
+      startsAt: "2026-11-10T08:00:00.000Z",
+      endsAt: "2026-11-10T08:30:00.000Z",
+    });
+    const summary = summarizeAppointments(
+      [...STUDENT_APPOINTMENTS, offered],
+      APPOINTMENTS_NOW,
     );
-    const summary = summarizeAppointments(many, APPOINTMENTS_NOW);
-    expect(summary.upcoming).toHaveLength(STUDENT_HOME_PREVIEW);
-    expect(summary.confirmedCount).toBe(5);
+    expect(summary.reply?.id).toBe("offered");
+    expect(summary.next?.id).toBe("meeting-2");
+    expect(summary.awaiting.map((item) => item.id)).toEqual(["offered"]);
   });
 
   it("has nothing next without appointments", () => {
     expect(summarizeAppointments([], APPOINTMENTS_NOW)).toEqual({
       next: null,
-      upcoming: [],
+      reply: null,
       confirmedCount: 0,
       awaiting: [],
     });
+  });
+});
+
+describe("nearDay", () => {
+  const now = new Date("2026-11-09T20:30:00.000Z"); // 23:30 in Istanbul
+  it.each([
+    ["2026-11-09T20:45:00.000Z", "today"],
+    ["2026-11-09T21:15:00.000Z", "tomorrow"],
+    ["2026-11-10T21:15:00.000Z", null],
+  ])("reads %s as %s in Istanbul", (startsAt, day) => {
+    expect(nearDay(startsAt, now)).toBe(day);
   });
 });
 

@@ -137,6 +137,8 @@ function RoleShell({
   const { logout } = useSession();
   const t = useTranslations("appShell");
   const tFrame = useTranslations("roleFrame");
+  // The ODTÜ frames follow the Revised pages: 80/120 px gutters, and the name inside the account menu.
+  const odtu = accent === IaAccent.Odtu;
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -160,7 +162,9 @@ function RoleShell({
       className="min-h-screen bg-white text-[#22262b]"
     >
       <header className="sticky top-0 z-40 border-b border-transparent bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:h-[106px] sm:px-8 lg:px-12">
+        <div
+          className={`mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:h-[106px] sm:px-8 lg:px-12 ${odtu ? "xl:px-20" : ""}`}
+        >
           <MentonWordmark href={homeHref} />
           <nav
             aria-label={tFrame(menuLabel)}
@@ -183,6 +187,7 @@ function RoleShell({
                 type="button"
                 aria-expanded={accountOpen}
                 aria-haspopup="menu"
+                aria-label={odtu ? `${name}, ${roleLabel}` : undefined}
                 onClick={() => setAccountOpen((open) => !open)}
                 className="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-1 sm:pr-2"
               >
@@ -190,14 +195,16 @@ function RoleShell({
                   {mark}
                 </span>
                 {/* Between lg and xl the name gives its room to the nav, which shares the row. */}
-                <span className="hidden text-left leading-tight sm:block lg:hidden xl:block">
-                  <span className="block text-[12.5px] font-medium">
-                    {name}
+                {odtu ? null : (
+                  <span className="hidden text-left leading-tight sm:block lg:hidden xl:block">
+                    <span className="block text-[12.5px] font-medium">
+                      {name}
+                    </span>
+                    <span className="block text-[11px] text-[#858c96]">
+                      {roleLabel}
+                    </span>
                   </span>
-                  <span className="block text-[11px] text-[#858c96]">
-                    {roleLabel}
-                  </span>
-                </span>
+                )}
                 <AdminIcon
                   src="/admin/nav-chevron.svg"
                   width={16}
@@ -210,6 +217,16 @@ function RoleShell({
                   role="menu"
                   className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[#e9ecef] bg-white py-1 shadow-lg"
                 >
+                  {odtu ? (
+                    <p className="border-b border-border-subtle px-3 pt-2 pb-2.5">
+                      <span className="block type-label text-text-primary">
+                        {name}
+                      </span>
+                      <span className="block type-caption text-text-muted">
+                        {roleLabel}
+                      </span>
+                    </p>
+                  ) : null}
                   {ownProfileHref ? (
                     <Link
                       href={ownProfileHref}
@@ -300,7 +317,9 @@ function RoleShell({
           </nav>
         ) : null}
       </header>
-      <main className="mx-auto w-full max-w-[1440px] px-4 pb-16 pt-6 sm:px-8 sm:pt-7 lg:px-12">
+      <main
+        className={`mx-auto w-full max-w-[1440px] px-4 pt-6 sm:px-8 sm:pt-7 lg:px-12 ${odtu ? "pb-24 lg:pt-10 xl:px-[120px]" : "pb-16"}`}
+      >
         {children}
       </main>
       {pathname === homeHref ? <FeedbackButton /> : null}
