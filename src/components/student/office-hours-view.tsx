@@ -6,9 +6,8 @@ import Link from "next/link";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { ChipSelect, ToggleChip } from "@/components/ia/filter-chip";
 import { PageHeader } from "@/components/ia/page-header";
-import { FilterChip } from "@/components/student/ia/filter-chip";
-import { FilterSelect } from "@/components/student/ia/filter-select";
 import { Chip, InitialsAvatar } from "@/components/student/ia/ui";
 import {
   officeHoursBookingHref,
@@ -23,8 +22,12 @@ import { shortWeekday, timeLabel } from "@/lib/calendar";
 import { academicianName } from "@/lib/student-office-hours";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 
-function asOptions(names: readonly string[]) {
-  return names.map((name) => ({ value: name, label: name }));
+/** The filter's own name stands for "any". */
+function asOptions(any: string, names: readonly string[]) {
+  return [
+    { value: "", label: any },
+    ...names.map((name) => ({ value: name, label: name })),
+  ];
 }
 
 /** Office Hours (Figma 3.2): the advisor first, then every ODTÜ academician with their nearest free time. */
@@ -59,24 +62,23 @@ export function StudentOfficeHoursView() {
             className="h-12 w-full rounded-input border border-border-control bg-background-surface pr-4 pl-11 type-body text-text-primary placeholder:text-text-placeholder"
           />
         </label>
-        <FilterSelect
+        <ChipSelect
           label={t("faculty")}
-          value={office.filter.faculty}
-          options={asOptions(office.faculties)}
-          onChange={office.setFaculty}
+          value={office.filter.faculty ?? ""}
+          options={asOptions(t("faculty"), office.faculties)}
+          onChange={(value) => office.setFaculty(value || null)}
         />
-        <FilterSelect
+        <ChipSelect
           label={t("department")}
-          value={office.filter.department}
-          options={asOptions(office.departments)}
-          onChange={office.setDepartment}
+          value={office.filter.department ?? ""}
+          options={asOptions(t("department"), office.departments)}
+          onChange={(value) => office.setDepartment(value || null)}
         />
-        <FilterChip
+        <ToggleChip
+          label={t("availableOnly")}
           pressed={office.filter.availableOnly}
-          onClick={office.toggleAvailableOnly}
-        >
-          {t("availableOnly")}
-        </FilterChip>
+          onToggle={office.toggleAvailableOnly}
+        />
         <p className="ml-auto type-body-sm text-text-muted">
           {t("count", { count: office.total })}
         </p>

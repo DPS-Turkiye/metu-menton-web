@@ -19,8 +19,8 @@ export function ToggleSwitch({
       aria-label={label}
       onClick={onChange}
       disabled={disabled}
-      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#26a4ff] disabled:opacity-50 ${
-        checked ? "bg-[#26a4ff]" : "bg-[#d4d8dd]"
+      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-selected disabled:opacity-50 ${
+        checked ? "bg-action-accent" : "bg-border-control"
       }`}
     >
       <span

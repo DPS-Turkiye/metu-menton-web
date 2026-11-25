@@ -214,11 +214,11 @@ describe("PeerMentorPublicProfile", () => {
       name: "Mentorluk talebi gönder",
     });
     expect(
-      within(dialog).getByText("Deniz Kaya · Akran Mentoru"),
+      within(dialog).getByText("Akran mentor · Bilgisayar Mühendisliği"),
     ).toBeVisible();
-    expect(within(dialog).getByLabelText(/Konu/)).toHaveValue(
-      "CAREER_INTERNSHIP",
-    );
+    expect(
+      within(dialog).getByRole("button", { name: "Kariyer ve Staj" }),
+    ).toHaveAttribute("aria-pressed", "true");
     await user.type(within(dialog).getByLabelText("Kısa mesaj"), "Merhaba");
     expect(within(dialog).getByText(/7 \/ 1000$/)).toBeVisible();
     await user.click(
@@ -227,9 +227,10 @@ describe("PeerMentorPublicProfile", () => {
     expect(within(dialog).getByRole("alert")).toHaveTextContent(
       "Mesajın en az 20 karakter olmalı.",
     );
-    await user.selectOptions(
-      within(dialog).getByLabelText(/Konu/),
-      "TECHNICAL_DIGITAL",
+    await user.click(
+      within(dialog).getByRole("button", {
+        name: "Teknik ve Dijital Beceriler",
+      }),
     );
     await user.type(
       within(dialog).getByLabelText("Kısa mesaj"),

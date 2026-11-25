@@ -122,7 +122,8 @@
       }
     },
     "mentees": {
-      "empty": "You haven't accepted a request yet."
+      "empty": "You haven't accepted a request yet.",
+      "nextSession": "Next meeting: {day} · {time}"
     },
     "capacity": {
       "title": "Your capacity",
@@ -135,7 +136,11 @@
         "lastPlace": "{free} place free. When it fills up, Discover says “Not taking new mentees right now”.",
         "full": "Your capacity is full. New requests won't reach you until a place opens."
       },
-      "valueText": "{used} of {capacity} mentees"
+      "valueText": "{used} of {capacity} mentees",
+      "summary": "Capacity {used} / {capacity}",
+      "summaryNoLimit": "{used} active mentees",
+      "requests": "Requests",
+      "requestsCount": "Requests ({waiting})"
     },
     "profileCard": {
       "title": "Your mentor profile",
@@ -186,7 +191,8 @@
       "back": "Give mentoring",
       "notFound": "This student is not your mentee, or their request is no longer open.",
       "role": "Mentee",
-      "requests": "Requests sent to you"
+      "requests": "Requests sent to you",
+      "privacy": "From the student's ODTÜ details you only see their name and department."
     }
   },
   "wizard": {
@@ -482,7 +488,6 @@
     },
     "dialog": {
       "title": "Send a mentoring request",
-      "subtitle": "{name} · Peer mentor",
       "close": "Close",
       "category": "Topic",
       "message": "Short message",
@@ -492,7 +497,9 @@
       "cancel": "Cancel",
       "send": "Send a mentoring request",
       "sending": "Sending…",
-      "failed": "The request couldn't be sent."
+      "failed": "The request couldn't be sent.",
+      "role": "Peer mentor",
+      "note": "The mentoring starts when {name} accepts."
     },
     "sent": {
       "title": "Your request was sent",

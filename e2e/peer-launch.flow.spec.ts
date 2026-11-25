@@ -774,12 +774,12 @@ test.describe("İŞKUR", () => {
 
 /** Keşfet → Mehmet's profile → "Mentorluk talebi gönder", up to the sent confirmation. */
 async function sendRequestToMehmet(page: Page) {
-  // Keşfet lists the mentor; the request starts from their profile (a card offers it only when recommended).
+  // Keşfet lists the mentor; the request starts from their profile.
   await mentorRow(page, Persona.MehmetKaya).getByText("Profili gör").click();
   await page.getByRole("button", { name: /^Mentorluk talebi gönder/ }).click();
 
   const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Konu").selectOption({ label: CATEGORY });
+  await dialog.getByRole("button", { name: CATEGORY }).click();
   await dialog.getByLabel("Kısa mesaj").fill(REQUEST_MESSAGE);
   await dialog.getByRole("button", { name: "Talebi gönder" }).click();
   await expect(

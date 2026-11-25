@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 const CHIP =
   "inline-flex h-9 shrink-0 items-center gap-1 rounded-full border px-3 type-label text-text-primary";
@@ -52,7 +53,7 @@ export function ToggleChip({
   pressed,
   onToggle,
 }: {
-  label: string;
+  label: ReactNode;
   pressed: boolean;
   onToggle: () => void;
 }) {
