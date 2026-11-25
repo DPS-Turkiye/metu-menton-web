@@ -42,7 +42,7 @@ import { useIndividualProgram } from "@/hooks/use-individual-program";
 import { useProfilePhoto } from "@/hooks/use-profile-photo";
 import { UserRole } from "@/interfaces/session";
 import { openNavItems } from "@/lib/edition-nav";
-import { roleWorkspace } from "@/lib/role-workspace";
+import { workspaceForSession } from "@/lib/role-workspace";
 import { STUDENT_PROJECT_HREF } from "@/lib/startup-tabs";
 import { initials } from "@/lib/utils";
 import { AppArea } from "@/types/app-area";
@@ -216,7 +216,7 @@ export function AppShell({
   const photo = useProfilePhoto();
   const student = useIndividualProgram();
   const { homeHref, profileHref, showNotificationBadge, usesRoleSubtitle } =
-    roleWorkspace(session?.role);
+    workspaceForSession(session);
   const isMentor = session?.role === UserRole.Mentor || mentorHome;
   // A page opts out by passing menteeHome={false}; omitting it gives every
   // mentee the revised frame, so a new page cannot forget to ask for it.

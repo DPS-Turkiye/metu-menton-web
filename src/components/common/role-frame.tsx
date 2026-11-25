@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Settings, X } from "lucide-react";
+import { LogOut, Menu, Settings, User, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,6 +22,7 @@ import { useRoleGate } from "@/hooks/use-role-gate";
 import { UserRole } from "@/interfaces/session";
 import { Workspace } from "@/interfaces/workspace";
 import { openNavItems } from "@/lib/edition-nav";
+import { workspaceForSession } from "@/lib/role-workspace";
 import { initials } from "@/lib/utils";
 import type messages from "@/messages/tr.json";
 import { IaAccent } from "@/types/ia-theme";
@@ -66,6 +67,7 @@ export function RoleFrame({
   nav,
   roleLabel,
   headerExtras,
+  notificationHref,
   children,
 }: {
   allowedRoles?: UserRole[];
@@ -76,6 +78,8 @@ export function RoleFrame({
   roleLabel?: string | undefined;
   /** Workspace-only controls next to the notification bell (the İŞKUR Mesajlar panel). */
   headerExtras?: ReactNode;
+  /** Where a notification's link leads in this workspace; as the backend sent it when left out. */
+  notificationHref?: ((href: string) => string) | undefined;
   children: ReactNode;
 }) {
   const t = useTranslations("common");
@@ -99,6 +103,7 @@ export function RoleFrame({
       nav={nav}
       roleLabel={roleLabel}
       headerExtras={headerExtras}
+      notificationHref={notificationHref}
     >
       {children}
       {workspace ? <ProductTour workspace={workspace} /> : null}
@@ -113,6 +118,7 @@ function RoleShell({
   nav,
   roleLabel: workspaceLabel,
   headerExtras,
+  notificationHref,
   children,
 }: {
   /** The design-system theme: ODTÜ red for the ODTÜ workspaces, the neutral ink theme otherwise. */
@@ -122,6 +128,7 @@ function RoleShell({
   nav: RoleNavItem[];
   roleLabel?: string | undefined;
   headerExtras?: ReactNode;
+  notificationHref?: ((href: string) => string) | undefined;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -134,6 +141,9 @@ function RoleShell({
   const [accountOpen, setAccountOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const tAccount = useTranslations("accountMenu");
+  // Staff have no profile page: theirs is their home.
+  const { profileHref } = workspaceForSession(session);
+  const ownProfileHref = profileHref === homeHref ? null : profileHref;
   const roleLabel =
     workspaceLabel ?? t(`roles.${session?.role ?? UserRole.Mentee}`);
   const name = session?.fullName ?? roleLabel;
@@ -166,7 +176,7 @@ function RoleShell({
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             {headerExtras}
-            <NotificationMenu appearance="admin" />
+            <NotificationMenu appearance="admin" hrefFor={notificationHref} />
             <span className="hidden h-6 w-px bg-[#dde1e6] sm:block" />
             <div className="relative">
               <button
@@ -200,6 +210,17 @@ function RoleShell({
                   role="menu"
                   className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[#e9ecef] bg-white py-1 shadow-lg"
                 >
+                  {ownProfileHref ? (
+                    <Link
+                      href={ownProfileHref}
+                      role="menuitem"
+                      onClick={() => setAccountOpen(false)}
+                      className={MENU_ITEM_CLASS}
+                    >
+                      <User aria-hidden className="size-4" />
+                      {tAccount("profile")}
+                    </Link>
+                  ) : null}
                   <WorkspaceSwitcher
                     itemClassName={MENU_ITEM_CLASS}
                     onSwitched={() => setAccountOpen(false)}

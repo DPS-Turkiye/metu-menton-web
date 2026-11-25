@@ -8,6 +8,13 @@ export enum IskurTeamTab {
   Members = "members",
 }
 
+/** What the leader's form does: a new task, a change to one, or the same task for someone else (9.1). */
+export enum IskurAssignMode {
+  Create = "create",
+  Edit = "edit",
+  Reassign = "reassign",
+}
+
 export interface IskurAssignForm {
   title: string;
   kind: IskurTaskKind;
