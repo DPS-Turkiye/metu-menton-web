@@ -215,18 +215,15 @@ describe("PeerMentorProfileWizard", () => {
       await screen.findByText("0 / 1 zorunlu belge yüklendi"),
     ).toBeVisible();
     expect(screen.getByText("Kariyer ve Staj için CV")).toBeVisible();
-    await user.type(
-      screen.getByLabelText("LinkedIn"),
-      "linkedin.com/in/zeynep",
-    );
+    await user.type(screen.getByLabelText("LinkedIn"), "zeynep demir");
     await next();
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "http:// veya https://",
+      "Geçerli bir bağlantı gir",
     );
     await user.clear(screen.getByLabelText("LinkedIn"));
     await user.type(
       screen.getByLabelText("LinkedIn"),
-      "https://linkedin.com/in/zeynep",
+      "linkedin.com/in/zeynep",
     );
     await next();
 

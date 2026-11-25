@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import {
   PeerDocumentVisibility,
   PeerEvidenceType,
@@ -11,10 +12,12 @@ import {
 import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
 import {
+  addPeerMentorFormDocument,
   addPeerMentorLink,
   deletePeerMentorDocument,
   getOwnPeerMentorDocuments,
   getPeerMentorDocuments,
+  getPeerMentorFormDocuments,
   peerMentorDocumentContentHref,
   updatePeerMentorDocumentVisibility,
   uploadPeerMentorDocument,
@@ -27,17 +30,31 @@ import {
   sharedEvidence,
   uploadTypeOf,
 } from "@/lib/peer-mentor-documents";
-import { errorMessage, formatFileSize, httpUrlOrNull } from "@/lib/utils";
+import {
+  errorMessage,
+  formatFileSize,
+  httpUrlOrNull,
+  typedUrlOrNull,
+} from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 import {
   EvidenceCard,
   EvidenceFileProblem,
+  type EvidenceCardView,
 } from "@/types/peer-mentor-evidence";
 
 export const PEER_MENTOR_DOCUMENTS_QUERY_KEY = [
   "peer-mentoring",
   "documents",
 ] as const;
+const FORM_DOCUMENTS_QUERY_KEY = [
+  ...PEER_MENTOR_DOCUMENTS_QUERY_KEY,
+  "form",
+] as const;
+const FORM_CARD: Record<IskurDocumentSlot, EvidenceCard> = {
+  [IskurDocumentSlot.Cv]: EvidenceCard.Cv,
+  [IskurDocumentSlot.Transcript]: EvidenceCard.Transcript,
+};
 const OWN_DOCUMENTS_QUERY_KEY = [
   ...PEER_MENTOR_DOCUMENTS_QUERY_KEY,
   "mine",
@@ -58,7 +75,7 @@ export function usePeerRequiredDocuments(
       documents.data,
       topics,
       {},
-      httpUrlOrNull(linkedinUrl) != null,
+      typedUrlOrNull(linkedinUrl) != null,
     ),
   );
 }
@@ -95,7 +112,7 @@ export function usePeerMentorDocumentsStep({
     documents.data ?? [],
     topics,
     chosen,
-    httpUrlOrNull(linkedinUrl) != null,
+    typedUrlOrNull(linkedinUrl) != null,
   );
   const visibilityOf = (card: EvidenceCard) =>
     cards.find((view) => view.card === card)?.visibility ??
@@ -136,6 +153,24 @@ export function usePeerMentorDocumentsStep({
         card: EvidenceCard.Portfolio,
         message: errorMessage(error, t("linkFailed")),
       }),
+  });
+
+  // Nothing is offered while it loads or when it fails: uploading stays possible.
+  const formDocuments = useQuery({
+    queryKey: FORM_DOCUMENTS_QUERY_KEY,
+    queryFn: getPeerMentorFormDocuments,
+    retry: false,
+  });
+  const fromForm = useMutation({
+    mutationFn: ({ slot }: { card: EvidenceCard; slot: IskurDocumentSlot }) =>
+      // The form told the intern only coordinators see it; showing it to students is the mentor's own next step.
+      addPeerMentorFormDocument({
+        slot,
+        visibility: PeerDocumentVisibility.VerificationOnly,
+      }),
+    onSuccess: () => refresh(),
+    onError: (error, { card }) =>
+      setProblem({ card, message: errorMessage(error, t("uploadFailed")) }),
   });
 
   const visibility = useMutation({
@@ -209,9 +244,22 @@ export function usePeerMentorDocumentsStep({
         visibility: visibilityOf(card),
       });
     },
+    /** The İŞKUR form's file for an empty card, when the mentor gave one there. */
+    formFileOf: (view: EvidenceCardView) =>
+      view.documents.length === 0
+        ? (formDocuments.data?.find(
+            (file) => FORM_CARD[file.slot] === view.card,
+          ) ?? null)
+        : null,
+    isUsingFormFile: fromForm.isPending,
+    useFormFile: (card: EvidenceCard, slot: IskurDocumentSlot) => {
+      if (fromForm.isPending || upload.isPending) return;
+      setProblem(null);
+      fromForm.mutate({ card, slot });
+    },
     addLink: () => {
       if (link.isPending) return;
-      const url = httpUrlOrNull(linkDraft);
+      const url = typedUrlOrNull(linkDraft);
       if (!url) {
         setProblem({ card: EvidenceCard.Portfolio, message: t("linkInvalid") });
         return;

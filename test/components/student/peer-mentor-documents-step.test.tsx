@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PeerMentorDocumentsStep } from "@/components/student/peer-mentor-documents-step";
+import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import {
   PeerDocumentVisibility,
   PeerEvidenceType,
@@ -10,9 +11,11 @@ import {
 } from "@/interfaces/peer-mentor-documents";
 import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import {
+  addPeerMentorFormDocument,
   addPeerMentorLink,
   deletePeerMentorDocument,
   getOwnPeerMentorDocuments,
+  getPeerMentorFormDocuments,
   updatePeerMentorDocumentVisibility,
   uploadPeerMentorDocument,
 } from "@/lib/client/peer-mentor-documents";
@@ -28,6 +31,8 @@ vi.mock("@/lib/client/peer-mentor-documents", async (importOriginal) => ({
   >()),
   getOwnPeerMentorDocuments: vi.fn(),
   uploadPeerMentorDocument: vi.fn(),
+  addPeerMentorFormDocument: vi.fn(),
+  getPeerMentorFormDocuments: vi.fn(),
   addPeerMentorLink: vi.fn(),
   updatePeerMentorDocumentVisibility: vi.fn(),
   deletePeerMentorDocument: vi.fn(),
@@ -38,6 +43,7 @@ let stored: PeerMentorDocument[] = [];
 beforeEach(() => {
   vi.clearAllMocks();
   stored = [];
+  vi.mocked(getPeerMentorFormDocuments).mockResolvedValue([]);
   vi.mocked(getOwnPeerMentorDocuments).mockImplementation(async () => [
     ...stored,
   ]);
@@ -232,14 +238,14 @@ describe("PeerMentorDocumentsStep", () => {
     const field = within(portfolio).getByLabelText(
       "Portfolyo veya proje bağlantısı",
     );
-    await user.type(field, "github.com/mert{enter}");
+    await user.type(field, "mert portfolyo{enter}");
     expect(within(portfolio).getByRole("alert")).toHaveTextContent(
-      "https:// ile başlayan",
+      "Geçerli bir bağlantı gir",
     );
     expect(addPeerMentorLink).not.toHaveBeenCalled();
 
     await user.clear(field);
-    await user.type(field, "https://github.com/mert");
+    await user.type(field, "github.com/mert");
     await user.click(
       within(portfolio).getByRole("button", { name: "Bağlantı ekle" }),
     );
@@ -255,6 +261,62 @@ describe("PeerMentorDocumentsStep", () => {
     });
     expect(field).toHaveValue("");
     expect(screen.getByText("1 / 1 zorunlu belge yüklendi")).toBeVisible();
+  });
+
+  it("offers the form's CV for the empty CV card and copies it for the coordinator only", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getPeerMentorFormDocuments).mockResolvedValue([
+      { slot: IskurDocumentSlot.Cv, originalFilename: "cv.pdf", sizeBytes: 10 },
+    ]);
+    vi.mocked(addPeerMentorFormDocument).mockImplementation(async (input) => {
+      const document = peerFileFixture({
+        id: "from-form",
+        originalFilename: "cv.pdf",
+        evidenceType: PeerEvidenceType.Cv,
+        visibility: input.visibility,
+      });
+      stored.push(document);
+      return document;
+    });
+    renderStep();
+
+    const cv = await screen.findByRole("region", { name: "CV" });
+    expect(
+      await within(cv).findByText("İŞKUR formundaki dosyan: cv.pdf"),
+    ).toBeVisible();
+    expect(
+      within(
+        screen.getByRole("region", { name: "Öğrenci belgesi veya transkript" }),
+      ).queryByText(/İŞKUR formundaki/),
+    ).toBeNull();
+
+    await user.click(within(cv).getByRole("button", { name: "Bunu kullan" }));
+
+    expect(await within(cv).findByText("Yüklendi")).toBeVisible();
+    expect(addPeerMentorFormDocument).toHaveBeenCalledWith({
+      slot: IskurDocumentSlot.Cv,
+      visibility: PeerDocumentVisibility.VerificationOnly,
+    });
+    expect(within(cv).queryByText(/İŞKUR formundaki/)).toBeNull();
+  });
+
+  it("says why the form's file could not be used, and keeps the upload", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getPeerMentorFormDocuments).mockResolvedValue([
+      { slot: IskurDocumentSlot.Cv, originalFilename: "cv.pdf", sizeBytes: 10 },
+    ]);
+    vi.mocked(addPeerMentorFormDocument).mockRejectedValue(
+      new Error("Dosya bulunamadı."),
+    );
+    renderStep();
+    const cv = await screen.findByRole("region", { name: "CV" });
+    await user.click(
+      await within(cv).findByRole("button", { name: "Bunu kullan" }),
+    );
+    expect(await within(cv).findByRole("alert")).toHaveTextContent(
+      "Dosya bulunamadı.",
+    );
+    expect(within(cv).getByLabelText("dosya seç")).toBeInTheDocument();
   });
 
   it("shows why an upload failed", async () => {

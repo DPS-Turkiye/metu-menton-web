@@ -12,6 +12,10 @@ import {
   GET as getOwnDocuments,
   POST as postDocument,
 } from "@/app/api/peer-mentoring/profile/documents/route";
+import {
+  GET as getFormDocuments,
+  POST as postFormDocument,
+} from "@/app/api/peer-mentoring/profile/form-documents/route";
 import { POST as postLink } from "@/app/api/peer-mentoring/profile/links/route";
 import {
   PeerDocumentVisibility,
@@ -19,11 +23,13 @@ import {
 } from "@/interfaces/peer-mentor-documents";
 import { UserRole } from "@/interfaces/session";
 import {
+  addPeerMentorFormDocument,
   addPeerMentorLink,
   deletePeerMentorDocument,
   fetchOwnPeerMentorDocuments,
   fetchPeerMentorDocumentContent,
   fetchPeerMentorDocuments,
+  fetchPeerMentorFormDocuments,
   updatePeerMentorDocument,
   uploadPeerMentorDocument,
 } from "@/lib/api/peer-mentor-documents";
@@ -52,6 +58,8 @@ vi.mock("@/lib/api/peer-mentor-documents", () => ({
   fetchPeerMentorDocuments: vi.fn(),
   updatePeerMentorDocument: vi.fn(),
   uploadPeerMentorDocument: vi.fn(),
+  addPeerMentorFormDocument: vi.fn(),
+  fetchPeerMentorFormDocuments: vi.fn(),
 }));
 vi.mock("@/lib/session", () => ({ getSessionUser: vi.fn() }));
 
@@ -62,17 +70,14 @@ function params<T extends string>(key: T, value: string) {
   return { params: Promise.resolve({ [key]: value } as Record<T, string>) };
 }
 
-function uploadRequest(
-  fields: Record<string, string | FilePart>,
-  token: string | null = "id-token",
-) {
-  const headers: Record<string, string> = {
-    "Content-Type": MULTIPART_CONTENT_TYPE,
-  };
-  if (token) headers.Authorization = `Bearer ${token}`;
+function uploadRequest(fields: Record<string, string | FilePart>) {
   return new NextRequest(
     "http://localhost/api/peer-mentoring/profile/documents",
-    { method: "POST", headers, body: multipartBody(fields) },
+    {
+      method: "POST",
+      headers: { "Content-Type": MULTIPART_CONTENT_TYPE },
+      body: multipartBody(fields),
+    },
   );
 }
 
@@ -97,6 +102,49 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe("the form's files", () => {
+  const post = (body: object) =>
+    postFormDocument(
+      tokenRequest(
+        "http://localhost/api/peer-mentoring/profile/form-documents",
+        { method: "POST", body },
+      ),
+    );
+
+  it("are listed and used as the signed-in mentor, never as a named one", async () => {
+    vi.mocked(fetchPeerMentorFormDocuments).mockResolvedValue(
+      backendResponse([]),
+    );
+    vi.mocked(addPeerMentorFormDocument).mockResolvedValue(
+      backendResponse(peerFileFixture(), 201),
+    );
+    expect((await getFormDocuments()).status).toBe(200);
+    expect(fetchPeerMentorFormDocuments).toHaveBeenCalledWith("mentor-1");
+    const response = await post({
+      slot: "CV",
+      visibility: PeerDocumentVisibility.VerificationOnly,
+      actorId: "someone-else",
+    });
+    expect(response.status).toBe(201);
+    expect(addPeerMentorFormDocument).toHaveBeenCalledWith("mentor-1", {
+      slot: "CV",
+      visibility: PeerDocumentVisibility.VerificationOnly,
+    });
+  });
+
+  it("need a session and known values", async () => {
+    expect(
+      (await post({ slot: "PASSPORT", visibility: "PROFILE" })).status,
+    ).toBe(400);
+    vi.mocked(getSessionUser).mockResolvedValue(null);
+    expect((await getFormDocuments()).status).toBe(401);
+    expect((await post({ slot: "CV", visibility: "PROFILE" })).status).toBe(
+      401,
+    );
+    expect(addPeerMentorFormDocument).not.toHaveBeenCalled();
+  });
+});
 
 describe("peer mentor document routes", () => {
   it("need a session", async () => {
@@ -136,7 +184,7 @@ describe("peer mentor document routes", () => {
     expect(fetchOwnPeerMentorDocuments).toHaveBeenCalledWith("mentor-1");
   });
 
-  it("upload with the bearer token and only the known fields", async () => {
+  it("upload as the signed-in mentor, with only the known fields", async () => {
     vi.mocked(uploadPeerMentorDocument).mockResolvedValue(
       backendResponse(peerFileFixture(), 201),
     );
@@ -151,11 +199,11 @@ describe("peer mentor document routes", () => {
     );
 
     expect(response.status).toBe(201);
-    const [form, token] = itemAt(
+    const [actorId, form] = itemAt(
       vi.mocked(uploadPeerMentorDocument).mock.calls,
       0,
     );
-    expect(token).toBe("id-token");
+    expect(actorId).toBe("mentor-1");
     expect([...form.keys()].sort()).toEqual([
       "evidenceType",
       "file",
@@ -164,18 +212,16 @@ describe("peer mentor document routes", () => {
     expect(form.get("evidenceType")).toBe(PeerEvidenceType.Cv);
   });
 
-  it("refuse an upload without a token or with unknown values", async () => {
+  it("refuse an upload without a session or with unknown values", async () => {
+    vi.mocked(getSessionUser).mockResolvedValueOnce(null);
     expect(
       (
         await postDocument(
-          uploadRequest(
-            {
-              file: pdf,
-              evidenceType: PeerEvidenceType.Cv,
-              visibility: PeerDocumentVisibility.Profile,
-            },
-            null,
-          ),
+          uploadRequest({
+            file: pdf,
+            evidenceType: PeerEvidenceType.Cv,
+            visibility: PeerDocumentVisibility.Profile,
+          }),
         )
       ).status,
     ).toBe(401);
@@ -221,10 +267,7 @@ describe("peer mentor document routes", () => {
       "http://localhost/api/peer-mentoring/profile/documents",
       {
         method: "POST",
-        headers: {
-          Authorization: "Bearer id-token",
-          "content-length": String(20 * 1024 * 1024),
-        },
+        headers: { "content-length": String(20 * 1024 * 1024) },
         body: "x",
       },
     );

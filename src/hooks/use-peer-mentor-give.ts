@@ -87,7 +87,7 @@ import {
   toggleInterestSubtopic,
   toggleInterestTopic,
 } from "@/lib/student-interests";
-import { errorMessage, initials } from "@/lib/utils";
+import { errorMessage, initials, typedUrlOrNull } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 import {
   PeerCapacityNote,
@@ -386,8 +386,6 @@ const DEFAULT_AVAILABILITY: MentorAvailabilitySettings = {
   meetingBufferMinutes: 0,
 };
 
-const LINK = /^https?:\/\/\S+$/;
-
 function lines(text: string) {
   return text
     .split("\n")
@@ -419,10 +417,15 @@ export function toPeerMentorProfileInput(
     projects: lines(draft.projects),
     erasmus: draft.erasmus.trim(),
     helpWith: draft.helpWith.trim(),
-    linkedinUrl: draft.linkedinUrl.trim(),
+    linkedinUrl: webAddress(draft.linkedinUrl),
     levels: levelsFor(draft.levels, draft.topics),
     experiences: withoutKeys(draft.experiences),
   };
+}
+
+/** The LinkedIn address as it is saved; text that is no address stays for the step to refuse. */
+function webAddress(value: string) {
+  return typedUrlOrNull(value) ?? value.trim();
 }
 
 /** The step names a saved draft reopens on; a number would shift if a step were added. */
@@ -629,7 +632,7 @@ export function usePeerMentorWizard() {
     if (
       current === PeerMentorWizardStep.Links &&
       draft.linkedinUrl.trim() &&
-      !LINK.test(draft.linkedinUrl.trim())
+      !typedUrlOrNull(draft.linkedinUrl)
     ) {
       return t("errors.link");
     }
@@ -728,7 +731,7 @@ export function usePeerMentorWizard() {
     textMax: PEER_PROFILE_TEXT_MAX,
     erasmusMax: PEER_ERASMUS_MAX,
     previewHelpWith: draft.helpWith.trim(),
-    previewLinkedin: draft.linkedinUrl.trim(),
+    previewLinkedin: webAddress(draft.linkedinUrl),
     isFirst: step === PeerMentorWizardStep.Categories,
     isLast: step === PeerMentorWizardStep.Preview,
     toggleTopic: (id: PeerTopicCategory) =>

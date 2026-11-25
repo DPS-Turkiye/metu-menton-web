@@ -177,6 +177,17 @@ export function httpUrlOrNull(value: string | null | undefined) {
   return /^https?:\/\/\S+$/i.test(trimmed) ? trimmed : null;
 }
 
+const BARE_WEB_ADDRESS =
+  /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?:[/?#]\S*)?$/i;
+
+/** A web address as people type or copy it: "linkedin.com/in/ada" gets its https://; null when it is not one. */
+export function typedUrlOrNull(value: string | null | undefined) {
+  const trimmed = value?.trim() ?? "";
+  return httpUrlOrNull(
+    BARE_WEB_ADDRESS.test(trimmed) ? `https://${trimmed}` : trimmed,
+  );
+}
+
 /** Each distinct item once, keyed by `keyOf`: stable React keys for read-only lists without index keys. */
 export function distinctBy<T>(items: readonly T[], keyOf: (item: T) => string) {
   const byKey = new Map<string, T>();

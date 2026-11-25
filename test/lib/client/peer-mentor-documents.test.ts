@@ -4,7 +4,6 @@ import {
   PeerDocumentVisibility,
   PeerEvidenceType,
 } from "@/interfaces/peer-mentor-documents";
-import { postUpload } from "@/lib/client/documents";
 import {
   addPeerMentorLink,
   deletePeerMentorDocument,
@@ -23,8 +22,8 @@ import {
 
 vi.mock("@/lib/http-client", () => ({
   httpClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  UPLOAD_TIMEOUT_MS: 60_000,
 }));
-vi.mock("@/lib/client/documents", () => ({ postUpload: vi.fn() }));
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -41,8 +40,11 @@ describe("peer mentor documents client", () => {
     );
   });
 
-  it("uploads a file with its type and visibility through the shared upload path", async () => {
-    vi.mocked(postUpload).mockResolvedValue(peerFileFixture());
+  it("uploads a file with its type and visibility through the app's own route", async () => {
+    vi.mocked(httpClient.post).mockResolvedValue({
+      status: 201,
+      data: peerFileFixture(),
+    });
     const file = new File(["%PDF"], "cv.pdf", { type: "application/pdf" });
 
     await uploadPeerMentorDocument(
@@ -51,7 +53,8 @@ describe("peer mentor documents client", () => {
       PeerDocumentVisibility.Profile,
     );
 
-    const [path, form] = itemAt(vi.mocked(postUpload).mock.calls, 0);
+    const [path, form] = itemAt(vi.mocked(httpClient.post).mock.calls, 0);
+    if (!(form instanceof FormData)) throw new Error("Expected a form.");
     expect(path).toBe("/api/peer-mentoring/profile/documents");
     expect(form.get("file")).toBe(file);
     expect(form.get("evidenceType")).toBe(PeerEvidenceType.Cv);
