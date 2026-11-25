@@ -13,9 +13,9 @@
       "EXPIRED": "Expired",
       "WITHDRAWN": "Withdrawn"
     },
-    "oneOff": "{date} · one-off",
-    "unavailable": "{days} · Unavailable",
-    "unavailableBecause": "{days} · Unavailable ({reason})",
+    "oneOff": "{hours} · one-off",
+    "unavailable": "Unavailable",
+    "unavailableBecause": "Unavailable · {reason}",
     "everyWeekday": "Every {weekday}",
     "classYear": "Year {year}",
     "close": "Close"
@@ -32,17 +32,11 @@
   "home": {
     "greeting": "{greeting}, {name}",
     "editAvailability": "Edit availability",
-    "appointments": "My appointments",
     "stats": {
       "pending": "Pending requests",
       "pendingOldest": "oldest {ago}",
       "pendingNone": "No requests waiting",
       "pendingEmpty": "Requests show up here once you add availability",
-      "today": "Today's appointments",
-      "todayFirst": "first at {time}",
-      "todayNone": "No appointments today",
-      "week": "Open hours this week",
-      "weekNone": "No open hours this week",
       "advisees": "My advisees",
       "adviseesHint": "From the university record",
       "upcoming": "Upcoming appointments",
@@ -50,12 +44,13 @@
     },
     "requests": {
       "title": "Requests waiting for you",
-      "seeAll": "All ({count})",
-      "topic": "Topic",
+      "seeAll": "All",
       "decline": "Decline",
       "propose": "Propose another time",
       "accept": "Accept",
-      "empty": "No requests are waiting for you."
+      "empty": "No requests are waiting for you.",
+      "advisee": "your advisee",
+      "more": "{count, plural, one {# more request} other {# more requests}} · {name}{count, plural, =1 {} other { and others}}"
     },
     "today": {
       "title": "Today",
@@ -63,8 +58,7 @@
       "empty": "No appointments today."
     },
     "availability": {
-      "title": "My availability",
-      "edit": "Edit"
+      "title": "My availability"
     },
     "empty": {
       "title": "Add availability so students can book time with you",
@@ -77,19 +71,12 @@
       "oneOffHint": "One-off hours",
       "unavailableTitle": "A specific day · All day",
       "unavailableHint": "Unavailable (exception)"
-    }
+    },
+    "advisees": "{count, plural, one {# advisee} other {# advisees}} · from the university record"
   },
   "appointments": {
     "title": "My appointments",
-    "subtitle": "Confirmed appointments, requests waiting for you and your availability in one calendar.",
     "editAvailability": "Edit availability",
-    "filtersLabel": "Show on the calendar",
-    "filters": {
-      "all": "All",
-      "appointments": "Appointments",
-      "requests": "Requests · {count}",
-      "availability": "Availability"
-    },
     "viewsLabel": "Calendar view",
     "views": {
       "day": "Day",
@@ -101,11 +88,11 @@
     "next": "Next",
     "legendLabel": "What the colours mean",
     "legend": {
-      "recurring": "Recurring",
+      "recurring": "Available (weekly)",
       "oneOff": "One-off",
       "confirmed": "Confirmed appointment",
-      "pendingRequest": "Awaiting approval (faded)",
-      "awaitingStudent": "Waiting for the student",
+      "pendingRequest": "Awaiting approval",
+      "awaitingStudent": "Proposed · student's answer",
       "unavailable": "Unavailable"
     },
     "entry": {
@@ -125,22 +112,17 @@
     "more": "+{count} more",
     "openDay": "Open {day}",
     "rail": {
-      "pendingTitle": "Requests waiting for you",
-      "all": "All",
-      "hint": "Requests have a dashed border on the calendar. Click one to see the details.",
+      "pendingTitle": "Waiting for you",
       "pendingEmpty": "No requests are waiting for you.",
       "awaitingTitle": "Waiting for the student",
       "proposed": "Time you proposed: {when}",
       "asked": "Waiting for an answer to your question",
-      "proposedBadge": "Other time proposed",
-      "askedBadge": "Question asked",
-      "availabilityTitle": "My availability",
-      "availabilityEmpty": "No open hours yet.",
       "summary": {
         "title": "{month} summary",
         "body": "{confirmed, plural, =0 {no confirmed meetings} one {# confirmed meeting} other {# confirmed meetings}} · {waiting, plural, =0 {no requests waiting} one {# request waiting} other {# requests waiting}}"
       }
-    }
+    },
+    "todayColumn": "{day} · today"
   },
   "requestDrawer": {
     "title": "Appointment request",
@@ -273,25 +255,24 @@
   "advisees": {
     "title": "My advisees",
     "search": "Search students",
-    "readOnly": "From the university record · read-only",
     "meetingsFailed": "Meetings couldn't be loaded; the last and upcoming meeting columns are incomplete for now.",
     "count": "{count} students",
     "columns": {
       "student": "Student",
       "program": "Department · year",
       "last": "Last appointment",
-      "next": "Next appointment",
-      "actions": "Actions"
+      "next": "Next appointment"
     },
-    "appointments": "Appointments",
-    "appointmentsLabel": "Appointments with {name}",
     "today": "Today {time}",
-    "pending": "Awaiting approval",
     "none": "—",
     "notSignedIn": "Hasn't signed in to Menton yet",
     "empty": "ODTÜ's records show no advisees for you.",
     "noMatch": "No student matches your search.",
-    "footnote": "This list isn't a mentoring match or an appointment. Advising relations come from ODTÜ's records and can't be changed in Menton."
+    "footnote": "This list shows academic advising; peer mentoring matches are not part of it.",
+    "subtitle": "Advisor relations come from ODTÜ's records; they can't be changed in Menton.",
+    "classYearFilter": "Year",
+    "classYear": "Year {year}",
+    "upcomingOnly": "With an upcoming appointment"
   },
   "student": {
     "back": {
@@ -329,6 +310,9 @@
       "goal": "Goal",
       "noGoal": "No goal written yet.",
       "empty": "The student hasn't filled in their interests and goal yet."
-    }
+    },
+    "historyAhead": "Upcoming",
+    "historyPast": "Past",
+    "historyCount": "{count, plural, one {# appointment} other {# appointments}}"
   }
 }

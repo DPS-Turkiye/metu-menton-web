@@ -73,6 +73,7 @@ describe("homeSummary", () => {
       "fourth",
     ]);
     expect(summary.latestRequests).toHaveLength(HOME_REQUEST_PREVIEW);
+    expect(summary.moreRequests).toHaveLength(1);
   });
 
   it("lists today's confirmed appointments in time order, past ones included", () => {
@@ -85,7 +86,6 @@ describe("homeSummary", () => {
 
   it("carries the availability figures", () => {
     expect(summary.hasAvailability).toBe(true);
-    expect(summary.week.minutes).toBe(240);
     expect(summary.availability).toHaveLength(2);
   });
 

@@ -1,25 +1,13 @@
 "use client";
 
-import { ChevronRight, Clock, MessageCircleQuestion } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 
-import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { StudentAvatar } from "@/components/academician/student-avatar";
-import { Button, ButtonVariant } from "@/components/ia/button";
-import { Card } from "@/components/ia/card";
-import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import type { AcademicianAppointmentsCalendar } from "@/hooks/use-academician-appointments-calendar";
-import { AppointmentsFilter } from "@/types/academician-calendar";
-import { AvailabilityItemKind } from "@/types/academician-office-hours";
 
-const HOURS_CLASS: Record<AvailabilityItemKind, string> = {
-  [AvailabilityItemKind.Recurring]: "text-text-primary",
-  [AvailabilityItemKind.OneOff]: "text-status-info-text",
-  [AvailabilityItemKind.Unavailable]: "text-brand-odtu-strong",
-};
-
-/** The right-hand column of Randevularım: what waits for the academician, for the student, and the hours. */
+/** The right-hand column of Randevularım: what waits for the academician and for the student. */
 export function AppointmentsRail({
   calendar,
 }: {
@@ -31,7 +19,6 @@ export function AppointmentsRail({
       {calendar.rail.awaiting.length > 0 ? (
         <AwaitingCard calendar={calendar} />
       ) : null}
-      <AvailabilityCard calendar={calendar} />
       <MonthSummary calendar={calendar} />
     </div>
   );
@@ -70,62 +57,48 @@ function PendingCard({
   const titleId = useId();
   const { pending } = calendar.rail;
   return (
-    <Card labelledBy={titleId} compact className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h2
-          id={titleId}
-          className="flex items-center gap-2 type-h4 text-text-primary"
-        >
+    <section
+      aria-labelledby={titleId}
+      className="rounded-2xl border border-border-default bg-background-surface p-4"
+    >
+      <div className="flex items-center justify-between gap-3 px-1 pb-3">
+        <h2 id={titleId} className="type-label-lg text-text-primary">
           {t("pendingTitle")}
-          <StatusBadge tone={StatusTone.Warning}>{pending.length}</StatusBadge>
         </h2>
-        <button
-          type="button"
-          onClick={() => {
-            calendar.setFilter(AppointmentsFilter.Requests);
-          }}
-          className="type-label text-brand-odtu-strong"
-        >
-          {t("all")}
-        </button>
+        <span className="grid h-6 min-w-6 place-items-center rounded-full bg-status-warning-bg px-1.5 type-label-sm text-status-warning-text">
+          {pending.length}
+        </span>
       </div>
       {pending.length > 0 ? (
-        <ul className="space-y-1">
-          {pending.map((request, index) => (
+        <ul className="divide-y divide-border-default border-t border-border-default">
+          {pending.map((request) => (
             <li key={request.id}>
               <button
                 type="button"
                 onClick={request.open}
-                className={`flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected ${
-                  index === 0 ? "bg-status-warning-bg" : ""
-                }`}
+                className="flex w-full items-center gap-4 rounded-lg px-1 py-2.5 text-left hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
               >
-                <StudentAvatar name={request.studentName} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2 type-label text-text-primary">
-                    {request.studentName}
-                    {request.isAdvisee ? <AdviseeChip /> : null}
-                  </span>
-                  <span className="block type-caption text-text-muted">
-                    {`${request.topic} · ${request.when}`}
-                  </span>
-                </span>
+                <StudentAvatar name={request.studentName} small />
+                <RailPerson name={request.studentName} detail={request.when} />
                 <ChevronRight
                   aria-hidden
-                  className="size-4 shrink-0 text-icon-muted"
+                  className="size-4 shrink-0 text-icon-default"
+                  strokeWidth={1.5}
                 />
               </button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="type-body-sm text-text-secondary">{t("pendingEmpty")}</p>
+        <p className="border-t border-border-default px-1 pt-3 type-body-sm text-text-secondary">
+          {t("pendingEmpty")}
+        </p>
       )}
-      <p className="type-caption text-text-muted">{t("hint")}</p>
-    </Card>
+    </section>
   );
 }
 
+/** Requests answered with a question or with other times: the student's turn. */
 function AwaitingCard({
   calendar,
 }: {
@@ -134,95 +107,45 @@ function AwaitingCard({
   const t = useTranslations("iaAcademician.appointments.rail");
   const titleId = useId();
   return (
-    <Card labelledBy={titleId} compact className="space-y-3">
-      <h2 id={titleId} className="type-h4 text-text-primary">
+    <section
+      aria-labelledby={titleId}
+      className="flex flex-col gap-2 rounded-2xl bg-background-subtle p-4"
+    >
+      <h2 id={titleId} className="type-label text-text-primary">
         {t("awaitingTitle")}
       </h2>
-      <ul className="space-y-3">
+      <ul>
         {calendar.rail.awaiting.map((request) => (
           <li key={request.id}>
             <button
               type="button"
               onClick={request.open}
-              className="flex w-full flex-col items-start gap-2 rounded-xl p-1 text-left hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
+              className="flex w-full items-center gap-4 rounded-lg px-1 py-2 text-left hover:bg-background-muted focus-visible:outline-2 focus-visible:outline-border-selected"
             >
-              <span className="flex items-center gap-3">
-                <StudentAvatar name={request.studentName} />
-                <span>
-                  <span className="block type-label text-text-primary">
-                    {request.studentName}
-                  </span>
-                  <span className="block type-caption text-text-muted">
-                    {request.proposedWhen === null
-                      ? t("asked")
-                      : t("proposed", { when: request.proposedWhen })}
-                  </span>
-                </span>
-              </span>
-              {request.proposedWhen === null ? (
-                <StatusBadge
-                  tone={StatusTone.Info}
-                  icon={
-                    <MessageCircleQuestion aria-hidden className="size-3.5" />
-                  }
-                >
-                  {t("askedBadge")}
-                </StatusBadge>
-              ) : (
-                <StatusBadge
-                  tone={StatusTone.Info}
-                  icon={<Clock aria-hidden className="size-3.5" />}
-                >
-                  {t("proposedBadge")}
-                </StatusBadge>
-              )}
+              <StudentAvatar name={request.studentName} small />
+              <RailPerson
+                name={request.studentName}
+                detail={
+                  request.proposedWhen === null
+                    ? t("asked")
+                    : t("proposed", { when: request.proposedWhen })
+                }
+              />
             </button>
           </li>
         ))}
       </ul>
-    </Card>
+    </section>
   );
 }
 
-function AvailabilityCard({
-  calendar,
-}: {
-  calendar: AcademicianAppointmentsCalendar;
-}) {
-  const t = useTranslations("iaAcademician.appointments");
-  const titleId = useId();
-  const rows = calendar.rail.availability;
+function RailPerson({ name, detail }: { name: string; detail: string }) {
   return (
-    <Card labelledBy={titleId} compact className="space-y-3">
-      <h2 id={titleId} className="type-h4 text-text-primary">
-        {t("rail.availabilityTitle")}
-      </h2>
-      {rows.length > 0 ? (
-        <dl className="space-y-2.5">
-          {rows.map((row) => (
-            <div
-              key={row.key}
-              className="flex items-center justify-between gap-3"
-            >
-              <dt className="type-body-sm text-text-secondary">{row.label}</dt>
-              <dd className={`type-label ${HOURS_CLASS[row.kind]}`}>
-                {row.hours}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : (
-        <p className="type-body-sm text-text-secondary">
-          {t("rail.availabilityEmpty")}
-        </p>
-      )}
-      <Button
-        variant={ButtonVariant.Secondary}
-        href={calendar.links.availability}
-        fullWidth
-      >
-        {t("editAvailability")}
-      </Button>
-    </Card>
+    <span className="min-w-0 flex-1">
+      <span className="block type-label break-words text-text-primary">
+        {name}
+      </span>
+      <span className="block type-body-sm text-text-muted">{detail}</span>
+    </span>
   );
 }

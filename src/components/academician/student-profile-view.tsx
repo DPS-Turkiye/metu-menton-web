@@ -1,23 +1,22 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { CalendarDays, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
-import { StudentAvatar } from "@/components/academician/student-avatar";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
-import { Card } from "@/components/ia/card";
 import { InlineAlert } from "@/components/ia/inline-alert";
-import { PageHeader } from "@/components/ia/page-header";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { StudentInterests } from "@/components/people/student-interests";
+import { BackButton } from "@/components/student/ia/back-button";
 import {
   useAcademicianStudent,
   type AcademicianStudent,
 } from "@/hooks/use-academician-student";
 import { useAdviseeInterests } from "@/hooks/use-advisee-interests";
+import { initials } from "@/lib/utils";
 import {
   StudentHistoryBadge,
   type StudentProfileOrigin,
@@ -31,7 +30,7 @@ const BADGE_TONE: Record<StudentHistoryBadge, StatusTone> = {
   [StudentHistoryBadge.Cancelled]: StatusTone.Error,
 };
 
-/** The full-page student profile, reached from Danışan Öğrencilerim or from a request's "Tam Profili Gör". */
+/** The full-page student profile (Figma 10.8), reached from Danışan Öğrencilerim or from a request's "Tam Profili Gör". */
 export function StudentProfileView({
   userId,
   from,
@@ -42,13 +41,35 @@ export function StudentProfileView({
   const t = useTranslations("iaAcademician.student");
   const profile = useAcademicianStudent(userId, from);
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={profile.student?.name ?? t("record")}
-        back={profile.back}
-      />
+    <div className="flex flex-col gap-6">
+      <BackButton href={profile.back.href}>{profile.back.label}</BackButton>
+      {profile.student ? (
+        <StudentHeader student={profile.student} />
+      ) : (
+        <h1 className="sr-only">{t("record")}</h1>
+      )}
       <StudentProfileBody profile={profile} withActions />
     </div>
+  );
+}
+
+function StudentHeader({ student }: { student: AcademicianStudent }) {
+  return (
+    <header className="flex flex-wrap items-center gap-5">
+      <span
+        aria-hidden
+        className="grid size-[72px] shrink-0 place-items-center rounded-full bg-background-selected type-h3 text-text-accent"
+      >
+        {initials(student.name)}
+      </span>
+      <div className="flex min-w-0 flex-1 basis-56 flex-col items-start gap-1.5">
+        <h1 className="type-h2 text-text-primary">{student.name}</h1>
+        {student.subtitle === "" ? null : (
+          <p className="type-body text-text-muted">{student.subtitle}</p>
+        )}
+        {student.isAdvisee ? <AdviseeChip /> : null}
+      </div>
+    </header>
   );
 }
 
@@ -90,14 +111,10 @@ function StudentProfileContent({
   /** The pop-up opens over the request drawer, which already answers the request. */
   withActions: boolean;
 }) {
+  const t = useTranslations("iaAcademician.student");
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-      <div className="space-y-6 self-start">
-        <StudentRecordCard student={student} />
-        {/* Only their advisor may read it; for anyone else's student the backend has nothing to show. */}
-        {student.isAdvisee ? <InterestsCard userId={student.userId} /> : null}
-      </div>
-      <div className="space-y-6">
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+      <div className="flex min-w-0 flex-col gap-6">
         {student.pendingRequest ? (
           <PendingRequestCard
             request={student.pendingRequest}
@@ -106,47 +123,63 @@ function StudentProfileContent({
         ) : null}
         <HistoryCard history={student.history} />
       </div>
+      <div className="flex min-w-0 flex-col gap-5">
+        {/* In the pop-up the header names only the student, so the subtitle joins the record. */}
+        <RecordPanel student={student} withSubtitle={!withActions} />
+        {/* Only their advisor may read it; for anyone else's student the backend has nothing to show. */}
+        {student.isAdvisee ? <InterestsCard userId={student.userId} /> : null}
+        <p className="flex items-start gap-2 type-body-sm text-text-muted">
+          <Lock
+            aria-hidden
+            className="mt-0.5 size-4 shrink-0"
+            strokeWidth={1.5}
+          />
+          {t("privacy")}
+        </p>
+      </div>
     </div>
   );
 }
 
-function StudentRecordCard({ student }: { student: AcademicianStudent }) {
+function RecordPanel({
+  student,
+  withSubtitle,
+}: {
+  student: AcademicianStudent;
+  withSubtitle: boolean;
+}) {
   const t = useTranslations("iaAcademician.student");
   const recordId = useId();
   return (
-    <Card className="space-y-5">
-      <div className="flex items-center gap-3">
-        <StudentAvatar name={student.name} />
-        <div>
-          <p className="flex flex-wrap items-center gap-2 type-label-lg text-text-primary">
-            {student.name}
-            {student.isAdvisee ? <AdviseeChip /> : null}
-          </p>
-          {student.subtitle === "" ? null : (
-            <p className="type-caption text-text-muted">{student.subtitle}</p>
-          )}
-        </div>
-      </div>
-      <section aria-labelledby={recordId} className="space-y-3">
-        <h2 id={recordId} className="type-label text-text-secondary">
+    <section
+      aria-labelledby={recordId}
+      className="rounded-2xl bg-background-subtle px-5 py-2"
+    >
+      <div className="flex items-center justify-between gap-3 py-3">
+        <h2 id={recordId} className="type-label-lg text-text-primary">
           {t("record")}
         </h2>
-        <dl className="space-y-3">
-          {student.facts.map((fact) => (
-            <div key={fact.key} className="flex justify-between gap-3">
-              <dt className="type-body-sm text-text-muted">{fact.label}</dt>
-              <dd className="type-body-sm text-right text-text-primary">
-                {fact.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-      <p className="flex items-start gap-2 type-caption text-text-muted">
-        <Lock aria-hidden className="mt-0.5 size-3.5 shrink-0" />
-        {t("privacy")}
-      </p>
-    </Card>
+        {withSubtitle && student.isAdvisee ? (
+          <AdviseeChip />
+        ) : (
+          <Lock
+            aria-hidden
+            className="size-4 text-icon-default"
+            strokeWidth={1.5}
+          />
+        )}
+      </div>
+      <dl className="divide-y divide-border-default border-t border-border-default">
+        {student.facts.map((fact) => (
+          <div key={fact.key} className="py-2.5">
+            <dt className="type-caption text-text-muted">{fact.label}</dt>
+            <dd className="type-label break-words text-text-primary">
+              {fact.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -159,8 +192,14 @@ function InterestsCard({ userId }: { userId: string }) {
     return null;
   }
   return (
-    <Card labelledBy={titleId} className="space-y-4">
-      <h2 id={titleId} className="type-label text-text-secondary">
+    <section
+      aria-labelledby={titleId}
+      className="flex flex-col gap-4 rounded-2xl bg-background-subtle p-5"
+    >
+      <h2
+        id={titleId}
+        className="border-b border-border-default pb-3 type-label-lg text-text-primary"
+      >
         {t("title")}
       </h2>
       <WorkspaceQueryState
@@ -170,7 +209,7 @@ function InterestsCard({ userId }: { userId: string }) {
         isRetrying={interests.isRetrying}
       />
       {interests.profile ? <StudentInterests interests={interests} /> : null}
-    </Card>
+    </section>
   );
 }
 
@@ -184,7 +223,10 @@ function PendingRequestCard({
   const t = useTranslations("iaAcademician.student");
   const titleId = useId();
   return (
-    <Card featured labelledBy={titleId} className="space-y-3">
+    <section
+      aria-labelledby={titleId}
+      className="flex flex-col gap-3 rounded-2xl border border-status-warning-border bg-background-surface p-6"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id={titleId} className="type-label text-text-secondary">
           {t("pendingTitle")}
@@ -193,17 +235,17 @@ function PendingRequestCard({
           {t("badges.pending")}
         </StatusBadge>
       </div>
-      <p className="type-h3 text-text-primary">{request.topic}</p>
+      <p className="type-h4 text-text-primary">{request.topic}</p>
       {request.when === null ? null : (
         <p className="type-body-sm text-text-secondary">{request.when}</p>
       )}
       {request.note === null ? null : (
-        <p className="rounded-2xl bg-background-subtle px-4 py-3 type-body-sm text-text-secondary">
+        <p className="rounded-xl bg-background-subtle px-4 py-3 type-body-sm text-text-secondary">
           {request.note}
         </p>
       )}
       {withActions ? (
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-wrap justify-end gap-2 pt-1">
           <Button variant={ButtonVariant.Ghost} href={request.href}>
             {t("decline")}
           </Button>
@@ -213,38 +255,82 @@ function PendingRequestCard({
           <Button href={request.href}>{t("accept")}</Button>
         </div>
       ) : null}
-    </Card>
+    </section>
   );
 }
+
+/** What is still ahead or waiting; the rest is over (Figma 10.8, "Yaklaşan" and "Geçmiş"). */
+const AHEAD: ReadonlySet<StudentHistoryBadge> = new Set([
+  StudentHistoryBadge.Pending,
+  StudentHistoryBadge.Proposed,
+  StudentHistoryBadge.Confirmed,
+]);
 
 function HistoryCard({ history }: { history: AcademicianStudent["history"] }) {
   const t = useTranslations("iaAcademician.student");
   const titleId = useId();
+  const groups = [
+    {
+      key: "ahead",
+      title: t("historyAhead"),
+      items: history.filter((item) => AHEAD.has(item.badge)),
+    },
+    {
+      key: "past",
+      title: t("historyPast"),
+      items: history.filter((item) => !AHEAD.has(item.badge)),
+    },
+  ].filter((group) => group.items.length > 0);
   return (
-    <Card labelledBy={titleId} className="space-y-3">
-      <h2 id={titleId} className="type-label text-text-secondary">
-        {t("history")}
-      </h2>
+    <section
+      aria-labelledby={titleId}
+      className="rounded-2xl border border-border-default bg-background-surface p-6"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+        <h2 id={titleId} className="type-h4 text-text-primary">
+          {t("history")}
+        </h2>
+        {history.length > 0 ? (
+          <p className="type-body-sm text-text-muted">
+            {t("historyCount", { count: history.length })}
+          </p>
+        ) : null}
+      </div>
       {history.length === 0 ? (
         <p className="type-body-sm text-text-muted">{t("historyEmpty")}</p>
       ) : (
-        <ul className="divide-y divide-border-subtle">
-          {history.map((item) => (
-            <li
-              key={item.key}
-              className="flex flex-wrap items-center justify-between gap-3 py-3"
-            >
-              <div>
-                <p className="type-label text-text-primary">{item.title}</p>
-                <p className="type-caption text-text-muted">{item.when}</p>
-              </div>
-              <StatusBadge tone={BADGE_TONE[item.badge]}>
-                {t(`badges.${item.badge}`)}
-              </StatusBadge>
-            </li>
-          ))}
-        </ul>
+        groups.map((group) => (
+          <div
+            key={group.key}
+            className="border-t border-border-default py-3 last:pb-0"
+          >
+            <h3 className="type-overline text-text-secondary">{group.title}</h3>
+            <ul>
+              {group.items.map((item) => (
+                <li
+                  key={item.key}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5"
+                >
+                  <CalendarDays
+                    aria-hidden
+                    className="size-4 shrink-0 text-icon-default"
+                    strokeWidth={1.5}
+                  />
+                  <div className="min-w-0 flex-1 basis-48">
+                    <p className="type-label break-words text-text-primary">
+                      {item.title}
+                    </p>
+                    <p className="type-body-sm text-text-muted">{item.when}</p>
+                  </div>
+                  <StatusBadge tone={BADGE_TONE[item.badge]}>
+                    {t(`badges.${item.badge}`)}
+                  </StatusBadge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
       )}
-    </Card>
+    </section>
   );
 }

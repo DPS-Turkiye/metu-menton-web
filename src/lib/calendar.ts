@@ -189,6 +189,8 @@ export function placeInLanes<T>(
   items: readonly T[],
   span: (item: T) => { start: Date; hours: number },
   grid: GridHours,
+  /** A grid whose blocks fit on one line draws shorter ones, so back-to-back half hours stay under each other. */
+  minHours = MIN_BLOCK_HOURS,
 ): Placed<T>[] {
   const sorted = items
     .map((item) => ({ item, ...span(item) }))
@@ -198,9 +200,9 @@ export function placeInLanes<T>(
     const startHours = start.getHours() + start.getMinutes() / 60;
     const top = Math.min(
       Math.max(startHours - grid.startHour, 0),
-      grid.hours - MIN_BLOCK_HOURS,
+      grid.hours - minHours,
     );
-    const height = Math.max(Math.min(hours, grid.hours - top), MIN_BLOCK_HOURS);
+    const height = Math.max(Math.min(hours, grid.hours - top), minHours);
     // Earlier items start at or before this one, so the ones still running are those ending after its top.
     const taken = new Set(
       placed

@@ -5,14 +5,6 @@ export enum AppointmentsCalendarView {
   Month = "month",
 }
 
-/** The chips above the calendar ("Tümü / Randevular / Talepler / Müsaitlik"). */
-export enum AppointmentsFilter {
-  All = "all",
-  Appointments = "appointments",
-  Requests = "requests",
-  Availability = "availability",
-}
-
 /** What a block on the calendar stands for; each kind has its own look in the legend. */
 export enum CalendarEntryKind {
   /** A booked appointment ("Onaylandı"). */

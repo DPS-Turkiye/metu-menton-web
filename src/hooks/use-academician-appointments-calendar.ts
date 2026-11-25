@@ -4,10 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
-import { useAvailabilityRows } from "@/hooks/use-availability-rows";
 import { useInstitutionAdvisees } from "@/hooks/use-institution-record";
 import type { OfficeHoursRequest } from "@/interfaces/academician-office-hours";
-import { availabilitySummary } from "@/lib/academician-availability";
 import {
   anchorDay,
   appointmentsHref,
@@ -17,7 +15,6 @@ import {
   calendarTitle,
   compactHours,
   dayColumns,
-  filterEntries,
   gridHours,
   isForeground,
   monthCells,
@@ -37,7 +34,8 @@ import {
   ACADEMICIAN_APPOINTMENTS_QUERY_KEY,
   ACADEMICIAN_AVAILABILITY_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
-  slotWhenLabel,
+  turkeyShortDay,
+  turkeyTime,
   turkeyWallClock,
 } from "@/lib/academician-office-hours";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
@@ -54,7 +52,6 @@ import {
   AppointmentsCalendarView,
   CalendarEntryKind,
   RequestStep,
-  type AppointmentsFilter,
 } from "@/types/academician-calendar";
 
 /** One block or chip on the calendar, with every text it shows already written out. */
@@ -82,8 +79,6 @@ export type PlacedBlock = CalendarBlock & {
 export type RailRequest = {
   id: string;
   studentName: string;
-  isAdvisee: boolean;
-  topic: string;
   when: string;
   open: () => void;
 };
@@ -104,7 +99,7 @@ function drawerOpenedHere() {
 }
 
 /**
- * Randevularım: one calendar for appointments, requests and availability. The view, its day, the filter and an
+ * Randevularım: one calendar for appointments, requests and availability. The view, its day and an
  * open drawer live in the URL and are read from it, so links from Ana Sayfa land on the right request, Back closes
  * the drawer and a reload keeps the week. Next.js syncs pushState/replaceState with useSearchParams.
  */
@@ -115,7 +110,6 @@ export function useAcademicianAppointmentsCalendar(
   const t = useTranslations("iaAcademician.appointments");
   const tWeekday = useTranslations("options.weekday");
   const locale = useLocale();
-  const toRow = useAvailabilityRows({ everyWeek: true });
   const search = parseAppointmentsSearch(
     Object.fromEntries(useSearchParams().entries()),
   );
@@ -185,7 +179,7 @@ export function useAcademicianAppointmentsCalendar(
   const advisor = adviseeIds(advisees.data ?? []);
   const anchor = anchorDay(search.date, now);
   const days = calendarDays(search.view, anchor);
-  const shown = filterEntries(calendarEntries(source, days), search.filter);
+  const shown = calendarEntries(source, days);
   const columns =
     search.view === AppointmentsCalendarView.Week
       ? weekColumns(days, shown)
@@ -267,9 +261,9 @@ export function useAcademicianAppointmentsCalendar(
     return {
       id: request.id,
       studentName: request.student.fullName,
-      isAdvisee: advisor.has(request.student.userId),
-      topic: request.topic,
-      when: first ? slotWhenLabel(first, locale) : "",
+      when: first
+        ? `${turkeyShortDay(first.startsAt, locale)} · ${turkeyTime(first.startsAt, locale)}`
+        : "",
       open: () => {
         openRequest(request.id);
       },
@@ -284,11 +278,6 @@ export function useAcademicianAppointmentsCalendar(
       setView: (view: AppointmentsCalendarView) => {
         update({ view });
       },
-      filter: search.filter,
-      setFilter: (filter: AppointmentsFilter) => {
-        update({ filter });
-      },
-      requestCount: pending.length,
       title: calendarTitle(search.view, anchor, columns, locale),
       previous: () => {
         update({ date: isoDay(shiftAnchor(search.view, anchor, -1)) });
@@ -387,12 +376,11 @@ export function useAcademicianAppointmentsCalendar(
           const proposed = request.proposedTimes[0];
           return {
             ...toRailRequest(request),
-            proposedWhen: proposed ? slotWhenLabel(proposed, locale) : null,
+            proposedWhen: proposed
+              ? `${turkeyShortDay(proposed.startsAt, locale)} ${turkeyTime(proposed.startsAt, locale)}`
+              : null,
           };
         }),
-        availability: availabilitySummary(source.availability, now).map(
-          (item) => toRow(item, now),
-        ),
       },
       selectedRequest:
         search.request === null

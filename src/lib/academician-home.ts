@@ -7,9 +7,7 @@ import { AppointmentStatus } from "@/interfaces/appointment";
 import {
   availabilitySummary,
   hasAvailability,
-  weekAvailability,
   type AvailabilityItem,
-  type WeekAvailability,
 } from "@/lib/academician-availability";
 import {
   byStart,
@@ -27,9 +25,10 @@ export type HomeSummary = {
   oldestRequestedAt: string | null;
   /** Oldest first, so the one waiting longest is answered first. */
   latestRequests: OfficeHoursRequest[];
+  /** The ones past the preview. */
+  moreRequests: OfficeHoursRequest[];
   today: AcademicianAppointment[];
   upcomingCount: number;
-  week: WeekAvailability;
   hasAvailability: boolean;
   availability: AvailabilityItem[];
 };
@@ -54,6 +53,7 @@ export function homeSummary({
     pendingCount: waiting.length,
     oldestRequestedAt: waiting[0]?.requestedAt ?? null,
     latestRequests: waiting.slice(0, HOME_REQUEST_PREVIEW),
+    moreRequests: waiting.slice(HOME_REQUEST_PREVIEW),
     today: appointments
       .filter(
         (item) =>
@@ -63,7 +63,6 @@ export function homeSummary({
       .toSorted(byStart),
     upcomingCount: groupAppointments(appointments, now.getTime()).upcoming
       .length,
-    week: weekAvailability(availability, now),
     hasAvailability: hasAvailability(availability, now),
     availability: availabilitySummary(availability, now),
   };

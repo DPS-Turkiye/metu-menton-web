@@ -9,7 +9,8 @@ import {
   ACADEMICIAN_APPOINTMENTS_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   slotWhenLabel,
-  TURKEY_TIME_ZONE,
+  turkeyShortDay,
+  turkeyTime,
 } from "@/lib/academician-office-hours";
 import {
   ACADEMICIAN_ROUTES,
@@ -75,13 +76,6 @@ export function useAcademicianStudent(
   );
   if (profile === null) return { ...shared, student: null, notFound: true };
 
-  const historyDay = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: TURKEY_TIME_ZONE,
-  });
   const pending = profile.pendingRequest;
   const [pendingTime] = pending?.requestedTimes ?? [];
 
@@ -143,7 +137,7 @@ export function useAcademicianStudent(
         key: item.key,
         title: item.title,
         when: t("historyWhen", {
-          when: historyDay.format(new Date(item.startsAt)),
+          when: `${turkeyShortDay(item.startsAt, locale)} · ${turkeyTime(item.startsAt, locale)}`,
         }),
         badge: item.badge,
       })),

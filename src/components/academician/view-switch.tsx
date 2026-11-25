@@ -35,11 +35,7 @@ export function ViewSwitch({
   };
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={t("viewsLabel")}
-      className="inline-flex rounded-xl bg-background-muted p-1"
-    >
+    <div role="radiogroup" aria-label={t("viewsLabel")} className="inline-flex">
       {VIEWS.map((view, index) => {
         const checked = view === value;
         return (
@@ -58,9 +54,9 @@ export function ViewSwitch({
             onKeyDown={(event) => {
               move(event, index);
             }}
-            className={`h-8 rounded-lg px-4 type-label transition focus-visible:outline-2 focus-visible:outline-border-selected ${
+            className={`h-9 rounded-full px-4 type-label transition focus-visible:outline-2 focus-visible:outline-border-selected ${
               checked
-                ? "bg-background-surface text-brand-odtu-strong shadow-raised"
+                ? "bg-background-surface text-text-accent shadow-raised"
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >

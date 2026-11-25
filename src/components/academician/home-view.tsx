@@ -1,33 +1,32 @@
 "use client";
 
 import {
-  ArrowRight,
-  CalendarClock,
   CalendarDays,
+  Check,
   CircleX,
+  Pencil,
   Repeat,
+  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useId, type ReactNode } from "react";
 
-import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { AppointmentStatusBadge } from "@/components/academician/appointment-status-badge";
 import { StudentAvatar } from "@/components/academician/student-avatar";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
-import { Button, ButtonVariant } from "@/components/ia/button";
-import { Card } from "@/components/ia/card";
-import { PageHeader } from "@/components/ia/page-header";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { SectionHeader } from "@/components/student/ia/ui";
 import {
   useAcademicianHome,
   type AcademicianHome,
-  type HomeAvailabilityRow,
   type HomeRequestCard,
 } from "@/hooks/use-academician-home";
 import { AppointmentStatus } from "@/interfaces/appointment";
 import { AvailabilityItemKind } from "@/types/academician-office-hours";
 
+/** Ana Sayfa (Figma 10.3), or what to do first while there are no open hours. */
 export function AcademicianHomeView() {
   const { home, isLoading, error, retry, isRetrying } = useAcademicianHome();
   if (!home) {
@@ -59,65 +58,35 @@ export function AcademicianHomeView() {
 function HomeHeader({ home }: { home: AcademicianHome }) {
   const t = useTranslations("iaAcademician.home");
   return (
-    <PageHeader
-      title={home.greeting}
-      actions={
-        <>
-          <Button
-            variant={ButtonVariant.Secondary}
-            href={home.links.availability}
-          >
-            {t("editAvailability")}
-          </Button>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            href={home.links.appointments}
-          >
-            {t("appointments")}
-          </Button>
-        </>
-      }
-    />
+    <header className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-1">
+        <p className="type-body text-text-muted">{home.date}</p>
+        <h1 className="type-h1 text-text-primary">{home.greeting}</h1>
+      </div>
+      <Button variant={ButtonVariant.Secondary} href={home.links.availability}>
+        <Pencil aria-hidden className="size-5" strokeWidth={1.5} />
+        {t("editAvailability")}
+      </Button>
+    </header>
   );
 }
 
 function HomeWithAvailability({ home }: { home: AcademicianHome }) {
   const t = useTranslations("iaAcademician.home");
-  const { stats } = home;
   return (
-    <>
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <StatCard
-          label={t("stats.pending")}
-          dot="bg-status-warning-icon"
-          value={stats.pending.value}
-          hint={stats.pending.hint}
-        />
-        <StatCard
-          label={t("stats.today")}
-          dot="bg-status-success-icon"
-          value={stats.today.value}
-          hint={stats.today.hint}
-        />
-        <StatCard
-          label={t("stats.week")}
-          value={stats.week.value}
-          hint={stats.week.hint}
-        />
-        <StatCard
-          label={t("stats.advisees")}
-          value={stats.advisees ?? t("stats.none")}
-          hint={t("stats.adviseesHint")}
-        />
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <PendingRequests home={home} />
+      <div className="flex flex-col gap-6">
+        <Today home={home} />
+        <Availability home={home} />
+        {home.stats.advisees === null ? null : (
+          <p className="flex items-center gap-2 type-body-sm text-text-muted">
+            <User aria-hidden className="size-4 shrink-0" strokeWidth={1.5} />
+            {t("advisees", { count: home.stats.advisees })}
+          </p>
+        )}
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <PendingRequests home={home} />
-        <div className="space-y-6">
-          <TodayCard home={home} />
-          <AvailabilityCard home={home} />
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -125,59 +94,177 @@ function StatCard({
   label,
   value,
   hint,
-  dot,
-  muted = false,
 }: {
   label: string;
   value: ReactNode;
   hint: string;
-  dot?: string;
-  muted?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-2xl border p-5 ${
-        muted
-          ? "border-transparent bg-background-subtle"
-          : "border-border-default bg-background-surface"
-      }`}
-    >
-      <p className="flex items-center gap-2 type-caption text-text-secondary">
-        {dot ? (
-          <span aria-hidden className={`size-1.5 rounded-full ${dot}`} />
-        ) : null}
-        {label}
-      </p>
+    <div className="rounded-2xl bg-background-subtle p-5">
+      <p className="type-caption text-text-secondary">{label}</p>
       <p className="mt-2 type-h2 text-text-primary">{value}</p>
       <p className="mt-1 type-caption text-text-muted">{hint}</p>
     </div>
   );
 }
 
+const LIST =
+  "divide-y divide-border-default overflow-hidden rounded-2xl border border-border-default bg-background-surface";
+
 function PendingRequests({ home }: { home: AcademicianHome }) {
   const t = useTranslations("iaAcademician.home.requests");
   const titleId = useId();
   return (
-    <section aria-labelledby={titleId} className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id={titleId} className="type-h4 text-text-primary">
-          {t("title")}
-        </h2>
-        {home.pendingCount > 0 ? (
-          <Link
-            href={home.links.allRequests}
-            className="inline-flex items-center gap-1 type-label text-brand-odtu-strong"
-          >
-            {t("seeAll", { count: home.pendingCount })}
-            <ArrowRight aria-hidden className="size-4" />
-          </Link>
-        ) : null}
-      </div>
+    <section aria-labelledby={titleId} className="flex min-w-0 flex-col gap-5">
+      <SectionHeader
+        id={titleId}
+        title={t("title")}
+        hint={
+          home.pendingCount > 0
+            ? `${String(home.pendingCount)} · ${home.stats.pending.hint}`
+            : undefined
+        }
+        action={
+          home.pendingCount > 0
+            ? { href: home.links.appointments, label: t("seeAll") }
+            : undefined
+        }
+      />
       {home.requests.length > 0 ? (
-        <ul className="space-y-3">
-          {home.requests.map((card) => (
-            <li key={card.id}>
-              <PendingRequestCard card={card} home={home} />
+        <div className={LIST}>
+          <ul className="divide-y divide-border-default">
+            {home.requests.map((card) => (
+              <li key={card.id}>
+                <PendingRequestRow card={card} home={home} />
+              </li>
+            ))}
+          </ul>
+          {home.more === null ? null : (
+            <p className="px-6 py-5">
+              <Link
+                href={home.links.appointments}
+                className="type-button-sm text-text-link hover:underline"
+              >
+                {home.more}
+              </Link>
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="rounded-2xl bg-background-subtle px-5 py-4 type-body-sm text-text-secondary">
+          {t("empty")}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function PendingRequestRow({
+  card,
+  home,
+}: {
+  card: HomeRequestCard;
+  home: AcademicianHome;
+}) {
+  const t = useTranslations("iaAcademician.home.requests");
+  const nameId = useId();
+  const busy = home.answeringId === card.id;
+  const acceptLabel = (
+    <>
+      <Check aria-hidden className="size-4" strokeWidth={1.5} />
+      {t("accept")}
+    </>
+  );
+  return (
+    <section aria-labelledby={nameId} className="flex flex-col gap-4 p-5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:px-5 sm:pt-4">
+        <StudentAvatar name={card.studentName} />
+        <div className="min-w-0 flex-1 basis-56">
+          <p className="type-label break-words text-text-primary">
+            <span id={nameId}>{card.studentName}</span>
+            {` · ${card.topic}`}
+          </p>
+          {card.detail === "" ? null : (
+            <p className="type-body-sm text-text-muted">{card.detail}</p>
+          )}
+        </div>
+        <p className="type-label-sm text-text-secondary">{card.when}</p>
+      </div>
+      <div className="flex flex-wrap justify-end gap-2">
+        {card.canDecline ? (
+          <Button
+            variant={ButtonVariant.Ghost}
+            size={ButtonSize.Small}
+            href={card.href}
+          >
+            {t("decline")}
+          </Button>
+        ) : null}
+        {card.canPropose ? (
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            href={card.proposeHref}
+          >
+            {t("propose")}
+          </Button>
+        ) : null}
+        {card.acceptTime === null ? (
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            href={card.href}
+          >
+            {acceptLabel}
+          </Button>
+        ) : (
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            disabled={busy}
+            onClick={() => {
+              home.accept(card);
+            }}
+          >
+            {acceptLabel}
+          </Button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Today({ home }: { home: AcademicianHome }) {
+  const t = useTranslations("iaAcademician.home.today");
+  const titleId = useId();
+  return (
+    <section aria-labelledby={titleId} className="flex flex-col gap-4">
+      <SectionHeader
+        id={titleId}
+        title={t("title")}
+        hint={t("count", { count: home.today.length })}
+      />
+      {home.today.length > 0 ? (
+        <ul className={LIST}>
+          {home.today.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={item.href}
+                className="flex items-center gap-4 px-5 py-3 hover:bg-background-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-selected"
+              >
+                <span className="w-12 shrink-0 type-label-lg text-text-primary">
+                  {item.time}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block type-label break-words text-text-primary">
+                    {item.studentName}
+                  </span>
+                  <span className="block type-body-sm break-words text-text-muted">
+                    {item.topic}
+                  </span>
+                </span>
+                <AppointmentStatusBadge status={AppointmentStatus.Confirmed} />
+              </Link>
             </li>
           ))}
         </ul>
@@ -190,166 +277,25 @@ function PendingRequests({ home }: { home: AcademicianHome }) {
   );
 }
 
-function PendingRequestCard({
-  card,
-  home,
-}: {
-  card: HomeRequestCard;
-  home: AcademicianHome;
-}) {
-  const t = useTranslations("iaAcademician.home.requests");
-  const nameId = useId();
-  const busy = home.answeringId === card.id;
-  return (
-    <Card labelledBy={nameId} className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <StudentAvatar name={card.studentName} />
-          <div>
-            <p id={nameId} className="type-label text-text-primary">
-              {card.studentName}
-            </p>
-            <p className="type-caption text-text-muted">{card.when}</p>
-          </div>
-        </div>
-        {card.isAdvisee ? <AdviseeChip /> : null}
-      </div>
-      <div className="space-y-1">
-        <p className="type-overline text-text-muted">{t("topic")}</p>
-        <p className="type-body-sm text-text-primary">{card.topic}</p>
-      </div>
-      <AppointmentStatusBadge status={AppointmentStatus.Pending} />
-      <div className="flex flex-wrap gap-2">
-        {card.canDecline ? (
-          <Button variant={ButtonVariant.Ghost} href={card.href}>
-            {t("decline")}
-          </Button>
-        ) : null}
-        {card.canPropose ? (
-          <Button
-            variant={ButtonVariant.Secondary}
-            href={card.proposeHref}
-            className="flex-1"
-          >
-            <CalendarClock aria-hidden className="size-4" />
-            {t("propose")}
-          </Button>
-        ) : null}
-        {card.acceptTime === null ? (
-          <Button variant={ButtonVariant.Secondary} href={card.href}>
-            {t("accept")}
-          </Button>
-        ) : (
-          <Button
-            variant={ButtonVariant.Secondary}
-            disabled={busy}
-            onClick={() => {
-              home.accept(card);
-            }}
-          >
-            {t("accept")}
-          </Button>
-        )}
-      </div>
-    </Card>
-  );
-}
-
-function TodayCard({ home }: { home: AcademicianHome }) {
-  const t = useTranslations("iaAcademician.home.today");
-  const titleId = useId();
-  return (
-    <Card labelledBy={titleId} compact className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id={titleId} className="type-h4 text-text-primary">
-          {t("title")}
-        </h2>
-        <p className="type-caption text-text-muted">
-          {t("count", { count: home.today.length })}
-        </p>
-      </div>
-      {home.today.length > 0 ? (
-        <ul className="divide-y divide-border-subtle">
-          {home.today.map((item) => (
-            <li key={item.id}>
-              <Link
-                href={item.href}
-                className="flex items-center gap-4 rounded-xl py-3 hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
-              >
-                <span className="w-12 shrink-0 type-label text-text-primary">
-                  {item.time}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate type-label text-text-primary">
-                    {item.studentName}
-                  </span>
-                  <span className="block truncate type-caption text-text-muted">
-                    {item.topic}
-                  </span>
-                </span>
-                <AppointmentStatusBadge status={AppointmentStatus.Confirmed} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="type-body-sm text-text-secondary">{t("empty")}</p>
-      )}
-    </Card>
-  );
-}
-
-const ROW_VALUE_CLASS: Record<AvailabilityItemKind, string> = {
-  [AvailabilityItemKind.Recurring]: "text-text-primary",
-  [AvailabilityItemKind.OneOff]: "text-status-info-text",
-  [AvailabilityItemKind.Unavailable]: "text-brand-odtu-strong",
-};
-
-function AvailabilityCard({ home }: { home: AcademicianHome }) {
+function Availability({ home }: { home: AcademicianHome }) {
   const t = useTranslations("iaAcademician.home.availability");
   const titleId = useId();
-  const dayOffs = home.availability.filter(
-    (row) => row.kind === AvailabilityItemKind.Unavailable,
-  );
-  const hours = home.availability.filter(
-    (row) => row.kind !== AvailabilityItemKind.Unavailable,
-  );
   return (
-    <Card labelledBy={titleId} compact className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id={titleId} className="type-h4 text-text-primary">
-          {t("title")}
-        </h2>
-        <Link
-          href={home.links.availability}
-          className="type-label text-brand-odtu-strong"
-        >
-          {t("edit")}
-        </Link>
-      </div>
-      <dl className="space-y-3">
-        {hours.map((row) => (
-          <AvailabilityLine key={row.key} row={row} />
+    <section aria-labelledby={titleId} className="flex flex-col gap-4">
+      <SectionHeader id={titleId} title={t("title")} />
+      <dl className="flex flex-col gap-2 rounded-2xl border border-border-default bg-background-surface p-5">
+        {home.availability.map((row) => (
+          <div key={row.key} className="flex items-baseline gap-4">
+            <dt className="w-26 shrink-0 type-body-sm text-text-muted">
+              {row.label}
+            </dt>
+            <dd className="min-w-0 type-label text-text-primary">
+              {row.hours}
+            </dd>
+          </div>
         ))}
       </dl>
-      {dayOffs.map((row) => (
-        <p
-          key={row.key}
-          className="rounded-xl bg-brand-odtu-bg px-3 py-2 type-caption text-brand-odtu-strong"
-        >
-          {row.label}
-        </p>
-      ))}
-    </Card>
-  );
-}
-
-function AvailabilityLine({ row }: { row: HomeAvailabilityRow }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <dt className="type-body-sm text-text-secondary">{row.label}</dt>
-      <dd className={`type-label ${ROW_VALUE_CLASS[row.kind]}`}>{row.hours}</dd>
-    </div>
+    </section>
   );
 }
 
@@ -361,7 +307,6 @@ function HomeWithoutAvailability({ home }: { home: AcademicianHome }) {
       <EmptyAvailability home={home} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
-          muted
           label={t("stats.pending")}
           value={stats.pending.value}
           hint={
@@ -369,13 +314,11 @@ function HomeWithoutAvailability({ home }: { home: AcademicianHome }) {
           }
         />
         <StatCard
-          muted
           label={t("stats.upcoming")}
           value={stats.upcoming}
           hint={t("stats.none")}
         />
         <StatCard
-          muted
           label={t("stats.advisees")}
           value={stats.advisees ?? t("stats.none")}
           hint={t("stats.adviseesHint")}
