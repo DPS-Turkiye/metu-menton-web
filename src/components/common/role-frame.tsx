@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Settings, X } from "lucide-react";
+import { LogOut, Menu, Settings, User, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,6 +22,7 @@ import { useRoleGate } from "@/hooks/use-role-gate";
 import { UserRole } from "@/interfaces/session";
 import { Workspace } from "@/interfaces/workspace";
 import { openNavItems } from "@/lib/edition-nav";
+import { workspaceForSession } from "@/lib/role-workspace";
 import { initials } from "@/lib/utils";
 import type messages from "@/messages/tr.json";
 import { IaAccent } from "@/types/ia-theme";
@@ -134,6 +135,9 @@ function RoleShell({
   const [accountOpen, setAccountOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const tAccount = useTranslations("accountMenu");
+  // Staff have no profile page: theirs is their home.
+  const { profileHref } = workspaceForSession(session);
+  const ownProfileHref = profileHref === homeHref ? null : profileHref;
   const roleLabel =
     workspaceLabel ?? t(`roles.${session?.role ?? UserRole.Mentee}`);
   const name = session?.fullName ?? roleLabel;
@@ -200,6 +204,17 @@ function RoleShell({
                   role="menu"
                   className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[#e9ecef] bg-white py-1 shadow-lg"
                 >
+                  {ownProfileHref ? (
+                    <Link
+                      href={ownProfileHref}
+                      role="menuitem"
+                      onClick={() => setAccountOpen(false)}
+                      className={MENU_ITEM_CLASS}
+                    >
+                      <User aria-hidden className="size-4" />
+                      {tAccount("profile")}
+                    </Link>
+                  ) : null}
                   <WorkspaceSwitcher
                     itemClassName={MENU_ITEM_CLASS}
                     onSwitched={() => setAccountOpen(false)}
