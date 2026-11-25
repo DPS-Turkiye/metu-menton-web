@@ -7198,69 +7198,132 @@
     "availabilityExtraSlot": "{day} · {time} ({minutes} dk)"
   },
   "odtuLanding": {
-    "navLabel": "Giriş ve yardım",
-    "help": "Yardım",
-    "overline": "ODTÜ için menton",
-    "title": "Office Hours ve akran mentörlüğü tek yerde",
-    "intro": "Akademisyenlerinden randevu al, rozeti doğrulanmış öğrencilerden akran mentörlüğü iste ve tüm randevularını tek takvimde izle.",
-    "signupAction": "İŞKUR öğrencisi olarak kaydol",
-    "noSignupTag": "Kayıt gerekmez",
-    "noSignupText": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yapman yeterli.",
-    "featuresTitle": "Neler yapabilirsin?",
-    "features": {
+    "metaTitle": "hocam by menton",
+    "skip": "İçeriğe geç",
+    "sectionsLabel": "Sayfa bölümleri",
+    "signUp": "Kaydol",
+    "backToTop": "Başa dön",
+    "footer": "ODTÜ öğrencileri için akran mentörlüğü ve Office Hours.",
+    "sections": {
+      "start": "hocam nedir?",
+      "peer": "Akran Mentörlüğü",
+      "officeHours": "Office Hours",
+      "topics": "Mentorluk başlıkları",
+      "mentor": "Mentor olmak",
+      "community": "Birlikte öğrenmek",
+      "faq": "Sıkça sorulanlar"
+    },
+    "hero": {
+      "title": "Bir bildiğin vardır, <accent>hocam.</accent>",
+      "lead": "ODTÜ'de deneyimler paylaştıkça çoğalır. Akranlarından destek al, akademisyenlerle Office Hours'ta buluş, görüşmelerini tek yerden yönet.",
+      "paths": {
+        "peer": {
+          "title": "Akran Mentörlüğü",
+          "caption": "Deneyimli ODTÜ öğrencilerinden destek al",
+          "action": "Mentor bul"
+        },
+        "officeHours": {
+          "title": "Office Hours",
+          "caption": "Akademisyenlerden randevu talep et",
+          "action": "Office Hours'u keşfet"
+        }
+      }
+    },
+    "stories": {
+      "peer": {
+        "eyebrow": "Akran Mentörlüğü",
+        "title": "Akran mentorlarınla buluş.",
+        "lead": "hocam'da derslerden staja, teknik becerilerden kampüs yaşamına kadar merak ettiğin konularda deneyimli ODTÜ öğrencileriyle tanışırsın.",
+        "stepsLabel": "Akran Mentörlüğü adımları",
+        "steps": {
+          "first": "Konunu seç",
+          "second": "Mentorunu bul",
+          "third": "Talep gönder"
+        },
+        "note": "Mentorun talebini kabul ettiğinde mentorluğunuz başlar."
+      },
       "officeHours": {
-        "title": "Randevu talep et",
-        "caption": "Office Hours"
+        "eyebrow": "Office Hours",
+        "title": "Akademisyenlerden Office Hours al.",
+        "lead": "Akademik danışmanın ya da görüşmek istediğin herhangi bir ODTÜ akademisyeninin müsait saatlerini görür, randevu talep edersin.",
+        "stepsLabel": "Office Hours adımları",
+        "steps": {
+          "first": "Akademisyeni seç",
+          "second": "Saatini seç",
+          "third": "Onayı bekle"
+        },
+        "note": "Randevun akademisyen onayıyla kesinleşir. Başka bir akademisyenle görüşmek danışmanını değiştirmez."
       },
-      "peerMentoring": {
-        "title": "Mentor bul",
-        "caption": "Akran Mentörlüğü"
-      },
-      "appointments": {
-        "title": "Randevularını izle",
-        "caption": "Randevularım"
-      },
-      "advisor": {
-        "title": "Danışmanına ulaş",
-        "caption": "Akademik danışmanlık"
+      "mentor": {
+        "eyebrow": "Akran mentoru olmak",
+        "title": "Bildiğini paylaş.",
+        "lead": "Geçtiğin bir ders, yaptığın bir staj ya da kampüste edindiğin bir tecrübe, bir başkasının yolunu kısaltabilir.",
+        "note": "Mentorluk eğitimini tamamlayıp rozetini aldıktan sonra mentor profilini oluşturur; konularını, deneyimini ve müsaitliğini belirlersin."
       }
     },
-    "audienceTitle": "Kimler için?",
-    "audience": {
-      "student": {
-        "badge": "Öğrenci",
-        "title": "ODTÜ öğrencileri",
-        "points": {
-          "first": "Office Hours randevusu al",
-          "second": "Sana uygun akran mentorunu bul",
-          "third": "Randevularını tek takvimde izle"
-        }
-      },
-      "iskur": {
-        "badge": "İŞKUR Öğrencisi",
-        "title": "Akran mentorları",
-        "points": {
-          "first": "Mentorluk eğitimini tamamla, rozetini al",
-          "second": "Mentorluk taleplerini yanıtla",
-          "third": "Görüşmelerini ve randevularını yönet"
-        }
-      },
-      "academic": {
-        "badge": "Akademisyen",
-        "title": "ODTÜ akademisyenleri",
-        "points": {
-          "first": "Haftalık müsaitliğini ekle",
-          "second": "Gelen randevu taleplerini yanıtla",
-          "third": "Danışan öğrencilerini tek yerde gör"
+    "topics": {
+      "eyebrow": "Mentorluk başlıkları",
+      "title": "Ne öğrenmek istersin, hocam?",
+      "lead": "Akran mentorlarından bu dört başlıkta destek alabilirsin.",
+      "items": {
+        "career": {
+          "title": "Kariyer ve Staj",
+          "body": "CV hazırlama, staj başvurusu, mülakat hazırlığı, sektör seçimi, LinkedIn profili"
+        },
+        "technical": {
+          "title": "Teknik ve Dijital Beceriler",
+          "body": "Python, veri analizi, Excel, tasarım araçları, web geliştirme"
+        },
+        "academic": {
+          "title": "Akademik Gelişim ve Ders Deneyimi",
+          "body": "Ders seçimi, sınav hazırlığı, çalışma teknikleri, çift anadal / yandal, yaz okulu"
+        },
+        "campus": {
+          "title": "Üniversite ve Kampüs Yaşamı",
+          "body": "Zaman yönetimi ve üniversite hayatına dair deneyimler"
         }
       }
     },
-    "banner": {
-      "title": "ODTÜ öğrencisi veya akademisyeni misin?",
-      "text": "ODTÜ hesabınla giriş yap. Office Hours, Akran Mentörlüğü ve akademik danışmanın hesabındaki bilgilere göre açılır."
+    "community": {
+      "eyebrow": "Karşılıklı öğrenme",
+      "title": "ODTÜ'de öğrenmek karşılıklı, <accent>hocam.</accent>",
+      "lead": "Bazen bir soruya cevap ararsın, bazen de bir başkasının aradığı cevap sende vardır."
     },
-    "footer": "menton · ODTÜ",
-    "metaTitle": "menton · ODTÜ"
+    "questions": {
+      "title": "Bir soruyla başla.",
+      "lead": "Yeni bir şey öğrenmeye ya da bildiklerini paylaşmaya hazır mısın?",
+      "join": "hocam'a Katıl",
+      "items": {
+        "what": {
+          "title": "hocam nedir?",
+          "body": "hocam, ODTÜ öğrencilerinin akranlarından mentorluk aldığı ve akademisyenlerden Office Hours randevusu talep ettiği bir platformdur. Akran Mentörlüğü ve Office Hours görüşmelerini Randevularım altında birlikte takip edersin."
+        },
+        "peer": {
+          "title": "Akran Mentörlüğü nasıl çalışır?",
+          "body": "Destek almak istediğin kategorileri ve alt konuları seçersin. Bu seçimlere göre sana mentorlar önerilir ve her önerinin nedeni (konu, deneyim, müsaitlik) açıkça görünür. Mentor profillerini inceler, uygun bulduğun mentora kısa bir mesajla talep gönderirsin."
+        },
+        "officeHours": {
+          "title": "Office Hours nedir?",
+          "body": "Office Hours, ODTÜ akademisyenlerinin öğrencilerle görüşmek için ayırdığı müsait saatlerdir. Bir saat seçip konunu yazarak randevu talep edersin. Randevu akademisyen onayıyla kesinleşir; akademisyen alternatif bir saat de önerebilir."
+        },
+        "otherAdvisor": {
+          "title": "Kendi akademik danışmanım dışında biriyle görüşebilir miyim?",
+          "body": "Evet. Bölüm kısıtı yoktur; istediğin ODTÜ akademisyeninden randevu talep edebilirsin. Başka bir akademisyenden randevu almak akademik danışmanını değiştirmez."
+        },
+        "afterRequest": {
+          "title": "Mentorluk talebi gönderince ne olur?",
+          "body": "Talebin \"Onay Bekliyor\" olarak görünür. Mentor talebini kabul ettiğinde mentorluğunuz başlar ve görüşme planlayabilirsiniz. Taleplerini ve aktif mentorluğunu Mentorluklarım'dan, görüşmelerini Randevularım'dan takip edersin."
+        },
+        "becomeMentor": {
+          "title": "Ben de akran mentoru olabilir miyim?",
+          "body": "Evet. Mentorluk eğitimini tamamlayıp rozetini aldıktan sonra mentor profilini oluşturursun: kategoriler, alt konular, ilgili deneyim, nasıl yardımcı olabileceğin, müsaitlik ve kapasite. Mentee ve mentor etkinliklerin aynı hesapta durur."
+        },
+        "where": {
+          "title": "Randevularımı nereden takip edebilirim?",
+          "body": "Randevularım sayfasında Yaklaşan, Talepler ve Geçmiş sekmeleri bulunur. Taleplerinin durumunu görür, görüşmelerini liste, gün, hafta veya ay takviminde izlersin."
+        }
+      }
+    }
   },
   "programAppointments": {
     "status": {

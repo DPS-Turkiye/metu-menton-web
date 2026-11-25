@@ -42,37 +42,76 @@ describe("Landing page", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Office Hours ve akran mentörlüğü tek yerde",
+        name: "Bir bildiğin vardır, hocam.",
       }),
     ).toBeInTheDocument();
-    for (const link of screen.getAllByRole("link", { name: "Giriş Yap" })) {
-      expect(link).toHaveAttribute("href", "/login");
-    }
-    expect(screen.getAllByRole("link", { name: "Giriş Yap" })).toHaveLength(3);
-    expect(
-      screen.getByRole("link", { name: "İŞKUR öğrencisi olarak kaydol" }),
-    ).toHaveAttribute("href", "/signup");
-    expect(screen.getByRole("link", { name: "Yardım" })).toHaveAttribute(
+    const header = within(screen.getByRole("banner"));
+    expect(header.getByRole("link", { name: "Giriş Yap" })).toHaveAttribute(
       "href",
-      "mailto:info@menton.com.tr",
+      "/login",
+    );
+    expect(header.getByRole("link", { name: "Kaydol" })).toHaveAttribute(
+      "href",
+      "/signup",
+    );
+    expect(screen.getByRole("link", { name: "hocam'a Katıl" })).toHaveAttribute(
+      "href",
+      "/signup",
     );
     expect(
-      screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent),
+      screen.getByRole("link", { name: "info@menton.com.tr" }),
+    ).toHaveAttribute("href", "mailto:info@menton.com.tr");
+    expect(
+      screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
-      "Randevu talep et",
-      "Mentor bul",
-      "Randevularını izle",
-      "Danışmanına ulaş",
-      "ODTÜ öğrencileri",
-      "Akran mentorları",
-      "ODTÜ akademisyenleri",
+      "Akran mentorlarınla buluş.",
+      "Akademisyenlerden Office Hours al.",
+      "Ne öğrenmek istersin, hocam?",
+      "Bildiğini paylaş.",
+      "ODTÜ'de öğrenmek karşılıklı, hocam.",
+      "Bir soruyla başla.",
     ]);
+  });
+
+  it("leads from the hocam hero and header to sections that are on the page", () => {
+    vi.stubEnv("APP_EDITION", "ODTU");
+    const { container } = render(
+      <InLocale locale="tr">
+        <Home />
+      </InLocale>,
+    );
+
+    const anchors = [...container.querySelectorAll('a[href^="#"]')];
+    expect(anchors.length).toBeGreaterThan(9);
+    expect(
+      anchors
+        .map((anchor) => anchor.getAttribute("href")?.slice(1) ?? "")
+        .filter((id) => document.getElementById(id) === null),
+    ).toEqual([]);
+    expect(
+      within(screen.getByRole("navigation", { name: "Sayfa bölümleri" }))
+        .getAllByRole("link")
+        .map((link) => link.getAttribute("aria-current")),
+    ).toEqual(["location", null, null, null, null, null, null]);
+  });
+
+  it("reads in English", () => {
+    vi.stubEnv("APP_EDITION", "ODTU");
+    render(
+      <InLocale locale="en">
+        <Home />
+      </InLocale>,
+    );
     expect(
       screen.getByRole("heading", {
-        level: 2,
-        name: "ODTÜ öğrencisi veya akademisyeni misin?",
+        level: 1,
+        name: "You know something, hocam.",
       }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Join hocam" })).toHaveAttribute(
+      "href",
+      "/signup",
+    );
   });
 
   it("names the page after the deployment's edition", async () => {
@@ -82,7 +121,7 @@ describe("Landing page", () => {
 
     vi.stubEnv("APP_EDITION", "ODTU");
     expect(await generateMetadata()).toEqual({
-      title: { absolute: "menton · ODTÜ" },
+      title: { absolute: "hocam by menton" },
     });
   });
 
@@ -103,10 +142,9 @@ describe("Landing page", () => {
 
     expect(
       screen.getAllByRole("link", { name: "Ayşe olarak devam et" }),
-    ).toHaveLength(3);
-    expect(
-      screen.queryByRole("link", { name: "İŞKUR öğrencisi olarak kaydol" }),
-    ).toBeNull();
+    ).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: "Kaydol" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "hocam'a Katıl" })).toBeNull();
   });
 
   it("renders per request so the CDN never hands phones the desktop page", () => {

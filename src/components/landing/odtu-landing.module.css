@@ -1,0 +1,51 @@
+/* The motion of the hocam landing; everything else on it is Tailwind. All of it is off under reduced motion, and the
+   page reads the same without it. */
+.watermark {
+  position: absolute;
+  right: -40px;
+  bottom: -110px;
+  font-size: clamp(200px, 24vw, 340px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: rgb(255 255 255 / 0.035);
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .floatLater {
+    animation-delay: -3s;
+  }
+  /* Only where the browser ties the animation to scrolling; elsewhere the content is simply there. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-1.5deg);
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
