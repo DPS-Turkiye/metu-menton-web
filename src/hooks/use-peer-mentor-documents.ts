@@ -27,7 +27,12 @@ import {
   sharedEvidence,
   uploadTypeOf,
 } from "@/lib/peer-mentor-documents";
-import { errorMessage, formatFileSize, httpUrlOrNull } from "@/lib/utils";
+import {
+  errorMessage,
+  formatFileSize,
+  httpUrlOrNull,
+  typedUrlOrNull,
+} from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 import {
   EvidenceCard,
@@ -58,7 +63,7 @@ export function usePeerRequiredDocuments(
       documents.data,
       topics,
       {},
-      httpUrlOrNull(linkedinUrl) != null,
+      typedUrlOrNull(linkedinUrl) != null,
     ),
   );
 }
@@ -95,7 +100,7 @@ export function usePeerMentorDocumentsStep({
     documents.data ?? [],
     topics,
     chosen,
-    httpUrlOrNull(linkedinUrl) != null,
+    typedUrlOrNull(linkedinUrl) != null,
   );
   const visibilityOf = (card: EvidenceCard) =>
     cards.find((view) => view.card === card)?.visibility ??
@@ -211,7 +216,7 @@ export function usePeerMentorDocumentsStep({
     },
     addLink: () => {
       if (link.isPending) return;
-      const url = httpUrlOrNull(linkDraft);
+      const url = typedUrlOrNull(linkDraft);
       if (!url) {
         setProblem({ card: EvidenceCard.Portfolio, message: t("linkInvalid") });
         return;

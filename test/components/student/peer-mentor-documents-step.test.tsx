@@ -232,14 +232,14 @@ describe("PeerMentorDocumentsStep", () => {
     const field = within(portfolio).getByLabelText(
       "Portfolyo veya proje bağlantısı",
     );
-    await user.type(field, "github.com/mert{enter}");
+    await user.type(field, "mert portfolyo{enter}");
     expect(within(portfolio).getByRole("alert")).toHaveTextContent(
-      "https:// ile başlayan",
+      "Geçerli bir bağlantı gir",
     );
     expect(addPeerMentorLink).not.toHaveBeenCalled();
 
     await user.clear(field);
-    await user.type(field, "https://github.com/mert");
+    await user.type(field, "github.com/mert");
     await user.click(
       within(portfolio).getByRole("button", { name: "Bağlantı ekle" }),
     );

@@ -350,7 +350,7 @@
       "safeBody": "\"Yalnızca doğrulama için\" seçtiğin belgeleri sadece program koordinatörü doğrulama amacıyla görür. \"Profilimde göster\" seçtiklerin öğrencilere görünür.",
       "notPdf": "Yalnızca PDF dosyası yükleyebilirsin.",
       "tooLarge": "Dosya en fazla {max} olabilir.",
-      "linkInvalid": "https:// ile başlayan bir bağlantı gir.",
+      "linkInvalid": "Geçerli bir bağlantı gir (ör. github.com/adın).",
       "uploadFailed": "Dosya yüklenemedi.",
       "linkFailed": "Bağlantı eklenemedi.",
       "visibilityFailed": "Görünürlük değiştirilemedi.",
@@ -396,7 +396,7 @@
     "errors": {
       "categories": "En az bir kategori seç.",
       "helpWith": "Bu metin en az {min} karakter olmalı.",
-      "link": "Bağlantı http:// veya https:// ile başlamalı.",
+      "link": "Geçerli bir bağlantı gir (ör. linkedin.com/in/adın).",
       "experienceOpen": "Açık deneyimi önce kaydet ya da vazgeç.",
       "experienceStart": "Başlangıç ayı eksik deneyimleri düzenle."
     },

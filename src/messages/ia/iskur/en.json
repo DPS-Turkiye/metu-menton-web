@@ -350,7 +350,7 @@
       "safeBody": "Documents you mark \"For verification only\" are seen only by the program coordinator, to verify them. Those you mark \"Show on my profile\" are visible to students.",
       "notPdf": "You can only upload PDF files.",
       "tooLarge": "The file can be at most {max}.",
-      "linkInvalid": "Enter a link that starts with https://.",
+      "linkInvalid": "Enter a valid link (e.g. github.com/yourname).",
       "uploadFailed": "The file couldn't be uploaded.",
       "linkFailed": "The link couldn't be added.",
       "visibilityFailed": "The visibility couldn't be changed.",
@@ -396,7 +396,7 @@
     "errors": {
       "categories": "Pick at least one category.",
       "helpWith": "This text must be at least {min} characters.",
-      "link": "The link must start with http:// or https://.",
+      "link": "Enter a valid link (e.g. linkedin.com/in/yourname).",
       "experienceOpen": "Save or cancel the open experience first.",
       "experienceStart": "Edit the experiences that have no start month."
     },
