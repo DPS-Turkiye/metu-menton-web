@@ -5,11 +5,10 @@ import { useTranslations } from "next-intl";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { ChipSelect, ToggleChip } from "@/components/ia/filter-chip";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
 import { ProfilePictureLink } from "@/components/people/profile-picture-link";
-import { FilterChip } from "@/components/student/ia/filter-chip";
-import { FilterSelect } from "@/components/student/ia/filter-select";
 import { Chip, SectionHeader } from "@/components/student/ia/ui";
 import { InitialsAvatar, Tag, TagTone } from "@/components/student/iskur-ui";
 import { usePeerMentorDirectory } from "@/hooks/use-peer-mentoring";
@@ -52,38 +51,41 @@ export function PeerMentorDirectory() {
             className="h-12 w-full rounded-input border border-border-control bg-background-surface pr-4 pl-11 type-body text-text-primary placeholder:text-text-placeholder focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-selected"
           />
         </label>
-        <FilterSelect
+        <ChipSelect
           label={t("categoryFilter")}
-          value={directory.category}
-          options={directory.categories.map((category) => ({
-            value: category,
-            label: tTopic(category),
-          }))}
+          value={directory.category ?? ""}
+          options={[
+            { value: "", label: t("categoryFilter") },
+            ...directory.categories.map((category) => ({
+              value: category,
+              label: tTopic(category),
+            })),
+          ]}
           onChange={(value) =>
             directory.setCategory(
-              value !== null && isEnumValue(PeerTopicCategory, value)
-                ? value
-                : null,
+              isEnumValue(PeerTopicCategory, value) ? value : null,
             )
           }
         />
         {directory.subTopicOptions.length > 0 ? (
-          <FilterSelect
+          <ChipSelect
             label={t("subTopicFilter")}
-            value={directory.subTopic}
-            options={directory.subTopicOptions.map((sub) => ({
-              value: sub.id,
-              label: tSubTopic(sub.labelKey),
-            }))}
-            onChange={directory.setSubTopic}
+            value={directory.subTopic ?? ""}
+            options={[
+              { value: "", label: t("subTopicFilter") },
+              ...directory.subTopicOptions.map((sub) => ({
+                value: sub.id,
+                label: tSubTopic(sub.labelKey),
+              })),
+            ]}
+            onChange={(value) => directory.setSubTopic(value || null)}
           />
         ) : null}
-        <FilterChip
+        <ToggleChip
+          label={t("availableThisWeek")}
           pressed={directory.availableThisWeek}
-          onClick={directory.toggleAvailableThisWeek}
-        >
-          {t("availableThisWeek")}
-        </FilterChip>
+          onToggle={directory.toggleAvailableThisWeek}
+        />
       </div>
       {directory.noActiveCategories ? (
         <InlineAlert tone={StatusTone.Info}>{t("noCategories")}</InlineAlert>
@@ -93,32 +95,32 @@ export function PeerMentorDirectory() {
           aria-label={t("categoriesTitle")}
           className="flex flex-wrap gap-2"
         >
-          <FilterChip
+          <ToggleChip
+            label={t("allCategories")}
             pressed={directory.category === null}
-            onClick={() => directory.setCategory(null)}
-          >
-            {t("allCategories")}
-          </FilterChip>
+            onToggle={() => directory.setCategory(null)}
+          />
           {directory.categories.map((category) => {
             const count = directory.countOf(category);
             return (
-              <FilterChip
+              <ToggleChip
                 key={category}
                 pressed={directory.category === category}
-                onClick={() => directory.toggleCategory(category)}
-              >
-                <span>
-                  {tTopic(category)}
-                  {count === undefined ? null : (
-                    <>
-                      <span aria-hidden>{` · ${String(count)}`}</span>
-                      <span className="sr-only">
-                        {t("mentorCountSuffix", { count })}
-                      </span>
-                    </>
-                  )}
-                </span>
-              </FilterChip>
+                onToggle={() => directory.toggleCategory(category)}
+                label={
+                  <span>
+                    {tTopic(category)}
+                    {count === undefined ? null : (
+                      <>
+                        <span aria-hidden>{` · ${String(count)}`}</span>
+                        <span className="sr-only">
+                          {t("mentorCountSuffix", { count })}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                }
+              />
             );
           })}
         </div>

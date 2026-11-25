@@ -11,17 +11,17 @@ import {
 import { useTranslations } from "next-intl";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
-import { Button, ButtonVariant } from "@/components/ia/button";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { ToggleChip } from "@/components/ia/filter-chip";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { InitialsAvatar } from "@/components/student/ia/ui";
 import { RequestStatusBadge } from "@/components/student/iskur-ui";
 import { usePeerMentorRequestForm } from "@/hooks/use-peer-mentoring";
-import {
-  PeerTopicCategory,
-  type PeerMentorCard,
-  type PeerMentoringRequest,
+import type {
+  PeerMentorCard,
+  PeerMentoringRequest,
 } from "@/interfaces/peer-mentoring";
-import { isEnumValue } from "@/lib/enum";
 import { PEER_MENTORSHIPS_HREF } from "@/lib/peer-mentoring";
 
 const panelClassName =
@@ -73,48 +73,53 @@ export function PeerMentorRequestDialog({
           void form.submit();
         }}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h2 id="peer-request-title" className="type-h3 text-text-primary">
-              {t("title")}
-            </h2>
-            <p className="type-body-sm text-text-secondary">
-              {t("subtitle", { name: mentor.fullName })}
-            </p>
-          </div>
-          <button
-            type="button"
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="peer-request-title" className="type-h3 text-text-primary">
+            {t("title")}
+          </h2>
+          <Button
+            variant={ButtonVariant.Ghost}
+            size={ButtonSize.Small}
             onClick={onClose}
             aria-label={t("close")}
-            className="grid size-9 place-items-center rounded-full text-icon-default hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
           >
-            <X aria-hidden className="size-5" />
-          </button>
+            <X aria-hidden className="size-4" strokeWidth={1.5} />
+          </Button>
         </div>
-        <label className="flex flex-col gap-2">
-          <span className="type-label text-text-primary">
+        <div className="flex items-center gap-4 rounded-xl bg-background-subtle px-4 py-3">
+          <InitialsAvatar name={mentor.fullName} size="sm" />
+          <div className="min-w-0">
+            <p className="type-label text-text-primary">{mentor.fullName}</p>
+            <p className="type-body-sm text-text-muted">
+              {[t("role"), mentor.department].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+        </div>
+        <div
+          role="group"
+          aria-labelledby="peer-request-category"
+          className="flex flex-col gap-2"
+        >
+          <p
+            id="peer-request-category"
+            className="type-label text-text-primary"
+          >
             {t("category")}{" "}
             <span aria-hidden className="text-text-accent">
               *
             </span>
-          </span>
-          <select
-            value={form.category ?? ""}
-            aria-required="true"
-            onChange={(event) => {
-              const { value } = event.target;
-              if (isEnumValue(PeerTopicCategory, value))
-                form.setCategory(value);
-            }}
-            className={`${fieldClass} h-12`}
-          >
+          </p>
+          <div className="flex flex-wrap gap-2">
             {mentor.categories.map((category) => (
-              <option key={category} value={category}>
-                {tTopic(category)}
-              </option>
+              <ToggleChip
+                key={category}
+                label={tTopic(category)}
+                pressed={form.category === category}
+                onToggle={() => form.setCategory(category)}
+              />
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
         <label className="flex flex-col gap-2">
           <span className="type-label text-text-primary">{t("message")}</span>
           <textarea
@@ -141,7 +146,10 @@ export function PeerMentorRequestDialog({
         {form.error ? (
           <InlineAlert tone={StatusTone.Error} title={form.error} />
         ) : null}
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border-default pt-5">
+          <p className="min-w-0 flex-1 basis-48 type-body-sm text-text-muted">
+            {t("note", { name: mentor.fullName })}
+          </p>
           <Button variant={ButtonVariant.Ghost} onClick={onClose}>
             {t("cancel")}
           </Button>

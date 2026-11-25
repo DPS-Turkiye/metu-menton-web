@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 
 import { peerReportMeetingsQueryKey } from "@/hooks/peer-report-queries";
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { usePeerRequestSessions } from "@/hooks/use-peer-session-booking";
 import { peerWeeklyReportQueryKey } from "@/hooks/use-weekly-report";
 import {
   getPeerReportMeetings,
@@ -44,12 +45,15 @@ export function usePeerMenteesTab() {
     queryKey: peerWeeklyReportQueryKey(weekStart),
     queryFn: () => getPeerWeeklyReport(weekStart),
   });
+  const sessions = usePeerRequestSessions();
   const due = latestUnreportedMeeting(meetings.data ?? []);
   const week = weekly.data;
 
   return {
     // A failed read must not look like "nothing due", so the tab says it could not load the cards.
     error: meetings.error ?? weekly.error,
+    /** The mentee's next meeting with this mentor. */
+    sessionOf: (requestId: string) => sessions.byRequest.get(requestId) ?? null,
     dueMeeting: due
       ? { menteeName: due.menteeName, href: meetingReportHref(due.meetingId) }
       : null,

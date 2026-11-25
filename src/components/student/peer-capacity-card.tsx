@@ -56,6 +56,46 @@ export function PeerCapacityCard({
   );
 }
 
+/** The same on Menteelerim (Figma 7.3), on one line, with the way to the waiting requests. */
+export function PeerCapacitySummary({
+  capacity,
+  waiting,
+  onOpenRequests,
+}: {
+  capacity: PeerMentorCapacity;
+  /** null until the requests load. */
+  waiting: number | null;
+  onOpenRequests: () => void;
+}) {
+  const t = useTranslations("iaIskur.give.capacity");
+  const titleId = useId();
+  return (
+    <section
+      aria-labelledby={titleId}
+      className="flex flex-col gap-3 rounded-2xl border border-border-default bg-background-surface p-5"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id={titleId} className="type-label-lg text-text-primary">
+          {capacity.capacity === null
+            ? t("summaryNoLimit", { used: capacity.used })
+            : t("summary", {
+                used: capacity.used,
+                capacity: capacity.capacity,
+              })}
+        </h2>
+        <button
+          type="button"
+          onClick={onOpenRequests}
+          className="h-9 px-1 type-button-sm text-text-link hover:underline"
+        >
+          {waiting === null ? t("requests") : t("requestsCount", { waiting })}
+        </button>
+      </div>
+      <PeerCapacityBar capacity={capacity} label={t("title")} />
+    </section>
+  );
+}
+
 /** The fill bar; nothing without a limit. */
 export function PeerCapacityBar({
   capacity,

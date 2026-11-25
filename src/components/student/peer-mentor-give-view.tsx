@@ -16,22 +16,18 @@ import {
   TabPanel,
   UnderlineTabs,
 } from "@/components/student/iskur-ui";
-import { PeerCapacityCard } from "@/components/student/peer-capacity-card";
+import { PeerMenteesTab } from "@/components/student/peer-mentees-tab";
 import { PeerMentorHoursEditor } from "@/components/student/peer-mentor-hours-editor";
 import { PeerMentorProfileTab } from "@/components/student/peer-mentor-profile-tab";
 import { PeerMentorRequestsTab } from "@/components/student/peer-mentor-requests-tab";
-import { PeerRequestCard } from "@/components/student/peer-request-card";
 import { ActivityReportView } from "@/components/student/reports/activity-report-view";
-import { ReportDayPill } from "@/components/student/reports/report-day-pill";
 import { useMentorDutyHours } from "@/hooks/use-mentor-duty-hours";
 import { useAvailabilitySettingsForm } from "@/hooks/use-mentor-profile";
-import { usePeerMenteesTab } from "@/hooks/use-peer-mentees-tab";
 import {
   usePeerGivePublished,
   usePeerMentorGate,
   usePeerMentorProfile,
   usePeerMentorTrainingEntry,
-  type PeerGivePublished,
 } from "@/hooks/use-peer-mentor-give";
 import {
   PeerMentorGateState,
@@ -362,7 +358,7 @@ function PublishedView({ profile }: { profile: PeerMentorProfile }) {
       id: PeerGiveTab.Mentees,
       label: t("mentees"),
       count: loaded ? received.mentees.length : undefined,
-      panel: <MenteesTab view={view} />,
+      panel: <PeerMenteesTab view={view} />,
     },
     {
       id: PeerGiveTab.Report,
@@ -409,107 +405,6 @@ function PublishedView({ profile }: { profile: PeerMentorProfile }) {
   );
 }
 
-/** Menteelerim (Figma 7.3): a meeting report due, the active mentees, the capacity and this week's report. */
-function MenteesTab({ view }: { view: PeerGivePublished }) {
-  const t = useTranslations("iaIskur.give");
-  const tReports = useTranslations("iaIskurReports.give");
-  const cards = usePeerMenteesTab();
-  const { received, loaded } = view;
-
-  return (
-    <div className="flex flex-col gap-6">
-      {cards.dueMeeting ? (
-        <section
-          aria-labelledby="peer-meeting-report-due"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-status-warning-border bg-status-warning-bg px-6 py-4"
-        >
-          <div className="flex flex-col gap-0.5">
-            <h2
-              id="peer-meeting-report-due"
-              className="type-label text-status-warning-text"
-            >
-              {tReports("dueTitle", { name: cards.dueMeeting.menteeName })}
-            </h2>
-            <p className="type-body-sm text-text-secondary">
-              {tReports("dueBody")}
-            </p>
-          </div>
-          <Button href={cards.dueMeeting.href}>{tReports("dueAction")}</Button>
-        </section>
-      ) : null}
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-        <div className="flex min-w-0 flex-1 flex-col gap-8">
-          <QueryNotice
-            isLoading={received.query.isLoading}
-            error={received.query.error}
-          />
-          <QueryNotice isLoading={false} error={cards.error} />
-          {loaded ? (
-            <section
-              aria-labelledby="peer-active-mentees"
-              className="flex flex-col gap-4"
-            >
-              <h2
-                id="peer-active-mentees"
-                className="type-title-card text-text-primary"
-              >
-                {tReports("activeMentees", { count: received.mentees.length })}
-              </h2>
-              {received.mentees.length === 0 ? (
-                <Card>
-                  <p className="type-body text-text-secondary">
-                    {t("mentees.empty")}
-                  </p>
-                </Card>
-              ) : (
-                <ul className="space-y-4">
-                  {received.mentees.map((request) => (
-                    <li key={request.id}>
-                      <PeerRequestCard request={request} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ) : null}
-        </div>
-        <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
-          {view.capacity ? (
-            <PeerCapacityCard
-              capacity={view.capacity}
-              onEdit={() => view.setTab(PeerGiveTab.Availability)}
-            />
-          ) : null}
-          {cards.week ? (
-            <Card labelledBy="peer-week-report" className="flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-2">
-                <h2
-                  id="peer-week-report"
-                  className="type-title-card text-text-primary"
-                >
-                  {tReports("weekTitle")}
-                </h2>
-                <ReportDayPill badge={cards.week.badge} />
-              </div>
-              <p className="type-h3 text-text-primary">{cards.week.label}</p>
-              <ul className="flex flex-col gap-2 type-body-sm text-text-secondary">
-                <li>{tReports("weekAdded", { count: cards.week.added })}</li>
-                {cards.week.waitingForAnswers ? (
-                  <li>{tReports("weekWaiting")}</li>
-                ) : null}
-                <li>{tReports("weekDue", { time: cards.week.deadline })}</li>
-              </ul>
-              <Button href={cards.week.href} fullWidth>
-                {tReports("weekAction")}
-              </Button>
-            </Card>
-          ) : null}
-        </aside>
-      </div>
-    </div>
-  );
-}
-
 function AvailabilityPanel() {
   const t = useTranslations("iaIskur.give.availability");
   const tHours = useTranslations("iaIskur.hours");
@@ -536,10 +431,10 @@ function AvailabilityPanel() {
   }
   if (hours.duty.length === 0) {
     return (
-      <Card className="space-y-4">
+      <div className="flex flex-col gap-6">
         <WeeklyAvailabilityEditor editor={availability} />
-        {save}
-      </Card>
+        <div>{save}</div>
+      </div>
     );
   }
   return (

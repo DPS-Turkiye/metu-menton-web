@@ -122,7 +122,8 @@
       }
     },
     "mentees": {
-      "empty": "Henüz kabul ettiğin bir talep yok."
+      "empty": "Henüz kabul ettiğin bir talep yok.",
+      "nextSession": "Sıradaki görüşme: {day} · {time}"
     },
     "capacity": {
       "title": "Kapasiten",
@@ -135,7 +136,11 @@
         "lastPlace": "{free} yer boş. Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür.",
         "full": "Kapasiten dolu. Yeni talepler kapasite açılana kadar sana gelmez."
       },
-      "valueText": "{used} / {capacity} mentee"
+      "valueText": "{used} / {capacity} mentee",
+      "summary": "Kapasite {used} / {capacity}",
+      "summaryNoLimit": "{used} aktif mentee",
+      "requests": "Talepler",
+      "requestsCount": "Talepler ({waiting})"
     },
     "profileCard": {
       "title": "Mentor profilin",
@@ -186,7 +191,8 @@
       "back": "Mentorluk ver",
       "notFound": "Bu öğrenci menteen değil ya da talebi artık açık değil.",
       "role": "Mentee",
-      "requests": "Sana gönderdiği talepler"
+      "requests": "Sana gönderdiği talepler",
+      "privacy": "Öğrencinin kurumsal bilgilerinden yalnızca adını ve bölümünü görürsün."
     }
   },
   "wizard": {
@@ -482,7 +488,6 @@
     },
     "dialog": {
       "title": "Mentorluk talebi gönder",
-      "subtitle": "{name} · Akran Mentoru",
       "close": "Kapat",
       "category": "Konu",
       "message": "Kısa mesaj",
@@ -492,7 +497,9 @@
       "cancel": "Vazgeç",
       "send": "Talebi gönder",
       "sending": "Gönderiliyor…",
-      "failed": "Talep gönderilemedi."
+      "failed": "Talep gönderilemedi.",
+      "role": "Akran mentor",
+      "note": "{name} kabul edince mentorluk başlar."
     },
     "sent": {
       "title": "Talebin iletildi",

@@ -1,8 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import Image from "next/image";
 
 import { NumberStepper } from "@/components/common/number-stepper";
 import { ToggleSwitch } from "@/components/common/toggle-switch";
@@ -12,16 +11,14 @@ import {
   exceptionLabel,
 } from "@/lib/mentor-availability";
 
-// globals.css gives buttons and inputs `font: inherit` outside any layer, so
-// their type sizes need `!` to take effect.
-const sectionLabelClass =
-  "text-[11px] font-semibold leading-[17px] text-[#858c96]";
+const sectionLabelClass = "type-overline text-text-secondary";
 const timeInputClass =
-  "h-[38px] w-[86px] rounded-lg border border-[#d4d8dd] bg-white px-3 text-[12.5px]! font-medium! leading-[19px]! text-[#22262b] [&::-webkit-calendar-picker-indicator]:hidden";
-const iconButtonClass = "grid size-[18px] shrink-0 place-items-center";
+  "h-11 w-24 rounded-input border border-border-control bg-background-surface px-3 type-body text-text-primary focus-visible:outline-2 focus-visible:outline-border-selected [&::-webkit-calendar-picker-indicator]:hidden";
+const iconButtonClass =
+  "grid size-6 shrink-0 place-items-center rounded-full text-text-accent focus-visible:outline-2 focus-visible:outline-border-selected";
 const fieldClass =
-  "h-[38px] w-full rounded-lg border border-[#d4d8dd] bg-white px-3 text-[12.5px]! text-[#22262b]";
-const smallButtonClass = "text-xs! font-medium! leading-[18px]!";
+  "h-11 w-full rounded-input border border-border-control bg-background-surface px-3 type-body text-text-primary focus-visible:outline-2 focus-visible:outline-border-selected";
+const smallButtonClass = "type-button-sm";
 
 /**
  * Weekly time ranges, the owner's number fields and unavailable dates, edited through
@@ -47,22 +44,22 @@ export function WeeklyAvailabilityEditor({
   return (
     <div className={`flex flex-col gap-5 ${className}`}>
       {editor.loadError ? (
-        <p role="alert" className="text-xs text-[#a65a15]">
+        <p role="alert" className="type-body-sm text-status-error-text">
           {editor.loadError}
         </p>
       ) : !draft ? (
-        <p className="text-xs text-[#858c96]">{t("loading")}</p>
+        <p className="type-body-sm text-text-muted">{t("loading")}</p>
       ) : (
         <>
           <section className="flex flex-col gap-2.5">
             <h3 className={sectionLabelClass}>{t("weekly")}</h3>
-            <ul className="flex flex-col gap-2.5">
+            <ul className="divide-y divide-border-default rounded-2xl border border-border-default bg-background-surface">
               {editor.days.map(({ day, label, ranges }) => {
                 const open = ranges.length > 0;
                 return (
                   <li
                     key={day}
-                    className="flex min-h-[58px] flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-[#e4e7ea] bg-white px-3.5 py-2.5"
+                    className="flex min-h-[60px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-5 py-2.5"
                   >
                     <div className="flex items-center gap-3">
                       <ToggleSwitch
@@ -71,7 +68,7 @@ export function WeeklyAvailabilityEditor({
                         onChange={() => editor.toggleDay(day)}
                       />
                       <span
-                        className={`w-[84px] text-[13px] font-medium leading-5 ${open ? "text-[#22262b]" : "text-[#858c96]"}`}
+                        className={`w-24 type-label ${open ? "text-text-primary" : "text-text-muted"}`}
                       >
                         {label}
                       </span>
@@ -102,7 +99,7 @@ export function WeeklyAvailabilityEditor({
                                 }
                                 className={timeInputClass}
                               />
-                              <span className="text-[12.5px] leading-[19px] text-[#676e78]">
+                              <span className="type-body text-text-secondary">
                                 –
                               </span>
                               <input
@@ -125,11 +122,10 @@ export function WeeklyAvailabilityEditor({
                                   aria-label={t("addRange", { day: label })}
                                   className={iconButtonClass}
                                 >
-                                  <Image
-                                    src="/mentor-profile/add.svg"
-                                    alt=""
-                                    width={18}
-                                    height={18}
+                                  <Plus
+                                    aria-hidden
+                                    className="size-4"
+                                    strokeWidth={1.5}
                                   />
                                 </button>
                               ) : (
@@ -141,11 +137,10 @@ export function WeeklyAvailabilityEditor({
                                   })}
                                   className={iconButtonClass}
                                 >
-                                  <Image
-                                    src="/mentor-profile/remove.svg"
-                                    alt=""
-                                    width={18}
-                                    height={18}
+                                  <Minus
+                                    aria-hidden
+                                    className="size-4"
+                                    strokeWidth={1.5}
                                   />
                                 </button>
                               )}
@@ -154,7 +149,7 @@ export function WeeklyAvailabilityEditor({
                         })}
                       </div>
                     ) : (
-                      <span className="text-[12.5px] leading-[19px] text-[#858c96]">
+                      <span className="type-body-sm text-text-muted">
                         {t("closed")}
                       </span>
                     )}
@@ -172,7 +167,7 @@ export function WeeklyAvailabilityEditor({
                   key={field}
                   className="flex items-center justify-between gap-4"
                 >
-                  <span className="text-[13px] leading-5 text-[#4a5059]">
+                  <span className="type-body text-text-secondary">
                     {editor.numberFieldLabels[field] ?? t(field)}
                   </span>
                   <NumberStepper
@@ -198,7 +193,7 @@ export function WeeklyAvailabilityEditor({
                   return (
                     <span
                       key={`${item.startsOn}-${item.endsOn}`}
-                      className="group relative inline-flex items-center rounded-full border border-[#e4e7ea] bg-[#f3f4f6] px-3 py-[5px] text-xs font-medium leading-[18px] text-[#676e78]"
+                      className="group relative inline-flex items-center rounded-full border border-border-default bg-background-muted px-3 py-1.5 type-label-sm text-text-secondary"
                     >
                       {text}
                       {/* Hidden until hover or focus so the chip reads as in the design. */}
@@ -206,7 +201,7 @@ export function WeeklyAvailabilityEditor({
                         type="button"
                         onClick={() => editor.removeException(index)}
                         aria-label={t("removeDate", { date: text })}
-                        className="absolute -right-1.5 -top-1.5 grid size-4 place-items-center rounded-full border border-[#d4d8dd] bg-white text-[#4a5059] opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                        className="absolute -right-1.5 -top-1.5 grid size-4 place-items-center rounded-full border border-border-default bg-background-surface text-icon-default opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                       >
                         <X className="size-2.5" strokeWidth={2.5} />
                       </button>
@@ -217,20 +212,15 @@ export function WeeklyAvailabilityEditor({
                   <button
                     type="button"
                     onClick={editor.openExceptionForm}
-                    className={`inline-flex items-center gap-1.5 rounded-full border border-[#d4d8dd] bg-white px-3 py-[5px] text-[#26a4ff] ${smallButtonClass}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full border border-border-default bg-background-surface px-3 py-1.5 text-text-accent ${smallButtonClass}`}
                   >
-                    <Image
-                      src="/mentor-profile/add-small.svg"
-                      alt=""
-                      width={14}
-                      height={14}
-                    />
+                    <Plus aria-hidden className="size-3.5" strokeWidth={1.5} />
                     {t("addDate")}
                   </button>
                 )}
               </div>
               {editor.isAddingException ? (
-                <div className="grid gap-2 rounded-xl border border-[#e4e7ea] p-3 sm:grid-cols-3">
+                <div className="grid gap-2 rounded-xl border border-border-default p-3 sm:grid-cols-3">
                   <input
                     type="date"
                     aria-label={t("startDate")}
@@ -262,14 +252,14 @@ export function WeeklyAvailabilityEditor({
                     <button
                       type="button"
                       onClick={editor.closeExceptionForm}
-                      className={`rounded-full border border-[#d4d8dd] bg-white px-3 py-1.5 text-[#4a5059] ${smallButtonClass}`}
+                      className={`rounded-full border border-border-default bg-background-surface px-3 py-1.5 text-text-primary ${smallButtonClass}`}
                     >
                       {t("cancelDate")}
                     </button>
                     <button
                       type="button"
                       onClick={editor.addException}
-                      className={`rounded-full bg-[#26a4ff] px-3 py-1.5 text-white ${smallButtonClass}`}
+                      className={`rounded-full bg-action-primary-bg px-3 py-1.5 text-action-primary-fg ${smallButtonClass}`}
                     >
                       {t("confirmDate")}
                     </button>
@@ -281,7 +271,7 @@ export function WeeklyAvailabilityEditor({
         </>
       )}
       {editor.error ? (
-        <p role="alert" className="text-[12px] text-[#a65a15]">
+        <p role="alert" className="type-body-sm text-status-error-text">
           {editor.error}
         </p>
       ) : null}

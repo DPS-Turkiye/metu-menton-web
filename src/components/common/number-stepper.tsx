@@ -1,10 +1,10 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 const stepButtonClass =
-  "grid size-[18px] shrink-0 place-items-center rounded-full disabled:opacity-40";
+  "grid size-[18px] shrink-0 place-items-center rounded-full text-text-accent disabled:opacity-40";
 
 /** A number field with − / + buttons; the value stays a string so it can be emptied while typing. */
 export function NumberStepper({
@@ -29,7 +29,7 @@ export function NumberStepper({
   const number = Number(value);
 
   return (
-    <div className="flex h-[38px] w-[120px] shrink-0 items-center justify-between rounded-lg border border-[#d4d8dd] bg-white px-3">
+    <div className="flex h-11 w-32 shrink-0 items-center justify-between rounded-input border border-border-control bg-background-surface px-3">
       <button
         type="button"
         aria-label={t("decrease", { label })}
@@ -37,9 +37,9 @@ export function NumberStepper({
         disabled={filled ? number <= min : false}
         className={stepButtonClass}
       >
-        <Image src="/mentor-profile/remove.svg" alt="" width={18} height={18} />
+        <Minus aria-hidden className="size-4" strokeWidth={1.5} />
       </button>
-      <span className="flex items-center justify-center gap-1 text-[12.5px] font-medium leading-[19px] text-[#22262b]">
+      <span className="flex items-center justify-center gap-1 type-label text-text-primary">
         <input
           type="number"
           inputMode="numeric"
@@ -59,7 +59,7 @@ export function NumberStepper({
         disabled={filled ? number >= max : false}
         className={stepButtonClass}
       >
-        <Image src="/mentor-profile/add.svg" alt="" width={18} height={18} />
+        <Plus aria-hidden className="size-4" strokeWidth={1.5} />
       </button>
     </div>
   );
