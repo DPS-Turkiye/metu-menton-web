@@ -86,6 +86,14 @@ describe("IskurOnboardingView", () => {
     await user.click(screen.getByRole("button", { name: /1 gün/ }));
     await user.click(screen.getByRole("button", { name: "Pazartesi" }));
     expect(screen.getByText("Toplam 7,5 sa = 1 tam gün ✓")).toBeInTheDocument();
+    const summary = screen.getByRole("region", { name: "Haftalık özet" });
+    expect(within(summary).getByText("2 sa")).toBeInTheDocument();
+    expect(within(summary).getByText("5,5 sa")).toBeInTheDocument();
+    expect(
+      within(summary).getByText(
+        "Toplam tutuyor · 1 gün eşdeğeri, 1 takvim gününe dağıtıldı",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Pazartesi başlangıç saati")).toHaveValue(
       "09:00",
     );
@@ -131,6 +139,15 @@ describe("IskurOnboardingView", () => {
       screen.getByRole("checkbox", { name: /Kreatif ve Dijital Üretim/ }),
     );
     expect(screen.getByText("1 / 2 seçildi")).toBeInTheDocument();
+    expect(
+      screen.getByText(/^Teknokent'in görsel iletişimi/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Video ve podcast üretimi")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Örnek işleri gör" }));
+    expect(screen.getByText("Video ve podcast üretimi")).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Kreatif ve Dijital Üretim/ }),
+    ).toBeChecked();
     const visual = screen.getByRole("group", {
       name: "Görsel tasarım düzeyi",
     });

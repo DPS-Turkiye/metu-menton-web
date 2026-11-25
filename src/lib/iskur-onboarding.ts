@@ -21,6 +21,34 @@ import {
 export const ISKUR_ONBOARDING_HREF = "/iskur/onboarding";
 /** Set by "Sonra hatırlat"; lasts until the browser closes, so the form is asked for again next time. */
 export const ISKUR_ONBOARDING_LATER_COOKIE = "iskur_onboarding_later";
+/** What the form says about the default structure's four units; a unit the coordinators renamed has no text. */
+export enum IskurUnitText {
+  Creative = "creative",
+  Venture = "venture",
+  Community = "community",
+  Impact = "impact",
+}
+
+const UNIT_TEXTS: Partial<Record<string, IskurUnitText>> = {
+  "Kreatif ve Dijital Üretim": IskurUnitText.Creative,
+  "Girişimcilik ve Araştırma": IskurUnitText.Venture,
+  "Kampüs ve Topluluk Yaşamı": IskurUnitText.Community,
+  "Etki ve Organizasyon": IskurUnitText.Impact,
+};
+
+export function iskurUnitText(name: string): IskurUnitText | null {
+  return UNIT_TEXTS[name.trim()] ?? null;
+}
+
+/** The design names example work for this unit only (Figma 5.3b). */
+export const ISKUR_UNIT_WITH_EXAMPLES = IskurUnitText.Creative;
+export const ISKUR_UNIT_EXAMPLES = [
+  "social",
+  "video",
+  "posters",
+  "web",
+] as const;
+
 /** Each leadership answer, as the backend and Figma 04's counter allow. */
 export const ISKUR_ANSWER_MAX = 500;
 export const ISKUR_TEAM_ROLES_MAX = 2;

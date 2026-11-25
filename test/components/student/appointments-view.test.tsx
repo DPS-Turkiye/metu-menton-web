@@ -473,6 +473,7 @@ describe("StudentAppointmentsView", () => {
     renderWithQueryClient(<StudentAppointmentsView />);
     await panel();
     await userEvent.click(screen.getByRole("button", { name: "Ay" }));
+    expect(screen.getByRole("heading", { name: "Kasım özeti" })).toBeVisible();
     await userEvent.click(
       screen.getByRole("button", { name: "12 Kas, 1 randevu" }),
     );

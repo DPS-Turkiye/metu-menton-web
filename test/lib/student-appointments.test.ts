@@ -9,6 +9,7 @@ import {
   calendarTitle,
   defaultOpenGroups,
   gridPlacement,
+  monthSummary,
   nowLineOffset,
   REQUEST_GROUP_PREVIEW,
   requestGroupListTab,
@@ -33,6 +34,35 @@ import {
 
 const at = (day: number, hour: number, minute = 0) =>
   new Date(2026, 10, day, hour, minute).toISOString();
+
+describe("monthSummary", () => {
+  it("counts the month's confirmed sessions, those held, and open requests", () => {
+    const item = (id: string, day: number, status: AppointmentStatus) =>
+      peerAppointment({
+        id,
+        status,
+        startsAt: at(day, 10),
+        endsAt: at(day, 11),
+      });
+    const summary = monthSummary(
+      [
+        item("held", 3, AppointmentStatus.Confirmed),
+        item("ahead", 20, AppointmentStatus.Confirmed),
+        item("waiting", 21, AppointmentStatus.Pending),
+        item("cancelled", 22, AppointmentStatus.Cancelled),
+        peerAppointment({
+          id: "other-month",
+          status: AppointmentStatus.Confirmed,
+          startsAt: new Date(2026, 11, 3, 10).toISOString(),
+          endsAt: new Date(2026, 11, 3, 11).toISOString(),
+        }),
+      ],
+      new Date(2026, 10, 1),
+      new Date(2026, 10, 12),
+    );
+    expect(summary).toEqual({ meetings: 2, done: 1, waiting: 1 });
+  });
+});
 
 describe("appointmentTabs", () => {
   it("splits confirmed sessions ahead, requests ahead and the rest", () => {

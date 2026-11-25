@@ -36,7 +36,7 @@ import {
 } from "@/interfaces/appointment";
 import { ProgramType } from "@/interfaces/program";
 import { currentTime } from "@/lib/appointments";
-import { timeLabel } from "@/lib/calendar";
+import { monthName, timeLabel } from "@/lib/calendar";
 import {
   calendarTitle,
   selectedDayTitle,
@@ -465,7 +465,10 @@ function CalendarView({
       </Card>
       <aside className="flex flex-col gap-6">
         {isMonth ? (
-          <DayList appointments={appointments} />
+          <>
+            <DayList appointments={appointments} />
+            <MonthSummary appointments={appointments} />
+          </>
         ) : appointments.selected ? (
           <AppointmentDetail
             appointment={appointments.selected}
@@ -571,6 +574,31 @@ const DAY_ROW_TONE: Record<AppointmentKind, { row: string; bar: string }> = {
     bar: "bg-action-primary-bg",
   },
 };
+
+function MonthSummary({
+  appointments,
+}: {
+  appointments: StudentAppointmentsModel;
+}) {
+  const t = useTranslations("iaStudent.appointments.calendar.summary");
+  const locale = useLocale();
+  const summary = appointments.monthSummary;
+  if (!summary) return null;
+  return (
+    <section
+      aria-labelledby="appointments-month-summary"
+      className="flex flex-col gap-1.5"
+    >
+      <h2
+        id="appointments-month-summary"
+        className="type-label text-text-primary"
+      >
+        {t("title", { month: monthName(appointments.anchor, locale) })}
+      </h2>
+      <p className="type-body-sm text-text-secondary">{t("body", summary)}</p>
+    </section>
+  );
+}
 
 function DayList({ appointments }: { appointments: StudentAppointmentsModel }) {
   const t = useTranslations("iaStudent.appointments.calendar");

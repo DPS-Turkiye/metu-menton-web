@@ -7765,7 +7765,7 @@
       "title": "Haftada kaç gün gelebilirsin?",
       "intro": "İŞKUR’da görev saat olarak değil gün olarak seçilir. Ders programına göre haftada 1, 2 veya 3 gün seçebilirsin.",
       "countTitle": "Haftalık gün sayısı",
-      "option": "{days} gün",
+      "option": "{days} gün eşdeğeri",
       "optionHours": "{hours} saat / hafta",
       "leaderHint": "Ekip lideri olmak istiyorsan en az 2 gün seçmelisin; liderler haftalık onay ve ekip toplantısını yürütür.",
       "hoursTitle": "Hangi günler, hangi saatler?",
@@ -7810,7 +7810,17 @@
       "priorHelp": "Bir katılımcı tüm programlardan toplam en fazla {max} fiili gün yararlanabilir.",
       "remaining": "Kalan hakkın: {days} gün",
       "enough": "Bu dönem için yeterli (yaklaşık {needed} gün gerekir)",
-      "notEnough": "Bu dönem için yetmeyebilir (yaklaşık {needed} gün gerekir)"
+      "notEnough": "Bu dönem için yetmeyebilir (yaklaşık {needed} gün gerekir)",
+      "summary": {
+        "title": "Haftalık özet",
+        "of": "/ {target} sa",
+        "matches": "Toplam tutuyor · {days} gün eşdeğeri, {calendarDays} takvim gününe dağıtıldı",
+        "splitTitle": "Haftalık süre dağılımı",
+        "mentoring": "Akran Mentörlüğü",
+        "team": "Ekip çalışmaları",
+        "hours": "{hours} sa",
+        "note": "Mentorluk süresi hazırlık, görüşme, raporlama ve takibi kapsar; hepsi görüşme olmak zorunda değildir. Oran gün sayısına göre değişir (1 gün: 2 sa · 2 gün: 4 sa · 3 gün: 6 sa)."
+      }
     },
     "units": {
       "title": "Hangi birimde, hangi becerilerle?",
@@ -7842,7 +7852,22 @@
         "PLANNER": "Planlayan",
         "EXECUTOR": "Uygulayan",
         "CONNECTOR": "Bağlantı kuran"
-      }
+      },
+      "about": {
+        "creative": "Teknokent'in görsel iletişimi, dijital içerikleri ve teknoloji projeleri.",
+        "venture": "Girişimcilik ekosistemini araştırma ve Teknokent programlarına destek.",
+        "community": "Spor, sağlıklı yaşam, kültür ve sanat etkinlikleri.",
+        "impact": "Sürdürülebilirlik ve sosyal fayda projeleri, etkinlik organizasyonu."
+      },
+      "examples": "Örnek işler",
+      "exampleItems": {
+        "social": "Sosyal medya içerikleri",
+        "video": "Video ve podcast üretimi",
+        "posters": "Afiş ve sunum tasarımları",
+        "web": "Web sitesi ve UX iyileştirme önerileri"
+      },
+      "showExamples": "Örnek işleri gör",
+      "hideExamples": "Örnek işleri gizle"
     },
     "documents": {
       "title": "Belgelerin",
@@ -8280,6 +8305,12 @@
     },
     "card": {
       "title": "Kanalların"
+    },
+    "how": {
+      "title": "Kanallar nasıl çalışır?",
+      "open": "Kanalların, ekip ataman kesinleşince açılır.",
+      "announcements": "Genel duyurularda yalnızca yetkili koordinatörler paylaşır.",
+      "time": "Mesajlar çalışma süresine sayılmaz."
     }
   },
   "studentSignup": {

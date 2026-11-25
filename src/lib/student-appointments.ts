@@ -52,6 +52,30 @@ export function appointmentsOnDay(appointments: Appointment[], day: Date) {
     .toSorted((a, b) => Date.parse(startOf(a)) - Date.parse(startOf(b)));
 }
 
+/** "Kasım özeti" under the month view (Figma 3.7c): the month's confirmed sessions, those held, and open requests. */
+export function monthSummary(
+  appointments: readonly Appointment[],
+  month: Date,
+  now: Date,
+) {
+  const inMonth = appointments.filter((item) => {
+    const start = new Date(currentTime(item).startsAt);
+    return (
+      start.getFullYear() === month.getFullYear() &&
+      start.getMonth() === month.getMonth()
+    );
+  });
+  const confirmed = inMonth.filter(
+    (item) => item.status === AppointmentStatus.Confirmed,
+  );
+  return {
+    meetings: confirmed.length,
+    done: confirmed.filter((item) => Date.parse(item.endsAt) <= now.getTime())
+      .length,
+    waiting: inMonth.filter(isAwaitingAnswer).length,
+  };
+}
+
 /** Taleplerim's groups, each in the order the list tabs keep: requests split by who answers next. */
 export function appointmentRequestGroups(
   tabs: Record<AppointmentsTab, Appointment[]>,

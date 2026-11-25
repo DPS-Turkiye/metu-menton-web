@@ -117,6 +117,26 @@ describe("IskurMessagesView", () => {
     expect(acknowledgeIskurMessage).toHaveBeenCalledWith("important");
   });
 
+  it("tells an intern how channels work, and leaves it out for a coordinator", async () => {
+    const { unmount } = renderWithQueryClient(
+      <IskurMessagesView linkedChannelId={null} />,
+    );
+    expect(
+      await screen.findByText("Kanalların, ekip ataman kesinleşince açılır."),
+    ).toBeVisible();
+    unmount();
+
+    renderWithQueryClient(
+      <IskurMessagesView
+        programId={PROGRAM_ID}
+        linkedChannelId={null}
+        framed
+      />,
+    );
+    await screen.findAllByText(announcements.name);
+    expect(screen.queryByText("Kanallar nasıl çalışır?")).toBeNull();
+  });
+
   it("opens a team channel from the list and sends a message", async () => {
     const user = userEvent.setup();
     vi.mocked(postIskurMessage).mockResolvedValue(iskurMessage({ mine: true }));

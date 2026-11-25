@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, ChevronUp } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ChatBubble, ChatComposer } from "@/components/common/chat-thread";
@@ -72,7 +73,11 @@ export function IskurMessagesView({
           {screen.active ? (
             <ChannelPane screen={screen} channel={screen.active} />
           ) : null}
-          <NotificationCard screen={screen} />
+          <div className="flex flex-col gap-6 lg:col-start-2 xl:col-start-auto">
+            {/* For interns; the coordinators who run the channels know how they work. */}
+            {framed ? null : <HowChannelsWork />}
+            <NotificationCard screen={screen} />
+          </div>
         </div>
       ) : null}
       <ReceiptsDialog screen={screen} />
@@ -352,13 +357,42 @@ function Announcement({
   );
 }
 
+const HOW_POINTS = ["open", "announcements", "time"] as const;
+
+/** "Kanallar nasıl çalışır?" (Figma 8.1). */
+function HowChannelsWork() {
+  const t = useTranslations("iskurChannels.how");
+  return (
+    <details open className="group rounded-2xl bg-background-subtle px-5 py-4">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 type-label-lg text-text-primary focus-visible:outline-2 focus-visible:outline-border-selected">
+        {t("title")}
+        <ChevronUp
+          aria-hidden
+          className="size-4 rotate-180 transition-transform group-open:rotate-0"
+        />
+      </summary>
+      <ul className="mt-2.5 flex flex-col gap-2.5">
+        {HOW_POINTS.map((point) => (
+          <li
+            key={point}
+            className="flex items-start gap-2 type-body-sm text-text-secondary"
+          >
+            <Check aria-hidden className="mt-0.5 size-4 shrink-0" />
+            {t(point)}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 function NotificationCard({ screen }: { screen: IskurMessagesScreen }) {
   const t = useTranslations("iskurChannels");
   if (!screen.preferencesReady) return null;
   return (
     <section
       aria-label={t("notifications.title")}
-      className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-background-surface p-6 lg:col-start-2 xl:col-start-auto"
+      className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-background-surface p-6"
     >
       <h2 className="type-title-card text-text-primary">
         {t("notifications.title")}

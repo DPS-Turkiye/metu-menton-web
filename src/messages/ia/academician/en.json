@@ -135,7 +135,11 @@
       "proposedBadge": "Other time proposed",
       "askedBadge": "Question asked",
       "availabilityTitle": "My availability",
-      "availabilityEmpty": "No open hours yet."
+      "availabilityEmpty": "No open hours yet.",
+      "summary": {
+        "title": "{month} summary",
+        "body": "{confirmed, plural, =0 {no confirmed meetings} one {# confirmed meeting} other {# confirmed meetings}} · {waiting, plural, =0 {no requests waiting} one {# request waiting} other {# requests waiting}}"
+      }
     }
   },
   "requestDrawer": {

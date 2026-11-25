@@ -569,6 +569,28 @@ export function calendarTitle(
 
 /* ------------------------------------------------------------ requests, rail */
 
+/** "Kasım özeti" beside the month view (Figma 10.4c): the month's booked appointments and the requests that wait. */
+export function monthSummary(
+  source: Pick<CalendarSource, "requests" | "appointments">,
+  month: Date,
+) {
+  const inMonth = (time: AppointmentTime) => {
+    const start = turkeyWallClock(time.startsAt);
+    return (
+      start.getFullYear() === month.getFullYear() &&
+      start.getMonth() === month.getMonth()
+    );
+  };
+  return {
+    confirmed: source.appointments.filter(
+      (item) => item.status === AppointmentStatus.Confirmed && inMonth(item),
+    ).length,
+    waiting: pendingRequests(source.requests).filter((request) =>
+      request.requestedTimes.slice(0, 1).some(inMonth),
+    ).length,
+  };
+}
+
 /** Requests waiting for the academician, the soonest requested time first. */
 export function pendingRequests(requests: readonly OfficeHoursRequest[]) {
   return requests

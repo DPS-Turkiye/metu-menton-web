@@ -104,7 +104,11 @@
       "proposedTime": "Proposed time",
       "nothingInView": "You have no appointments in this range.",
       "emptyDay": "You have no appointments on this day.",
-      "now": "Now: {time}"
+      "now": "Now: {time}",
+      "summary": {
+        "title": "{month} summary",
+        "body": "{meetings, plural, =0 {no confirmed meetings} one {# confirmed meeting} other {# confirmed meetings}} · {done} done · {waiting, plural, =0 {no requests waiting} one {# request waiting} other {# requests waiting}}"
+      }
     },
     "colors": {
       "title": "Colours",

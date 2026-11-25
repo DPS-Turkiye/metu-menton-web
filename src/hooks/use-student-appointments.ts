@@ -14,6 +14,7 @@ import {
   appointmentsOnDay,
   appointmentTabs,
   defaultOpenGroups,
+  monthSummary,
   nowLineOffset,
   shiftAnchor,
   visibleDays,
@@ -137,6 +138,9 @@ export function useStudentAppointments({
     goToday: () => move(today()),
     days,
     month,
+    /** Null outside the month view. */
+    monthSummary:
+      view === AppointmentsView.Month ? monthSummary(all, anchor, now) : null,
     selected,
     select: (appointment: Appointment) => setSelectedId(appointment.id),
     selectedDay,

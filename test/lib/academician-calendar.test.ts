@@ -16,6 +16,7 @@ import {
   filterEntries,
   gridHours,
   monthCells,
+  monthSummary,
   nowOffset,
   parseAppointmentsSearch,
   pendingRequests,
@@ -366,6 +367,22 @@ describe("rail lists", () => {
     expect(
       awaitingStudent(SOURCE.requests).map((request) => request.id),
     ).toEqual(["kaan", "mert"]);
+  });
+});
+
+describe("monthSummary", () => {
+  it("counts the month's booked appointments and the requests that wait in it", () => {
+    const november = monthSummary(SOURCE, new Date(2026, 10, 1));
+    expect(november.waiting).toBe(2);
+    expect(november.confirmed).toBe(
+      SOURCE.appointments.filter(
+        (item) => item.status === AppointmentStatus.Confirmed,
+      ).length,
+    );
+    expect(monthSummary(SOURCE, new Date(2027, 0, 1))).toEqual({
+      confirmed: 0,
+      waiting: 0,
+    });
   });
 });
 

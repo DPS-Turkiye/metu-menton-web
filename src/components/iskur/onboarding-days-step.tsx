@@ -12,6 +12,7 @@ import type { useIskurOnboarding } from "@/hooks/use-iskur-onboarding";
 import { WEEKDAY_ORDER } from "@/interfaces/mentor";
 import { formatHours } from "@/lib/iskur-onboarding";
 import {
+  defaultMentoringMinutes,
   ISKUR_MINUTES_PER_DAY,
   ISKUR_WEEKLY_DAYS,
 } from "@/lib/iskur-workspace";
@@ -154,7 +155,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
                           start: event.target.value,
                         })
                       }
-                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px] px-2 py-0 text-center`}
+                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px]! px-2! py-0! text-center`}
                     />
                     <span aria-hidden className="type-label text-text-muted">
                       –
@@ -166,7 +167,7 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
                       onChange={(event) =>
                         wizard.updateRange(row.key, { end: event.target.value })
                       }
-                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px] px-2 py-0 text-center`}
+                      className={`${ISKUR_FIELD_CLASS} h-10 w-[104px]! px-2! py-0! text-center`}
                     />
                     <span className="type-label-sm text-text-secondary">
                       {t("dayHours", {
@@ -234,6 +235,16 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
         </InlineAlert>
       </Card>
 
+      {form.weeklyDays ? (
+        <WeekSplit
+          days={form.weeklyDays}
+          calendarDays={wizard.scheduledDays.length}
+          matches={wizard.scheduleMatches}
+          done={wizard.totalMinutes}
+          target={wizard.targetMinutes}
+        />
+      ) : null}
+
       <Card className="flex flex-col gap-4">
         <h2 className="type-title-card text-text-primary">
           {t("rightsTitle")}
@@ -286,5 +297,89 @@ export function OnboardingDaysStep({ wizard }: { wizard: Wizard }) {
         </div>
       </Card>
     </>
+  );
+}
+
+/** "Haftalık özet" (Figma 5.2): the week's hours and how they divide between mentoring and team work by default. */
+function WeekSplit({
+  days,
+  calendarDays,
+  matches,
+  done,
+  target,
+}: {
+  days: number;
+  calendarDays: number;
+  matches: boolean;
+  done: number;
+  target: number;
+}) {
+  const t = useTranslations("iskurOnboarding.days.summary");
+  const locale = useLocale();
+  const hours = (minutes: number) => formatHours(minutes, locale);
+  const mentoring = defaultMentoringMinutes(days) ?? 0;
+  const total = days * ISKUR_MINUTES_PER_DAY;
+  const rows = [
+    {
+      key: "mentoring",
+      minutes: mentoring,
+      className: "bg-status-info-icon",
+    },
+    {
+      key: "team",
+      minutes: total - mentoring,
+      className: "bg-action-accent",
+    },
+  ] as const;
+  return (
+    <Card labelledBy="iskur-week-split" className="flex flex-col gap-3">
+      <h2
+        id="iskur-week-split"
+        className="type-overline text-text-secondary uppercase"
+      >
+        {t("title")}
+      </h2>
+      <p className="flex items-end gap-1.5">
+        <span className="type-metric text-text-primary">{hours(done)}</span>
+        <span className="type-body text-text-secondary">
+          {t("of", { target: hours(target) })}
+        </span>
+      </p>
+      {matches ? (
+        <p className="type-body-sm text-status-success-text">
+          {t("matches", { days, calendarDays })}
+        </p>
+      ) : null}
+      <p className="type-label text-text-primary">{t("splitTitle")}</p>
+      <div
+        aria-hidden
+        className="flex h-2 gap-0.5 overflow-hidden rounded-full"
+      >
+        {rows.map((row) => (
+          <span
+            key={row.key}
+            className={row.className}
+            style={{ width: `${String((row.minutes / total) * 100)}%` }}
+          />
+        ))}
+      </div>
+      <dl className="flex flex-col gap-2">
+        {rows.map((row) => (
+          <div key={row.key} className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className={`size-2.5 rounded-[3px] ${row.className}`}
+            />
+            <dt className="flex-1 type-body-sm text-text-secondary">
+              {t(row.key)}
+            </dt>
+            <dd className="type-label text-text-primary">
+              {t("hours", { hours: hours(row.minutes) })}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p className="type-caption text-text-muted">{t("note")}</p>
+    </Card>
   );
 }

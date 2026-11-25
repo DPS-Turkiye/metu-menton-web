@@ -1,14 +1,22 @@
 "use client";
 
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useState } from "react";
 
 import { Card } from "@/components/ia/card";
 import type { useIskurOnboarding } from "@/hooks/use-iskur-onboarding";
-import { IskurSkillLevel } from "@/interfaces/iskur-onboarding";
+import {
+  IskurSkillLevel,
+  type IskurOnboardingUnit,
+} from "@/interfaces/iskur-onboarding";
 import {
   ISKUR_TEAM_ROLE_OPTIONS,
   ISKUR_TEAM_ROLES_MAX,
+  ISKUR_UNIT_EXAMPLES,
+  ISKUR_UNIT_WITH_EXAMPLES,
+  iskurUnitText,
 } from "@/lib/iskur-onboarding";
 
 type Wizard = ReturnType<typeof useIskurOnboarding>;
@@ -19,6 +27,84 @@ const LEVELS = [
   IskurSkillLevel.Good,
   IskurSkillLevel.Expert,
 ] as const;
+
+/** A unit to choose, with what it does and, where the design names some, example work to open (Figma 5.3b). */
+function UnitCard({
+  unit,
+  selected,
+  onToggle,
+}: {
+  unit: IskurOnboardingUnit;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const t = useTranslations("iskurOnboarding.units");
+  const [open, setOpen] = useState(false);
+  const text = iskurUnitText(unit.name);
+  const hasExamples = text === ISKUR_UNIT_WITH_EXAMPLES;
+  return (
+    <div
+      className={`flex flex-col gap-2 rounded-[12px] p-4 ${
+        selected
+          ? "border-2 border-border-selected bg-background-selected"
+          : "border border-border-default bg-background-surface"
+      }`}
+    >
+      <label className="flex cursor-pointer gap-3">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          className="mt-0.5 size-5 shrink-0 accent-[var(--color-action-primary-bg)]"
+        />
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span
+            className={`type-label ${selected ? "text-text-accent" : "text-text-primary"}`}
+          >
+            {unit.name}
+          </span>
+          <span className="type-caption text-text-muted">
+            {unit.teamNames.join(" · ")}
+          </span>
+        </span>
+      </label>
+      {text ? (
+        <p className="type-body-sm text-text-secondary">{t(`about.${text}`)}</p>
+      ) : null}
+      {hasExamples && open ? (
+        <div className="flex flex-col gap-1.5">
+          <p className="type-label-sm text-text-secondary">{t("examples")}</p>
+          <ul className="flex flex-col gap-1">
+            {ISKUR_UNIT_EXAMPLES.map((example) => (
+              <li
+                key={example}
+                className="flex items-center gap-2 type-body-sm text-text-secondary"
+              >
+                <Check aria-hidden className="size-4 shrink-0" />
+                {t(`exampleItems.${example}`)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {hasExamples ? (
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
+          className="flex w-fit items-center gap-1 type-button-sm text-text-accent focus-visible:outline-2 focus-visible:outline-border-selected"
+        >
+          {open ? (
+            <ChevronUp aria-hidden className="size-4" />
+          ) : (
+            <ChevronDown aria-hidden className="size-4" />
+          )}
+          {t(open ? "hideExamples" : "showExamples")}
+        </button>
+      ) : null}
+    </div>
+  );
+}
 
 /** 03 · Tercihler ve yetkinlikler (Figma 287:274): the ODTÜ record, units, each chosen unit's skills, team roles. */
 export function OnboardingUnitsStep({ wizard }: { wizard: Wizard }) {
@@ -65,36 +151,14 @@ export function OnboardingUnitsStep({ wizard }: { wizard: Wizard }) {
         </div>
         <p className="type-body-sm text-text-secondary">{t("unitsIntro")}</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          {context.units.map((unit) => {
-            const selected = form.unitIds.includes(unit.id);
-            return (
-              <label
-                key={unit.id}
-                className={`flex cursor-pointer gap-3 rounded-[12px] p-4 ${
-                  selected
-                    ? "border-2 border-border-selected bg-background-selected"
-                    : "border border-border-default bg-background-surface"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selected}
-                  onChange={() => wizard.toggleUnit(unit.id)}
-                  className="mt-0.5 size-5 shrink-0 accent-[var(--color-action-primary-bg)]"
-                />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span
-                    className={`type-label ${selected ? "text-text-accent" : "text-text-primary"}`}
-                  >
-                    {unit.name}
-                  </span>
-                  <span className="type-caption text-text-muted">
-                    {unit.teamNames.join(" · ")}
-                  </span>
-                </span>
-              </label>
-            );
-          })}
+          {context.units.map((unit) => (
+            <UnitCard
+              key={unit.id}
+              unit={unit}
+              selected={form.unitIds.includes(unit.id)}
+              onToggle={() => wizard.toggleUnit(unit.id)}
+            />
+          ))}
         </div>
       </Card>
 
