@@ -1,13 +1,13 @@
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 import { asPerson } from "./backend";
-import { nextWednesday, turkeyClock, turkeyDay } from "./time";
+import { getNextWednesday, toTurkishDate, toTurkishTime } from "./time";
 
-export const UUID = /^[0-9a-f-]{36}$/;
+export const UUID_REGEX = /^[0-9a-f-]{36}$/;
 
 export type TimeRange = { startsAt: string; endsAt: string };
 
-const EVERY_DAY = [
+const WEEK_DAYS = [
   "MONDAY",
   "TUESDAY",
   "WEDNESDAY",
@@ -40,7 +40,7 @@ export async function openOfficeHours(
     "/api/office-hours/me/availability",
     academicianAccount,
     {
-      rules: EVERY_DAY.map((dayOfWeek) => ({
+      rules: WEEK_DAYS.map((dayOfWeek) => ({
         dayOfWeek,
         startTime: "09:00",
         endTime: "17:00",
@@ -70,10 +70,11 @@ export async function requestNextWednesday(
     `/api/office-hours/me/academicians/${academicianId}/slots`,
     studentAccount,
   );
-  const day = nextWednesday();
+  const day = getNextWednesday();
   const slot = slots.find(
     (one) =>
-      turkeyDay(one.startsAt) === day && turkeyClock(one.startsAt) >= "10:00",
+      toTurkishDate(one.startsAt) === day &&
+      toTurkishTime(one.startsAt) >= "10:00",
   );
   expect(slot, `a free time on ${day} from 10:00`).toBeDefined();
   const startsAt = slot?.startsAt ?? "";
@@ -89,12 +90,12 @@ export async function requestNextWednesday(
       description: "Uçtan uca test.",
     },
   );
-  expect(sent.id).toMatch(UUID);
+  expect(sent.id).toMatch(UUID_REGEX);
   return { id: sent.id, startsAt, endsAt: slot?.endsAt ?? "" };
 }
 
 /** The student's row for a topic on one tab of Randevularım. */
-export async function studentAppointment(
+export async function findStudentAppointment(
   page: Page,
   tab: "Yaklaşan" | "Talepler" | "Geçmiş",
   topic: string,

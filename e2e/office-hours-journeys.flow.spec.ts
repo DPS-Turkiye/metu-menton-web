@@ -2,14 +2,14 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { asPerson } from "./support/backend";
 import {
+  findStudentAppointment,
   openOfficeHours,
   requestNextWednesday,
-  studentAppointment,
-  UUID,
+  UUID_REGEX,
   type TimeRange,
 } from "./support/office-hours";
 import { currentUserId, Persona, signInAs } from "./support/personas";
-import { turkeyDay, turkeyRange } from "./support/time";
+import { toTurkishDate, toTurkishTimeRange } from "./support/time";
 
 // The Office Hours journeys office-hours.flow.spec.ts leaves out (FR-OH-09, FR-OH-14). Each test sends its own
 // request through the backend and walks the rest through both sides' screens, so any one of them runs alone and
@@ -41,7 +41,7 @@ test.beforeAll(async ({ browser }) => {
   );
   academicianId =
     academicians.find((one) => one.fullName === Persona.AhmetOzturk)?.id ?? "";
-  expect(academicianId).toMatch(UUID);
+  expect(academicianId).toMatch(UUID_REGEX);
   await page.close();
 });
 
@@ -60,7 +60,7 @@ async function openRequestDrawer(
   request: TimeRange & { id: string },
 ) {
   await page.goto(
-    `/academician/appointments?date=${turkeyDay(request.startsAt)}&request=${request.id}`,
+    `/academician/appointments?date=${toTurkishDate(request.startsAt)}&request=${request.id}`,
   );
 }
 
@@ -68,7 +68,7 @@ async function openRequestDrawer(
  * The academician's calendar entry for a request or a meeting, named by the student, the time and the status, once
  * Randevularım has loaded both lists: an entry that is gone is only gone after they have arrived.
  */
-async function academicianEntry(
+async function findAcademicianEntry(
   page: Page,
   time: TimeRange,
   status: "Onay Bekliyor" | "Onaylandı",
@@ -81,10 +81,12 @@ async function academicianEntry(
       (response) => response.url().includes(path) && response.ok(),
     ),
   );
-  await page.goto(`/academician/appointments?date=${turkeyDay(time.startsAt)}`);
+  await page.goto(
+    `/academician/appointments?date=${toTurkishDate(time.startsAt)}`,
+  );
   await Promise.all(loaded);
   return page.getByRole("button", {
-    name: `${Persona.AyseYilmaz}, ${turkeyRange(time.startsAt, time.endsAt)}, ${status}`,
+    name: `${Persona.AyseYilmaz}, ${toTurkishTimeRange(time.startsAt, time.endsAt)}, ${status}`,
   });
 }
 
@@ -124,20 +126,20 @@ test("the academician offers another time and the student takes it", async ({
 
   await signInAs(page, Persona.AyseYilmaz);
   await (
-    await studentAppointment(page, "Talepler", topic)
+    await findStudentAppointment(page, "Talepler", topic)
   )
     .getByRole("button", { name: "Önerilen saati kabul et" })
     .click();
   await expect(
     page.getByText("Önerilen saati kabul ettin; randevun onaylandı."),
   ).toBeVisible();
-  await expect(await studentAppointment(page, "Yaklaşan", topic)).toContainText(
-    "Onaylandı",
-  );
+  await expect(
+    await findStudentAppointment(page, "Yaklaşan", topic),
+  ).toContainText("Onaylandı");
 
   await signInAs(page, Persona.AhmetOzturk);
   await expect(
-    await academicianEntry(page, offered ?? sent, "Onaylandı"),
+    await findAcademicianEntry(page, offered ?? sent, "Onaylandı"),
   ).toBeVisible();
 });
 
@@ -156,7 +158,7 @@ test("the student cancels a booked meeting and the time is free again", async ({
 
   await signInAs(page, Persona.AyseYilmaz);
   await (
-    await studentAppointment(page, "Yaklaşan", topic)
+    await findStudentAppointment(page, "Yaklaşan", topic)
   )
     .getByRole("button", { name: "Randevuyu iptal et" })
     .click();
@@ -165,9 +167,9 @@ test("the student cancels a booked meeting and the time is free again", async ({
     .fill("Sınav tarihim değişti; uçtan uca test.");
   await page.getByRole("button", { name: "Randevuyu İptal Et" }).click();
   await expect(page.getByText("Randevu iptal edildi.")).toBeVisible();
-  await expect(await studentAppointment(page, "Geçmiş", topic)).toContainText(
-    "İptal Edildi",
-  );
+  await expect(
+    await findStudentAppointment(page, "Geçmiş", topic),
+  ).toContainText("İptal Edildi");
 
   // The booking page draws days and times in the browser's own zone, so the labels are read the same way.
   await page.goto(`/student/office-hours/${academicianId}/book`);
@@ -191,7 +193,9 @@ test("the student cancels a booked meeting and the time is free again", async ({
   ).toBeEnabled();
 
   await signInAs(page, Persona.AhmetOzturk);
-  await expect(await academicianEntry(page, sent, "Onaylandı")).toHaveCount(0);
+  await expect(await findAcademicianEntry(page, sent, "Onaylandı")).toHaveCount(
+    0,
+  );
 });
 
 test("the academician declines a request and the student sees why", async ({
@@ -208,12 +212,12 @@ test("the academician declines a request and the student sees why", async ({
     .fill("Bu hafta dolu; uçtan uca test.");
   await page.getByRole("button", { name: "Talebi Reddet" }).click();
   await expect(page.getByText("Talep reddedildi.")).toBeVisible();
-  await expect(await academicianEntry(page, sent, "Onay Bekliyor")).toHaveCount(
-    0,
-  );
+  await expect(
+    await findAcademicianEntry(page, sent, "Onay Bekliyor"),
+  ).toHaveCount(0);
 
   await signInAs(page, Persona.AyseYilmaz);
-  const row = await studentAppointment(page, "Geçmiş", topic);
+  const row = await findStudentAppointment(page, "Geçmiş", topic);
   await expect(row).toContainText("Reddedildi");
   await expect(row).toContainText("Bu hafta dolu");
 });
@@ -226,12 +230,12 @@ test("the student withdraws a request before it is answered", async ({
 
   await signInAs(page, Persona.AhmetOzturk);
   await expect(
-    await academicianEntry(page, sent, "Onay Bekliyor"),
+    await findAcademicianEntry(page, sent, "Onay Bekliyor"),
   ).toBeVisible();
 
   await signInAs(page, Persona.AyseYilmaz);
   await (
-    await studentAppointment(page, "Talepler", topic)
+    await findStudentAppointment(page, "Talepler", topic)
   )
     .getByRole("button", { name: "Talebi geri çek" })
     .click();
@@ -239,12 +243,12 @@ test("the student withdraws a request before it is answered", async ({
     .getByRole("dialog")
     .getByRole("button", { name: "Talebi geri çek" })
     .click();
-  await expect(await studentAppointment(page, "Geçmiş", topic)).toContainText(
-    "Geri Çekildi",
-  );
+  await expect(
+    await findStudentAppointment(page, "Geçmiş", topic),
+  ).toContainText("Geri Çekildi");
 
   await signInAs(page, Persona.AhmetOzturk);
-  await expect(await academicianEntry(page, sent, "Onay Bekliyor")).toHaveCount(
-    0,
-  );
+  await expect(
+    await findAcademicianEntry(page, sent, "Onay Bekliyor"),
+  ).toHaveCount(0);
 });
