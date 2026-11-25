@@ -5,11 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useInstitutionAdvisees } from "@/hooks/use-institution-record";
+import { AppointmentStatus } from "@/interfaces/appointment";
 import {
   ACADEMICIAN_APPOINTMENTS_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   TURKEY_TIME_ZONE,
   turkeyDay,
+  turkeyShortDay,
   turkeyTime,
 } from "@/lib/academician-office-hours";
 import { studentProfileHref } from "@/lib/academician-routes";
@@ -23,12 +25,18 @@ import {
   StudentProfileOrigin,
 } from "@/types/academician-office-hours";
 
+/** A waiting request reads as one; a booked meeting as confirmed. */
+const NEXT_STATUS: Record<AdviseeNextKind, AppointmentStatus> = {
+  [AdviseeNextKind.PendingRequest]: AppointmentStatus.Pending,
+  [AdviseeNextKind.Appointment]: AppointmentStatus.Confirmed,
+};
+
 export type AdviseeTableRow = {
   key: string;
   name: string;
   detail: string;
   last: string | null;
-  next: { label: string; pending: boolean } | null;
+  next: { label: string; status: AppointmentStatus } | null;
   /** The student's profile; null for someone who never signed in to Menton, who has no profile there. */
   href: string | null;
 };
@@ -42,6 +50,8 @@ export function useAcademicianAdvisees() {
   const t = useTranslations("iaAcademician.advisees");
   const locale = useLocale();
   const [search, setSearch] = useState("");
+  const [classYear, setClassYear] = useState<number | null>(null);
+  const [upcomingOnly, setUpcomingOnly] = useState(false);
   const advisees = useInstitutionAdvisees();
   const requests = useQuery({
     queryKey: ACADEMICIAN_REQUESTS_QUERY_KEY,
@@ -83,27 +93,22 @@ export function useAcademicianAdvisees() {
     month: "short",
     timeZone: TURKEY_TIME_ZONE,
   });
-  const longDay = new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "long",
-    timeZone: TURKEY_TIME_ZONE,
+
+  const nextLabel = (kind: AdviseeNextKind, startsAt: string) => ({
+    label:
+      turkeyDay(startsAt) === today
+        ? t("today", { time: turkeyTime(startsAt, locale) })
+        : `${turkeyShortDay(startsAt, locale)} ${turkeyTime(startsAt, locale)}`,
+    status: NEXT_STATUS[kind],
   });
 
-  const nextLabel = (kind: AdviseeNextKind, startsAt: string) => {
-    switch (kind) {
-      case AdviseeNextKind.PendingRequest:
-        return { label: t("pending"), pending: true };
-      case AdviseeNextKind.Appointment:
-        return {
-          label:
-            turkeyDay(startsAt) === today
-              ? t("today", { time: turkeyTime(startsAt, locale) })
-              : `${shortDay.format(new Date(startsAt))} · ${turkeyTime(startsAt, locale)}`,
-          pending: false,
-        };
-    }
-  };
-
+  const classYears = [
+    ...new Set(
+      advisees.data.flatMap(({ classYear: year }) =>
+        year === null ? [] : [year],
+      ),
+    ),
+  ].toSorted((a, b) => a - b);
   const rows = adviseeRows(
     filterAdvisees(advisees.data, search),
     {
@@ -111,6 +116,10 @@ export function useAcademicianAdvisees() {
       appointments: appointments.data ?? [],
     },
     now,
+  ).filter(
+    ({ person, next }) =>
+      (classYear === null || person.classYear === classYear) &&
+      (!upcomingOnly || next !== null),
   );
 
   return {
@@ -120,6 +129,14 @@ export function useAcademicianAdvisees() {
       meetings,
       search,
       setSearch,
+      classYear,
+      setClassYear,
+      classYears: classYears.map((year) => ({
+        year,
+        label: t("classYear", { year }),
+      })),
+      upcomingOnly,
+      toggleUpcomingOnly: () => setUpcomingOnly((current) => !current),
       rows: rows.map(
         ({ person, lastAppointmentAt, next }): AdviseeTableRow => ({
           key: `${person.userId ?? "none"}-${person.fullName}`,
@@ -133,7 +150,7 @@ export function useAcademicianAdvisees() {
           last:
             lastAppointmentAt === null
               ? null
-              : longDay.format(new Date(lastAppointmentAt)),
+              : shortDay.format(new Date(lastAppointmentAt)),
           next: next === null ? null : nextLabel(next.kind, next.startsAt),
           href:
             person.userId === null

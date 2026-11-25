@@ -1,10 +1,10 @@
 "use client";
 
+import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppointmentDrawer } from "@/components/academician/appointment-drawer";
 import { AppointmentsCalendarCard } from "@/components/academician/appointments-calendar";
-import { AppointmentsFilterChips } from "@/components/academician/appointments-filter-chips";
 import { AppointmentsRail } from "@/components/academician/appointments-rail";
 import { ProposeTimesDialog } from "@/components/academician/propose-times-dialog";
 import {
@@ -12,6 +12,7 @@ import {
   RequestDrawer,
 } from "@/components/academician/request-drawer";
 import { StudentProfileDialog } from "@/components/academician/student-profile-dialog";
+import { ViewSwitch } from "@/components/academician/view-switch";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { PageHeader } from "@/components/ia/page-header";
@@ -21,6 +22,7 @@ import {
 } from "@/hooks/use-academician-appointments-calendar";
 import { RequestStep } from "@/types/academician-calendar";
 
+/** Randevularım (Figma 10.4). */
 export function AcademicianAppointmentsView() {
   const t = useTranslations("iaAcademician.appointments");
   const { calendar, isLoading, error, retry, isRetrying } =
@@ -30,16 +32,20 @@ export function AcademicianAppointmentsView() {
       <PageHeader
         title={t("title")}
         actions={
-          <Button
-            variant={ButtonVariant.Secondary}
-            href={calendar?.links.availability}
-          >
-            {t("editAvailability")}
-          </Button>
+          <>
+            {calendar ? (
+              <ViewSwitch value={calendar.view} onChange={calendar.setView} />
+            ) : null}
+            <Button
+              variant={ButtonVariant.Secondary}
+              href={calendar?.links.availability}
+            >
+              <Pencil aria-hidden className="size-5" strokeWidth={1.5} />
+              {t("editAvailability")}
+            </Button>
+          </>
         }
-      >
-        <p className="type-body text-text-secondary">{t("subtitle")}</p>
-      </PageHeader>
+      />
       {calendar ? (
         <AppointmentsContent calendar={calendar} />
       ) : (
@@ -61,13 +67,8 @@ function AppointmentsContent({
 }) {
   return (
     <>
-      <AppointmentsFilterChips
-        value={calendar.filter}
-        onChange={calendar.setFilter}
-        requestCount={calendar.requestCount}
-      />
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <AppointmentsCalendarCard calendar={calendar} />
+        <AppointmentsCalendarCard calendar={calendar} withViews={false} />
         <AppointmentsRail calendar={calendar} />
       </div>
       <Drawers calendar={calendar} />

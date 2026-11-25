@@ -96,7 +96,6 @@ describe("AcademicianAppointmentsView", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Randevularım" }),
     ).toBeVisible();
-    expect(screen.getByRole("button", { name: "Talepler · 2" })).toBeVisible();
     expect(
       screen.getByRole("button", {
         name: "Zeynep Arslan, 15:30–16:00, Onaylandı",
@@ -115,34 +114,13 @@ describe("AcademicianAppointmentsView", () => {
     ).toBeVisible();
 
     const rail = screen.getByRole("region", {
-      name: /Yanıt bekleyen talepler/,
+      name: "Yanıt bekleyen",
     });
-    expect(within(rail).getByText("Danışanın")).toBeVisible();
+    expect(rail).toHaveTextContent("Yanıt bekleyen2");
+    expect(within(rail).getAllByRole("listitem")).toHaveLength(2);
     expect(
       screen.getByRole("region", { name: "Öğrenci yanıtı bekleniyor" }),
     ).toHaveTextContent("Mert DemirSorunu yanıtlaması bekleniyor");
-    expect(
-      screen.getByRole("region", { name: "Müsaitliğim" }),
-    ).toHaveTextContent("Her Salı14:00 – 16:00");
-  });
-
-  it("filters the calendar and keeps the choice in the URL", async () => {
-    const user = userEvent.setup();
-    renderView();
-    await calendarTitle("9–15 Kasım 2026");
-
-    await user.click(screen.getByRole("button", { name: "Randevular" }));
-
-    expect(screen.getByRole("button", { name: "Randevular" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    expect(
-      screen.queryByRole("button", {
-        name: "Deniz Kaya, 14:00–14:30, Onay Bekliyor",
-      }),
-    ).not.toBeInTheDocument();
-    expect(window.location.search).toBe("?filter=appointments");
   });
 
   it("moves between weeks and switches views from the month grid", async () => {
@@ -540,7 +518,7 @@ describe("AcademicianAppointmentsView", () => {
       await screen.findByRole("heading", { level: 1, name: "My appointments" }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("button", { name: "Requests · 2" }),
+      await screen.findByRole("region", { name: "Waiting for you" }),
     ).toBeVisible();
   });
 });

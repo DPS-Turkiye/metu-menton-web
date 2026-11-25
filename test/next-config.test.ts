@@ -72,11 +72,7 @@ describe("legacy redirects", () => {
         permanent,
       ]),
     ).toEqual([
-      [
-        "/academician/requests",
-        "/academician/appointments?filter=requests",
-        false,
-      ],
+      ["/academician/requests", "/academician/appointments", false],
       [
         "/academician/calendar",
         "/academician/appointments/availability",

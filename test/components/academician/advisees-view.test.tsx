@@ -73,7 +73,7 @@ afterEach(() => {
 
 async function rows() {
   const table = await screen.findByRole("table", {
-    name: "Danışan Öğrencilerim · 3 öğrenci",
+    name: "Danışan öğrencilerim · 3 öğrenci",
   });
   // The first row is the header.
   return within(table).getAllByRole("row").slice(1);
@@ -95,14 +95,10 @@ describe("AdviseesView", () => {
       "href",
       "/academician/students/sample-student-deniz?from=advisees",
     );
-    expect(
-      within(deniz ?? document.body).getByRole("link", {
-        name: "Deniz Kaya ile randevular",
-      }),
-    ).toBeVisible();
+    expect(within(deniz ?? document.body).getByText("Onaylandı")).toBeVisible();
 
-    expect(zeynep).toHaveTextContent("Bugün 15:30");
-    expect(screen.getByText("Kurumsal kayıttan · salt okunur")).toBeVisible();
+    expect(zeynep).toHaveTextContent("Bugün 15:30Onaylandı");
+    expect(screen.getByText("3 öğrenci")).toBeVisible();
     expect(screen.queryByText(/Örnek veriler/)).toBeNull();
   });
 
@@ -120,6 +116,29 @@ describe("AdviseesView", () => {
     await user.type(search, "x");
     expect(screen.queryByRole("table")).toBeNull();
     expect(screen.getByText("Aramana uyan öğrenci yok.")).toBeVisible();
+  });
+
+  it("narrows by class year and to those with an upcoming appointment", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(<AdviseesView />);
+    await rows();
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Sınıf" }),
+      "3. sınıf",
+    );
+    expect(screen.getAllByRole("row")).toHaveLength(2);
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Deniz Kaya");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Sınıf" }),
+      "Sınıf",
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Yaklaşan randevusu olanlar" }),
+    );
+    expect(screen.getAllByRole("row")).toHaveLength(3);
+    expect(screen.queryByText("Ali Çelik")).toBeNull();
   });
 
   it("says so when ODTÜ's records show no advisees", async () => {

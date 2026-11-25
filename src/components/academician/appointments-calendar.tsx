@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useId, type CSSProperties } from "react";
 
 import { ViewSwitch } from "@/components/academician/view-switch";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import type {
   AcademicianAppointmentsCalendar,
   CalendarBlock,
@@ -15,96 +16,115 @@ import {
   CalendarEntryKind,
 } from "@/types/academician-calendar";
 
-/** One grid hour; tall enough that the shortest block (45 min) still shows a name and a status. */
+/** One grid hour; tall enough that the shortest block (30 min) still shows a time and a name. */
 const HOUR_PX = 52;
+/** From here on a block has room for its status too. */
+const TWO_LINE_HOURS = 0.75;
+
+const CONFIRMED_STYLE =
+  "border-l-[3px] border-action-accent bg-background-selected text-text-primary";
+const PENDING_STYLE =
+  "border-2 border-dashed border-status-warning-icon bg-background-surface text-status-warning-text";
+const AWAITING_STYLE =
+  "border-2 border-dashed border-status-info-icon bg-background-surface text-status-info-text";
+const RECURRING_STYLE = "bg-status-success-bg text-status-success-text";
+const ONE_OFF_STYLE =
+  "border border-dashed border-status-success-icon bg-status-success-bg text-status-success-text";
+const UNAVAILABLE_STYLE = "bg-background-muted text-text-muted";
 
 const ENTRY_STYLE: Record<CalendarEntryKind, string> = {
-  [CalendarEntryKind.Confirmed]: "bg-background-inverse text-text-inverse",
-  [CalendarEntryKind.PendingRequest]:
-    "border border-dashed border-status-warning-icon bg-status-warning-bg text-status-warning-text",
-  [CalendarEntryKind.AwaitingStudent]:
-    "border border-dashed border-status-warning-icon bg-background-surface text-status-warning-text",
-  [CalendarEntryKind.Recurring]: "bg-background-subtle text-text-secondary",
-  [CalendarEntryKind.OneOff]: "bg-status-info-bg text-status-info-text",
-  [CalendarEntryKind.Unavailable]: "bg-brand-odtu-bg text-brand-odtu-strong",
+  [CalendarEntryKind.Confirmed]: CONFIRMED_STYLE,
+  [CalendarEntryKind.PendingRequest]: PENDING_STYLE,
+  [CalendarEntryKind.AwaitingStudent]: AWAITING_STYLE,
+  [CalendarEntryKind.Recurring]: RECURRING_STYLE,
+  [CalendarEntryKind.OneOff]: ONE_OFF_STYLE,
+  [CalendarEntryKind.Unavailable]: UNAVAILABLE_STYLE,
 };
 
 const LEGEND: { kind: CalendarEntryKind; swatch: string }[] = [
-  { kind: CalendarEntryKind.Recurring, swatch: "bg-background-subtle" },
-  { kind: CalendarEntryKind.OneOff, swatch: "bg-status-info-bg" },
-  { kind: CalendarEntryKind.Confirmed, swatch: "bg-background-inverse" },
+  { kind: CalendarEntryKind.Recurring, swatch: "bg-status-success-bg" },
+  {
+    kind: CalendarEntryKind.OneOff,
+    swatch:
+      "border border-dashed border-status-success-icon bg-status-success-bg",
+  },
+  {
+    kind: CalendarEntryKind.Confirmed,
+    swatch: "border border-action-accent bg-background-selected",
+  },
   {
     kind: CalendarEntryKind.PendingRequest,
-    swatch:
-      "border border-dashed border-status-warning-icon bg-status-warning-bg",
+    swatch: "border border-dashed border-status-warning-icon",
   },
   {
     kind: CalendarEntryKind.AwaitingStudent,
-    swatch: "border border-dashed border-status-warning-icon",
+    swatch: "border border-dashed border-status-info-icon",
   },
-  { kind: CalendarEntryKind.Unavailable, swatch: "bg-brand-odtu-bg" },
+  { kind: CalendarEntryKind.Unavailable, swatch: "bg-background-muted" },
 ];
 
 export function AppointmentsCalendarCard({
   calendar,
+  withViews = true,
 }: {
   calendar: AcademicianAppointmentsCalendar;
+  /** Off where the page puts "Gün | Hafta | Ay" beside its title. */
+  withViews?: boolean;
 }) {
   const t = useTranslations("iaAcademician.appointments");
   const titleId = useId();
   return (
-    <section
-      aria-labelledby={titleId}
-      className="rounded-card border border-border-default bg-background-surface p-5"
-    >
+    <section aria-labelledby={titleId} className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2
-          id={titleId}
-          aria-live="polite"
-          className="type-h4 text-text-primary"
-        >
-          {calendar.title}
-        </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <ViewSwitch value={calendar.view} onChange={calendar.setView} />
-          <button
-            type="button"
-            onClick={calendar.goToToday}
-            className="h-9 rounded-xl bg-brand-odtu-bg px-3 type-label text-brand-odtu-strong focus-visible:outline-2 focus-visible:outline-border-selected"
-          >
-            {t("today")}
-          </button>
-          <button
-            type="button"
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
             aria-label={t("previous")}
             onClick={calendar.previous}
-            className="grid size-9 place-items-center rounded-xl text-icon-default hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
+            className="w-11"
           >
-            <ChevronLeft aria-hidden className="size-4" />
-          </button>
-          <button
-            type="button"
+            <ChevronLeft aria-hidden className="size-4" strokeWidth={1.5} />
+          </Button>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
             aria-label={t("next")}
             onClick={calendar.next}
-            className="grid size-9 place-items-center rounded-xl text-icon-default hover:bg-background-subtle focus-visible:outline-2 focus-visible:outline-border-selected"
+            className="w-11"
           >
-            <ChevronRight aria-hidden className="size-4" />
-          </button>
+            <ChevronRight aria-hidden className="size-4" strokeWidth={1.5} />
+          </Button>
+          <h2
+            id={titleId}
+            aria-live="polite"
+            className="type-h4 text-text-primary"
+          >
+            {calendar.title}
+          </h2>
+          <Button
+            variant={ButtonVariant.Ghost}
+            size={ButtonSize.Small}
+            onClick={calendar.goToToday}
+          >
+            {t("today")}
+          </Button>
         </div>
+        {withViews ? (
+          <ViewSwitch value={calendar.view} onChange={calendar.setView} />
+        ) : null}
       </div>
-      <div className="mt-5">
-        <CalendarBody calendar={calendar} />
-      </div>
+      <CalendarBody calendar={calendar} />
       <ul
         aria-label={t("legendLabel")}
-        className="mt-4 flex flex-wrap gap-x-5 gap-y-2"
+        className="flex flex-wrap gap-x-4 gap-y-2"
       >
         {LEGEND.map(({ kind, swatch }) => (
           <li
             key={kind}
-            className="flex items-center gap-2 type-caption text-text-secondary"
+            className="flex items-center gap-1.5 type-caption text-text-secondary"
           >
-            <span aria-hidden className={`size-3 rounded ${swatch}`} />
+            <span aria-hidden className={`size-3.5 rounded-[3px] ${swatch}`} />
             {t(`legend.${kind}`)}
           </li>
         ))}
@@ -139,38 +159,42 @@ function TimeGrid({
   calendar: AcademicianAppointmentsCalendar;
   inline: boolean;
 }) {
+  const t = useTranslations("iaAcademician.appointments");
   const height = calendar.gridHours * HOUR_PX;
-  const columns = calendar.columns.length;
+  const gridTemplateColumns = `56px repeat(${String(calendar.columns.length)}, minmax(0, 1fr))`;
   return (
     <div className="overflow-x-auto">
+      {inline ? null : (
+        <div
+          className="mb-5 grid min-w-[640px]"
+          style={{ gridTemplateColumns }}
+        >
+          <span />
+          {calendar.columns.map((column) => (
+            <span
+              key={column.key}
+              className={`grid h-9 place-items-center rounded-lg type-body-sm ${
+                column.isToday
+                  ? "bg-background-selected text-text-accent"
+                  : "text-text-secondary"
+              }`}
+            >
+              {column.isToday
+                ? t("todayColumn", { day: column.label })
+                : column.label}
+            </span>
+          ))}
+        </div>
+      )}
       <div
-        className="grid min-w-[640px] pt-2"
-        style={{
-          gridTemplateColumns: `48px repeat(${String(columns)}, minmax(0, 1fr))`,
-        }}
+        className="grid min-w-[640px] overflow-hidden rounded-2xl border border-border-default bg-background-surface"
+        style={{ gridTemplateColumns }}
       >
-        {inline ? null : (
-          <>
-            <span />
-            {calendar.columns.map((column) => (
-              <span
-                key={column.key}
-                className={`px-2 pb-2 type-caption ${
-                  column.isToday
-                    ? "text-brand-odtu-strong"
-                    : "text-text-secondary"
-                }`}
-              >
-                {column.label}
-              </span>
-            ))}
-          </>
-        )}
         <ol aria-hidden className="relative" style={{ height }}>
           {calendar.hourLabels.map((label, index) => (
             <li
               key={label}
-              className="absolute -translate-y-1/2 type-caption text-text-muted"
+              className="absolute left-2 pt-1 type-caption text-text-muted"
               style={{ top: index * HOUR_PX }}
             >
               {label}
@@ -181,16 +205,14 @@ function TimeGrid({
           <section
             key={column.key}
             aria-label={column.longLabel}
-            className="relative border-l border-border-subtle last:border-r"
+            className="relative border-l border-border-subtle"
             style={{
               height,
               backgroundImage: `repeating-linear-gradient(to bottom, var(--color-border-subtle) 0 1px, transparent 1px ${String(HOUR_PX)}px)`,
             }}
           >
             {column.unavailable ? (
-              <div
-                className={`absolute inset-x-1 inset-y-0 rounded-lg p-2 ${ENTRY_STYLE[CalendarEntryKind.Unavailable]}`}
-              >
+              <div className={`absolute inset-0 p-2 ${UNAVAILABLE_STYLE}`}>
                 <p className="type-label-sm">{column.unavailable.title}</p>
                 {column.unavailable.detail === null ? null : (
                   <p className="type-caption">{column.unavailable.detail}</p>
@@ -210,10 +232,10 @@ function TimeGrid({
             {column.nowOffset === null ? null : (
               <span
                 aria-hidden
-                className="absolute inset-x-0 z-20 border-t-2 border-brand-odtu-strong"
+                className="absolute inset-x-0 z-20 border-t-2 border-action-accent"
                 style={{ top: column.nowOffset * HOUR_PX }}
               >
-                <span className="absolute -top-[5px] -left-1 size-2 rounded-full bg-brand-odtu-strong" />
+                <span className="absolute -top-[5px] -left-1 size-2 rounded-full bg-action-accent" />
               </span>
             )}
           </section>
@@ -230,12 +252,11 @@ function boxStyle(block: PlacedBlock): CSSProperties {
   };
 }
 
-/** Availability behind the appointments: not a control, so screen readers get it from the rail instead. */
+/** Availability behind the appointments: not a control. */
 function Band({ block, inline }: { block: PlacedBlock; inline: boolean }) {
   return (
     <div
-      aria-hidden
-      className={`absolute inset-x-1 overflow-hidden rounded-lg px-2 py-1 ${ENTRY_STYLE[block.kind]}`}
+      className={`absolute inset-x-0 overflow-hidden px-2 py-1 ${ENTRY_STYLE[block.kind]}`}
       style={boxStyle(block)}
     >
       {inline ? (
@@ -245,8 +266,8 @@ function Band({ block, inline }: { block: PlacedBlock; inline: boolean }) {
         </>
       ) : (
         <>
-          <p className="truncate type-label-sm">{block.title}</p>
-          <p className="truncate type-caption">{block.detail}</p>
+          {/* The colour says it (the legend names it); the words are for screen readers. */}
+          <p className="sr-only">{`${block.title} ${block.hours}`}</p>
         </>
       )}
     </div>
@@ -263,7 +284,7 @@ function Block({ block, inline }: { block: PlacedBlock; inline: boolean }) {
       aria-label={block.ariaLabel}
       data-tour={block.tourAnchor ? "calendar-pending-request" : undefined}
       onClick={block.open ?? undefined}
-      className={`absolute z-10 overflow-hidden rounded-lg px-2 py-1 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-selected ${ENTRY_STYLE[block.kind]}`}
+      className={`absolute z-10 overflow-hidden rounded-md px-2 py-0.5 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-selected ${ENTRY_STYLE[block.kind]}`}
       style={{
         ...boxStyle(block),
         left: `calc(${String(start + block.lane * width)}% + 4px)`,
@@ -276,8 +297,12 @@ function Block({ block, inline }: { block: PlacedBlock; inline: boolean }) {
         </span>
       ) : (
         <>
-          <span className="block truncate type-label-sm">{block.title}</span>
-          <span className="block truncate type-caption">{block.detail}</span>
+          <span className="block truncate type-label-sm">
+            {`${block.startTime} ${block.title}`}
+          </span>
+          {block.height < TWO_LINE_HOURS ? null : (
+            <span className="block truncate type-caption">{block.detail}</span>
+          )}
         </>
       )}
     </button>
@@ -305,7 +330,7 @@ function MonthGrid({
           <div
             key={cell.key}
             className={`min-h-24 space-y-1 border-t border-l border-border-subtle p-1.5 [&:nth-child(7n)]:border-r ${
-              cell.unavailable ? "bg-brand-odtu-bg" : ""
+              cell.unavailable ? "bg-background-muted" : ""
             }`}
           >
             <button
@@ -317,7 +342,7 @@ function MonthGrid({
               {cell.dayNumber}
             </button>
             {cell.unavailable ? (
-              <p className="px-1 type-caption text-brand-odtu-strong">
+              <p className="px-1 type-caption text-text-muted">
                 {t("entry.unavailable")}
               </p>
             ) : null}
@@ -337,7 +362,7 @@ function MonthGrid({
 }
 
 function dayNumberClass(cell: { isToday: boolean; inMonth: boolean }) {
-  if (cell.isToday) return "bg-background-inverse text-text-inverse";
+  if (cell.isToday) return "bg-action-accent text-text-inverse";
   return cell.inMonth ? "text-text-primary" : "text-text-disabled";
 }
 

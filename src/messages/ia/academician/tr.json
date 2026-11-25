@@ -13,9 +13,9 @@
       "EXPIRED": "Süresi doldu",
       "WITHDRAWN": "Geri çekildi"
     },
-    "oneOff": "{date} · tek seferlik",
-    "unavailable": "{days} · Müsait değilim",
-    "unavailableBecause": "{days} · Müsait değilim ({reason})",
+    "oneOff": "{hours} · tek seferlik",
+    "unavailable": "Müsait değil",
+    "unavailableBecause": "Müsait değil · {reason}",
     "everyWeekday": "Her {weekday}",
     "classYear": "{year}. sınıf",
     "close": "Kapat"
@@ -31,18 +31,12 @@
   },
   "home": {
     "greeting": "{greeting}, {name} Hocam",
-    "editAvailability": "Müsaitliği Düzenle",
-    "appointments": "Randevularım",
+    "editAvailability": "Müsaitliği düzenle",
     "stats": {
       "pending": "Bekleyen talepler",
       "pendingOldest": "en eskisi {ago}",
       "pendingNone": "Yanıt bekleyen talep yok",
       "pendingEmpty": "Müsaitlik ekleyince talepler burada görünür",
-      "today": "Bugünkü randevular",
-      "todayFirst": "ilki {time}",
-      "todayNone": "Bugün randevu yok",
-      "week": "Bu hafta müsait saat",
-      "weekNone": "Bu hafta açık saat yok",
       "advisees": "Danışan öğrencilerim",
       "adviseesHint": "Kurumsal kayıttan",
       "upcoming": "Yaklaşan randevular",
@@ -50,12 +44,13 @@
     },
     "requests": {
       "title": "Yanıt bekleyen talepler",
-      "seeAll": "Tümü ({count})",
-      "topic": "Görüşme konusu",
+      "seeAll": "Tümü",
       "decline": "Reddet",
-      "propose": "Alternatif Saat Öner",
-      "accept": "Kabul Et",
-      "empty": "Şu an yanıt bekleyen talep yok."
+      "propose": "Alternatif öner",
+      "accept": "Kabul et",
+      "empty": "Şu an yanıt bekleyen talep yok.",
+      "advisee": "danışanın",
+      "more": "{count} talep daha · {name}{count, plural, =1 {} other { ve diğerleri}}"
     },
     "today": {
       "title": "Bugün",
@@ -63,8 +58,7 @@
       "empty": "Bugün randevun yok."
     },
     "availability": {
-      "title": "Müsaitliğim",
-      "edit": "Düzenle"
+      "title": "Müsaitliğim"
     },
     "empty": {
       "title": "Öğrencilerin senden randevu alabilmesi için müsaitlik ekle",
@@ -77,19 +71,12 @@
       "oneOffHint": "Tek seferlik müsaitlik",
       "unavailableTitle": "Belirli bir gün · Tüm gün",
       "unavailableHint": "Müsait değilim (istisna)"
-    }
+    },
+    "advisees": "{count} danışan öğrenci · kurumsal kayıttan"
   },
   "appointments": {
     "title": "Randevularım",
-    "subtitle": "Onaylı randevuların, yanıt bekleyen talepler ve müsaitliğin tek takvimde.",
-    "editAvailability": "Müsaitliği Düzenle",
-    "filtersLabel": "Takvimde göster",
-    "filters": {
-      "all": "Tümü",
-      "appointments": "Randevular",
-      "requests": "Talepler · {count}",
-      "availability": "Müsaitlik"
-    },
+    "editAvailability": "Müsaitliği düzenle",
     "viewsLabel": "Takvim görünümü",
     "views": {
       "day": "Gün",
@@ -101,11 +88,11 @@
     "next": "Sonraki",
     "legendLabel": "Renklerin anlamı",
     "legend": {
-      "recurring": "Tekrarlanan",
+      "recurring": "Müsait (tekrarlanan)",
       "oneOff": "Tek seferlik",
       "confirmed": "Onaylı randevu",
-      "pendingRequest": "Onay bekliyor (soluk)",
-      "awaitingStudent": "Öğrenci yanıtı bekleniyor",
+      "pendingRequest": "Onay bekliyor",
+      "awaitingStudent": "Öneri · öğrenci yanıtı",
       "unavailable": "Müsait değil"
     },
     "entry": {
@@ -114,7 +101,7 @@
       "awaitingStudent": "Öneri · öğrenci yanıtı",
       "recurring": "Müsait",
       "oneOff": "Müsait",
-      "unavailable": "Müsait değilim"
+      "unavailable": "Müsait değil"
     },
     "entryDetail": {
       "recurring": "Her {weekday} · tekrarlanan müsaitlik",
@@ -125,22 +112,17 @@
     "more": "+{count} daha",
     "openDay": "{day} gününü aç",
     "rail": {
-      "pendingTitle": "Yanıt bekleyen talepler",
-      "all": "Tümü",
-      "hint": "Talepler takvimde kesikli çerçeveyle görünür. Detayı açmak için talebe tıkla.",
+      "pendingTitle": "Yanıt bekleyen",
       "pendingEmpty": "Yanıt bekleyen talep yok.",
       "awaitingTitle": "Öğrenci yanıtı bekleniyor",
       "proposed": "Önerdiğin saat: {when}",
       "asked": "Sorunu yanıtlaması bekleniyor",
-      "proposedBadge": "Alternatif Saat Önerildi",
-      "askedBadge": "Soru soruldu",
-      "availabilityTitle": "Müsaitliğim",
-      "availabilityEmpty": "Henüz müsait saat yok.",
       "summary": {
         "title": "{month} özeti",
         "body": "{confirmed, plural, =0 {onaylı randevu yok} other {# onaylı randevu}} · {waiting, plural, =0 {yanıt bekleyen talep yok} other {# yanıt bekleyen talep}}"
       }
-    }
+    },
+    "todayColumn": "{day} · bugün"
   },
   "requestDrawer": {
     "title": "Randevu talebi",
@@ -271,32 +253,31 @@
     "failed": "Kaydedilemedi; tekrar dene."
   },
   "advisees": {
-    "title": "Danışan Öğrencilerim",
+    "title": "Danışan öğrencilerim",
     "search": "Öğrenci ara",
-    "readOnly": "Kurumsal kayıttan · salt okunur",
     "meetingsFailed": "Randevu bilgileri yüklenemedi; son ve yaklaşan randevu sütunları şu an eksik.",
     "count": "{count} öğrenci",
     "columns": {
       "student": "Öğrenci",
       "program": "Bölüm · sınıf",
       "last": "Son randevu",
-      "next": "Yaklaşan randevu",
-      "actions": "İşlemler"
+      "next": "Yaklaşan randevu"
     },
-    "appointments": "Randevular",
-    "appointmentsLabel": "{name} ile randevular",
     "today": "Bugün {time}",
-    "pending": "Onay bekliyor",
     "none": "—",
     "notSignedIn": "Menton'a henüz giriş yapmadı",
     "empty": "ODTÜ kayıtlarında danışmanlığında öğrenci görünmüyor.",
     "noMatch": "Aramana uyan öğrenci yok.",
-    "footnote": "Bu liste mentorluk eşleşmesi veya randevu değildir. Danışmanlık ilişkileri ODTÜ kayıtlarından gelir ve Menton'da değiştirilemez."
+    "footnote": "Bu liste akademik danışmanlık ilişkilerini gösterir; Akran Mentörlüğü eşleşmeleri burada yer almaz.",
+    "subtitle": "Akademik danışmanlık ilişkileri ODTÜ kayıtlarından gelir; Menton'da değiştirilemez.",
+    "classYearFilter": "Sınıf",
+    "classYear": "{year}. sınıf",
+    "upcomingOnly": "Yaklaşan randevusu olanlar"
   },
   "student": {
     "back": {
       "appointments": "Randevularım",
-      "advisees": "Danışan Öğrencilerim"
+      "advisees": "Danışan öğrencilerim"
     },
     "classYear": "{year}. sınıf",
     "record": "Kurumsal bilgiler",
@@ -317,8 +298,8 @@
       "cancelled": "İptal edildi"
     },
     "decline": "Reddet",
-    "propose": "Alternatif Saat Öner",
-    "accept": "Kabul Et",
+    "propose": "Alternatif öner",
+    "accept": "Kabul et",
     "notFound": "Bu öğrenci hakkında gösterilecek bilgi yok.",
     "openProfile": "Öğrenci profilini gör",
     "close": "Kapat",
@@ -329,6 +310,9 @@
       "goal": "Hedefi",
       "noGoal": "Henüz bir hedef yazmadı.",
       "empty": "Öğrenci henüz ilgi alanlarını ve hedefini doldurmadı."
-    }
+    },
+    "historyAhead": "Yaklaşan",
+    "historyPast": "Geçmiş",
+    "historyCount": "{count} randevu"
   }
 }

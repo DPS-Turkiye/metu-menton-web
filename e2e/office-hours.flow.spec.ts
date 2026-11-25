@@ -143,7 +143,7 @@ test("the academician accepts it from Ana Sayfa", async ({ page }) => {
   await page
     .getByRole("listitem")
     .filter({ hasText: BOOKED_TOPIC })
-    .getByRole("button", { name: "Kabul Et" })
+    .getByRole("button", { name: "Kabul et" })
     .click();
 
   await expect(

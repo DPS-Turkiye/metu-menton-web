@@ -32,7 +32,6 @@ import { weekdayOf } from "@/lib/mentor-availability";
 import { minutesOfDay } from "@/lib/utils";
 import {
   AppointmentsCalendarView,
-  AppointmentsFilter,
   CalendarEntryKind,
   RequestFit,
   RequestStep,
@@ -42,6 +41,9 @@ import {
 export const LATE_CANCEL_MS = 24 * 60 * 60 * 1000;
 
 const HOUR_MS = 60 * 60 * 1000;
+
+/** Half an hour, the usual meeting: its block holds one line ("14:30 Berk Özkan"). */
+const MIN_BLOCK_HOURS = 0.5;
 
 /** The design's grid runs 09:00–18:00; it grows only when something falls outside. */
 const DEFAULT_GRID = { startHour: 9, endHour: 18 };
@@ -53,7 +55,6 @@ export type AppointmentsSearch = {
   view: AppointmentsCalendarView;
   /** The day the view is anchored on ("YYYY-MM-DD"); null means today. */
   date: string | null;
-  filter: AppointmentsFilter;
   /** The request whose drawer is open. */
   request: string | null;
   /** The drawer, or the dialog that proposes other times for that request. */
@@ -65,7 +66,6 @@ export type AppointmentsSearch = {
 export const DEFAULT_APPOINTMENTS_SEARCH: AppointmentsSearch = {
   view: AppointmentsCalendarView.Week,
   date: null,
-  filter: AppointmentsFilter.All,
   request: null,
   step: RequestStep.Detail,
   appointment: null,
@@ -92,7 +92,6 @@ function idOrNull(value: string | undefined) {
 /** Reads the search params once, at the boundary; unknown values fall back to the defaults. */
 export function parseAppointmentsSearch(raw: RawSearch): AppointmentsSearch {
   const view = single(raw.view);
-  const filter = single(raw.filter);
   const step = single(raw.step);
   const request = idOrNull(single(raw.request));
   return {
@@ -100,9 +99,6 @@ export function parseAppointmentsSearch(raw: RawSearch): AppointmentsSearch {
       ? view
       : DEFAULT_APPOINTMENTS_SEARCH.view,
     date: validDay(single(raw.date)),
-    filter: isEnumValue(AppointmentsFilter, filter)
-      ? filter
-      : DEFAULT_APPOINTMENTS_SEARCH.filter,
     request,
     // A step means nothing without the request it belongs to.
     step:
@@ -124,9 +120,6 @@ export function appointmentsHref(
     params.set("view", full.view);
   }
   if (full.date !== null) params.set("date", full.date);
-  if (full.filter !== DEFAULT_APPOINTMENTS_SEARCH.filter) {
-    params.set("filter", full.filter);
-  }
   if (full.request !== null) params.set("request", full.request);
   if (full.request !== null && full.step !== DEFAULT_APPOINTMENTS_SEARCH.step) {
     params.set("step", full.step);
@@ -341,30 +334,6 @@ export function calendarEntries(
   return entries;
 }
 
-const FILTER_KINDS: Record<
-  AppointmentsFilter,
-  ReadonlySet<CalendarEntryKind>
-> = {
-  [AppointmentsFilter.All]: new Set(Object.values(CalendarEntryKind)),
-  [AppointmentsFilter.Appointments]: new Set([CalendarEntryKind.Confirmed]),
-  [AppointmentsFilter.Requests]: new Set([
-    CalendarEntryKind.PendingRequest,
-    CalendarEntryKind.AwaitingStudent,
-  ]),
-  [AppointmentsFilter.Availability]: new Set([
-    CalendarEntryKind.Recurring,
-    CalendarEntryKind.OneOff,
-    CalendarEntryKind.Unavailable,
-  ]),
-};
-
-export function filterEntries(
-  entries: readonly CalendarEntry[],
-  filter: AppointmentsFilter,
-) {
-  return entries.filter((entry) => FILTER_KINDS[filter].has(entry.kind));
-}
-
 /** Appointments and requests get lanes and can be opened; availability sits behind them. */
 const FOREGROUND = new Set([
   CalendarEntryKind.Confirmed,
@@ -456,7 +425,12 @@ export function dayColumns(
     return {
       day,
       key,
-      foreground: placeInLanes(timed.filter(isForeground), hoursSpan, grid),
+      foreground: placeInLanes(
+        timed.filter(isForeground),
+        hoursSpan,
+        grid,
+        MIN_BLOCK_HOURS,
+      ),
       background: placeInLanes(
         timed.filter(
           (entry): entry is RecurringEntry | OneOffEntry =>

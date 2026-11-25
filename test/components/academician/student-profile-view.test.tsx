@@ -76,7 +76,7 @@ describe("StudentProfileView", () => {
       await screen.findByRole("heading", { level: 1, name: "Deniz Kaya" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("link", { name: /Danışan Öğrencilerim/ }),
+      screen.getByRole("link", { name: /Danışan öğrencilerim/ }),
     ).toHaveAttribute("href", "/academician/advisees");
     expect(screen.getByText("Danışanın")).toBeVisible();
     expect(screen.getByText("Akademik danışman").nextSibling).toHaveTextContent(
@@ -97,18 +97,20 @@ describe("StudentProfileView", () => {
     });
     expect(pending).toHaveTextContent("2. ödevdeki 3. soruda takıldım");
     expect(
-      within(pending).getByRole("link", { name: "Alternatif Saat Öner" }),
+      within(pending).getByRole("link", { name: "Alternatif öner" }),
     ).toHaveAttribute(
       "href",
       "/academician/appointments?request=sample-request-1&step=propose",
     );
     expect(
-      within(pending).getByRole("link", { name: "Kabul Et" }),
+      within(pending).getByRole("link", { name: "Kabul et" }),
     ).toHaveAttribute(
       "href",
       "/academician/appointments?request=sample-request-1",
     );
 
+    expect(screen.getByText("2 randevu")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Yaklaşan" })).toBeVisible();
     const history = within(
       screen.getByRole("region", { name: "Seninle randevuları" }),
     ).getAllByRole("listitem");

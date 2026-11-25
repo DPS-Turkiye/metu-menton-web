@@ -24,7 +24,8 @@ import {
   ACADEMICIAN_AVAILABILITY_QUERY_KEY,
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   acceptableTime,
-  slotWhenLabel,
+  slotShortLabel,
+  TURKEY_TIME_ZONE,
   turkeyTime,
 } from "@/lib/academician-office-hours";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
@@ -35,12 +36,13 @@ import {
   getAcademicianRequests,
 } from "@/lib/client/academician-office-hours";
 import { dayPart } from "@/lib/utils";
-import { AppointmentsFilter, RequestStep } from "@/types/academician-calendar";
+import { RequestStep } from "@/types/academician-calendar";
 
 export type HomeRequestCard = {
   id: string;
   studentName: string;
-  isAdvisee: boolean;
+  /** "Endüstri Mühendisliği · 4. sınıf · danışanın" */
+  detail: string;
   when: string;
   topic: string;
   /** Set when the request names one time, so Kabul Et can book it right here. */
@@ -59,9 +61,8 @@ export type HomeAvailabilityRow = AvailabilityRow;
 export function useAcademicianHome() {
   const t = useTranslations("iaAcademician");
   const tGreeting = useTranslations("common.greeting");
-  const tWeekday = useTranslations("options.weekday");
   const locale = useLocale();
-  const toRow = useAvailabilityRows({ everyWeek: false });
+  const toRow = useAvailabilityRows();
   const record = useInstitutionRecord();
   const advisees = useInstitutionAdvisees();
   const requests = useQuery({
@@ -116,8 +117,16 @@ export function useAcademicianHome() {
     return {
       id: request.id,
       studentName: request.student.fullName,
-      isAdvisee: advisor.has(request.student.userId),
-      when: first ? slotWhenLabel(first, locale) : "",
+      detail: [
+        request.student.department,
+        request.student.classYear === null
+          ? null
+          : t("common.classYear", { year: request.student.classYear }),
+        advisor.has(request.student.userId) ? t("home.requests.advisee") : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      when: first ? slotShortLabel(first, locale) : "",
       topic: request.topic,
       acceptTime: acceptableTime(request),
       canDecline: request.allowedActions.includes(
@@ -135,10 +144,7 @@ export function useAcademicianHome() {
   };
 
   const oldest = summary.oldestRequestedAt;
-  const first = summary.today[0];
-  const weekHours = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 1,
-  }).format(summary.week.minutes / 60);
+  const [hidden] = summary.moreRequests;
 
   return {
     ...shared,
@@ -159,31 +165,36 @@ export function useAcademicianHome() {
                   }).format(-daysSince(oldest, now), "day"),
                 }),
         },
-        today: {
-          value: summary.today.length,
-          hint: first
-            ? t("home.stats.todayFirst", {
-                time: turkeyTime(first.startsAt, locale),
-              })
-            : t("home.stats.todayNone"),
-        },
-        week: {
-          value: weekHours,
-          hint: summary.week.weekdays.length
-            ? new Intl.ListFormat(locale, { type: "conjunction" }).format(
-                summary.week.weekdays.map((weekday) => tWeekday(weekday)),
-              )
-            : t("home.stats.weekNone"),
-        },
         advisees: advisees.data?.length ?? null,
         upcoming: summary.upcomingCount,
       },
       requests: summary.latestRequests.map(toCard),
+      /** "1 talep daha · Ece Bulut" under the preview; null when it shows every request. */
+      more:
+        hidden === undefined
+          ? null
+          : t("home.requests.more", {
+              count: summary.moreRequests.length,
+              name: hidden.student.fullName,
+            }),
+      date: new Intl.DateTimeFormat(locale, {
+        weekday: "long",
+        timeZone: TURKEY_TIME_ZONE,
+      })
+        .format(now)
+        .concat(
+          ", ",
+          new Intl.DateTimeFormat(locale, {
+            day: "numeric",
+            month: "long",
+            timeZone: TURKEY_TIME_ZONE,
+          }).format(now),
+        ),
       today: summary.today.map((item) => ({
         id: item.id,
         time: turkeyTime(item.startsAt, locale),
         studentName: item.counterpart.fullName,
-        topic: item.topic,
+        topic: [item.topic, item.place].filter(Boolean).join(" · "),
         href: calendarHref({ appointment: item.id }),
       })),
       availability: summary.availability.map((item) => toRow(item, now)),
@@ -195,10 +206,7 @@ export function useAcademicianHome() {
         });
       },
       answeringId,
-      links: {
-        ...ACADEMICIAN_ROUTES,
-        allRequests: calendarHref({ filter: AppointmentsFilter.Requests }),
-      },
+      links: ACADEMICIAN_ROUTES,
     },
   };
 }

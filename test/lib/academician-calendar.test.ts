@@ -13,7 +13,6 @@ import {
   compactHours,
   dayColumns,
   DEFAULT_APPOINTMENTS_SEARCH,
-  filterEntries,
   gridHours,
   monthCells,
   monthSummary,
@@ -29,7 +28,6 @@ import {
 import { isoDay } from "@/lib/coordinator-calendar";
 import {
   AppointmentsCalendarView,
-  AppointmentsFilter,
   CalendarEntryKind,
   RequestFit,
   RequestStep,
@@ -116,14 +114,12 @@ describe("Randevularım URL state", () => {
       parseAppointmentsSearch({
         view: "month",
         date: "2026-11-17",
-        filter: "requests",
         request: "berk",
         appointment: ["ayse", "other"],
       }),
     ).toEqual({
       view: AppointmentsCalendarView.Month,
       date: "2026-11-17",
-      filter: AppointmentsFilter.Requests,
       request: "berk",
       step: RequestStep.Detail,
       appointment: "ayse",
@@ -132,7 +128,6 @@ describe("Randevularım URL state", () => {
       parseAppointmentsSearch({
         view: "year",
         date: "2026-02-30",
-        filter: "",
         request: "",
       }),
     ).toEqual(DEFAULT_APPOINTMENTS_SEARCH);
@@ -143,12 +138,9 @@ describe("Randevularım URL state", () => {
     const href = appointmentsHref(BASE, {
       view: AppointmentsCalendarView.Day,
       date: "2026-11-17",
-      filter: AppointmentsFilter.Requests,
       request: "berk",
     });
-    expect(href).toBe(
-      `${BASE}?view=day&date=2026-11-17&filter=requests&request=berk`,
-    );
+    expect(href).toBe(`${BASE}?view=day&date=2026-11-17&request=berk`);
     expect(
       parseAppointmentsSearch(
         Object.fromEntries(new URLSearchParams(href.slice(BASE.length))),
@@ -157,7 +149,6 @@ describe("Randevularım URL state", () => {
       ...DEFAULT_APPOINTMENTS_SEARCH,
       view: AppointmentsCalendarView.Day,
       date: "2026-11-17",
-      filter: AppointmentsFilter.Requests,
       request: "berk",
     });
   });
@@ -215,30 +206,6 @@ describe("calendarEntries", () => {
     expect(anchors.map((entry) => entry.key)).toEqual([
       "ece@2026-11-09T09:00:00+03:00",
     ]);
-  });
-
-  it("filters by the chips", () => {
-    const kinds = (filter: AppointmentsFilter) =>
-      new Set(filterEntries(entries, filter).map((entry) => entry.kind));
-    expect(kinds(AppointmentsFilter.Appointments)).toEqual(
-      new Set([CalendarEntryKind.Confirmed]),
-    );
-    expect(kinds(AppointmentsFilter.Requests)).toEqual(
-      new Set([
-        CalendarEntryKind.PendingRequest,
-        CalendarEntryKind.AwaitingStudent,
-      ]),
-    );
-    expect(kinds(AppointmentsFilter.Availability)).toEqual(
-      new Set([
-        CalendarEntryKind.Recurring,
-        CalendarEntryKind.OneOff,
-        CalendarEntryKind.Unavailable,
-      ]),
-    );
-    expect(filterEntries(entries, AppointmentsFilter.All)).toHaveLength(
-      entries.length,
-    );
   });
 });
 

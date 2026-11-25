@@ -105,40 +105,34 @@ describe("AcademicianHomeView", () => {
         name: "Günaydın, Ayşe Hocam",
       }),
     ).toBeVisible();
-    expect(statCard("Bekleyen talepler")).toHaveTextContent("2en eskisi dün");
-    expect(statCard("Bugünkü randevular")).toHaveTextContent("1ilki 15:30");
-    expect(statCard("Bu hafta müsait saat")).toHaveTextContent(
-      "4Salı ve Perşembe",
-    );
-    expect(statCard("Danışan öğrencilerim")).toHaveTextContent("2");
+    expect(screen.getByText("Salı, 10 Kasım")).toBeVisible();
+    expect(screen.getByText("2 · en eskisi dün")).toBeVisible();
+    expect(
+      screen.getByText("2 danışan öğrenci · kurumsal kayıttan"),
+    ).toBeVisible();
     // Real data now: the sample-data notice is gone.
     expect(screen.queryByText(/Örnek veriler gösteriliyor/)).toBeNull();
     expect(
-      screen.getByRole("link", { name: "Müsaitliği Düzenle" }),
+      screen.getByRole("link", { name: "Müsaitliği düzenle" }),
     ).toHaveAttribute("href", "/academician/appointments/availability");
-    expect(screen.getByRole("link", { name: "Randevularım" })).toHaveAttribute(
-      "href",
-      "/academician/appointments",
-    );
   });
 
   it("shows the waiting requests, marks an advisee and links to all of them", async () => {
     renderWithQueryClient(<AcademicianHomeView />);
 
     const deniz = await requestCard("Deniz Kaya");
-    expect(within(deniz).getByText("Danışanın")).toBeVisible();
+    expect(within(deniz).getByText(/danışanın$/)).toBeVisible();
     expect(
-      within(deniz).getByText("2. ödevdeki 3. soruda takıldım"),
+      within(deniz).getByText(/2\. ödevdeki 3\. soruda takıldım/),
     ).toBeVisible();
-    expect(within(deniz).getByText("Onay Bekliyor")).toBeVisible();
-    expect(screen.getByRole("link", { name: /Tümü \(2\)/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Tümü" })).toHaveAttribute(
       "href",
-      "/academician/appointments?filter=requests",
+      "/academician/appointments",
     );
     // Ece offered three times, so choosing one happens in the request's drawer.
     const ece = await requestCard("Ece Aksoy");
-    expect(within(ece).queryByText("Danışanın")).not.toBeInTheDocument();
-    expect(within(ece).getByRole("link", { name: "Kabul Et" })).toHaveAttribute(
+    expect(within(ece).queryByText(/danışanın/)).not.toBeInTheDocument();
+    expect(within(ece).getByRole("link", { name: "Kabul et" })).toHaveAttribute(
       "href",
       "/academician/appointments?request=sample-request-2",
     );
@@ -147,7 +141,7 @@ describe("AcademicianHomeView", () => {
       "/academician/appointments?request=sample-request-2",
     );
     expect(
-      within(ece).getByRole("link", { name: "Alternatif Saat Öner" }),
+      within(ece).getByRole("link", { name: "Alternatif öner" }),
     ).toHaveAttribute(
       "href",
       "/academician/appointments?request=sample-request-2&step=propose",
@@ -160,14 +154,12 @@ describe("AcademicianHomeView", () => {
     renderWithQueryClient(<AcademicianHomeView />);
 
     const deniz = await requestCard("Deniz Kaya");
-    await user.click(within(deniz).getByRole("button", { name: "Kabul Et" }));
+    await user.click(within(deniz).getByRole("button", { name: "Kabul et" }));
 
     expect(
       await screen.findByText("Talep kabul edildi, randevu oluşturuldu."),
     ).toBeVisible();
-    expect(
-      await screen.findByRole("link", { name: /Tümü \(1\)/ }),
-    ).toBeVisible();
+    expect(await screen.findByText(/^1 · /)).toBeVisible();
     expect(
       sampleState().appointments.some(
         (item) => item.id === "sample-appointment-from-sample-request-1",
@@ -181,16 +173,16 @@ describe("AcademicianHomeView", () => {
     const today = await screen.findByRole("region", { name: "Bugün" });
     expect(today).toHaveTextContent("1 randevu");
     expect(today).toHaveTextContent(
-      "15:30Zeynep ArslanBitirme projesi danışmanlığıOnaylandı",
+      /15:30Zeynep ArslanBitirme projesi danışmanlığı.*Onaylandı/,
     );
     expect(within(today).getByRole("link")).toHaveAttribute(
       "href",
       "/academician/appointments?appointment=sample-appointment-1",
     );
     const availability = screen.getByRole("region", { name: "Müsaitliğim" });
-    expect(availability).toHaveTextContent("Salı14:00 – 16:00");
-    expect(availability).toHaveTextContent("Perşembe10:00 – 12:00");
-    expect(availability).toHaveTextContent("Müsait değilim (Konferans)");
+    expect(availability).toHaveTextContent("Her Salı14:00 – 16:00");
+    expect(availability).toHaveTextContent("Her Perşembe10:00 – 12:00");
+    expect(availability).toHaveTextContent("Müsait değil · Konferans");
   });
 
   it("asks for availability first when the academician has no open hours", async () => {
