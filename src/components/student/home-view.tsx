@@ -14,6 +14,7 @@ import {
   ButtonVariant,
 } from "@/components/ia/button";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import { AppointmentRow } from "@/components/student/ia/appointment-row";
 import {
   AppointmentStatusBadge,
@@ -37,6 +38,10 @@ import type {
 } from "@/interfaces/peer-mentoring";
 import { currentTime } from "@/lib/appointments";
 import { timeLabel } from "@/lib/calendar";
+import {
+  appointmentProfileHref,
+  peerMentorHref,
+} from "@/lib/peer-profile-links";
 import { formatDayMonth } from "@/lib/utils";
 
 const OFFICE_HOURS_HREF = "/student/office-hours";
@@ -172,7 +177,12 @@ function NextAppointment({ appointment }: { appointment: Appointment }) {
     >
       <div className="flex flex-col gap-4 rounded-[20px] border border-white/50 bg-background-inverse/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3.5">
-          <InitialsAvatar name={counterpart.fullName} />
+          <ProfilePictureLink
+            href={appointmentProfileHref(appointment)}
+            name={counterpart.fullName}
+          >
+            <InitialsAvatar name={counterpart.fullName} />
+          </ProfilePictureLink>
           <div className="min-w-0 text-text-inverse">
             <p className="truncate type-body-sm">
               {[who, counterpart.department].filter(Boolean).join(" · ")}
@@ -289,7 +299,12 @@ function MentorCard({
   return (
     <article className="flex w-full flex-col gap-4 rounded-card border border-border-subtle bg-background-surface p-6 shadow-raised">
       <div className="flex items-center gap-3">
-        <InitialsAvatar name={mentor.fullName} size="lg" />
+        <ProfilePictureLink
+          href={peerMentorHref(mentor.mentorId)}
+          name={mentor.fullName}
+        >
+          <InitialsAvatar name={mentor.fullName} size="lg" />
+        </ProfilePictureLink>
         <div className="min-w-0">
           <h3 className="type-h4 text-text-primary">{mentor.fullName}</h3>
           <p className="type-body-sm text-text-secondary">
@@ -404,7 +419,12 @@ function AwaitingAppointment({ appointment }: { appointment: Appointment }) {
   return (
     <li className="flex flex-col gap-3 p-5">
       <div className="flex items-start gap-3">
-        <InitialsAvatar name={counterpart.fullName} size="sm" />
+        <ProfilePictureLink
+          href={appointmentProfileHref(appointment)}
+          name={counterpart.fullName}
+        >
+          <InitialsAvatar name={counterpart.fullName} size="sm" />
+        </ProfilePictureLink>
         <div className="min-w-0">
           <p className="type-label text-text-primary">
             {[counterpart.title, counterpart.fullName]
@@ -438,7 +458,12 @@ function AwaitingPeerRequest({ request }: { request: PeerMentoringRequest }) {
   const tTopic = useTranslations("peerTopics");
   return (
     <li className="flex items-center gap-3 p-5">
-      <InitialsAvatar name={request.mentor.fullName} size="sm" />
+      <ProfilePictureLink
+        href={peerMentorHref(request.mentor.userId)}
+        name={request.mentor.fullName}
+      >
+        <InitialsAvatar name={request.mentor.fullName} size="sm" />
+      </ProfilePictureLink>
       <div className="min-w-0 flex-1">
         <p className="type-label text-text-primary">
           {request.mentor.fullName}

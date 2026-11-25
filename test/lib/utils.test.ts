@@ -15,6 +15,7 @@ import {
   isUuid,
   minutesOfDay,
   splitFullName,
+  typedUrlOrNull,
 } from "@/lib/utils";
 
 describe("dayPart", () => {
@@ -75,6 +76,33 @@ describe("formatFileSize", () => {
   it("shows larger files in megabytes with one decimal", () => {
     expect(formatFileSize(2.34 * 1024 * 1024)).toBe("2.3 MB");
     expect(formatFileSize(10 * 1024 * 1024)).toBe("10 MB");
+  });
+});
+
+describe("typedUrlOrNull", () => {
+  it.each([
+    ["linkedin.com/in/ada-lovelace", "https://linkedin.com/in/ada-lovelace"],
+    [" www.linkedin.com/in/ada ", "https://www.linkedin.com/in/ada"],
+    ["tr.linkedin.com/in/ada/?x=1", "https://tr.linkedin.com/in/ada/?x=1"],
+    ["behance.net", "https://behance.net"],
+    ["https://github.com/ada", "https://github.com/ada"],
+    ["http://example.com", "http://example.com"],
+  ])("reads %s as %s", (typed, url) => {
+    expect(typedUrlOrNull(typed)).toBe(url);
+  });
+
+  it.each([
+    "javascript:alert(1)",
+    "data:text/html,x",
+    "ada@example.com",
+    "linkedin",
+    "ada lovelace.com",
+    "//example.com",
+    "/in/ada",
+    "",
+    null,
+  ])("refuses %s", (typed) => {
+    expect(typedUrlOrNull(typed)).toBeNull();
   });
 });
 

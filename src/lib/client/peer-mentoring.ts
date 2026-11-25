@@ -1,6 +1,7 @@
 import type {
   CreatePeerMentoringRequestInput,
   PeerCategoryCount,
+  PeerMenteeProfile,
   PeerMentorCard,
   PeerMentorDetail,
   PeerMentorFilter,
@@ -43,6 +44,28 @@ export async function getPeerMentor(
     );
   } catch (error) {
     // The proxy answers 400 only for an id that isn't a uuid, which can't name a listed mentor either.
+    if (
+      error instanceof ClientApiError &&
+      (error.status === 404 || error.status === 400)
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/** One of the signed-in peer mentor's mentees, or null when this person is not. */
+export async function getPeerMentee(
+  menteeId: string,
+): Promise<PeerMenteeProfile | null> {
+  try {
+    return requireSuccess(
+      await httpClient.get<PeerMenteeProfile>(
+        `/api/peer-mentoring/mentees/${encodeURIComponent(menteeId)}`,
+      ),
+    );
+  } catch (error) {
+    // The proxy answers 400 only for an id that isn't a uuid, which can't name a mentee either.
     if (
       error instanceof ClientApiError &&
       (error.status === 404 || error.status === 400)

@@ -224,7 +224,8 @@ export function personSummaryModel(summary: PersonSummary): PersonSummaryModel {
   const headline = mentor
     ? [mentor.professionalTitle, mentor.company].filter(Boolean).join(" · ")
     : summary.jobTitle;
-  const mentee = summary.role === UserRole.Mentee;
+  // hocam students have no startup or startup team; only someone who still has one shows it.
+  const startup = summary.startup !== null;
   return {
     fullName: summary.fullName,
     initials: initials(summary.fullName),
@@ -240,7 +241,7 @@ export function personSummaryModel(summary: PersonSummary): PersonSummaryModel {
         : summary.expertise,
     ),
     mentor: mentor ? mentorModel(mentor) : null,
-    showStartup: mentee || summary.startup !== null,
+    showStartup: startup,
     startup: summary.startup ? startupModel(summary.startup) : null,
     programs: summary.programs.map((program) => ({
       key: `${program.id}-${program.relation}`,
@@ -249,6 +250,6 @@ export function personSummaryModel(summary: PersonSummary): PersonSummaryModel {
       note: programNote(program),
     })),
     activity: activity(summary),
-    showTeamHistory: mentee,
+    showTeamHistory: startup,
   };
 }

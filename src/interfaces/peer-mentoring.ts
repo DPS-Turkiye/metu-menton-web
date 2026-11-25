@@ -1,4 +1,5 @@
 import type { PublicBadge } from "@/interfaces/badges";
+import type { AdviseeProfile } from "@/interfaces/institution";
 import type { MentorAvailabilityRule } from "@/interfaces/mentor";
 import type { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 
@@ -117,6 +118,14 @@ export type PeerMentoringPerson = {
   userId: string;
   fullName: string;
   department: string | null;
+};
+
+/**
+ * A student as the peer mentor they asked sees them (`GET /api/peer-mentoring/mentees/{id}`): what Profilim tells
+ * students it shares. 404 for anyone whose request to this mentor isn't open or accepted.
+ */
+export type PeerMenteeProfile = AdviseeProfile & {
+  mentee: PeerMentoringPerson;
 };
 
 /**

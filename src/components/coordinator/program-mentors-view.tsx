@@ -15,6 +15,7 @@ import {
 import { PillSelect } from "@/components/coordinator/pill-select";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { ProfileLink } from "@/components/people/profile-link";
+import { StaffPictureLink } from "@/components/people/staff-picture-link";
 import { useMentorPool, useMentorReview } from "@/hooks/use-mentor-pool";
 import { useOptionLabel } from "@/hooks/use-option-label";
 import {
@@ -191,7 +192,9 @@ function PoolRow({
     <tr className="border-b border-[#f0f2f4] last:border-0">
       <td className="px-6 py-4">
         <span className="flex items-center gap-3">
-          <Avatar initials={initials(name) || "?"} tone="blue" size="lg" />
+          <StaffPictureLink userId={profileId} name={name}>
+            <Avatar initials={initials(name) || "?"} tone="blue" size="lg" />
+          </StaffPictureLink>
           <span className="min-w-0">
             <span className="block truncate text-[#22262b]">
               {row.fullName ?? t("awaitingSignup")}

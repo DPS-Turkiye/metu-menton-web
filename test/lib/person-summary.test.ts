@@ -151,7 +151,7 @@ describe("personSummaryModel", () => {
     ]);
   });
 
-  it("maps the startup's option values and keeps the empty startup state for mentees", () => {
+  it("maps the startup's option values and leaves the startup parts out for a mentee without one", () => {
     const withOptions = personSummaryModel(
       menteeSummary({
         startup: {
@@ -191,7 +191,8 @@ describe("personSummaryModel", () => {
     const noStartup = personSummaryModel(
       menteeSummary({ startup: null, jobTitle: null, bio: null }),
     );
-    expect(noStartup.showStartup).toBe(true);
+    expect(noStartup.showStartup).toBe(false);
+    expect(noStartup.showTeamHistory).toBe(false);
     expect(noStartup.startup).toBeNull();
     expect(noStartup.headline).toBeNull();
     expect(noStartup.about).toBeNull();

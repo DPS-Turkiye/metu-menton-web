@@ -9,6 +9,7 @@ import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   CATEGORY_ART,
   InitialsAvatar,
@@ -22,6 +23,7 @@ import {
 } from "@/interfaces/peer-mentoring";
 import { isEnumValue } from "@/lib/enum";
 import { peerMentorProfileHref } from "@/lib/peer-mentoring";
+import { peerMentorHref } from "@/lib/peer-profile-links";
 import { initials } from "@/lib/utils";
 import { PeerRequestAvailability } from "@/types/iskur-student";
 
@@ -288,7 +290,12 @@ export function MentorHeading({
   const t = useTranslations("iaIskur.take.discover");
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <InitialsAvatar initials={initials(mentor.fullName)} />
+      <ProfilePictureLink
+        href={peerMentorHref(mentor.mentorId)}
+        name={mentor.fullName}
+      >
+        <InitialsAvatar initials={initials(mentor.fullName)} />
+      </ProfilePictureLink>
       <div className="min-w-0">
         <h3 className="truncate type-title-card text-text-primary">
           {mentor.fullName}

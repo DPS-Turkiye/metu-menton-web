@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { GET as getMentee } from "@/app/api/peer-mentoring/mentees/[menteeId]/route";
 import { GET as getMentorCounts } from "@/app/api/peer-mentoring/mentor-counts/route";
 import { GET as getMentor } from "@/app/api/peer-mentoring/mentors/[mentorId]/route";
 import { GET as getMentors } from "@/app/api/peer-mentoring/mentors/route";
@@ -23,6 +24,7 @@ import { UserRole } from "@/interfaces/session";
 import {
   createPeerMentoringRequest,
   deletePeerMentorDraft,
+  fetchPeerMentee,
   fetchPeerMentor,
   fetchPeerMentorCounts,
   fetchPeerMentorDraft,
@@ -43,6 +45,7 @@ vi.mock("@/lib/api/peer-mentoring", () => ({
   fetchPeerMentorDraft: vi.fn(),
   savePeerMentorDraft: vi.fn(),
   savePeerMentorIntake: vi.fn(),
+  fetchPeerMentee: vi.fn(),
   fetchPeerMentor: vi.fn(),
   fetchPeerMentorCounts: vi.fn(),
   fetchPeerMentors: vi.fn(),
@@ -344,5 +347,38 @@ describe("peer-mentoring proxy routes", () => {
       category: PeerTopicCategory.CareerInternship,
       message: "Staj başvurusu için CV'me bakar mısın?",
     });
+  });
+});
+
+describe("GET /api/peer-mentoring/mentees/[menteeId]", () => {
+  const menteeId = "8c5f0f0e-6a3e-4c55-9d2d-2a7c7b1f0a11";
+  const open = (id: string) =>
+    getMentee(
+      request(`/api/peer-mentoring/mentees/${id}?actorId=someone-else`),
+      { params: Promise.resolve({ menteeId: id }) },
+    );
+
+  it("reads the mentee as the signed-in mentor, never as a named one", async () => {
+    vi.mocked(fetchPeerMentee).mockResolvedValue(
+      backendResponse({
+        mentee: { userId: menteeId, fullName: "Zeynep Koç", department: null },
+        interests: { topics: [], subtopics: [] },
+        goal: "",
+      }),
+    );
+    const response = await open(menteeId);
+    expect(response.status).toBe(200);
+    expect(fetchPeerMentee).toHaveBeenCalledWith("student-1", menteeId);
+  });
+
+  it("passes the backend's 404 on and refuses a malformed id or no session", async () => {
+    vi.mocked(fetchPeerMentee).mockResolvedValueOnce(backendRefusal(404));
+    expect((await open(menteeId)).status).toBe(404);
+
+    vi.mocked(fetchPeerMentee).mockClear();
+    expect((await open("not-a-uuid")).status).toBe(400);
+    vi.mocked(getSessionUser).mockResolvedValueOnce(null);
+    expect((await open(menteeId)).status).toBe(401);
+    expect(fetchPeerMentee).not.toHaveBeenCalled();
   });
 });
