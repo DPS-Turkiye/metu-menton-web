@@ -114,6 +114,7 @@ export function onboarding(
       minimumLeaderDays: 2,
       maxTeamRoles: 2,
       answerMaxLength: 500,
+      editable: true,
     },
   };
 }

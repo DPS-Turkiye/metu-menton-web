@@ -7724,7 +7724,9 @@
       "next": "Devam et",
       "submit": "Formu gönder",
       "saving": "Kaydediliyor…",
-      "submitting": "Gönderiliyor…"
+      "submitting": "Gönderiliyor…",
+      "cancelChanges": "Vazgeç",
+      "submitChanges": "Değişiklikleri gönder"
     },
     "days": {
       "title": "Haftada kaç gün gelebilirsin?",
@@ -7921,7 +7923,9 @@
           "when": "~1 hafta içinde"
         }
       },
-      "home": "Ana Sayfa’ya git"
+      "home": "Ana Sayfa’ya git",
+      "editNote": "Ekip atamana kadar formunu Profilim’den düzenleyebilirsin.",
+      "viewForm": "Gönderdiğim formu görüntüle"
     },
     "reveal": {
       "provisional": "Geçici atama · Deneme {week}/4. hafta",
@@ -7957,7 +7961,8 @@
       "waitingBody": "Formun koordinatörüne ulaştı. Seni bir ekibe yerleştirdiğinde ekibin burada görünür.",
       "reminderTitle": "Yerleştirme formunu doldur",
       "reminderBody": "Koordinatörün seni bir ekibe yerleştirebilmesi için görev günlerini, tercihlerini ve yetkinliklerini bekliyor.",
-      "reminderAction": "Forma devam et"
+      "reminderAction": "Forma devam et",
+      "waitingAction": "Formumu görüntüle"
     },
     "coordinator": {
       "preferences": "Tercihler",
@@ -7992,6 +7997,12 @@
       "skillsSaveFailed": "Yetkinlikler kaydedilemedi.",
       "skillsInvalid": "En fazla 30 yetkinlik; her biri en fazla 80 karakter.",
       "loadFailed": "Yerleştirme formları yüklenemedi."
+    },
+    "changesSent": "Değişikliklerin gönderildi.",
+    "profileCard": {
+      "title": "İŞKUR formum",
+      "body": "Koordinatörün seni bir ekibe yerleştirene kadar formunu düzenleyebilirsin.",
+      "action": "Formumu görüntüle"
     }
   },
   "iskurWeek": {

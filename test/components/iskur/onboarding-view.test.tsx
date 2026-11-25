@@ -278,6 +278,124 @@ describe("IskurOnboardingView", () => {
     expect(screen.queryByText("Liderlik görüşmesi")).toBeNull();
   });
 
+  it("opens a sent form again and sends its changes, without saving half of them", async () => {
+    const sent = completeForm({ submittedAt: "2026-11-19T10:00:00Z" });
+    vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(sent));
+    vi.mocked(submitIskurOnboarding).mockResolvedValue(onboarding(sent));
+    const user = userEvent.setup();
+    renderWithQueryClient(<IskurOnboardingView />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Gönderdiğim formu görüntüle",
+      }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Değişiklikleri gönder" }),
+    ).toBeDisabled();
+
+    const [editDays] = screen.getAllByRole("button", { name: "Düzenle" });
+    if (!editDays) throw new Error("Expected an edit button.");
+    await user.click(editDays);
+    const [prior] = screen.getAllByRole("spinbutton");
+    if (!prior) throw new Error("Expected the earlier days field.");
+    await user.clear(prior);
+    await user.type(prior, "5");
+    for (let step = 0; step < 4; step += 1) {
+      await user.click(screen.getByRole("button", { name: "Devam et" }));
+    }
+    await user.click(
+      screen.getByRole("button", { name: "Değişiklikleri gönder" }),
+    );
+
+    expect(saveIskurOnboardingDraft).not.toHaveBeenCalled();
+    expect(submitIskurOnboarding).toHaveBeenCalledWith(
+      expect.objectContaining({ priorIskurDays: 5 }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Formun gönderildi, Mert" }),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves a sent form as it was on Vazgeç, and keeps its CV", async () => {
+    vi.mocked(getIskurOnboarding).mockResolvedValue(
+      onboarding(
+        completeForm({
+          submittedAt: "2026-11-19T10:00:00Z",
+          documents: {
+            cv: {
+              fileName: "cv.pdf",
+              sizeBytes: 10,
+              uploadedAt: "2026-11-19T10:00:00Z",
+            },
+            transcript: null,
+          },
+        }),
+        true,
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(<IskurOnboardingView />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Gönderdiğim formu görüntüle",
+      }),
+    );
+    const editDocuments = screen.getAllByRole("button", { name: "Düzenle" })[4];
+    if (!editDocuments) throw new Error("Expected the documents' edit button.");
+    await user.click(editDocuments);
+    expect(screen.getByText(/cv\.pdf/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Kaldır" })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Vazgeç" }));
+    expect(
+      screen.getByRole("heading", { name: "Formun gönderildi, Mert" }),
+    ).toBeInTheDocument();
+    expect(submitIskurOnboarding).not.toHaveBeenCalled();
+  });
+
+  it("closes a sent form once its intern is placed, also while it is open", async () => {
+    const sent = completeForm({ submittedAt: "2026-11-19T10:00:00Z" });
+    const closed = onboarding(sent);
+    closed.context.editable = false;
+    vi.mocked(getIskurOnboarding).mockResolvedValueOnce(onboarding(sent));
+    vi.mocked(getIskurOnboarding).mockResolvedValue(closed);
+    vi.mocked(submitIskurOnboarding).mockRejectedValue(
+      new ClientApiError("Bir ekibe yerleştirildiniz.", 409),
+    );
+    const user = userEvent.setup();
+    renderWithQueryClient(<IskurOnboardingView />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Gönderdiğim formu görüntüle",
+      }),
+    );
+    const editRoles = screen.getAllByRole("button", { name: "Düzenle" })[3];
+    if (!editRoles) throw new Error("Expected the roles' edit button.");
+    await user.click(editRoles);
+    const [firstRole] = screen.getAllByRole("button", { pressed: true });
+    if (!firstRole) throw new Error("Expected a chosen option.");
+    await user.click(firstRole);
+    await user.click(firstRole);
+    for (let step = 0; step < 3; step += 1) {
+      await user.click(screen.getByRole("button", { name: "Devam et" }));
+    }
+    await user.click(
+      screen.getByRole("button", { name: "Değişiklikleri gönder" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Formun gönderildi, Mert" }),
+    ).toBeInTheDocument();
+    await vi.waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Gönderdiğim formu görüntüle" }),
+      ).toBeNull(),
+    );
+  });
+
   it("tells someone who is not an intern, and offers a retry when loading fails", async () => {
     vi.mocked(getIskurOnboarding).mockRejectedValue(
       new ClientApiError("yok", 404),

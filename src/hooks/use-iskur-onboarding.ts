@@ -60,6 +60,7 @@ export const iskurOnboardingQueryKey = ["iskur-onboarding"] as const;
 /** A new day starts as one full work day; the intern splits or trims it. */
 const NEW_DAY_RANGE = { start: "09:00", end: "16:30" } as const;
 const NOT_FOUND = 404;
+const CONFLICT = 409;
 
 type Draft = { form: IskurOnboardingForm; rows: IskurRangeRow[] };
 
@@ -86,6 +87,8 @@ export function useIskurOnboarding() {
   });
   const [edits, setEdits] = useState<Draft | null>(null);
   const [step, setStep] = useState(IskurOnboardingStep.Welcome);
+  // A sent form opened again ("Gönderdiğim formu görüntüle"), to read or to change until the intern is placed.
+  const [reopened, setReopened] = useState(false);
   const [prepared, setPrepared] = useState<ReadonlySet<number>>(new Set());
   const { session } = useSession();
 
@@ -117,6 +120,11 @@ export function useIskurOnboarding() {
       tone: ToastTone.Error,
     });
 
+  const closeReopened = () => {
+    setEdits(null);
+    setReopened(false);
+  };
+
   const save = useMutation({
     mutationFn: (current: Draft) =>
       saveIskurOnboardingDraft(onboardingInput(current.form, current.rows)),
@@ -130,8 +138,23 @@ export function useIskurOnboarding() {
     onSuccess: (next) => {
       queryClient.setQueryData(iskurOnboardingQueryKey, next);
       setEdits(null);
+      if (reopened) {
+        setReopened(false);
+        showToast({ message: t("changesSent"), tone: ToastTone.Success });
+      }
     },
-    onError: failed(t("submitFailed")),
+    onError: (failure) => {
+      failed(t("submitFailed"))(failure);
+      // Placed in the meantime: the form is closed now, so the sent one shows again.
+      if (
+        failure instanceof ClientApiError &&
+        failure.status === CONFLICT &&
+        reopened
+      ) {
+        closeReopened();
+        void query.refetch();
+      }
+    },
   });
   const upload = useMutation({
     mutationFn: ({ slot, file }: { slot: IskurDocumentSlot; file: File }) =>
@@ -196,6 +219,11 @@ export function useIskurOnboarding() {
   };
   const saveAndGo = (next: IskurOnboardingStep) => {
     if (!draft || busy) return;
+    // A sent form's changes are sent together from the preview, not saved step by step.
+    if (reopened) {
+      go(next);
+      return;
+    }
     save.mutate(draft, { onSuccess: () => go(next) });
   };
 
@@ -229,7 +257,14 @@ export function useIskurOnboarding() {
     step,
     steps,
     busy,
-    submitted: form?.submittedAt != null,
+    submitted: form?.submittedAt != null && !reopened,
+    editable: context?.editable ?? false,
+    reopened,
+    reopen: () => {
+      setReopened(true);
+      go(IskurOnboardingStep.Preview);
+    },
+    closeReopened,
     nextSteps: form ? nextStepsAfterSubmit(form) : [],
 
     // 01 Hoş geldin
@@ -373,11 +408,19 @@ export function useIskurOnboarding() {
       })),
 
     // The action bar
-    canContinue: complete(step),
+    // A reopened form is sent again only once something in it changed.
+    canContinue:
+      complete(step) &&
+      (!reopened || step !== IskurOnboardingStep.Preview || edits !== null),
     back: () => {
       if (busy) return;
       const previous = ISKUR_FORM_STEPS[stepIndex - 1];
-      go(previous ?? IskurOnboardingStep.Welcome);
+      go(
+        previous ??
+          (reopened
+            ? IskurOnboardingStep.Preview
+            : IskurOnboardingStep.Welcome),
+      );
     },
     goTo: (target: IskurOnboardingStep) => {
       if (busy) return;

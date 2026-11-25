@@ -75,6 +75,7 @@ function Body({ wizard }: { wizard: Wizard }) {
       <OnboardingSubmitted
         firstName={wizard.firstName}
         nextSteps={wizard.nextSteps}
+        onOpenForm={wizard.editable ? wizard.reopen : undefined}
       />
     );
   }
@@ -196,12 +197,22 @@ function Form({ wizard }: { wizard: Wizard }) {
             <Button
               variant={ButtonVariant.Tertiary}
               disabled={wizard.busy}
-              onClick={wizard.saveDraft}
+              onClick={
+                wizard.reopened ? wizard.closeReopened : wizard.saveDraft
+              }
             >
-              {wizard.busy ? t("saving") : t("saveDraft")}
+              {wizard.reopened
+                ? t("cancelChanges")
+                : wizard.busy
+                  ? t("saving")
+                  : t("saveDraft")}
             </Button>
             <Button type="submit" disabled={wizard.busy || !wizard.canContinue}>
-              {last ? (wizard.busy ? t("submitting") : t("submit")) : t("next")}
+              {last
+                ? wizard.busy
+                  ? t("submitting")
+                  : t(wizard.reopened ? "submitChanges" : "submit")
+                : t("next")}
             </Button>
           </div>
         </div>

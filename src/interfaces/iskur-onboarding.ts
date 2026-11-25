@@ -96,6 +96,8 @@ export interface IskurOnboardingContext {
   minimumLeaderDays: number;
   maxTeamRoles: number;
   answerMaxLength: number;
+  /** False once a sent form's intern is placed. */
+  editable: boolean;
 }
 
 export interface IskurOnboarding {
