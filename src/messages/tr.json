@@ -7143,7 +7143,7 @@
     "toList": "Listeye dön",
     "roles": {
       "MENTOR": "Mentor",
-      "MENTEE": "Girişimci"
+      "MENTEE": "Öğrenci"
     },
     "statuses": {
       "APPROVED": "Onaylı",
@@ -7184,8 +7184,8 @@
       "MENTEE": "Katılımcı"
     },
     "mentorPending": "Katılma isteği onay bekliyor",
-    "activity": "Menton'da",
-    "activeMentees": "Aktif girişim",
+    "activity": "hocam'da",
+    "activeMentees": "Aktif mentee",
     "completedMentorships": "Tamamlanan mentorluk",
     "registered": "Kayıt tarihi",
     "open": "Profili gör",
