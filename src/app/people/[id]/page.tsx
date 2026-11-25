@@ -14,6 +14,7 @@ import type { UserProfile } from "@/interfaces/user-profile";
 import { requireSuccess } from "@/lib/client/api";
 import { httpClient } from "@/lib/http-client";
 import { organizationStartupHref } from "@/lib/program-links";
+import { workspaceForSession } from "@/lib/role-workspace";
 import { AppArea } from "@/types/app-area";
 
 async function getPerson(userId: string) {
@@ -55,9 +56,9 @@ export default function PersonProfilePage() {
     if (userQuery.data?.role === UserRole.Mentor) {
       router.replace(`/mentors/${encodeURIComponent(params.id)}`);
     } else if (isOwnProfile) {
-      router.replace("/profile/personal");
+      router.replace(workspaceForSession(session).profileHref);
     }
-  }, [userQuery.data?.role, params.id, router, isOwnProfile]);
+  }, [userQuery.data?.role, params.id, router, isOwnProfile, session]);
 
   const homeHref =
     session?.role === UserRole.Mentor ? "/mentor-dashboard" : "/dashboard";

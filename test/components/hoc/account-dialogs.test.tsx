@@ -6,7 +6,8 @@ import {
   AccountSettingsDialog,
   NotificationPreferencesDialog,
 } from "@/components/hoc/account-dialogs";
-import { UserRole, type AppSession } from "@/interfaces/session";
+import { Edition } from "@/interfaces/edition";
+import { IdentityKind, UserRole, type AppSession } from "@/interfaces/session";
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
@@ -104,6 +105,27 @@ describe("AccountSettingsDialog", () => {
     expect(link).toHaveAttribute("href", "/profile/personal");
     await user.click(screen.getByRole("button", { name: "Kapat" }));
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["an ODTÜ student", UserRole.Mentee, [UserRole.Mentee]],
+    [
+      "an ODTÜ peer mentor",
+      UserRole.Mentor,
+      [UserRole.Mentee, UserRole.Mentor],
+    ],
+  ])("sends %s to Profilim", (_who, role, permissions) => {
+    session = {
+      email: "ogrenci@metu.edu.tr",
+      role,
+      permissions,
+      institutionKinds: [IdentityKind.Student],
+      edition: Edition.Odtu,
+    };
+    renderWithQueryClient(<AccountSettingsDialog onClose={vi.fn()} />);
+    expect(
+      screen.getByRole("link", { name: "Kişisel bilgileri düzenle →" }),
+    ).toHaveAttribute("href", "/student/profile");
   });
 
   it("sends a mentor to the mentor profile and gives a coordinator no profile link", () => {
