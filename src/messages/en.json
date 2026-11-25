@@ -7188,6 +7188,7 @@
     "registered": "Registered",
     "open": "View profile",
     "openFor": "View profile: {name}",
+    "pictureFor": "Open {name}'s profile",
     "availability": "Available times",
     "availabilityEmpty": "No available times added yet.",
     "availabilityWeekly": "Weekly",

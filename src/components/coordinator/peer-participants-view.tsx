@@ -12,6 +12,7 @@ import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { StatusTone } from "@/components/ia/status-badge";
 import { Tag } from "@/components/ia/tag";
+import { StaffPictureLink } from "@/components/people/staff-picture-link";
 import { usePeerParticipants } from "@/hooks/use-peer-participants";
 import { usePrismDecisions } from "@/hooks/use-prism-decisions";
 import {
@@ -200,7 +201,7 @@ function MentorsTable({ participants }: { participants: Participants }) {
       {participants.rows.map((row) => (
         <tr key={row.userId}>
           <DataCell>
-            <PersonCell name={row.fullName} />
+            <PersonCell userId={row.userId} name={row.fullName} />
           </DataCell>
           <DataCell>
             <DepartmentLine profile={row.profile} />
@@ -274,7 +275,7 @@ function StudentsTable({
       {participants.rows.map((row) => (
         <tr key={row.userId}>
           <DataCell>
-            <PersonCell name={row.fullName} />
+            <PersonCell userId={row.userId} name={row.fullName} />
           </DataCell>
           <DataCell>
             <DepartmentLine profile={row.profile} />
@@ -338,10 +339,12 @@ function StudentsTable({
   );
 }
 
-function PersonCell({ name }: { name: string }) {
+function PersonCell({ userId, name }: { userId: string; name: string }) {
   return (
     <span className="flex items-center gap-1.5">
-      <InitialsAvatar name={name} />
+      <StaffPictureLink userId={userId} name={name}>
+        <InitialsAvatar name={name} />
+      </StaffPictureLink>
       {name}
     </span>
   );

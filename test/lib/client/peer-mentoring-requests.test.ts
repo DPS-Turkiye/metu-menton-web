@@ -6,6 +6,7 @@ import {
   createPeerMentoringRequest,
   deletePeerMentorDraft,
   getPeerCategories,
+  getPeerMentee,
   getPeerMentor,
   getPeerMentorCounts,
   getPeerMentorDraft,
@@ -204,6 +205,17 @@ describe("peer mentoring client", () => {
       createMentorResponse({ message: "Geçersiz." }, 400),
     );
     await expect(getPeerMentor("not-a-uuid")).resolves.toBeNull();
+  });
+
+  it("getPeerMentee answers null for someone who is not a mentee, and fails on a server error", async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "yok" }, 404),
+    );
+    await expect(getPeerMentee("someone")).resolves.toBeNull();
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      createMentorResponse({ message: "hata" }, 500),
+    );
+    await expect(getPeerMentee("someone")).rejects.toThrow("hata");
   });
 
   it("getPeerMentor still fails on a server error", async () => {

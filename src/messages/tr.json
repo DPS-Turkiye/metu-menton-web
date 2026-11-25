@@ -7190,6 +7190,7 @@
     "registered": "Kayıt tarihi",
     "open": "Profili gör",
     "openFor": "Profili gör: {name}",
+    "pictureFor": "{name} profilini aç",
     "availability": "Müsait zamanlar",
     "availabilityEmpty": "Henüz müsait zaman eklenmemiş.",
     "availabilityWeekly": "Haftalık",

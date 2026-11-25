@@ -181,6 +181,12 @@
         "title": "Onaylı görüşmelerin korunur",
         "body": "Müsaitlik değişiklikleri yalnızca yeni talepler için geçerlidir; onaylı görüşmelerin etkilenmez."
       }
+    },
+    "menteeProfile": {
+      "back": "Mentorluk ver",
+      "notFound": "Bu öğrenci menteen değil ya da talebi artık açık değil.",
+      "role": "Mentee",
+      "requests": "Sana gönderdiği talepler"
     }
   },
   "wizard": {

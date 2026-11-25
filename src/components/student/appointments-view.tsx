@@ -10,6 +10,7 @@ import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
 import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
 import { StatusTone } from "@/components/ia/status-badge";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import {
   AppointmentDayGrid,
   AppointmentMonthGrid,
@@ -37,6 +38,7 @@ import {
 import { ProgramType } from "@/interfaces/program";
 import { currentTime } from "@/lib/appointments";
 import { monthName, timeLabel } from "@/lib/calendar";
+import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import {
   calendarTitle,
   selectedDayTitle,
@@ -530,7 +532,12 @@ function AppointmentDetail({
           : appointment.topic}
       </h2>
       <p className="mt-3 flex items-center gap-2 type-label text-text-primary">
-        <InitialsAvatar name={appointment.counterpart.fullName} size="sm" />
+        <ProfilePictureLink
+          href={appointmentProfileHref(appointment)}
+          name={appointment.counterpart.fullName}
+        >
+          <InitialsAvatar name={appointment.counterpart.fullName} size="sm" />
+        </ProfilePictureLink>
         {name}
       </p>
       <div

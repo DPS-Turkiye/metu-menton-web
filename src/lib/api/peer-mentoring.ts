@@ -3,6 +3,7 @@ import "server-only";
 import type {
   CreatePeerMentoringRequestInput,
   PeerCategoryCount,
+  PeerMenteeProfile,
   PeerMentorCard,
   PeerMentorDetail,
   PeerMentoringRequest,
@@ -37,6 +38,15 @@ export function fetchPeerMentor(actorId: string, mentorId: string) {
   return backendRequest<PeerMentorDetail>({
     method: HttpMethod.Get,
     url: `/api/peer-mentoring/mentors/${encodeURIComponent(mentorId)}`,
+    params: { actorId },
+  });
+}
+
+/** A student who asked the actor; the backend answers 404 for anyone else. */
+export function fetchPeerMentee(actorId: string, menteeId: string) {
+  return backendRequest<PeerMenteeProfile>({
+    method: HttpMethod.Get,
+    url: `/api/peer-mentoring/mentees/${encodeURIComponent(menteeId)}`,
     params: { actorId },
   });
 }

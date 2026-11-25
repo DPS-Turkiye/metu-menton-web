@@ -9,6 +9,7 @@ import {
   IskurChannelsCard,
   IskurChannelsOpenedAlert,
 } from "@/components/iskur/iskur-channels-card";
+import { ProfilePictureLink } from "@/components/people/profile-picture-link";
 import { StudentHomeView } from "@/components/student/home-view";
 import { SectionHeader } from "@/components/student/ia/ui";
 import {
@@ -21,6 +22,7 @@ import {
   PEER_MENTOR_GIVE_HREF,
   PEER_MENTOR_WIZARD_HREF,
 } from "@/lib/peer-mentoring";
+import { requestMenteeHref } from "@/lib/peer-profile-links";
 import { formatDateTime, initials } from "@/lib/utils";
 import { IskurHomeMode } from "@/types/iskur-student";
 
@@ -77,7 +79,14 @@ function Giving({ home }: { home: Home }) {
               className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <InitialsAvatar initials={initials(request.mentee.fullName)} />
+                <ProfilePictureLink
+                  href={requestMenteeHref(request)}
+                  name={request.mentee.fullName}
+                >
+                  <InitialsAvatar
+                    initials={initials(request.mentee.fullName)}
+                  />
+                </ProfilePictureLink>
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2">
                     <span className="truncate type-label text-text-primary">

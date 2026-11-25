@@ -181,6 +181,12 @@
         "title": "Your confirmed meetings stay",
         "body": "Changes to your availability only apply to new requests; confirmed meetings are not affected."
       }
+    },
+    "menteeProfile": {
+      "back": "Give mentoring",
+      "notFound": "This student is not your mentee, or their request is no longer open.",
+      "role": "Mentee",
+      "requests": "Requests sent to you"
     }
   },
   "wizard": {
