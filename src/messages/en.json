@@ -5958,7 +5958,7 @@
         "RETAKE": "Will take the test again, notified",
         "ALREADY_MENTOR": "Already an Akran mentor, no change",
         "NOT_FOUND": "Not found in this program",
-        "NOT_ELIGIBLE": "Not eligible (not an İŞKUR intern, or account not approved)"
+        "NOT_ELIGIBLE": "Not eligible (account not approved, or badge taken back)"
       },
       "rowApprove": "Prism: approve",
       "rowRetake": "Prism: take the test again",
@@ -6632,7 +6632,7 @@
         "third": "Curriculum and phases"
       },
       "PEER_MENTORING": {
-        "description": "METU students get mentoring from badge-verified İŞKUR students.",
+        "description": "METU students get mentoring from badge-verified students.",
         "first": "Students · Peer mentors",
         "second": "Mentoring requests and matches",
         "third": "Active mentoring categories"
@@ -6717,7 +6717,7 @@
     },
     "typeNotes": {
       "STARTUP_MENTORING": "Today’s structure as is: Teams · Mentor pool · Matching · Approvals",
-      "PEER_MENTORING": "Mentees: METU students · Mentors: İŞKUR students with a verified badge",
+      "PEER_MENTORING": "Mentees: METU students · Mentors: students with a verified badge",
       "OFFICE_HOURS": "Every METU academic included, no invitations · Students request appointments"
     },
     "name": "Program name",
@@ -7200,7 +7200,7 @@
     "help": "Help",
     "overline": "menton for METU",
     "title": "Office Hours and peer mentoring in one place",
-    "intro": "Book time with your academics, ask İŞKUR students with a verified badge for peer mentoring and follow all your appointments in one calendar.",
+    "intro": "Book time with your academics, ask students with a verified badge for peer mentoring and follow all your appointments in one calendar.",
     "signupAction": "Sign up as an İŞKUR student",
     "noSignupTag": "No sign-up needed",
     "noSignupText": "If you are a METU student or academic, your METU account is all you need.",

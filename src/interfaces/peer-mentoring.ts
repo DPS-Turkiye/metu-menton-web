@@ -141,8 +141,9 @@ export type CreatePeerMentoringRequestInput = {
 };
 
 /**
- * Where a student stands on the Mentorluk Ver side. Hidden: not a peer mentor and not in İŞKUR (no tab).
- * NoBadge: İŞKUR student without the Akran Mentoru badge ("Rozet Yok"). Earned: the badge or MENTOR is held.
+ * Where a student stands on the Mentorluk Ver side. Hidden: not a peer mentor, not in İŞKUR and no training open to
+ * them (no tab). NoBadge: an İŞKUR student, or any student who may take their program's training, without the Akran
+ * Mentoru badge ("Rozet Yok"). Earned: the badge or MENTOR is held.
  * Revoked: the badge was taken back or expired, so MENTOR is gone (D4 seam, see lib/peer-mentoring.ts).
  */
 export enum PeerMentorGateState {

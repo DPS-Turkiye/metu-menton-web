@@ -5960,7 +5960,7 @@
         "RETAKE": "Testi tekrar alacak, bildirim gönderildi",
         "ALREADY_MENTOR": "Zaten Akran mentoru, değişiklik yok",
         "NOT_FOUND": "Bu programda bulunamadı",
-        "NOT_ELIGIBLE": "Uygun değil (İŞKUR stajyeri değil ya da hesabı onaylı değil)"
+        "NOT_ELIGIBLE": "Uygun değil (hesabı onaylı değil ya da rozeti geri alınmış)"
       },
       "rowApprove": "Prism: onayla",
       "rowRetake": "Prism: testi tekrar alsın",
@@ -6634,7 +6634,7 @@
         "third": "Müfredat ve fazlar"
       },
       "PEER_MENTORING": {
-        "description": "ODTÜ öğrencileri, rozeti doğrulanmış İŞKUR öğrencilerinden mentorluk alır.",
+        "description": "ODTÜ öğrencileri, rozeti doğrulanmış öğrencilerden mentorluk alır.",
         "first": "Öğrenciler · Akran Mentorları",
         "second": "Mentorluk talepleri ve eşleşmeler",
         "third": "Aktif mentorluk kategorileri"
@@ -6719,7 +6719,7 @@
     },
     "typeNotes": {
       "STARTUP_MENTORING": "Mevcut yapı aynen: Takımlar · Mentor Havuzu · Eşleşmeler · Onaylar",
-      "PEER_MENTORING": "Mentee: ODTÜ öğrencileri · Mentor: rozeti doğrulanmış İŞKUR öğrencileri",
+      "PEER_MENTORING": "Mentee: ODTÜ öğrencileri · Mentor: rozeti doğrulanmış öğrenciler",
       "OFFICE_HOURS": "Tüm ODTÜ akademisyenleri dahil, davet yok · Öğrenciler randevu talep eder"
     },
     "name": "Program adı",
@@ -7202,7 +7202,7 @@
     "help": "Yardım",
     "overline": "ODTÜ için menton",
     "title": "Office Hours ve akran mentörlüğü tek yerde",
-    "intro": "Akademisyenlerinden randevu al, rozeti doğrulanmış İŞKUR öğrencilerinden akran mentörlüğü iste ve tüm randevularını tek takvimde izle.",
+    "intro": "Akademisyenlerinden randevu al, rozeti doğrulanmış öğrencilerden akran mentörlüğü iste ve tüm randevularını tek takvimde izle.",
     "signupAction": "İŞKUR öğrencisi olarak kaydol",
     "noSignupTag": "Kayıt gerekmez",
     "noSignupText": "ODTÜ öğrencisi veya akademisyeniysen ODTÜ hesabınla giriş yapman yeterli.",
