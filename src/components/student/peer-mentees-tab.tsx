@@ -17,11 +17,11 @@ import { usePeerMenteesTab } from "@/hooks/use-peer-mentees-tab";
 import type { PeerGivePublished } from "@/hooks/use-peer-mentor-give";
 import type { Appointment } from "@/interfaces/appointment";
 import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
+import { turkeyShortDay, turkeyTime } from "@/lib/academician-office-hours";
 import { currentTime } from "@/lib/appointments";
-import { timeLabel } from "@/lib/calendar";
 import { mentorshipSince } from "@/lib/peer-mentoring";
 import { requestMenteeHref } from "@/lib/peer-profile-links";
-import { formatWeekdayDayMonth, initials } from "@/lib/utils";
+import { initials } from "@/lib/utils";
 import { PeerGiveTab } from "@/types/iskur-student";
 
 /** Menteelerim (Figma 7.3): a meeting report due, the active mentees, the capacity and this week's report. */
@@ -178,8 +178,8 @@ function MenteeRow({
         {time ? (
           <p className="type-body-sm text-status-success-text">
             {t("nextSession", {
-              day: formatWeekdayDayMonth(new Date(time.startsAt), locale),
-              time: timeLabel(time.startsAt, locale),
+              day: turkeyShortDay(time.startsAt, locale),
+              time: turkeyTime(time.startsAt, locale),
             })}
           </p>
         ) : null}

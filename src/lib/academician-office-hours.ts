@@ -150,7 +150,6 @@ export function rangeMinutes(range: AppointmentTime) {
   );
 }
 
-/** "12 Kasım, 14:00–14:30": a requested or booked time on the academician's screens. */
 /** "Per 12 Kas" on Turkey's calendar: the weekday first, as the hocam pages write it. */
 export function turkeyShortDay(value: string | Date, locale: string) {
   const part = (options: Intl.DateTimeFormatOptions) =>
@@ -166,6 +165,7 @@ export function slotShortLabel(time: AppointmentTime, locale: string) {
   return `${turkeyShortDay(time.startsAt, locale)} · ${turkeyTime(time.startsAt, locale)} – ${turkeyTime(time.endsAt, locale)}`;
 }
 
+/** "12 Kasım, 14:00–14:30": a requested or booked time on the academician's screens. */
 export function slotWhenLabel(time: AppointmentTime, locale: string) {
   const start = new Date(time.startsAt);
   const day = new Intl.DateTimeFormat(locale, {

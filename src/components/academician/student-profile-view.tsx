@@ -169,6 +169,9 @@ function RecordPanel({
           />
         )}
       </div>
+      {withSubtitle && student.subtitle !== "" ? (
+        <p className="pb-3 type-body-sm text-text-muted">{student.subtitle}</p>
+      ) : null}
       <dl className="divide-y divide-border-default border-t border-border-default">
         {student.facts.map((fact) => (
           <div key={fact.key} className="py-2.5">

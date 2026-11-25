@@ -95,7 +95,7 @@ function AdviseesContent({ list }: { list: AcademicianAdvisees }) {
           onToggle={list.toggleUpcomingOnly}
         />
         <p className="ml-auto type-body-sm text-text-muted">
-          {t("count", { count: list.total })}
+          {t("count", { count: list.rows.length })}
         </p>
       </div>
       {list.meetings.failed ? (
@@ -112,7 +112,7 @@ function AdviseesContent({ list }: { list: AcademicianAdvisees }) {
         </InlineAlert>
       ) : null}
       {list.rows.length > 0 ? (
-        <AdviseesTable rows={list.rows} total={list.total} />
+        <AdviseesTable rows={list.rows} />
       ) : (
         <p className="rounded-2xl bg-background-subtle px-5 py-4 type-body-sm text-text-secondary">
           {t("noMatch")}
@@ -130,19 +130,13 @@ function AdviseesContent({ list }: { list: AcademicianAdvisees }) {
   );
 }
 
-function AdviseesTable({
-  rows,
-  total,
-}: {
-  rows: AdviseeTableRow[];
-  total: number;
-}) {
+function AdviseesTable({ rows }: { rows: AdviseeTableRow[] }) {
   const t = useTranslations("iaAcademician.advisees");
   return (
     <div className="overflow-x-auto rounded-2xl border border-border-default bg-background-surface">
       <table className="w-full min-w-[760px] text-left">
         <caption className="sr-only">
-          {`${t("title")} · ${t("count", { count: total })}`}
+          {`${t("title")} · ${t("count", { count: rows.length })}`}
         </caption>
         <thead>
           <tr className="border-b border-border-default bg-background-subtle">
