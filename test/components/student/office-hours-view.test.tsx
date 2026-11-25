@@ -31,7 +31,12 @@ afterEach(() => {
 });
 
 async function cards() {
-  return screen.findAllByRole("article");
+  const headings = await screen.findAllByRole("heading", { level: 2 });
+  return headings.map((heading) => {
+    const row = heading.closest("li");
+    if (!row) throw new Error("Each academician is a list row.");
+    return row;
+  });
 }
 
 describe("StudentOfficeHoursView", () => {
@@ -49,6 +54,11 @@ describe("StudentOfficeHoursView", () => {
         "Danışmanının şu anda müsait saati yok.",
       ),
     ).toBeVisible();
+    expect(
+      within(advisor).getByRole("link", {
+        name: "Profili gör: Doç. Dr. Elif Şahin",
+      }),
+    ).toHaveAttribute("href", "/student/office-hours/advisor");
   });
 
   it("shows a listed advisor's own times and booking, and does not repeat them in the list", async () => {
@@ -60,12 +70,14 @@ describe("StudentOfficeHoursView", () => {
 
     expect(within(advisor).getByText("Akademik danışmanın")).toBeVisible();
     expect(
-      within(advisor).getByRole("link", { name: "Randevu Talep Et" }),
+      within(advisor).getByRole("link", {
+        name: "Saat seç: Prof. Dr. Ahmet Kaya",
+      }),
     ).toHaveAttribute(
       "href",
       "/student/office-hours/sample-academician-kaya/book",
     );
-    expect(await within(advisor).findAllByRole("listitem")).not.toHaveLength(0);
+    expect(await within(advisor).findAllByRole("listitem")).toHaveLength(3);
     expect(
       (await cards()).filter((card) =>
         within(card).queryByRole("heading", { name: "Prof. Dr. Ahmet Kaya" }),
@@ -85,12 +97,20 @@ describe("StudentOfficeHoursView", () => {
     ).toBeVisible();
     expect(
       within(shown[0] ?? document.body).getByRole("link", {
-        name: "Müsait Saatleri Gör",
+        name: "Saat seç: Prof. Dr. Ahmet Kaya",
       }),
     ).toHaveAttribute(
       "href",
       "/student/office-hours/sample-academician-kaya/book",
     );
+    expect(
+      within(shown[0] ?? document.body).getByRole("link", {
+        name: "Prof. Dr. Ahmet Kaya",
+      }),
+    ).toHaveAttribute("href", "/student/office-hours/sample-academician-kaya");
+    expect(
+      within(shown[0] ?? document.body).getByText(/^En yakın: /),
+    ).toBeVisible();
     expect(
       screen.queryByRole("heading", { name: "Dr. Öğr. Üyesi Deniz Er" }),
     ).toBeNull();
@@ -105,17 +125,17 @@ describe("StudentOfficeHoursView", () => {
     const deniz = await screen.findByRole("heading", {
       name: "Dr. Öğr. Üyesi Deniz Er",
     });
-    const card = deniz.closest("article");
+    const card = deniz.closest("li");
     expect(card).not.toBeNull();
     expect(
       within(card ?? document.body).getByText("Şu anda müsait saat yok"),
     ).toBeVisible();
     expect(
-      within(card ?? document.body).getByRole("link", { name: "Profili Gör" }),
+      within(card ?? document.body).getByRole("link", { name: /^Profili gör/ }),
     ).toHaveAttribute("href", "/student/office-hours/sample-academician-er");
   });
 
-  it("searches by name and filters by faculty", async () => {
+  it("searches by name or department and filters by faculty", async () => {
     renderWithQueryClient(<StudentOfficeHoursView />);
     await cards();
     await userEvent.click(
@@ -123,6 +143,9 @@ describe("StudentOfficeHoursView", () => {
     );
 
     await userEvent.type(screen.getByRole("searchbox"), "arslan");
+    expect(await cards()).toHaveLength(1);
+    await userEvent.clear(screen.getByRole("searchbox"));
+    await userEvent.type(screen.getByRole("searchbox"), "fizik");
     expect(await cards()).toHaveLength(1);
     await userEvent.clear(screen.getByRole("searchbox"));
 

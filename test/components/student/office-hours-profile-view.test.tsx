@@ -57,7 +57,7 @@ describe("OfficeHoursProfileView", () => {
     );
     expect(
       await screen.findByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Prof. Dr. Ahmet Kaya",
       }),
     ).toBeVisible();
@@ -65,14 +65,17 @@ describe("OfficeHoursProfileView", () => {
     expect(
       within(
         screen.getByRole("region", {
-          name: "Hangi konularda görüşebilirsiniz?",
+          name: "Görüşebileceğiniz konular",
         }),
       ).getByText("Lisansüstü başvuru"),
     ).toBeVisible();
-    expect(screen.getByText("CENG 462")).toBeVisible();
-    expect(screen.getByText("30 dakika")).toBeVisible();
+    expect(screen.getByText("CENG 462")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Randevu Talep Et" }),
+      screen.getByText(/^Bu dönem verdiği dersler · CENG 462/),
+    ).toBeVisible();
+    expect(screen.getByText("30 dakikalık görüşmeler")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Saat seç ve talep et" }),
     ).toHaveAttribute(
       "href",
       "/student/office-hours/sample-academician-kaya/book",
@@ -88,7 +91,7 @@ describe("OfficeHoursProfileView", () => {
       await screen.findByRole("heading", { name: /Ahmet Kaya/ }),
     ).toBeVisible();
     const week = await screen.findByRole("region", {
-      name: "Bu hafta müsait saatler",
+      name: "Bu haftaki müsait saatler",
     });
     expect(await within(week).findAllByRole("listitem")).not.toHaveLength(0);
   });
@@ -98,10 +101,18 @@ describe("OfficeHoursProfileView", () => {
       <OfficeHoursProfileView academicianId="sample-academician-kaya" />,
     );
     const week = await screen.findByRole("region", {
-      name: "Bu hafta müsait saatler",
+      name: "Bu haftaki müsait saatler",
     });
-    expect(await within(week).findAllByRole("listitem")).not.toHaveLength(0);
-    expect(await screen.findByText("Araştırma projesi tanışma")).toBeVisible();
+    const [first] = await within(week).findAllByRole("link");
+    expect(first).toHaveAttribute(
+      "href",
+      expect.stringMatching(
+        /^\/student\/office-hours\/sample-academician-kaya\/book\?slot=2026-11-/,
+      ),
+    );
+    expect(
+      await screen.findByText(/^Önceki randevun: Araştırma projesi tanışma · /),
+    ).toBeVisible();
   });
 
   it("lists earlier sessions with the advisor sent from the advisor's own page", async () => {
@@ -123,7 +134,9 @@ describe("OfficeHoursProfileView", () => {
       }),
     ]);
     renderWithQueryClient(<OfficeHoursProfileView academicianId="advisor" />);
-    expect(await screen.findByText("Ders seçimi")).toBeVisible();
+    expect(
+      await screen.findByText(/^Önceki randevun: Ders seçimi · /),
+    ).toBeVisible();
   });
 
   it("says so for an unknown academician", async () => {

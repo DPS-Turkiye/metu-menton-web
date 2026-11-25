@@ -36,6 +36,8 @@ import {
   ADVISOR_ACADEMICIAN_ID,
   ADVISOR_SLOT_PREVIEW,
   advisorAcademician,
+  askedSlot,
+  bookableDay,
   canCancelOfficeHours,
   filterAcademicians,
   firstBookableWeekDay,
@@ -67,8 +69,10 @@ export function officeHoursProfileHref(id: string) {
   return `${STUDENT_OFFICE_HOURS_HREF}/${encodeURIComponent(id)}`;
 }
 
-export function officeHoursBookingHref(id: string) {
-  return `${officeHoursProfileHref(id)}/book`;
+/** The booking page, with a time already picked when `slot` (its start) is given. */
+export function officeHoursBookingHref(id: string, slot?: string) {
+  const href = `${officeHoursProfileHref(id)}/book`;
+  return slot ? `${href}?slot=${encodeURIComponent(slot)}` : href;
 }
 
 function startOfToday() {
@@ -133,7 +137,7 @@ function useAcademicianEntry(id: string) {
   };
 }
 
-/** Office Hours (Figma 80:400): the advisor on top, then every academician with their nearest free slot. */
+/** Office Hours (Figma 3.2): the advisor on top, then every academician with their nearest free slot. */
 export function useStudentOfficeHours() {
   const academicians = useQuery({
     queryKey: OFFICE_HOURS_ACADEMICIANS_QUERY_KEY,
@@ -215,7 +219,7 @@ export function useStudentOfficeHours() {
   };
 }
 
-/** Akademisyen Profili (Figma 116:126): who they are, this week's free slots and past sessions with them. */
+/** Akademisyen Profili (Figma 3.3): who they are, this week's free slots and past sessions with them. */
 export function useOfficeHoursProfile(id: string) {
   const entry = useAcademicianEntry(id);
   const [from] = useState(startOfToday);
@@ -247,8 +251,8 @@ export function useOfficeHoursProfile(id: string) {
   };
 }
 
-/** Saat seç + Randevu talep et (Figma 82:2, 82:194, 82:345). */
-export function useOfficeHoursBooking(id: string) {
+/** Gün ve saat seç, then Randevu talebi (Figma 3.4, 3.5); `slot` is the start of a time picked on the profile. */
+export function useOfficeHoursBooking(id: string, slot: string | null = null) {
   const t = useTranslations("iaStudent.officeHours.request");
   const entry = useAcademicianEntry(id);
   const { academician } = entry;
@@ -256,9 +260,13 @@ export function useOfficeHoursBooking(id: string) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [firstDay] = useState(() => firstBookableWeekDay(new Date()));
-  const [anchor, setAnchor] = useState(firstDay);
-  const [pickedDay, setPickedDay] = useState<Date | null>(null);
-  const [selected, setSelected] = useState<StudentOfficeHoursSlot | null>(null);
+  const [asked] = useState(() => bookableDay(slot, firstDay));
+  const [anchor, setAnchor] = useState(asked ?? firstDay);
+  const [pickedDay, setPickedDay] = useState<Date | null>(asked);
+  // undefined until the student picks for themselves: the time the link names stands until then, if it is still free.
+  const [chosen, setChosen] = useState<
+    StudentOfficeHoursSlot | null | undefined
+  >(undefined);
   const [formOpen, setFormOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -269,6 +277,10 @@ export function useOfficeHoursBooking(id: string) {
   const slots = useQuery(
     slotsQuery(academician, weekStart, OFFICE_HOURS_WEEK_DAYS),
   );
+  const selected =
+    chosen === undefined
+      ? askedSlot(slots.data ?? [], asked === null ? null : slot)
+      : chosen;
   const week = officeHoursWeek(slots.data ?? [], anchor);
   const day =
     week.find(
@@ -315,7 +327,7 @@ export function useOfficeHoursBooking(id: string) {
       return next;
     });
     setPickedDay(null);
-    setSelected(null);
+    setChosen(null);
   };
 
   const submit = async () => {
@@ -349,15 +361,20 @@ export function useOfficeHoursBooking(id: string) {
     day,
     pickDay: (next: Date) => {
       setPickedDay(next);
-      setSelected(null);
+      setChosen(null);
     },
     selected,
-    select: setSelected,
+    select: setChosen,
     freeThisWeek: week.reduce((total, column) => total + column.freeCount, 0),
     formOpen,
     openForm: () => {
-      if (selected) setFormOpen(true);
+      if (!selected) return;
+      // Fixed from here on, so a reload of the slots cannot take the time away from under the form.
+      setChosen(selected);
+      setFormOpen(true);
     },
+    /** Back to the times with what is written kept; "Vazgeç" drops it. */
+    changeTime: () => setFormOpen(false),
     closeForm: resetForm,
     title,
     setTitle: (value: string) => {

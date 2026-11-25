@@ -2,9 +2,17 @@ import { OfficeHoursBookingView } from "@/components/student/office-hours-bookin
 
 export default async function StudentOfficeHoursBookingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ academicianId: string }>;
+  searchParams: Promise<{ slot?: string | string[] }>;
 }) {
   const { academicianId } = await params;
-  return <OfficeHoursBookingView academicianId={academicianId} />;
+  const { slot } = await searchParams;
+  return (
+    <OfficeHoursBookingView
+      academicianId={academicianId}
+      slot={typeof slot === "string" ? slot : null}
+    />
+  );
 }
