@@ -1,12 +1,14 @@
 "use client";
 
-import { AlarmClock, Check, ChevronDown, Info, Search, X } from "lucide-react";
+import { AlarmClock, Info, Search, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { PageHeader } from "@/components/ia/page-header";
+import { FilterChip } from "@/components/student/ia/filter-chip";
+import { FilterSelect } from "@/components/student/ia/filter-select";
 import { Chip, InitialsAvatar } from "@/components/student/ia/ui";
 import {
   officeHoursBookingHref,
@@ -20,6 +22,10 @@ import type {
 import { shortWeekday, timeLabel } from "@/lib/calendar";
 import { academicianName } from "@/lib/student-office-hours";
 import { formatWeekdayDayMonth } from "@/lib/utils";
+
+function asOptions(names: readonly string[]) {
+  return names.map((name) => ({ value: name, label: name }));
+}
 
 /** Office Hours (Figma 3.2): the advisor first, then every ODTÜ academician with their nearest free time. */
 export function StudentOfficeHoursView() {
@@ -56,30 +62,21 @@ export function StudentOfficeHoursView() {
         <FilterSelect
           label={t("faculty")}
           value={office.filter.faculty}
-          options={office.faculties}
+          options={asOptions(office.faculties)}
           onChange={office.setFaculty}
         />
         <FilterSelect
           label={t("department")}
           value={office.filter.department}
-          options={office.departments}
+          options={asOptions(office.departments)}
           onChange={office.setDepartment}
         />
-        <button
-          type="button"
-          aria-pressed={office.filter.availableOnly}
+        <FilterChip
+          pressed={office.filter.availableOnly}
           onClick={office.toggleAvailableOnly}
-          className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3 type-label ${
-            office.filter.availableOnly
-              ? "border-action-accent bg-background-selected text-text-accent"
-              : "border-border-default text-text-primary"
-          }`}
         >
-          {office.filter.availableOnly ? (
-            <Check aria-hidden className="size-4" strokeWidth={1.5} />
-          ) : null}
           {t("availableOnly")}
-        </button>
+        </FilterChip>
         <p className="ml-auto type-body-sm text-text-muted">
           {t("count", { count: office.total })}
         </p>
@@ -263,40 +260,5 @@ function TimesButton({
     >
       {t("profile")}
     </Button>
-  );
-}
-
-function FilterSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string | null;
-  options: string[];
-  onChange: (value: string | null) => void;
-}) {
-  return (
-    <label className="relative inline-flex max-w-60">
-      <span className="sr-only">{label}</span>
-      <select
-        value={value ?? ""}
-        onChange={(event) => onChange(event.target.value || null)}
-        className="field-sizing-content h-9 max-w-full appearance-none truncate rounded-full border border-border-default bg-background-surface pr-8 pl-3 type-label text-text-primary"
-      >
-        <option value="">{label}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-icon-muted"
-        strokeWidth={1.5}
-      />
-    </label>
   );
 }

@@ -70,7 +70,7 @@ describe("PeerMentorPublicProfile", () => {
       await screen.findByRole("heading", { level: 1, name: "Deniz Kaya" }),
     ).toBeVisible();
     expect(
-      screen.getByText("Bilgisayar Mühendisliği · 4. sınıf"),
+      screen.getByText("Bilgisayar Mühendisliği · 4. sınıf · Akran mentor"),
     ).toBeVisible();
     expect(
       screen.getByRole("link", { name: "Akran Mentörlüğü" }),
@@ -81,10 +81,12 @@ describe("PeerMentorPublicProfile", () => {
     expect(within(topics).getAllByRole("listitem").length).toBeGreaterThan(0);
     expect(screen.getByText("Bu derste güçlü: CENG 242")).toBeVisible();
     // The fixture's Deniz has no Akran Mentoru badge, so no "verified" tag.
-    expect(screen.queryByText("Rozet doğrulandı")).toBeNull();
+    expect(
+      screen.queryByText("Mentorluk eğitimi rozeti · doğrulandı"),
+    ).toBeNull();
 
     const request = screen.getByRole("button", {
-      name: "Mentorluk Talebi Gönder, Deniz Kaya",
+      name: "Mentorluk talebi gönder, Deniz Kaya",
     });
     expect(primaryButtons()).toEqual([request]);
     await user.click(request);
@@ -110,7 +112,9 @@ describe("PeerMentorPublicProfile", () => {
     renderWithQueryClient(
       <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
     );
-    expect(await screen.findByText("Rozet doğrulandı")).toBeVisible();
+    expect(
+      await screen.findByText("Mentorluk eğitimi rozeti · doğrulandı"),
+    ).toBeVisible();
   });
 
   it("asks for the one mentor rather than the whole directory", async () => {
@@ -165,7 +169,7 @@ describe("PeerMentorPublicProfile", () => {
     const days = within(hours).getAllByRole("term");
     expect(days.map((day) => day.textContent)).toEqual(["Salı", "Cumartesi"]);
     expect(within(hours).getByText("18:00 – 20:00")).toBeVisible();
-    expect(within(hours).getByText("Boş saat var")).toBeVisible();
+    expect(within(hours).getByText("Bu hafta boş saati var")).toBeVisible();
   });
 
   it("leaves out empty sections and says when there are no hours or free slots", async () => {
@@ -178,7 +182,7 @@ describe("PeerMentorPublicProfile", () => {
     expect(screen.queryByRole("link", { name: /LinkedIn profili/ })).toBeNull();
     const hours = screen.getByRole("region", { name: "Müsaitlik" });
     expect(within(hours).getByText("Haftalık saat eklenmemiş.")).toBeVisible();
-    expect(within(hours).getByText("Boş saat yok")).toBeVisible();
+    expect(within(hours).getByText("Bu hafta boş saati yok")).toBeVisible();
   });
 
   it("never turns a LinkedIn value that isn't a web link into a link", async () => {
@@ -203,21 +207,46 @@ describe("PeerMentorPublicProfile", () => {
     );
     await user.click(
       await screen.findByRole("button", {
-        name: "Mentorluk Talebi Gönder, Deniz Kaya",
+        name: "Mentorluk talebi gönder, Deniz Kaya",
       }),
     );
     const dialog = screen.getByRole("dialog", {
       name: "Mentorluk talebi gönder",
     });
+    expect(
+      within(dialog).getByText("Deniz Kaya · Akran Mentoru"),
+    ).toBeVisible();
+    expect(within(dialog).getByLabelText(/Konu/)).toHaveValue(
+      "CAREER_INTERNSHIP",
+    );
+    await user.type(within(dialog).getByLabelText("Kısa mesaj"), "Merhaba");
+    expect(within(dialog).getByText(/7 \/ 1000$/)).toBeVisible();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Talebi gönder" }),
+    );
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(
+      "Mesajın en az 20 karakter olmalı.",
+    );
+    await user.selectOptions(
+      within(dialog).getByLabelText(/Konu/),
+      "TECHNICAL_DIGITAL",
+    );
     await user.type(
       within(dialog).getByLabelText("Kısa mesaj"),
-      "Staj başvurusunda CV'mi birlikte gözden geçirebilir miyiz?",
+      ", staj başvurusunda CV'mi birlikte gözden geçirebilir miyiz?",
     );
     await user.click(
-      within(dialog).getByRole("button", { name: "Mentorluk Talebi Gönder" }),
+      within(dialog).getByRole("button", { name: "Talebi gönder" }),
     );
 
     await waitFor(() => expect(getPeerMentor).toHaveBeenCalledTimes(2));
+    const sent = screen.getByRole("dialog", { name: "Talebin iletildi" });
+    expect(within(sent).getByText("Onay Bekliyor")).toBeVisible();
+    expect(sent.contains(document.activeElement)).toBe(true);
+    expect(within(sent).getByText("Teknik ve Dijital Beceriler")).toBeVisible();
+    expect(
+      within(sent).getByRole("region", { name: "Sonra ne olur?" }),
+    ).toHaveTextContent("Deniz Kaya yanıt verdiğinde bildirim alırsın.");
     // "Mentorluklarım'a git" leaves the profile for the Mentorluklarım tab.
     expect(
       within(

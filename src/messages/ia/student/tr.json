@@ -275,9 +275,8 @@
   },
   "profile": {
     "title": "Profilim",
-    "subtitle": "Mentor önerileri ilgi alanlarına ve hedefine göre hazırlanır.",
     "interests": {
-      "title": "İlgi alanlarım ve hedeflerim",
+      "title": "İlgi alanların ve hedefin",
       "edit": "Düzenle",
       "loading": "İlgi alanların yükleniyor…",
       "loadError": "İlgi alanların yüklenemedi.",
@@ -289,39 +288,31 @@
       "save": "Kaydet",
       "saving": "Kaydediliyor…",
       "cancel": "Vazgeç",
-      "saveError": "Kaydedilemedi. Tekrar dene."
+      "saveError": "Kaydedilemedi. Tekrar dene.",
+      "visibility": "Görünürlük: yalnızca mentorluk talebi gönderdiğin mentorlar görür."
     },
     "institution": {
       "title": "Kurumsal bilgiler",
-      "source": "ODTÜ'den gelir · salt okunur",
-      "locked": "Düzenlenemez",
+      "source": "ODTÜ'den · salt okunur",
       "loading": "Kurumsal bilgiler yükleniyor…",
       "missingTitle": "Kurumsal kayıt bulunamadı",
       "missingBody": "Hesabın bir ODTÜ kaydıyla eşleşmedi; ODTÜ ile giriş yaptığında burada görünür.",
       "loadError": "Kurumsal bilgiler yüklenemedi.",
       "retry": "Tekrar dene",
       "fullName": "Ad Soyad",
-      "email": "Kurumsal e-posta",
+      "email": "E-posta",
       "department": "Bölüm",
       "classYear": "Sınıf",
       "classYearValue": "{year}. sınıf",
-      "unknown": "Bilinmiyor"
+      "unknown": "Bilinmiyor",
+      "advisor": "Akademik danışman",
+      "note": "Kurumsal bilgiler ODTÜ kayıtlarından gelir; hatalıysa Öğrenci İşleri üzerinden düzeltilir. Mentorlar yalnızca adını ve bölümünü görür."
     },
     "photo": {
       "title": "Profil fotoğrafı",
-      "optional": "Opsiyonel",
-      "upload": "Fotoğraf Yükle",
+      "upload": "Fotoğraf yükle",
       "uploading": "Yükleniyor…",
-      "formats": "JPG, PNG veya WEBP · en fazla 5 MB",
-      "note": "Fotoğrafını yalnızca mentorların ve randevu talep ettiğin akademisyenler görür. Yüklemezsen baş harflerin görünür."
-    },
-    "advisor": {
-      "label": "Akademik danışmanım",
-      "note": "Danışmanlık ilişkisi kurumsal kayıttan gelir; menton'da değiştirilemez."
-    },
-    "visibility": {
-      "title": "Bilgilerin nerede görünür?",
-      "body": "Mentorluk talebi gönderdiğin mentor ilgi alanlarını ve hedefini görür. Kurumsal bilgilerin yalnızca adın ve bölümünle sınırlı paylaşılır."
+      "formats": "İsteğe bağlı · JPG, PNG veya WEBP, en fazla 5 MB. Yüklemezsen baş harflerin görünür."
     }
   }
 }

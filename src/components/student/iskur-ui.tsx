@@ -171,7 +171,7 @@ export function UnderlineTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className={`flex overflow-x-auto ${segment ? "py-1" : "gap-1 border-b border-border-subtle"}`}
+      className={`flex overflow-x-auto ${segment ? "py-1" : "gap-1"}`}
     >
       {tabs.map((tab, index) => {
         const active = tab.id === selected;
@@ -352,11 +352,7 @@ export function ViewSwitch<T extends string>({
   onSelect: (id: T) => void;
 }) {
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className="flex gap-1 border-b border-border-subtle"
-    >
+    <div role="group" aria-label={label} className="flex gap-1">
       {options.map((option) => {
         const active = option.id === selected;
         return (
