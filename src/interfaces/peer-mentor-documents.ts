@@ -1,3 +1,5 @@
+import type { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
+
 /** What a piece of a peer mentor's evidence is; mirrors the backend's PeerEvidenceType. A portfolio is a link. */
 export enum PeerEvidenceType {
   Transcript = "TRANSCRIPT",
@@ -29,6 +31,18 @@ export type PeerMentorDocument = {
   contentType: string | null;
   sizeBytes: number | null;
   createdAt: string;
+};
+
+/** A file the mentor gave with their İŞKUR form (`GET …/profile/form-documents`), to use instead of uploading again. */
+export type PeerMentorFormDocument = {
+  slot: IskurDocumentSlot;
+  originalFilename: string;
+  sizeBytes: number;
+};
+
+export type UsePeerMentorFormDocumentInput = {
+  slot: IskurDocumentSlot;
+  visibility: PeerDocumentVisibility;
 };
 
 export type AddPeerMentorLinkInput = {

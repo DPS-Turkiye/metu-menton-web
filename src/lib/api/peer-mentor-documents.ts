@@ -3,13 +3,16 @@ import "server-only";
 import type {
   AddPeerMentorLinkInput,
   PeerMentorDocument,
+  PeerMentorFormDocument,
   UpdatePeerMentorDocumentInput,
+  UsePeerMentorFormDocumentInput,
 } from "@/interfaces/peer-mentor-documents";
 import { UPLOAD_TIMEOUT_MS } from "@/lib/http-client";
 import { HttpMethod } from "@/lib/http-method";
 import { backendRequest } from "@/lib/server/backend-client";
 
 const PROFILE_DOCUMENTS = "/api/peer-mentoring/profile/documents";
+const FORM_DOCUMENTS = "/api/peer-mentoring/profile/form-documents";
 
 function documentUrl(documentId: string) {
   return `${PROFILE_DOCUMENTS}/${encodeURIComponent(documentId)}`;
@@ -30,6 +33,26 @@ export function uploadPeerMentorDocument(actorId: string, formData: FormData) {
     url: PROFILE_DOCUMENTS,
     params: { actorId },
     data: formData,
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
+}
+
+export function fetchPeerMentorFormDocuments(actorId: string) {
+  return backendRequest<PeerMentorFormDocument[]>({
+    method: HttpMethod.Get,
+    url: FORM_DOCUMENTS,
+    params: { actorId },
+  });
+}
+
+export function addPeerMentorFormDocument(
+  actorId: string,
+  input: UsePeerMentorFormDocumentInput,
+) {
+  return backendRequest<PeerMentorDocument>({
+    method: HttpMethod.Post,
+    url: FORM_DOCUMENTS,
+    data: { ...input, actorId },
     timeout: UPLOAD_TIMEOUT_MS,
   });
 }

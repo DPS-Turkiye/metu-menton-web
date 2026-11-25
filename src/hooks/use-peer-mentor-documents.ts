@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import {
   PeerDocumentVisibility,
   PeerEvidenceType,
@@ -11,10 +12,12 @@ import {
 import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
 import {
+  addPeerMentorFormDocument,
   addPeerMentorLink,
   deletePeerMentorDocument,
   getOwnPeerMentorDocuments,
   getPeerMentorDocuments,
+  getPeerMentorFormDocuments,
   peerMentorDocumentContentHref,
   updatePeerMentorDocumentVisibility,
   uploadPeerMentorDocument,
@@ -37,12 +40,21 @@ import { useToast } from "@/stores/toast-store";
 import {
   EvidenceCard,
   EvidenceFileProblem,
+  type EvidenceCardView,
 } from "@/types/peer-mentor-evidence";
 
 export const PEER_MENTOR_DOCUMENTS_QUERY_KEY = [
   "peer-mentoring",
   "documents",
 ] as const;
+const FORM_DOCUMENTS_QUERY_KEY = [
+  ...PEER_MENTOR_DOCUMENTS_QUERY_KEY,
+  "form",
+] as const;
+const FORM_CARD: Record<IskurDocumentSlot, EvidenceCard> = {
+  [IskurDocumentSlot.Cv]: EvidenceCard.Cv,
+  [IskurDocumentSlot.Transcript]: EvidenceCard.Transcript,
+};
 const OWN_DOCUMENTS_QUERY_KEY = [
   ...PEER_MENTOR_DOCUMENTS_QUERY_KEY,
   "mine",
@@ -143,6 +155,24 @@ export function usePeerMentorDocumentsStep({
       }),
   });
 
+  // Nothing is offered while it loads or when it fails: uploading stays possible.
+  const formDocuments = useQuery({
+    queryKey: FORM_DOCUMENTS_QUERY_KEY,
+    queryFn: getPeerMentorFormDocuments,
+    retry: false,
+  });
+  const fromForm = useMutation({
+    mutationFn: ({ slot }: { card: EvidenceCard; slot: IskurDocumentSlot }) =>
+      // The form told the intern only coordinators see it; showing it to students is the mentor's own next step.
+      addPeerMentorFormDocument({
+        slot,
+        visibility: PeerDocumentVisibility.VerificationOnly,
+      }),
+    onSuccess: () => refresh(),
+    onError: (error, { card }) =>
+      setProblem({ card, message: errorMessage(error, t("uploadFailed")) }),
+  });
+
   const visibility = useMutation({
     mutationFn: async ({
       card,
@@ -213,6 +243,19 @@ export function usePeerMentorDocumentsStep({
         type: uploadTypeOf(card, otherType),
         visibility: visibilityOf(card),
       });
+    },
+    /** The İŞKUR form's file for an empty card, when the mentor gave one there. */
+    formFileOf: (view: EvidenceCardView) =>
+      view.documents.length === 0
+        ? (formDocuments.data?.find(
+            (file) => FORM_CARD[file.slot] === view.card,
+          ) ?? null)
+        : null,
+    isUsingFormFile: fromForm.isPending,
+    useFormFile: (card: EvidenceCard, slot: IskurDocumentSlot) => {
+      if (fromForm.isPending || upload.isPending) return;
+      setProblem(null);
+      fromForm.mutate({ card, slot });
     },
     addLink: () => {
       if (link.isPending) return;

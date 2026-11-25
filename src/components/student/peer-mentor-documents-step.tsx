@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import { useId, useRef, type ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
+import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
 import { ISKUR_FIELD_CLASS, Tag, TagTone } from "@/components/student/iskur-ui";
@@ -261,6 +262,7 @@ function FilesBody({ view, step }: { view: EvidenceCardView; step: Step }) {
   return (
     <>
       {isOther ? <OtherKinds step={step} /> : null}
+      <FormFile view={view} step={step} />
       {view.documents.map((item) => (
         <FileItem key={item.id} item={item} step={step} />
       ))}
@@ -274,6 +276,33 @@ function FilesBody({ view, step }: { view: EvidenceCardView; step: Step }) {
         />
       )}
     </>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+/** The file the mentor already gave with their İŞKUR form, offered instead of another upload. */
+function FormFile({ view, step }: { view: EvidenceCardView; step: Step }) {
+  const t = useTranslations("iaIskur.wizard.documents");
+  const file = step.formFileOf(view);
+  if (!file) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-background-subtle p-4">
+      <FileText aria-hidden className="size-5 shrink-0 text-text-accent" />
+      <div className="min-w-0 flex-1 basis-48 space-y-0.5">
+        <p className="type-label text-text-primary">
+          {t("fromForm.title", { name: file.originalFilename })}
+        </p>
+        <p className="type-caption text-text-muted">{t("fromForm.note")}</p>
+      </div>
+      <Button
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        disabled={step.isUsingFormFile || step.isUploading}
+        onClick={() => step.useFormFile(view.card, file.slot)}
+      >
+        {t(step.isUsingFormFile ? "uploading" : "fromForm.use")}
+      </Button>
+    </div>
   );
 }
 
