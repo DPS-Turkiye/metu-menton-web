@@ -5,6 +5,7 @@ import { GET as getAcademician } from "@/app/api/office-hours/me/academicians/[i
 import { GET as getSlots } from "@/app/api/office-hours/me/academicians/[id]/slots/route";
 import { GET as getAcademicians } from "@/app/api/office-hours/me/academicians/route";
 import { GET as getAppointments } from "@/app/api/office-hours/me/appointments/route";
+import { POST as postAvailabilityPreview } from "@/app/api/office-hours/me/availability/preview/route";
 import {
   GET as getAvailability,
   PUT as putAvailability,
@@ -21,6 +22,7 @@ import { POST as postDecision } from "@/app/api/office-hours/me/requests/[id]/de
 import { POST as postRequest } from "@/app/api/office-hours/me/requests/route";
 import { OfficeHoursRequestAction } from "@/interfaces/academician-office-hours";
 import { Weekday } from "@/interfaces/mentor";
+import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 import { UserRole } from "@/interfaces/session";
 import * as officeHours from "@/lib/api/office-hours-me";
 import { getSessionUser } from "@/lib/session";
@@ -30,6 +32,7 @@ import { backendRefusal, backendResponse } from "@test/fixtures/route-handlers";
 vi.mock("@/lib/api/office-hours-me", () => ({
   fetchMyOfficeHoursAvailability: vi.fn(),
   saveMyOfficeHoursAvailability: vi.fn(),
+  previewMyOfficeHoursAvailability: vi.fn(),
   fetchMyOfficeHoursProfile: vi.fn(),
   saveMyOfficeHoursProfile: vi.fn(),
   fetchOfficeHoursInbox: vi.fn(),
@@ -120,6 +123,10 @@ const handlers: [string, () => Promise<Response>][] = [
   [
     "PUT availability",
     () => putAvailability(request("/x", "PUT", editorHours)),
+  ],
+  [
+    "POST availability preview",
+    () => postAvailabilityPreview(request("/x", "POST", editorHours)),
   ],
   ["GET profile", () => getProfile()],
   [
@@ -219,6 +226,74 @@ describe("office hours (Menton account) proxy routes", () => {
         meetingBufferMinutes: 0,
       },
     );
+  });
+
+  it("previews a change in the backend's shape and passes its answer on", async () => {
+    const impact = { meetings: [], requests: [] };
+    vi.mocked(officeHours.previewMyOfficeHoursAvailability).mockResolvedValue(
+      backendResponse(impact),
+    );
+
+    const response = await postAvailabilityPreview(
+      request("/x", "POST", editorHours),
+    );
+
+    expect(await response.json()).toEqual(impact);
+    expect(officeHours.previewMyOfficeHoursAvailability).toHaveBeenCalledWith(
+      "user-1",
+      {
+        rules: editorHours.rules,
+        exceptions: [],
+        studentCapacity: 4,
+        defaultMeetingDurationMinutes: 30,
+        meetingBufferMinutes: 0,
+      },
+    );
+  });
+
+  it("passes what the academician confirmed on with the save", async () => {
+    const confirmedAffected = [
+      { requestId: REQUEST, status: OfficeHoursRequestStatus.CounterProposed },
+    ];
+
+    await putAvailability(
+      request("/x", "PUT", { ...editorHours, confirmedAffected }),
+    );
+
+    expect(officeHours.saveMyOfficeHoursAvailability).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ confirmedAffected }),
+    );
+  });
+
+  it("refuses a confirmed item that is not a request id and status", async () => {
+    const response = await putAvailability(
+      request("/x", "PUT", {
+        ...editorHours,
+        confirmedAffected: [{ requestId: "not-an-id", status: "SOMETHING" }],
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(officeHours.saveMyOfficeHoursAvailability).not.toHaveBeenCalled();
+  });
+
+  it("passes the 409 of a list that changed on as it came", async () => {
+    vi.mocked(officeHours.saveMyOfficeHoursAvailability).mockResolvedValue(
+      backendRefusal(409, {
+        message: "changed",
+        code: "OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED",
+      }),
+    );
+
+    const response = await putAvailability(
+      request("/x", "PUT", { ...editorHours, confirmedAffected: [] }),
+    );
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED",
+    });
   });
 
   it("passes the one-off hours of a save on to the backend", async () => {

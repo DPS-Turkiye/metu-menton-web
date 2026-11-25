@@ -5,6 +5,7 @@ import {
   OfficeHoursRequestAction,
 } from "@/interfaces/academician-office-hours";
 import { Weekday } from "@/interfaces/mentor";
+import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
 
 /** An ISO time with its offset, as the screens send it ("2026-11-24T14:00:00+03:00" or "…Z"). */
 const isoTimeSchema = z.iso.datetime({ offset: true });
@@ -55,6 +56,16 @@ export const officeHoursAvailabilitySchema = z.object({
   menteeCapacity: z.number().int().min(1).max(50).nullable(),
   defaultMeetingDurationMinutes: z.number().int().min(15).max(480),
   meetingBufferMinutes: z.number().int().min(0).max(240),
+  // What the academician was shown before saving (FR-OH-29); left out, the backend checks nothing.
+  confirmedAffected: z
+    .array(
+      z.object({
+        requestId: z.uuid(),
+        status: z.enum(OfficeHoursRequestStatus),
+      }),
+    )
+    .max(500)
+    .optional(),
 });
 
 export const officeHoursProfileSchema = z.object({

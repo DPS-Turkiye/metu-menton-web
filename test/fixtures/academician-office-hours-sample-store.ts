@@ -10,6 +10,7 @@ import {
   type UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
 import { AppointmentStatus } from "@/interfaces/appointment";
+import type { OfficeHoursAvailabilityImpact } from "@/interfaces/office-hours-me";
 import {
   ACADEMICIAN_APPOINTMENTS_SAMPLE,
   ACADEMICIAN_AVAILABILITY_SAMPLE,
@@ -26,6 +27,10 @@ type SampleState = {
   appointments: AcademicianAppointment[];
   availability: AcademicianAvailability;
   profile: OfficeHoursProfileSettings;
+  /** What the next change to the hours would leave out (FR-OH-29); nothing by default. */
+  impact: OfficeHoursAvailabilityImpact;
+  /** The list changes once after the academician confirmed it, as if a request came in meanwhile. */
+  changesOnConfirm: boolean;
 };
 
 function fresh(): SampleState {
@@ -34,6 +39,8 @@ function fresh(): SampleState {
     appointments: ACADEMICIAN_APPOINTMENTS_SAMPLE,
     availability: ACADEMICIAN_AVAILABILITY_SAMPLE,
     profile: OFFICE_HOURS_PROFILE_SAMPLE,
+    impact: { meetings: [], requests: [] },
+    changesOnConfirm: false,
   });
 }
 
@@ -139,6 +146,21 @@ export function saveSampleAvailability(
     })),
   };
   return structuredClone(state.availability);
+}
+
+export function setSampleImpact(
+  impact: OfficeHoursAvailabilityImpact,
+  { changesOnConfirm = false }: { changesOnConfirm?: boolean } = {},
+) {
+  state.impact = structuredClone(impact);
+  state.changesOnConfirm = changesOnConfirm;
+}
+
+/** Whether a confirmed save meets a list that changed since; it does so once. */
+export function takeSampleChange() {
+  const changed = state.changesOnConfirm;
+  state.changesOnConfirm = false;
+  return changed;
 }
 
 export function saveSampleProfile(settings: OfficeHoursProfileSettings) {
