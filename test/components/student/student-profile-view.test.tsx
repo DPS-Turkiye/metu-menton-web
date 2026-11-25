@@ -120,7 +120,9 @@ describe("StudentProfileView › Kurumsal bilgiler", () => {
       within(institution).getByText("ayse.yilmaz@odtu-dev.invalid"),
     ).toBeVisible();
     expect(within(institution).getByText("3. sınıf · Lisans")).toBeVisible();
-    expect(within(institution).getByText("Düzenlenemez")).toBeVisible();
+    expect(
+      within(institution).getByText("ODTÜ'den · salt okunur"),
+    ).toBeVisible();
     expect(within(institution).queryByRole("textbox")).toBeNull();
     expect(within(institution).queryByRole("button")).toBeNull();
   });
@@ -183,10 +185,13 @@ describe("StudentProfileView › Kurumsal bilgiler", () => {
 describe("StudentProfileView › side cards", () => {
   it("shows the advisor from the record", async () => {
     renderWithQueryClient(<StudentProfileView />);
-    const advisor = await screen.findByRole("region", {
-      name: "Dr. Öğr. Üyesi Ahmet Öztürk",
-    });
-    expect(within(advisor).getByText("Akademik danışmanım")).toBeVisible();
+    const institution = region("Kurumsal bilgiler");
+    expect(
+      await within(institution).findByText("Akademik danışman"),
+    ).toBeVisible();
+    expect(
+      within(institution).getByText("Dr. Öğr. Üyesi Ahmet Öztürk"),
+    ).toBeVisible();
   });
 
   it("uploads a profile photo", async () => {
@@ -194,13 +199,15 @@ describe("StudentProfileView › side cards", () => {
     renderWithQueryClient(<StudentProfileView />);
     const photo = region("Profil fotoğrafı");
     const file = new File(["x"], "me.png", { type: "image/png" });
-    await user.upload(within(photo).getByLabelText("Fotoğraf Yükle"), file);
+    await user.upload(within(photo).getByLabelText("Fotoğraf yükle"), file);
     expect(upload).toHaveBeenCalledWith(file);
   });
 
   it("explains where the details show", () => {
     renderWithQueryClient(<StudentProfileView />);
-    expect(screen.getByText("Bilgilerin nerede görünür?")).toBeVisible();
+    expect(
+      screen.getByText(/Mentorlar yalnızca adını ve bölümünü görür\.$/),
+    ).toBeVisible();
   });
 });
 
@@ -233,7 +240,7 @@ describe("StudentProfileView › product tour", () => {
 describe("StudentProfileView › İlgi alanlarım", () => {
   it("shows the saved interests and goal", async () => {
     renderWithQueryClient(<StudentProfileView />);
-    const interests = region("İlgi alanlarım ve hedeflerim");
+    const interests = region("İlgi alanların ve hedefin");
 
     expect(await within(interests).findByText("Kariyer ve Staj")).toBeVisible();
     expect(within(interests).getByText("Örnek: CV hazırlama")).toBeVisible();
@@ -243,7 +250,7 @@ describe("StudentProfileView › İlgi alanlarım", () => {
   it("edits topics and goal in place, drops sub-topics of a removed topic, and saves", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<StudentProfileView />);
-    const interests = region("İlgi alanlarım ve hedeflerim");
+    const interests = region("İlgi alanların ve hedefin");
     await within(interests).findByText("Kariyer ve Staj");
 
     await user.click(
@@ -293,7 +300,7 @@ describe("StudentProfileView › İlgi alanlarım", () => {
   it("drops the edits on Vazgeç and keeps them after a failed save", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<StudentProfileView />);
-    const interests = region("İlgi alanlarım ve hedeflerim");
+    const interests = region("İlgi alanların ve hedefin");
     await within(interests).findByText("Kariyer ve Staj");
 
     await user.click(

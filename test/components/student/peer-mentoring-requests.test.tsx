@@ -108,17 +108,17 @@ describe("Mentorluk Al › Mentorluklarım", () => {
 
     const unbooked = await activeMentorship("Zeynep Demir");
     expect(
-      await within(unbooked).findByRole("button", { name: "Görüşme Planla" }),
+      await within(unbooked).findByRole("button", { name: "Görüşme planla" }),
     ).toBeVisible();
     expect(
-      within(unbooked).getByRole("link", { name: "Profili Gör, Zeynep Demir" }),
+      within(unbooked).getByRole("link", { name: "Profili gör, Zeynep Demir" }),
     ).toHaveAttribute(
       "href",
       "/student/peer-mentoring/mentors/request-1-mentor",
     );
 
     const booked = await activeMentorship("Mehmet Kaya");
-    expect(within(booked).getByText(/^Sıradaki görüşme: /)).toBeVisible();
+    expect(within(booked).getByText("Sıradaki görüşme")).toBeVisible();
     expect(
       within(booked).getByRole("link", { name: "Randevuya git" }),
     ).toHaveAttribute("href", "/student/appointments");
@@ -153,21 +153,21 @@ describe("Mentorluk Al › Mentorluklarım", () => {
 
     const zeynep = await activeMentorship("Zeynep Demir");
     expect(
-      await within(zeynep).findByRole("button", { name: "Görüşme Planla" }),
+      await within(zeynep).findByRole("button", { name: "Görüşme planla" }),
     ).toBeVisible();
-    expect(within(zeynep).queryByText(/^Sıradaki görüşme: /)).toBeNull();
+    expect(within(zeynep).queryByText("Sıradaki görüşme")).toBeNull();
     const mehmet = await activeMentorship("Mehmet Kaya");
-    expect(within(mehmet).getByText(/^Sıradaki görüşme: /)).toBeVisible();
+    expect(within(mehmet).getByText("Sıradaki görüşme")).toBeVisible();
   });
 
   it("lists the other requests with their status, offers to withdraw a pending one, and another mentor after a decline", async () => {
     const user = userEvent.setup();
     renderMine();
 
-    const others = await screen.findByRole("region", { name: /Taleplerim/ });
-    const items = within(others).getAllByRole("listitem");
-    const pending = itemAt(items, 0);
-    const declined = itemAt(items, 1);
+    const waiting = await screen.findByRole("region", {
+      name: "Bekleyen talep",
+    });
+    const pending = itemAt(within(waiting).getAllByRole("listitem"), 0);
     expect(pending).toHaveTextContent("Deniz Ak");
     expect(pending).toHaveTextContent("Onay Bekliyor");
     expect(within(pending).getAllByRole("button")).toHaveLength(1);
@@ -176,12 +176,14 @@ describe("Mentorluk Al › Mentorluklarım", () => {
         name: "Talebi geri çek, Deniz Ak",
       }),
     ).toBeVisible();
+    const past = screen.getByRole("region", { name: "Geçmiş" });
+    const declined = itemAt(within(past).getAllByRole("listitem"), 0);
     expect(declined).toHaveTextContent("Reddedildi");
     expect(
       within(declined).queryByRole("button", { name: /Talebi geri çek/ }),
     ).toBeNull();
     await user.click(
-      within(declined).getByRole("button", { name: "Başka Mentor Bul" }),
+      within(declined).getByRole("button", { name: "Başka mentor bul" }),
     );
     expect(onFindAnother).toHaveBeenCalledTimes(1);
   });
@@ -248,7 +250,7 @@ describe("Mentorluk Al › Mentorluklarım", () => {
     await user.click(
       await within(await activeMentorship("Zeynep Demir")).findByRole(
         "button",
-        { name: "Görüşme Planla" },
+        { name: "Görüşme planla" },
       ),
     );
 
@@ -281,7 +283,7 @@ describe("Mentorluk Al › Mentorluklarım", () => {
     await user.click(
       await within(await activeMentorship("Zeynep Demir")).findByRole(
         "button",
-        { name: "Görüşme Planla" },
+        { name: "Görüşme planla" },
       ),
     );
     expect(
@@ -299,7 +301,7 @@ describe("Mentorluk Al › Mentorluklarım", () => {
     await user.click(
       await within(await activeMentorship("Zeynep Demir")).findByRole(
         "button",
-        { name: "Görüşme Planla" },
+        { name: "Görüşme planla" },
       ),
     );
     const dialog = await screen.findByRole("dialog");

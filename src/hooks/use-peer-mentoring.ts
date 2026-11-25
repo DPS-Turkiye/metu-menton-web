@@ -16,7 +16,6 @@ import {
   PROFILE_COMPLETION_QUERY_KEY,
 } from "@/hooks/use-student-profile-completion";
 import { AppointmentSide } from "@/interfaces/appointment";
-import { BadgeCode } from "@/interfaces/badges";
 import type {
   CreatePeerMentoringRequestInput,
   PeerMentorCard,
@@ -39,6 +38,7 @@ import {
 import {
   canWithdrawPeerRequest,
   CLOSED_PEER_REQUEST_STATUSES,
+  hasPeerMentorBadge,
   offeredSubTopics,
   OPEN_PEER_REQUEST_STATUSES,
   PEER_MENTORING_SIDE_PARAM,
@@ -56,7 +56,7 @@ import {
 } from "@/lib/peer-mentoring";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import { PeerTakeTab } from "@/types/iskur-student";
+import { PeerRequestAvailability, PeerTakeTab } from "@/types/iskur-student";
 
 export const PEER_MENTORS_QUERY_KEY = ["peer-mentors"] as const;
 export const PEER_MENTOR_QUERY_KEY = ["peer-mentor"] as const;
@@ -192,7 +192,6 @@ export function usePeerMentorDirectory() {
     queryFn: getPeerMentorCounts,
   });
   const context = usePeerMentorContext();
-  const [requesting, setRequesting] = useState<PeerMentorCard | null>(null);
   const filtered =
     category != null ||
     deferredQuery !== "" ||
@@ -220,7 +219,7 @@ export function usePeerMentorDirectory() {
   return {
     category,
     setCategory,
-    /** A category card toggles its filter. */
+    /** A category chip toggles its filter. */
     toggleCategory: (next: PeerTopicCategory) =>
       setCategory(category === next ? null : next),
     /** Only the program's active categories can be picked. */
@@ -240,10 +239,6 @@ export function usePeerMentorDirectory() {
     filtered,
     recommended: split.recommended,
     others: split.others,
-    /** The mentor whose request dialog is open. */
-    requesting,
-    openRequest: setRequesting,
-    closeRequest: () => setRequesting(null),
     ...context,
   };
 }
@@ -261,6 +256,7 @@ export function usePeerMentor(mentorId: string) {
   const context = usePeerMentorContext();
   const [requesting, setRequesting] = useState(false);
   const mentor = detail.data ?? null;
+  const availability = mentor ? context.availabilityOf(mentor) : null;
   return {
     requesting,
     openRequest: () => setRequesting(true),
@@ -274,10 +270,14 @@ export function usePeerMentor(mentorId: string) {
       : [],
     weeklyHours: mentor ? weeklyHours(mentor.weeklyHours) : [],
     reasons: mentor ? context.reasonsOf(mentor) : [],
-    badgeVerified:
-      mentor?.badges.some((badge) => badge.code === BadgeCode.PeerMentor) ??
-      false,
-    availability: mentor ? context.availabilityOf(mentor) : null,
+    badgeVerified: mentor ? hasPeerMentorBadge(mentor.badges) : false,
+    availability,
+    /** The mentor takes nobody now; a request of the student's own is said on the button instead. */
+    closedReason:
+      availability === PeerRequestAvailability.Full ||
+      availability === PeerRequestAvailability.Paused
+        ? availability
+        : undefined,
   };
 }
 
@@ -367,13 +367,17 @@ export function useMyPeerMentorships() {
     booking,
     openBooking: setBooking,
     closeBooking: () => setBooking(null),
-    /** Closed requests offer "Başka Mentor Bul". */
-    isClosed: (request: PeerMentoringRequest) =>
-      CLOSED_PEER_REQUEST_STATUSES.includes(request.status),
     query: requests,
     count: requests.data?.length ?? 0,
     active: split.active,
-    others: split.others,
+    /** Waiting for the mentor. */
+    pending: split.others.filter(
+      (request) => !CLOSED_PEER_REQUEST_STATUSES.includes(request.status),
+    ),
+    /** Ended without a mentorship; "Başka mentor bul" on each. */
+    closed: split.others.filter((request) =>
+      CLOSED_PEER_REQUEST_STATUSES.includes(request.status),
+    ),
     sessionOf: (requestId: string) => sessions.byRequest.get(requestId) ?? null,
     sessionsLoading: sessions.isLoading,
     withdrawal,

@@ -2,7 +2,12 @@ import type { ComponentProps } from "react";
 
 import type { StatusChip } from "@/components/admin/admin-ui";
 import { AppointmentSide, type Appointment } from "@/interfaces/appointment";
-import { BadgeCode, BadgeStatus, type BadgeAward } from "@/interfaces/badges";
+import {
+  BadgeCode,
+  BadgeStatus,
+  type BadgeAward,
+  type PublicBadge,
+} from "@/interfaces/badges";
 import {
   WEEKDAY_ORDER,
   type MentorAvailabilityRule,
@@ -289,6 +294,11 @@ export function splitRecommended<T extends { mentorId: string }>(
     recommended,
     others: mentors.filter((mentor) => !picked.has(mentor.mentorId)),
   };
+}
+
+/** Whether a listed mentor's "Akran Mentoru" badge (the training, done and verified) shows on their profile. */
+export function hasPeerMentorBadge(badges: readonly PublicBadge[]) {
+  return badges.some((badge) => badge.code === BadgeCode.PeerMentor);
 }
 
 /** A request that ended without a mentorship; Mentorluklarım offers "Başka Mentor Bul" on it. */

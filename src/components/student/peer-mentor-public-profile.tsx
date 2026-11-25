@@ -1,13 +1,14 @@
 "use client";
 
+import { ArrowLeft, Briefcase } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
-import { Card } from "@/components/ia/card";
+import { Chip } from "@/components/student/ia/ui";
 import { InitialsAvatar, Tag, TagTone } from "@/components/student/iskur-ui";
 import {
+  AvailabilityLine,
   RequestButton,
   WhyRecommended,
 } from "@/components/student/peer-mentor-directory";
@@ -20,7 +21,7 @@ import { httpUrlOrNull, initials } from "@/lib/utils";
 const BACK_HREF = "/student/peer-mentoring";
 
 /**
- * A peer mentor's profile as students see it: who they are, the topics and sub-topics they help with, their
+ * A peer mentor's profile as students see it (Figma 4.2): who they are, the topics and sub-topics they help with, their
  * experience and links, why they were recommended, their weekly hours and the request button.
  */
 export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
@@ -38,9 +39,9 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
     <div className="space-y-8">
       <Link
         href={BACK_HREF}
-        className="inline-flex items-center gap-1.5 type-label text-text-secondary hover:text-text-primary"
+        className="inline-flex h-9 items-center gap-1.5 px-3 type-button-sm text-text-primary hover:underline"
       >
-        <Image alt="" src="/ia/icons/arrow-left.svg" width={16} height={16} />
+        <ArrowLeft aria-hidden className="size-4" strokeWidth={1.5} />
         {t("back")}
       </Link>
       <QueryNotice isLoading={view.isLoading} error={view.error} />
@@ -50,49 +51,55 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
         </p>
       ) : null}
       {mentor && view.availability ? (
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          <Card className="min-w-0 flex-1 space-y-6">
-            <div className="flex flex-wrap items-center gap-5">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
+          <div className="flex min-w-0 flex-col gap-7">
+            <header className="flex flex-wrap items-center gap-5">
               <InitialsAvatar initials={initials(mentor.fullName)} size="lg" />
-              <div className="space-y-2">
+              <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1.5">
                 <h1 className="type-h2 text-text-primary">{mentor.fullName}</h1>
-                <p className="type-body text-text-secondary">
-                  {mentor.department}
-                  {mentor.department && mentor.classYear ? " · " : null}
-                  {mentor.classYear
-                    ? tDiscover("classYear", { year: mentor.classYear })
-                    : null}
+                <p className="type-body text-text-muted">
+                  {[
+                    mentor.department,
+                    mentor.classYear
+                      ? tDiscover("classYear", { year: mentor.classYear })
+                      : null,
+                    t("peer"),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  <Tag>{t("peer")}</Tag>
-                  {view.badgeVerified ? (
+                {view.badgeVerified ? (
+                  <div>
                     <Tag tone={TagTone.Success}>{t("badgeVerified")}</Tag>
-                  ) : null}
-                </div>
+                  </div>
+                ) : null}
               </div>
-            </div>
-            <hr className="border-border-subtle" />
-            <section aria-labelledby="mentor-topics" className="space-y-3">
-              <h2 id="mentor-topics" className="type-label text-text-primary">
+            </header>
+            <section
+              aria-labelledby="mentor-topics"
+              className="flex flex-col gap-3"
+            >
+              <h2 id="mentor-topics" className="type-h4 text-text-primary">
                 {t("topics")}
               </h2>
               <ul className="flex flex-wrap gap-2">
                 {mentor.categories.map((category) => (
                   <li key={category}>
-                    <Tag tone={TagTone.Accent}>{tTopic(category)}</Tag>
+                    <Chip>{tTopic(category)}</Chip>
                   </li>
                 ))}
                 {view.subTopics.map(({ id, entry }) => (
                   <li key={id}>
-                    <Tag tone={TagTone.Accent}>
-                      {entry ? tSubTopic(entry.labelKey) : id}
-                    </Tag>
+                    <Chip>{entry ? tSubTopic(entry.labelKey) : id}</Chip>
                   </li>
                 ))}
               </ul>
             </section>
-            <section aria-labelledby="mentor-help" className="space-y-2">
-              <h2 id="mentor-help" className="type-label text-text-primary">
+            <section
+              aria-labelledby="mentor-help"
+              className="flex flex-col gap-2"
+            >
+              <h2 id="mentor-help" className="type-h4 text-text-primary">
                 {t("helpWith")}
               </h2>
               <p className="type-body whitespace-pre-line text-text-secondary">
@@ -105,43 +112,53 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
             mentor.erasmus ? (
               <section
                 aria-labelledby="mentor-experience"
-                className="space-y-3"
+                className="flex flex-col gap-3"
               >
                 <h2
                   id="mentor-experience"
-                  className="type-label text-text-primary"
+                  className="type-h4 text-text-primary"
                 >
                   {t("experience")}
                 </h2>
                 {mentor.experiences.length > 0 ? (
-                  <ul className="space-y-3">
+                  <ul className="divide-y divide-border-default">
                     {mentor.experiences.map((card, index) => (
                       <li
                         key={`${card.title}-${card.startedOn ?? ""}-${String(index)}`}
-                        className="space-y-0.5"
+                        className="flex items-center gap-4 py-3 first:pt-0"
                       >
-                        <p className="type-label text-text-primary">
-                          {card.organization
-                            ? `${card.title} — ${card.organization}`
-                            : card.title}
-                        </p>
-                        <p className="type-caption text-text-muted">
-                          {card.startedOn
-                            ? t("experienceRange", {
-                                start: formatYearMonth(card.startedOn, locale),
-                                end: card.endedOn
-                                  ? formatYearMonth(card.endedOn, locale)
-                                  : t("ongoing"),
-                              })
-                            : null}
-                          {card.startedOn && card.summary ? " · " : null}
-                          {card.summary}
-                        </p>
+                        <Briefcase
+                          aria-hidden
+                          className="size-5 shrink-0 text-icon-default"
+                          strokeWidth={1.5}
+                        />
+                        <div className="min-w-0">
+                          <p className="type-label text-text-primary">
+                            {card.organization
+                              ? `${card.title} — ${card.organization}`
+                              : card.title}
+                          </p>
+                          <p className="type-body-sm text-text-muted">
+                            {card.startedOn
+                              ? t("experienceRange", {
+                                  start: formatYearMonth(
+                                    card.startedOn,
+                                    locale,
+                                  ),
+                                  end: card.endedOn
+                                    ? formatYearMonth(card.endedOn, locale)
+                                    : t("ongoing"),
+                                })
+                              : null}
+                            {card.startedOn && card.summary ? " · " : null}
+                            {card.summary}
+                          </p>
+                        </div>
                       </li>
                     ))}
                   </ul>
                 ) : null}
-                <dl className="space-y-3">
+                <dl className="flex flex-col gap-3">
                   <ExperienceLine
                     label={t("strongCourses")}
                     items={mentor.strongCourses}
@@ -161,13 +178,16 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
               mentorId={mentorId}
               linkedinUrl={linkedinUrl}
             />
-          </Card>
-          <aside className="flex w-full flex-col gap-6 lg:w-[400px] lg:shrink-0">
+          </div>
+          <aside className="flex flex-col gap-5 rounded-2xl border border-border-strong bg-background-surface p-6">
             <WhyRecommended reasons={view.reasons} />
-            <Card labelledBy="mentor-availability" className="space-y-4">
+            <section
+              aria-labelledby="mentor-availability"
+              className="flex flex-col gap-4"
+            >
               <h2
                 id="mentor-availability"
-                className="type-title-card text-text-primary"
+                className="type-label text-text-primary"
               >
                 {t("availability")}
               </h2>
@@ -176,13 +196,13 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
                   {t("noHours")}
                 </p>
               ) : (
-                <dl className="space-y-3">
+                <dl className="flex flex-col gap-4">
                   {view.weeklyHours.map((range) => (
                     <div
                       key={`${range.dayOfWeek}-${range.start}-${range.end}`}
                       className="flex items-center justify-between gap-4"
                     >
-                      <dt className="type-body-sm text-text-secondary">
+                      <dt className="type-body text-text-secondary">
                         {tDay(range.dayOfWeek)}
                       </dt>
                       <dd className="type-label text-text-primary">
@@ -195,28 +215,21 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
                   ))}
                 </dl>
               )}
-              <p className="flex items-center justify-between gap-4 rounded-xl bg-card-featured-bg px-3 py-2.5">
-                <span className="type-body-sm text-text-secondary">
-                  {t("thisWeek")}
-                </span>
-                <span className="type-label text-text-accent">
-                  {mentor.availableThisWeek
-                    ? t("thisWeekOpen")
-                    : t("thisWeekFull")}
-                </span>
-              </p>
-            </Card>
-            <Card className="space-y-3">
+              <AvailabilityLine
+                mentor={mentor}
+                availability={view.closedReason}
+              />
+            </section>
+            <div className="flex flex-col gap-4 border-t border-border-default pt-5">
               <RequestButton
                 mentor={mentor}
                 availability={view.availability}
                 onRequest={view.openRequest}
-                fullWidth
               />
               <p className="type-caption text-text-muted">
                 {t("requestNote", { name: mentor.fullName })}
               </p>
-            </Card>
+            </div>
           </aside>
           {view.requesting ? (
             <PeerMentorRequestDialog
