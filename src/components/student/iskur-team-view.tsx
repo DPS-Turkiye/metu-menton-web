@@ -18,6 +18,7 @@ import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { IskurTeamSupportPanel } from "@/components/iskur/team-support-panel";
 import {
   InitialsAvatar,
   ISKUR_FIELD_CLASS,
@@ -57,6 +58,7 @@ type Team = ReturnType<typeof useIskurTeam>;
 /** Ekibim (Figma 9.1): the team's plan and tasks for the week, the leader's task form, and the team's people. */
 export function IskurTeamView() {
   const t = useTranslations("iskurTeam");
+  const tSupport = useTranslations("iskurTeamSupport");
   const team = useIskurTeam();
 
   if (team.loading) {
@@ -128,6 +130,14 @@ export function IskurTeamView() {
                 },
               ]
             : []),
+          ...(leader
+            ? [
+                {
+                  id: IskurTeamTab.Support,
+                  label: tSupport("tab"),
+                },
+              ]
+            : []),
           {
             id: IskurTeamTab.Members,
             label: t("tabs.members"),
@@ -157,6 +167,15 @@ export function IskurTeamView() {
           selected={team.tab === IskurTeamTab.Weeks}
         >
           <WeekQueue team={team} />
+        </TabPanel>
+      ) : null}
+      {leader ? (
+        <TabPanel
+          idPrefix={TABS_ID}
+          id={IskurTeamTab.Support}
+          selected={team.tab === IskurTeamTab.Support}
+        >
+          <IskurTeamSupportPanel />
         </TabPanel>
       ) : null}
       <TabPanel
