@@ -188,6 +188,38 @@ describe("IskurMessagesView", () => {
     ]);
   });
 
+  it("shows a leader the Liderler odası with its unit, and its notification switch", async () => {
+    vi.mocked(getIskurChannels).mockResolvedValue({
+      channels: [
+        announcementsChannel(),
+        iskurChannel({
+          id: "00000000-0000-4000-8000-0000000000c9",
+          kind: IskurChannelKind.Leaders,
+          name: "Liderler odası",
+          memberCount: 3,
+        }),
+        iskurChannel(),
+      ],
+      totalUnread: 0,
+    });
+    renderWithQueryClient(<IskurMessagesView linkedChannelId={null} />);
+
+    expect(
+      await screen.findByRole("switch", { name: "Liderler odası" }),
+    ).toHaveAttribute("aria-checked", "true");
+    expect(
+      screen.getByRole("heading", { name: "Liderler odası" }),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves the Liderler odası switch out for someone who is not in one", async () => {
+    renderWithQueryClient(<IskurMessagesView linkedChannelId={null} />);
+    expect(
+      await screen.findByRole("switch", { name: "Birim kanalı" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "Liderler odası" })).toBeNull();
+  });
+
   it("lets a coordinator announce with a title and the important mark, and shows who read it", async () => {
     const user = userEvent.setup();
     const posting = announcementsChannel({
