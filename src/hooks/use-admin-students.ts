@@ -39,7 +39,10 @@ export function useAdminStudents() {
     setSearch,
     rows: needle
       ? inFilter.filter((row) =>
-          matchesSearch([row.fullName, row.email, row.programName], needle),
+          matchesSearch(
+            [row.fullName, row.email, row.programName ?? ""],
+            needle,
+          ),
         )
       : inFilter,
     isLoading: query.isLoading,

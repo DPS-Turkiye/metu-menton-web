@@ -1,3 +1,4 @@
+import type { AdminStudentRow } from "@/interfaces/admin-membership";
 import type {
   AchievementProgress,
   BadgeAward,
@@ -66,7 +67,7 @@ export async function postGateBadgeRevoke(
 
 export async function getAdminStudents(state: GateBadgeState | null) {
   return requireSuccess(
-    await httpClient.get<GateBadgeRow[]>(
+    await httpClient.get<AdminStudentRow[]>(
       "/api/admin/students",
       state ? { params: { state } } : undefined,
     ),
