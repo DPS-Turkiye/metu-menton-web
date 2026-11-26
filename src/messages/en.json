@@ -4202,7 +4202,6 @@
     "autoMatchHint": "A suggestion list is built from expertise, availability and load"
   },
   "programSettings": {
-    "featuresNote": "The features this semester program runs. Each one shows its own pages.",
     "trainingNote": "Students earn the Peer Mentor badge by watching the video and getting at least 8 of the 10 quiz questions right. Edited by the program’s coordinators and admins.",
     "eligibilityNote": "Decides who can join this program. Other programs are not affected; while it is on, admins cannot bypass it either.",
     "eligibleDomain": "Allowed e-mail domain",
@@ -6377,6 +6376,9 @@
     "iskurSupportLoadFailed": "Support activities could not be loaded.",
     "iskurSupportInvalid": "The support activity details are invalid.",
     "iskurSupportSaveFailed": "The support activity could not be saved.",
+    "iskurTeamChangeLoadFailed": "Team change requests could not be loaded.",
+    "iskurTeamChangeInvalid": "The team change request is not valid.",
+    "iskurTeamChangeSaveFailed": "The team change request could not be saved.",
     "iskurOnboardingLoadFailed": "The placement form could not be loaded.",
     "iskurOnboardingSaveFailed": "The placement form could not be saved.",
     "iskurOnboardingInvalid": "The placement form is not valid.",
@@ -6399,6 +6401,7 @@
     "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
     "iskurInternsInvalid": "The addresses to add are not valid.",
     "programFeaturesLoadFailed": "Program features could not be loaded.",
+    "programFeaturesSaveFailed": "Program features could not be saved.",
     "launchPreviewLoadFailed": "The launch summary could not be loaded."
   },
   "startupStart": {
@@ -6642,7 +6645,34 @@
       "OFFICE_HOURS": "Office Hours",
       "ISKUR": "İŞKUR"
     },
-    "none": "No features chosen"
+    "none": "No features chosen",
+    "blockerLine": "{feature}: {work}",
+    "blockers": {
+      "ACTIVE_MENTORSHIP": "{count, plural, one {# ongoing mentorship} other {# ongoing mentorships}}",
+      "OPEN_REQUEST": "{count, plural, one {# mentoring request awaiting an answer} other {# mentoring requests awaiting an answer}}",
+      "ISKUR_PLACEMENT": "{count, plural, one {# İŞKUR placement} other {# İŞKUR placements}}",
+      "UPCOMING_OFFICE_HOURS_MEETING": "{count, plural, one {# upcoming Office Hours meeting} other {# upcoming Office Hours meetings}}",
+      "UNSENT_REPORT": "{count, plural, one {# unsent report} other {# unsent reports}}"
+    },
+    "blockersHint": "Try again once this work is finished or closed.",
+    "switchesTitle": "Change features",
+    "refused": "Could not switch off; there is open work:",
+    "saved": "Program features saved.",
+    "save": "Save features",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "draftNote": "While the program is a draft, its coordinators can change the features too. Once it has started, only the admin changes them; a feature with open work cannot be switched off.",
+    "lockedCoordinator": "The program has started; the admin changes its features now.",
+    "lockedCompleted": "The program is completed; its features cannot change.",
+    "hints": {
+      "PEER_MENTORING": "Students get mentoring from peer mentors with a badge.",
+      "OFFICE_HOURS": "Students and coordinators see the Office Hours pages.",
+      "ISKUR": "İŞKUR interns are placed in units and teams. Switches on with peer mentoring."
+    },
+    "problems": {
+      "EMPTY": "At least one feature must stay on.",
+      "ISKUR_NEEDS_PEER": "İŞKUR needs peer mentoring to be on too."
+    }
   },
   "odtuProgramWizard": {
     "title": "Create new program",
@@ -8554,5 +8584,49 @@
       "open": "Open task",
       "upload": "Upload output"
     }
+  },
+  "iskurTeamChange": {
+    "title": "Team change",
+    "hint": "The first 4 weeks are a trial. If you want to change team, say so in week 4; your coordinator decides.",
+    "start": "Ask to change team",
+    "reasonLabel": "Why would you like to change team?",
+    "reasonHint": "Your coordinator reads this. Keep it short; at most {max} characters.",
+    "cancel": "Cancel",
+    "send": "Send request",
+    "sending": "Sending…",
+    "sent": "Your request went to your coordinator.",
+    "sendFailed": "Your request could not be sent.",
+    "waiting": "Your request went to your coordinator · {date}",
+    "waitingHint": "You will get a notification when your coordinator decides.",
+    "yourReason": "Your reason: {reason}",
+    "moved": "Your coordinator accepted your request; your new team is {team}.",
+    "movedElsewhere": "Your coordinator accepted your request and moved you to another team.",
+    "declinedTitle": "Your coordinator kept your team",
+    "declinedNote": "Your coordinator's note: {note}",
+    "cancelledTitle": "Your request was closed",
+    "coordinator": {
+      "title": "Team change requests",
+      "hint": "Interns in their trial tell you here that they would like another team. To move someone, change their placement; the request closes by itself.",
+      "empty": "No request is waiting for an answer.",
+      "loadFailed": "Team change requests could not be loaded.",
+      "from": "From {team} · {date}",
+      "move": "Move",
+      "moveNamed": "Move {name}",
+      "decline": "Decline",
+      "declineNamed": "Decline {name}'s request",
+      "noteLabel": "Note to the student",
+      "noteHint": "The student sees this note in a notification and on their home page.",
+      "confirmDecline": "Decline and notify",
+      "cancel": "Cancel",
+      "answered": "Answered requests ({count})",
+      "status": {
+        "MOVED": "Moved · {team}",
+        "MOVED_ELSEWHERE": "Moved",
+        "DECLINED": "Declined · {note}",
+        "CANCELLED": "Placement removed"
+      }
+    },
+    "declined": "Request declined; the student was told.",
+    "declineFailed": "The request could not be declined."
   }
 }

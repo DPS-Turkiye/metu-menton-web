@@ -17,6 +17,7 @@ import type {
   UpdateProgramDetailsInput,
 } from "@/interfaces/coordinator-program";
 import type { MentorPoolReview, MentorPoolRow } from "@/interfaces/mentor-pool";
+import type { ProgramFeature } from "@/interfaces/program";
 import type {
   ApprovalKind,
   ProgramApprovalPerson,
@@ -69,6 +70,19 @@ export function updateCoordinatorProgram(
     method: "PUT",
     url: programUrl(programId),
     data: { ...input, actorId },
+  });
+}
+
+/** A semester's features; refused with 409 and `blockers` when a switched-off feature has open work. */
+export function updateCoordinatorProgramFeatures(
+  actorId: string,
+  programId: string,
+  features: ProgramFeature[],
+) {
+  return backendRequest<CoordinatorProgramDetail>({
+    method: "PUT",
+    url: `${programUrl(programId)}/features`,
+    data: { features, actorId },
   });
 }
 

@@ -14,6 +14,7 @@ import type {
 } from "@/interfaces/coordinator-program";
 import { ProgramFeature } from "@/interfaces/program";
 import { ToastTone } from "@/interfaces/toast";
+import { ClientApiError } from "@/lib/client/api";
 import {
   addProgramEligibleEmails,
   getCoordinatorProgram,
@@ -24,6 +25,7 @@ import {
   removeProgramEligibleEmail,
   setCoordinatorProgramArchived,
   updateCoordinatorProgram,
+  updateCoordinatorProgramFeatures,
 } from "@/lib/client/coordinator-programs";
 import {
   detailsInput,
@@ -33,7 +35,14 @@ import {
   SettingsSection,
   type ProgramSettingsDraft,
 } from "@/lib/coordinator-program-detail";
-import { hasFeature } from "@/lib/program-features";
+import {
+  featureLock,
+  featureSetProblem,
+  hasFeature,
+  programFeaturesOf,
+  sameFeatures,
+  withFeature,
+} from "@/lib/program-features";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
@@ -111,6 +120,60 @@ export function useProgramSettings(
     cancel: () => {
       setError(null);
       setDraft(settingsDraftOf(detail));
+    },
+  };
+}
+
+/**
+ * Program özellikleri: the semester's feature switches, saved on their own. A switch-off the backend refuses because
+ * of open work comes back as `blockers`, and nothing is saved.
+ */
+export function useProgramFeatures(
+  programId: string,
+  detail: CoordinatorProgramDetail,
+  admin: boolean,
+) {
+  const t = useTranslations("programFeatures");
+  const cache = useProgramCache(programId);
+  const { showToast } = useToast();
+  const saved = programFeaturesOf(detail.program);
+  const [draft, setDraft] = useState<ProgramFeature[]>(() => [...saved]);
+  const save = useMutation({
+    mutationFn: (features: ProgramFeature[]) =>
+      updateCoordinatorProgramFeatures(programId, features),
+    onSuccess: (next) => {
+      cache.put(next);
+      setDraft([...programFeaturesOf(next.program)]);
+      showToast({ message: t("saved"), tone: ToastTone.Success });
+    },
+  });
+  const problem = featureSetProblem(draft);
+  const blockers =
+    save.error instanceof ClientApiError ? save.error.blockers : [];
+  const lock = featureLock(detail.program.lifecycle, admin);
+
+  return {
+    features: draft,
+    /** Why the switches are closed, or null when the caller may change them. */
+    lock: lock ? t(lock) : null,
+    setFeature: (feature: ProgramFeature, on: boolean) => {
+      save.reset();
+      setDraft((current) => withFeature(current, feature, on));
+    },
+    dirty: !sameFeatures(draft, saved),
+    problem: problem ? t(`problems.${problem}`) : null,
+    blockers,
+    error:
+      save.error && blockers.length === 0
+        ? errorMessage(save.error, t("refused"))
+        : null,
+    saving: save.isPending,
+    save: () => {
+      if (!problem && !lock) save.mutate(draft);
+    },
+    cancel: () => {
+      save.reset();
+      setDraft([...saved]);
     },
   };
 }

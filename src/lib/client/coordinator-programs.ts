@@ -15,6 +15,7 @@ import type {
   UpdateProgramDetailsInput,
 } from "@/interfaces/coordinator-program";
 import type { MentorPoolReview, MentorPoolRow } from "@/interfaces/mentor-pool";
+import type { ProgramFeature } from "@/interfaces/program";
 import type {
   ApprovalKind,
   ProgramApprovalPerson,
@@ -62,6 +63,19 @@ export async function updateCoordinatorProgram(
     await httpClient.put<CoordinatorProgramDetail>(
       programUrl(programId),
       input,
+    ),
+  );
+}
+
+/** Saves a semester's features; a refusal carries the open work as `ClientApiError.blockers`. */
+export async function updateCoordinatorProgramFeatures(
+  programId: string,
+  features: ProgramFeature[],
+) {
+  return requireSuccess(
+    await httpClient.put<CoordinatorProgramDetail>(
+      `${programUrl(programId)}/features`,
+      { features },
     ),
   );
 }

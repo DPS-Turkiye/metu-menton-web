@@ -7,6 +7,7 @@ import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { IskurTeamChangeRequest } from "@/components/iskur/team-change-request";
 import { useIskurTeamReveal } from "@/hooks/use-iskur-team-reveal";
 import type {
   IskurPersonRef,
@@ -223,6 +224,7 @@ function Reveal({
               </Button>
             </div>
           </Card>
+          <IskurTeamChangeRequest />
         </div>
       </div>
     </section>
