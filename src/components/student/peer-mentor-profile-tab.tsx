@@ -29,7 +29,7 @@ import type { PeerMentorProfile } from "@/interfaces/peer-mentoring";
 import { PEER_MENTOR_WIZARD_HREF } from "@/lib/peer-mentoring";
 import { PeerGiveTab } from "@/types/iskur-student";
 
-/** Mentor profilim (Figma 7.7): the published profile, the weekly hours and the capacity. */
+/** Mentor Profilim (Figma 7.7): the published profile, the weekly hours and the capacity. */
 export function PeerMentorProfileTab({
   view,
   profile,

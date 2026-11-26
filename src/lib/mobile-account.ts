@@ -1,3 +1,4 @@
+import { Edition } from "@/interfaces/edition";
 import type {
   NotificationPreferenceKey,
   NotificationPreferences,
@@ -22,11 +23,21 @@ const MENTOR_ROWS: PreferenceRow[] = [
   { key: "startupActivity" },
 ];
 
+// The ODTÜ edition has no startups. The switch is only hidden: a save still sends the stored value with the rest.
+const ODTU_MENTOR_ROWS: PreferenceRow[] = MENTOR_ROWS.filter(
+  (row) => row.key !== "startupActivity",
+);
+
 // Coordinators and admins only get messages; their other notices are GENERAL, which cannot be muted.
 const STAFF_ROWS: PreferenceRow[] = [{ key: "messages" }];
 
-export function preferenceRowsFor(role?: UserRole | null) {
-  if (role === UserRole.Mentor) return MENTOR_ROWS;
+export function preferenceRowsFor(
+  role?: UserRole | null,
+  edition: Edition = Edition.Teknokent,
+) {
+  if (role === UserRole.Mentor) {
+    return edition === Edition.Odtu ? ODTU_MENTOR_ROWS : MENTOR_ROWS;
+  }
   if (role === UserRole.Coordinator || role === UserRole.Admin) {
     return STAFF_ROWS;
   }

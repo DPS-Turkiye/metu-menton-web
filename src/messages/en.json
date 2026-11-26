@@ -922,7 +922,7 @@
       },
       "meetingReminders": {
         "label": "Meeting reminders",
-        "hint": "30 min before"
+        "hint": ""
       },
       "meetingChanges": {
         "label": "Meeting changes",
@@ -6049,7 +6049,7 @@
     "internsOnly": "Peer mentoring is open to İŞKUR interns.",
     "prismTodoTitle": "Complete the training on Prism",
     "prismTodoBody": "The Akran Mentoru training and test are on Prism. The Prism admin sends your result to your coordinator; once they approve it, you become an Akran mentor.",
-    "prismOpen": "Open in Prism",
+    "prismOpen": "Go to training",
     "prismMarkDone": "I completed the Prism training",
     "prismMarking": "Saving…",
     "prismMarkFailed": "Could not save; try again.",
@@ -7542,7 +7542,7 @@
     "unitCoordinatorLabel": "Unit coordinator",
     "finalizeTitle": "{name} · finalize placement",
     "finalizeAllTitle": "Finalize all placements",
-    "finalizeBody": "{count, plural, =0 {There is no provisional placement to finalize.} one {# provisional placement becomes final. Final teams’ channels open; later team changes update access automatically.} other {# provisional placements become final. Final teams’ channels open; later team changes update access automatically.}}",
+    "finalizeBody": "{count, plural, =0 {There is no provisional placement to finalize.} one {# provisional placement becomes final. Channels are already open from the placement; later team changes update access automatically.} other {# provisional placements become final. Channels are already open from the placement; later team changes update access automatically.}}",
     "deleteUnitTitle": "Delete the unit {name}",
     "deleteTeamTitle": "Delete the team {name}",
     "deleteBody": "It is deleted only when nobody is placed in it.",
@@ -8102,7 +8102,7 @@
       "unled": "No leader yet",
       "me": "{name} (you)",
       "ask": "Who do I ask?",
-      "askDaily": "My daily work, tasks and hours",
+      "askDaily": "Your daily work, tasks and hours",
       "askDailyWho": "Your team leader · {name}",
       "askOtherTeam": "I need help from another team",
       "askOtherTeamWho": "Your leader opens the request · {name}",
@@ -8110,10 +8110,11 @@
       "askAttendanceWho": "Your unit coordinator · {name}",
       "askPersonal": "A personal or urgent matter",
       "askPersonalWho": "Straight to your coordinator · {name}",
+      "askMentoring": "Mentoring match or meeting",
+      "askMentoringWho": "Peer mentoring coordinator",
       "noLeader": "Shows here once your leader is set",
       "noCoordinator": "Shows here once your unit coordinator is set",
       "channels": "Your channels",
-      "channelsLater": "Channels open once your team is confirmed.",
       "channelsOpen": "Your channels are open.",
       "channelsAction": "Go to messages",
       "waitingTitle": "Waiting for placement",
@@ -8249,7 +8250,7 @@
       "taskWithOutput": "Team task · output to hand in · {day}",
       "reports": "{count, plural, one {# meeting report pending} other {# meeting reports pending}}",
       "reportsHint": "Peer mentoring · fill in under Activity reports",
-      "support": "Pick a mentoring support activity (optional)",
+      "support": "Pick a mentoring support activity",
       "supportHint": "You have no meeting planned this week. The activity you pick from the pool counts towards your peer mentoring hours.",
       "supportPick": "Support activity",
       "supportAdd": "Add 1 hour today",
@@ -8378,7 +8379,7 @@
     "title": "Messages",
     "loading": "Loading…",
     "loadFailed": "Messages could not be loaded.",
-    "noChannels": "Your channels open once your team placement is final.",
+    "noChannels": "Your channels open once your coordinator places you in a team.",
     "listLabel": "Channels",
     "group": {
       "ANNOUNCEMENTS": "Announcements",
@@ -8435,15 +8436,15 @@
       "openAll": "Open all messages →"
     },
     "opened": {
-      "title": "Your team placement is final: {team}",
+      "title": "Your channels are open: {team}",
       "body": "{count} channels were created for you. You can change notification settings in Messages."
     },
     "card": {
-      "title": "Your channels"
+      "title": "My team"
     },
     "how": {
       "title": "How do channels work?",
-      "open": "Your channels open once your team placement is final.",
+      "open": "Your channels open once your coordinator places you in a team; if your team changes, your access follows.",
       "announcements": "Only authorized coordinators post general announcements.",
       "time": "Messages do not count as work time."
     }
@@ -8513,7 +8514,7 @@
     }
   },
   "iskurToday": {
-    "title": "To do today",
+    "title": "To do",
     "empty": "Nothing waiting for you today.",
     "request": "New mentoring request: {name}",
     "requestHint": "{topic} · {date}",
@@ -8529,12 +8530,13 @@
     "submitToday": "Send your weekly summary to your leader today",
     "submitTodayHint": "In the İŞKUR program the weekly summary goes to your leader on Friday.",
     "actions": {
-      "writeReport": "Write report",
+      "writeReport": "Fill in the report",
       "reply": "Reply",
       "complete": "Complete",
       "fix": "Fix",
       "send": "Send",
-      "open": "Open"
+      "open": "Open task",
+      "upload": "Upload output"
     }
   }
 }

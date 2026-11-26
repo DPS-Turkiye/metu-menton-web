@@ -83,7 +83,7 @@ describe("IskurThisWeekCard", () => {
     renderWithQueryClient(<IskurThisWeekCard />);
 
     const today = await screen.findByRole("region", {
-      name: /Bugün yapman gerekenler/,
+      name: /Yapılacaklar/,
     });
     expect(
       await within(today).findByRole("link", {
@@ -92,7 +92,7 @@ describe("IskurThisWeekCard", () => {
     ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
     expect(
       within(today).getByRole("link", {
-        name: "Raporu yaz: 1 görüşme raporu bekliyor",
+        name: "Raporu doldur: 1 görüşme raporu bekliyor",
       }),
     ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR&tab=report");
     expect(
@@ -106,7 +106,7 @@ describe("IskurThisWeekCard", () => {
     expect(within(today).getByText(/Planlanan 4 sa/)).toBeInTheDocument();
     expect(
       within(today).getByRole("link", {
-        name: "Aç: Sponsor listesi: 10 firma",
+        name: "Çıktı yükle: Sponsor listesi: 10 firma",
       }),
     ).toHaveAttribute("href", "/student/team/tasks/task-1");
     expect(within(today).getAllByRole("listitem")).toHaveLength(5);
@@ -200,7 +200,7 @@ describe("IskurThisWeekCard", () => {
         }),
       );
       renderWithQueryClient(<IskurThisWeekCard />);
-      await screen.findByRole("region", { name: /Bugün yapman gerekenler/ });
+      await screen.findByRole("region", { name: /Yapılacaklar/ });
       expect(screen.queryByRole("link", { name: PROMPT })).toBeNull();
     });
 
@@ -209,9 +209,34 @@ describe("IskurThisWeekCard", () => {
       vi.setSystemTime(new Date("2026-11-19T23:30:00+03:00"));
       weekIs(createIskurWeek());
       renderWithQueryClient(<IskurThisWeekCard />);
-      await screen.findByRole("region", { name: /Bugün yapman gerekenler/ });
+      await screen.findByRole("region", { name: /Yapılacaklar/ });
       expect(screen.queryByRole("link", { name: PROMPT })).toBeNull();
     });
+  });
+
+  it("opens a task without an output to hand in with Görevi aç (handbook p.05)", async () => {
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      weekStart === null
+        ? Promise.resolve(
+            createIskurWeek({
+              tasks: createIskurWeek().tasks.map((task) => ({
+                ...task,
+                needsOutput: false,
+              })),
+            }),
+          )
+        : Promise.reject(new ClientApiError("x", 404)),
+    );
+    renderWithQueryClient(<IskurThisWeekCard />);
+    const today = await screen.findByRole("region", { name: /Yapılacaklar/ });
+    expect(
+      await within(today).findByRole("link", {
+        name: "Görevi aç: Sponsor listesi: 10 firma",
+      }),
+    ).toHaveAttribute("href", "/student/team/tasks/task-1");
+    expect(
+      within(today).queryByRole("link", { name: /^Çıktı yükle/ }),
+    ).toBeNull();
   });
 
   it("says when nothing is waiting today", async () => {

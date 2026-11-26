@@ -118,7 +118,7 @@ function weekTodo(
 }
 
 /**
- * "Bugün yapman gerekenler" on the İŞKUR home: meeting reports first, then a week sent back, new mentoring
+ * "Yapılacaklar" on the İŞKUR home: meeting reports first, then a week sent back, new mentoring
  * requests, work days with no log, a week to send, the open tasks and the support-activity prompt.
  */
 export function todayTodos({

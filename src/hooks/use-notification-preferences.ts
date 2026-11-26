@@ -11,6 +11,7 @@ import {
   getNotificationPreferences,
   saveNotificationPreferences,
 } from "@/lib/client/notifications";
+import { editionOf } from "@/lib/edition";
 import { preferenceRowsFor, toggledPreferences } from "@/lib/mobile-account";
 
 export const NOTIFICATION_PREFERENCES_QUERY_KEY = [
@@ -61,7 +62,7 @@ export function useNotificationPreferences() {
     preferences: preferences.data ?? null,
     preferencesError: Boolean(preferences.error),
     preferencesLoading: preferences.isLoading,
-    rows: preferenceRowsFor(session?.role),
+    rows: preferenceRowsFor(session?.role, editionOf(session)),
     saveFailed: Boolean(save.error),
     toggle,
   };

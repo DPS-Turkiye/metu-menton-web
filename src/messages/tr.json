@@ -924,7 +924,7 @@
       },
       "meetingReminders": {
         "label": "Görüşme hatırlatmaları",
-        "hint": "30 dk önce"
+        "hint": ""
       },
       "meetingChanges": {
         "label": "Görüşme değişiklikleri",
@@ -6051,7 +6051,7 @@
     "internsOnly": "Akran mentorluğu İŞKUR stajyerlerine açıktır.",
     "prismTodoTitle": "Eğitimi Prism'de tamamla",
     "prismTodoBody": "Akran Mentoru eğitimi ve testi Prism'de. Prism yöneticisi sonucunu koordinatörüne iletir; koordinatörün onaylayınca Akran mentoru olursun.",
-    "prismOpen": "Prism'de aç",
+    "prismOpen": "Eğitime Git",
     "prismMarkDone": "Prism eğitimini tamamladım",
     "prismMarking": "Kaydediliyor…",
     "prismMarkFailed": "Kaydedilemedi, tekrar dene.",
@@ -7544,7 +7544,7 @@
     "unitCoordinatorLabel": "Birim koordinatörü",
     "finalizeTitle": "{name} · atamayı kesinleştir",
     "finalizeAllTitle": "Tüm atamaları kesinleştir",
-    "finalizeBody": "{count, plural, =0 {Kesinleştirilecek geçici atama yok.} other {# geçici atama kesinleşecek. Kesinleşen ekiplerin kanalları açılır; sonradan ekip değişirse erişim kendiliğinden güncellenir.}}",
+    "finalizeBody": "{count, plural, =0 {Kesinleştirilecek geçici atama yok.} other {# geçici atama kesinleşecek. Kanallar yerleştirmeyle zaten açık; sonradan ekip değişirse erişim kendiliğinden güncellenir.}}",
     "deleteUnitTitle": "{name} birimini sil",
     "deleteTeamTitle": "{name} ekibini sil",
     "deleteBody": "Yalnızca içinde kimse yerleştirilmemişse silinir.",
@@ -8104,18 +8104,19 @@
       "unled": "Lideri henüz belli olmayanlar",
       "me": "{name} (sen)",
       "ask": "Kime sorarım?",
-      "askDaily": "Günlük işim, görevlerim, saatlerim",
+      "askDaily": "Günlük işin, görevlerin, saatlerin",
       "askDailyWho": "Ekip liderin · {name}",
       "askOtherTeam": "Başka ekipten destek lazım",
-      "askOtherTeamWho": "Liderin talebi açar · {name}",
+      "askOtherTeamWho": "Liderin talep açar · {name}",
       "askAttendance": "Devam, izin, ödeme",
       "askAttendanceWho": "Birim koordinatörün · {name}",
       "askPersonal": "Kişisel veya acil bir durum",
       "askPersonalWho": "Doğrudan koordinatörün · {name}",
+      "askMentoring": "Mentörlük eşleşmesi veya görüşme",
+      "askMentoringWho": "Akran mentörlüğü koordinatörü",
       "noLeader": "Liderin belli olunca burada görünür",
       "noCoordinator": "Birim koordinatörü belli olunca burada görünür",
       "channels": "Kanalların",
-      "channelsLater": "Kanallar ekip kesinleşince açılır.",
       "channelsOpen": "Kanalların açıldı.",
       "channelsAction": "Mesajlara git",
       "waitingTitle": "Yerleştirme bekleniyor",
@@ -8251,7 +8252,7 @@
       "taskWithOutput": "Ekip görevi · teslim edilecek çıktı · {day}",
       "reports": "{count, plural, one {# görüşme raporu bekliyor} other {# görüşme raporu bekliyor}}",
       "reportsHint": "Akran Mentörlüğü · Faaliyet Raporum’da doldur",
-      "support": "Mentorluk destek faaliyeti seç (isteğe bağlı)",
+      "support": "Mentörlük destek faaliyeti seç",
       "supportHint": "Bu hafta planlı görüşmen yok. Havuzdan seçtiğin faaliyet Akran Mentörlüğü saatine yazılır.",
       "supportPick": "Destek faaliyeti",
       "supportAdd": "Bugüne 1 saat ekle",
@@ -8380,7 +8381,7 @@
     "title": "Mesajlar",
     "loading": "Yükleniyor…",
     "loadFailed": "Mesajlar yüklenemedi.",
-    "noChannels": "Kanalların, ekip ataman kesinleşince açılır.",
+    "noChannels": "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır.",
     "listLabel": "Kanallar",
     "group": {
       "ANNOUNCEMENTS": "Duyurular",
@@ -8437,15 +8438,15 @@
       "openAll": "Tüm mesajları aç →"
     },
     "opened": {
-      "title": "Ekip atamanız kesinleşti: {team}",
+      "title": "Kanalların açıldı: {team}",
       "body": "{count} kanal otomatik oluşturuldu. Bildirim tercihlerini Mesajlar’dan değiştirebilirsin."
     },
     "card": {
-      "title": "Kanalların"
+      "title": "Ekibim"
     },
     "how": {
       "title": "Kanallar nasıl çalışır?",
-      "open": "Kanalların, ekip ataman kesinleşince açılır.",
+      "open": "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır; ekip değişirse erişimin de güncellenir.",
       "announcements": "Genel duyurularda yalnızca yetkili koordinatörler paylaşır.",
       "time": "Mesajlar çalışma süresine sayılmaz."
     }
@@ -8515,7 +8516,7 @@
     }
   },
   "iskurToday": {
-    "title": "Bugün yapman gerekenler",
+    "title": "Yapılacaklar",
     "empty": "Bugün için bekleyen bir şey yok.",
     "request": "Yeni mentorluk talebi: {name}",
     "requestHint": "{topic} · {date}",
@@ -8531,12 +8532,13 @@
     "submitToday": "Haftalık özetini bugün liderine gönder",
     "submitTodayHint": "İŞKUR programında haftalık özet cuma günü liderine gider.",
     "actions": {
-      "writeReport": "Raporu yaz",
+      "writeReport": "Raporu doldur",
       "reply": "Yanıtla",
       "complete": "Tamamla",
       "fix": "Düzelt",
       "send": "Gönder",
-      "open": "Aç"
+      "open": "Görevi aç",
+      "upload": "Çıktı yükle"
     }
   }
 }
