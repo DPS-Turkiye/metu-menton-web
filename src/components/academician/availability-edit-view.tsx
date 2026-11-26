@@ -6,6 +6,7 @@ import { useId, type ReactNode } from "react";
 
 import { AppointmentsCalendarCard } from "@/components/academician/appointments-calendar";
 import { Drawers } from "@/components/academician/appointments-view";
+import { AvailabilityImpactDialog } from "@/components/academician/availability-impact-dialog";
 import { AvailabilityItemDialog } from "@/components/academician/availability-item-dialog";
 import { AvailabilityRowMenu } from "@/components/academician/availability-row-menu";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
@@ -75,6 +76,7 @@ export function AcademicianAvailabilityEditView() {
           </div>
           <Drawers calendar={calendar} />
           <AvailabilityItemDialog editor={editor} />
+          <AvailabilityImpactDialog editor={editor} />
         </>
       ) : (
         <WorkspaceQueryState

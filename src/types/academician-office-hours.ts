@@ -1,3 +1,6 @@
+import type { AcademicianAvailability } from "@/interfaces/academician-office-hours";
+import type { OfficeHoursAvailabilityImpact } from "@/interfaces/office-hours-me";
+
 /** What one line of the academician's availability describes ("Müsaitliğim"). */
 export enum AvailabilityItemKind {
   Recurring = "recurring",
@@ -36,3 +39,21 @@ export enum StudentProfileOrigin {
   Appointments = "appointments",
   Advisees = "advisees",
 }
+
+/** How a save of the hours ended: saved, or stopped to show what it touches first (FR-OH-29). */
+export enum AvailabilitySaveResult {
+  Saved = "saved",
+  Review = "review",
+}
+
+export type AvailabilitySaveOutcome =
+  | {
+      result: AvailabilitySaveResult.Saved;
+      availability: AcademicianAvailability;
+    }
+  | {
+      result: AvailabilitySaveResult.Review;
+      impact: OfficeHoursAvailabilityImpact;
+      /** The list changed after the academician saw it, so the save was refused. */
+      changed: boolean;
+    };

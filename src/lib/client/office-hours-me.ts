@@ -4,8 +4,10 @@ import type {
 } from "@/interfaces/academician-office-hours";
 import type {
   OfficeHoursAcademicianMeeting,
+  OfficeHoursAffectedItem,
   OfficeHoursAlternativeInput,
   OfficeHoursAnswerInput,
+  OfficeHoursAvailabilityImpact,
   OfficeHoursInboxRequest,
   OfficeHoursListedAcademician,
   OfficeHoursProfile,
@@ -25,9 +27,23 @@ export async function getMyOfficeHoursAvailability() {
   );
 }
 
-export async function saveMyOfficeHoursAvailability(
+/** Sent with a save: what the academician was shown (FR-OH-29). Left out, the backend checks nothing. */
+type AvailabilitySave = UpdateAcademicianAvailabilityPayload & {
+  confirmedAffected?: OfficeHoursAffectedItem[];
+};
+
+export async function previewMyOfficeHoursAvailability(
   payload: UpdateAcademicianAvailabilityPayload,
 ) {
+  return requireSuccess(
+    await httpClient.post<OfficeHoursAvailabilityImpact>(
+      `${BASE}/availability/preview`,
+      payload,
+    ),
+  );
+}
+
+export async function saveMyOfficeHoursAvailability(payload: AvailabilitySave) {
   return requireSuccess(
     await httpClient.put<AcademicianAvailability>(
       `${BASE}/availability`,

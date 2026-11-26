@@ -154,3 +154,36 @@ export type OfficeHoursAlternativeInput = {
   accept: boolean;
   time?: string | undefined;
 };
+
+/** A booked meeting the new hours would no longer cover; it stays booked unless the academician cancels it. */
+export type OfficeHoursAffectedMeeting = {
+  requestId: string;
+  status: OfficeHoursRequestStatus;
+  time: OfficeHoursTimeRange;
+  studentName: string | null;
+  topic: string | null;
+  courseName: string | null;
+};
+
+/** An open request some of whose times the new hours would no longer have. */
+export type OfficeHoursAffectedRequest = {
+  requestId: string;
+  status: OfficeHoursRequestStatus;
+  studentName: string | null;
+  topic: string;
+  courseName: string | null;
+  lostTimes: OfficeHoursTimeRange[];
+  keptTimes: OfficeHoursTimeRange[];
+};
+
+/** What a change to the hours would leave outside them (FR-OH-29), before it is saved. */
+export type OfficeHoursAvailabilityImpact = {
+  meetings: OfficeHoursAffectedMeeting[];
+  requests: OfficeHoursAffectedRequest[];
+};
+
+/** An item the academician was shown, sent back with the save so anything new stops it. */
+export type OfficeHoursAffectedItem = {
+  requestId: string;
+  status: OfficeHoursRequestStatus;
+};

@@ -2,8 +2,10 @@ import "server-only";
 
 import type {
   OfficeHoursAcademicianMeeting,
+  OfficeHoursAffectedItem,
   OfficeHoursAlternativeInput,
   OfficeHoursAnswerInput,
+  OfficeHoursAvailabilityImpact,
   OfficeHoursCancelInput,
   OfficeHoursInboxRequest,
   OfficeHoursListedAcademician,
@@ -37,6 +39,7 @@ type AvailabilityPayload = Omit<
         place: string | null;
       }[]
     | undefined;
+  confirmedAffected?: OfficeHoursAffectedItem[] | undefined;
 };
 
 export function fetchMyOfficeHoursAvailability(actorId: string) {
@@ -54,6 +57,19 @@ export function saveMyOfficeHoursAvailability(
   return backendRequest<BackendOfficeHoursAvailability>({
     method: HttpMethod.Put,
     url: `${BASE}/availability`,
+    params: { actorId },
+    data: payload,
+  });
+}
+
+/** What saving these hours would leave outside them, without saving (FR-OH-29). */
+export function previewMyOfficeHoursAvailability(
+  actorId: string,
+  payload: AvailabilityPayload,
+) {
+  return backendRequest<OfficeHoursAvailabilityImpact>({
+    method: HttpMethod.Post,
+    url: `${BASE}/availability/preview`,
     params: { actorId },
     data: payload,
   });

@@ -250,7 +250,21 @@
     },
     "saved": "Availability saved.",
     "removed": "Deleted.",
-    "failed": "Couldn't save; please try again."
+    "failed": "Couldn't save; please try again.",
+    "impact": {
+      "title": "This change touches some meetings and requests",
+      "intro": "These fall outside your new hours. None of them is cancelled: booked meetings stay, requests wait for your answer.",
+      "changed": "The list changed while you were looking. Check it again, then save.",
+      "meetings": "Booked meetings",
+      "requests": "Waiting requests",
+      "someone": "Student",
+      "lost": "Times removed: {times}",
+      "kept": "Times kept: {times}",
+      "manageHint": "To cancel or answer, use My appointments.",
+      "manage": "Go to my appointments",
+      "confirm": "Save anyway",
+      "cancel": "Cancel"
+    }
   },
   "advisees": {
     "title": "My advisees",

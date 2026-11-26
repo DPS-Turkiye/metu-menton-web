@@ -9,6 +9,12 @@ import type {
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
 import { Weekday } from "@/interfaces/mentor";
+import type {
+  OfficeHoursAffectedItem,
+  OfficeHoursAffectedRequest,
+  OfficeHoursAvailabilityImpact,
+  OfficeHoursTimeRange,
+} from "@/interfaces/office-hours-me";
 import { ToastTone } from "@/interfaces/toast";
 import {
   availabilitySummary,
@@ -34,6 +40,8 @@ import {
   turkeyDay,
   turkeyWallClock,
 } from "@/lib/academician-office-hours";
+import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
+import { affectedItems } from "@/lib/availability-impact";
 import {
   getAcademicianAvailability,
   saveAcademicianAvailability,
@@ -41,13 +49,38 @@ import {
 import { formatDateRange } from "@/lib/format";
 import { calendarDay } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
-import { AvailabilityItemKind } from "@/types/academician-office-hours";
+import {
+  AvailabilityItemKind,
+  AvailabilitySaveResult,
+} from "@/types/academician-office-hours";
 
 export type EditableRow = {
   id: string;
   kind: AvailabilityItemKind;
   title: string;
   hint: string;
+};
+
+/** One meeting or request a change would leave outside the hours, as the review lists it. */
+export type AffectedRow = {
+  id: string;
+  title: string;
+  lines: string[];
+};
+
+/** A change held back until the academician has seen what it touches (FR-OH-29). */
+type ReviewState = {
+  payload: UpdateAcademicianAvailabilityPayload;
+  done: string;
+  impact: OfficeHoursAvailabilityImpact;
+  changed: boolean;
+};
+
+type SaveInput = {
+  payload: UpdateAcademicianAvailabilityPayload;
+  done: string;
+  /** What the academician confirmed in the review; null on the first try. */
+  confirmed: OfficeHoursAffectedItem[] | null;
 };
 
 type Fields = {
@@ -136,17 +169,29 @@ export function useAcademicianAvailabilityEditor() {
     queryFn: getAcademicianAvailability,
   });
   const [dialog, setDialog] = useState<DialogState | null>(null);
+  const [review, setReview] = useState<ReviewState | null>(null);
   const save = useMutation({
-    mutationFn: ({
-      payload,
-    }: {
-      payload: UpdateAcademicianAvailabilityPayload;
-      done: string;
-    }) => saveAcademicianAvailability(payload),
-    onSuccess: (saved, { done }) => {
-      queryClient.setQueryData(ACADEMICIAN_AVAILABILITY_QUERY_KEY, saved);
-      showToast({ message: done, tone: ToastTone.Success });
-      setDialog(null);
+    mutationFn: ({ payload, confirmed }: SaveInput) =>
+      saveAcademicianAvailability(payload, confirmed),
+    onSuccess: (outcome, { payload, done }) => {
+      switch (outcome.result) {
+        case AvailabilitySaveResult.Review:
+          setReview({
+            payload,
+            done,
+            impact: outcome.impact,
+            changed: outcome.changed,
+          });
+          return;
+        case AvailabilitySaveResult.Saved:
+          queryClient.setQueryData(
+            ACADEMICIAN_AVAILABILITY_QUERY_KEY,
+            outcome.availability,
+          );
+          showToast({ message: done, tone: ToastTone.Success });
+          setReview(null);
+          setDialog(null);
+      }
     },
     onError: () => {
       showToast({ message: t("failed"), tone: ToastTone.Error });
@@ -240,6 +285,51 @@ export function useAcademicianAvailabilityEditor() {
   const rowsOf = (kind: AvailabilityItemKind) =>
     items.filter((item) => item.kind === kind).map(toRow);
 
+  const timeOf = (time: OfficeHoursTimeRange) =>
+    t("dateRow", {
+      date: longMoment.format(new Date(time.startsAt)),
+      hours: formatDateRange(
+        clock,
+        new Date(time.startsAt),
+        new Date(time.endsAt),
+      ),
+    });
+  const studentOf = (name: string | null) => name ?? t("impact.someone");
+  const timesOf = (times: OfficeHoursTimeRange[]) =>
+    times.map(timeOf).join(", ");
+  const requestLines = (request: OfficeHoursAffectedRequest) => {
+    const lines = [
+      request.topic,
+      t("impact.lost", { times: timesOf(request.lostTimes) }),
+    ];
+    if (request.keptTimes.length > 0) {
+      lines.push(t("impact.kept", { times: timesOf(request.keptTimes) }));
+    }
+    return lines;
+  };
+  const reviewRows = review && {
+    changed: review.changed,
+    meetings: review.impact.meetings.map((meeting): AffectedRow => ({
+      id: meeting.requestId,
+      title: studentOf(meeting.studentName),
+      lines: [timeOf(meeting.time), meeting.topic, meeting.courseName].filter(
+        (line) => line !== null,
+      ),
+    })),
+    requests: review.impact.requests.map((request): AffectedRow => ({
+      id: request.requestId,
+      title: studentOf(request.studentName),
+      lines: requestLines(request),
+    })),
+  };
+
+  const saveHours = (
+    payload: UpdateAcademicianAvailabilityPayload,
+    done: string,
+  ) => {
+    save.mutate({ payload, done, confirmed: null });
+  };
+
   const submit = (event: SubmitEvent) => {
     event.preventDefault();
     if (!dialog) return;
@@ -248,14 +338,11 @@ export function useAcademicianAvailabilityEditor() {
       setDialog({ ...dialog, error: t(`errors.${result}`) });
       return;
     }
-    save.mutate({ payload: result, done: t("saved") });
+    saveHours(result, t("saved"));
   };
 
   const remove = (kind: AvailabilityItemKind, id: string) => {
-    save.mutate({
-      payload: removal(availability, kind, id),
-      done: t("removed"),
-    });
+    saveHours(removal(availability, kind, id), t("removed"));
   };
 
   return {
@@ -265,7 +352,23 @@ export function useAcademicianAvailabilityEditor() {
       recurring: rowsOf(AvailabilityItemKind.Recurring),
       oneOff: rowsOf(AvailabilityItemKind.OneOff),
       unavailable: rowsOf(AvailabilityItemKind.Unavailable),
-      dialog,
+      // The review takes the dialog's place; closing it brings the dialog back as it was.
+      dialog: review ? null : dialog,
+      review: reviewRows,
+      manageHref: ACADEMICIAN_ROUTES.appointments,
+      confirmReview: () => {
+        if (!review) return;
+        save.mutate({
+          payload: review.payload,
+          done: review.done,
+          confirmed: affectedItems(review.impact),
+        });
+      },
+      closeReview: () => {
+        // A save already sent goes through whatever the dialog does, so it stays open until the answer comes.
+        if (save.isPending) return;
+        setReview(null);
+      },
       openAdd: (kind: AvailabilityItemKind | null) => {
         setDialog({
           kind: kind ?? AvailabilityItemKind.Recurring,
