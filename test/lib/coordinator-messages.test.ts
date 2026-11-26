@@ -11,10 +11,12 @@ import {
   MessageFilter,
   messageFilterOptions,
   messagesSubtitle,
+  messageTime,
   relatedMentorships,
 } from "@/lib/coordinator-messages";
 import { coordinatorConversation } from "@test/fixtures/coordinator-conversations";
 import { coordinatorMentorship } from "@test/fixtures/coordinator-mentorships";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 import { translatorIn } from "@test/translators";
 
 const t = translatorIn("tr", "coordinatorMessages");
@@ -136,3 +138,24 @@ describe("coordinator messages", () => {
     ).toBe("Today");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "message times in a browser in %s",
+  (zone) => {
+    it("count days and read clocks in Turkey", () => {
+      inTimeZone(zone, () => {
+        // Noon on Thursday 24 September in Turkey.
+        const now = new Date("2026-09-24T09:00:00Z");
+        // 21:30 UTC on the 23rd is already 00:30 on the 24th in Turkey: today, not yesterday.
+        expect(conversationTime("2026-09-23T21:30:00Z", now)).toBe("00:30");
+        expect(messageDayLabel("2026-09-23T21:30:00Z", now)).toBe("Bugün");
+        // 20:30 UTC on the 23rd is 23:30 on the 23rd in Turkey.
+        expect(conversationTime("2026-09-23T20:30:00Z", now)).toBe("Dün");
+        // Monday 21 September, 09:00 in Turkey.
+        expect(conversationTime("2026-09-21T06:00:00Z", now)).toBe("Pzt");
+        expect(conversationTime("2026-09-02T06:00:00Z", now)).toBe("2 Eyl");
+        expect(messageTime("2026-09-23T21:30:00Z")).toBe("00:30");
+      });
+    });
+  },
+);

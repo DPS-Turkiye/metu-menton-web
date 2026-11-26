@@ -26,6 +26,7 @@ import type { ProfileCompletionCategory } from "@/interfaces/student-profile-com
 import { TrainingState } from "@/interfaces/training";
 import { currentTime, isUpcoming } from "@/lib/appointments";
 import { toTimeInput } from "@/lib/mentor-availability";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import {
   ExperienceCardProblem,
   IskurHomeMode,
@@ -390,7 +391,7 @@ export type MonthKey = (typeof MONTH_KEYS)[number];
 export function mentorshipSince(
   acceptedAt: string,
 ): { day: number; month: MonthKey } | null {
-  const date = new Date(acceptedAt);
+  const date = toTurkishWallClock(acceptedAt);
   const month = MONTH_KEYS[date.getMonth()];
   return month ? { day: date.getDate(), month } : null;
 }

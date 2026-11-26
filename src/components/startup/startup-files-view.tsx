@@ -298,7 +298,7 @@ export function StartupFilesView() {
                         {row.related}
                       </td>
                       <td className="px-2 py-3.5 text-[12.5px] leading-[19px] text-[#676e78]">
-                        {formatDayMonth(new Date(row.date), locale)}
+                        {formatDayMonth(row.date, locale)}
                       </td>
                       <td className="px-2 py-3.5">
                         <span

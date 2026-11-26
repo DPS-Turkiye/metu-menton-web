@@ -78,7 +78,7 @@ function meetingLabel(
 ) {
   const when = document.meetingScheduledAt
     ? t("meetingOn", {
-        date: formatDayMonth(new Date(document.meetingScheduledAt), locale),
+        date: formatDayMonth(document.meetingScheduledAt, locale),
       })
     : null;
   return (

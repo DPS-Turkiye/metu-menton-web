@@ -1,5 +1,5 @@
 import { formatDateRange } from "@/lib/format";
-import { toTurkishWallClock } from "@/lib/turkey-time";
+import { toCalendarDate, toTurkishWallClock } from "@/lib/turkey-time";
 
 export enum CalendarFilter {
   All = "all",
@@ -23,6 +23,11 @@ export const MENTEE_CALENDAR_FILTERS = [
   CalendarFilter.Deliverable,
 ];
 
+/*
+ * hourOf, timeLabel and isSameDay read the browser's own clock. Only the Girişim screens (mentor dashboard, mentee
+ * calendar) still use them; ODTÜ accounts never open those (see workspaces.ts). Every ODTÜ screen reads Turkey time
+ * through lib/turkey-time and the day helpers below.
+ */
 export function hourOf(iso: string) {
   return new Date(iso).getHours();
 }
@@ -35,8 +40,10 @@ export function timeLabel(iso: string, locale = "tr") {
 }
 
 /** "Pzt" / "Mon" */
-export function shortWeekday(date: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
+export function shortWeekday(value: Date | string, locale: string) {
+  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+    toCalendarDate(value),
+  );
 }
 
 export function isSameDay(iso: string, day: Date) {
@@ -112,8 +119,10 @@ export function monthGridCells(monthDate: Date): MonthCell[] {
 }
 
 /** "Perşembe" / "Thursday" */
-export function weekdayName(date: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
+export function weekdayName(value: Date | string, locale: string) {
+  return new Intl.DateTimeFormat(locale, { weekday: "long" }).format(
+    toCalendarDate(value),
+  );
 }
 
 /** "12 Kasım Perşembe" / "Thursday, November 12": a day of this year with its weekday. */
