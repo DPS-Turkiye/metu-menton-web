@@ -2,7 +2,7 @@ import "server-only";
 import { z } from "zod";
 
 import { ProgramEventKind } from "@/interfaces/coordinator-program";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { normalizeEmail } from "@/lib/coordinator-picker";
 import { stringOrNullSchema } from "@/lib/server/request-body";
 
@@ -33,6 +33,8 @@ export const programPhaseSchema = z.object({
 
 export const createProgramSchema = z.object({
   type: z.enum(ProgramType),
+  /** A semester's features; the backend decides which sets are allowed. */
+  features: z.array(z.enum(ProgramFeature)).min(1).max(3).optional(),
   name: z.string(),
   description: stringOrNullSchema,
   startDate: stringOrNullSchema,

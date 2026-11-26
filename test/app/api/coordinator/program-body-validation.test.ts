@@ -79,6 +79,32 @@ const question = {
 
 const cases: BodyCase[] = [
   {
+    route: "POST /api/coordinator/programs (a semester)",
+    send: (request) => createProgramRoute(request),
+    valid: {
+      type: "SEMESTER",
+      features: ["PEER_MENTORING", "ISKUR"],
+      name: "2026 Güz",
+      coordinatorIds: ["c-2"],
+    },
+    backend: programs.createCoordinatorProgram,
+    expected: [
+      ME,
+      {
+        type: ProgramType.Semester,
+        features: [ProgramFeature.PeerMentoring, ProgramFeature.Iskur],
+        name: "2026 Güz",
+        description: null,
+        startDate: null,
+        endDate: null,
+        coordinatorIds: ["c-2"],
+        newCoordinators: [],
+        syllabusDocumentId: null,
+      },
+    ],
+    invalid: {},
+  },
+  {
     route: "POST /api/coordinator/programs",
     send: (request) => createProgramRoute(request),
     valid: {
@@ -111,6 +137,18 @@ const cases: BodyCase[] = [
       },
     ],
     invalid: {
+      "a semester feature that does not exist": {
+        type: "SEMESTER",
+        features: ["TEAMS"],
+        name: "X",
+        coordinatorIds: [],
+      },
+      "a semester with an empty feature list": {
+        type: "SEMESTER",
+        features: [],
+        name: "X",
+        coordinatorIds: [],
+      },
       "an unknown program type": {
         type: "HACKATHON",
         name: "X",
