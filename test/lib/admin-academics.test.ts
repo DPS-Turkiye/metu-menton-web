@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { AcademicFilter } from "@/interfaces/admin-academics";
+import {
+  AcademicFilter,
+  OfficeHoursFilter,
+} from "@/interfaces/admin-academics";
 import {
   academicCounts,
   academicDepartments,
   filterAcademics,
+  hasOfficeHours,
 } from "@/lib/admin-academics";
-import { ADMIN_ACADEMICS } from "@test/fixtures/admin-academics";
+import { ADMIN_ACADEMICS, adminAcademic } from "@test/fixtures/admin-academics";
 
 const names = (rows: { fullName: string }[]) => rows.map((row) => row.fullName);
 
@@ -65,5 +69,30 @@ describe("admin academics list", () => {
         }),
       ),
     ).toEqual([]);
+  });
+
+  it("filters by whether Office Hours are set", () => {
+    const all = { filter: AcademicFilter.All, query: "", department: null };
+    expect(
+      names(
+        filterAcademics(ADMIN_ACADEMICS, {
+          ...all,
+          officeHours: OfficeHoursFilter.Defined,
+        }),
+      ),
+    ).toEqual(["Ali Demir"]);
+    expect(
+      names(
+        filterAcademics(ADMIN_ACADEMICS, {
+          ...all,
+          officeHours: OfficeHoursFilter.NotYet,
+        }),
+      ),
+    ).toEqual(["Zeynep Kara", "Mert Aydın"]);
+  });
+
+  it("counts a row without Office Hours numbers as not set", () => {
+    expect(hasOfficeHours(adminAcademic({ officeHours: null }))).toBe(false);
+    expect(hasOfficeHours(adminAcademic())).toBe(true);
   });
 });

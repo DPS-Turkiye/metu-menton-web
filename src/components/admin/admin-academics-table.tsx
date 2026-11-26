@@ -1,30 +1,34 @@
-// TEST UI: placeholder until the design team's screen; replace when it arrives.
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, type ReactNode } from "react";
 
-import {
-  Avatar,
-  EmptyNote,
-  FilterPills,
-  QueryNotice,
-  ScrollTable,
-  SearchField,
-  StatusChip,
-} from "@/components/admin/admin-ui";
+import { Avatar } from "@/components/admin/admin-ui";
+import { DataCell, DataTable } from "@/components/ia/data-table";
+import { ChipSelect } from "@/components/ia/filter-chip";
+import { InfoBanner } from "@/components/ia/info-banner";
+import { InitialsAvatar } from "@/components/ia/initials-avatar";
+import { RowActionsMenu } from "@/components/ia/row-actions-menu";
+import { SearchInput } from "@/components/ia/search-input";
+import { StatusTone } from "@/components/ia/status-badge";
+import { Tag } from "@/components/ia/tag";
 import {
   useAdminAcademics,
   type AcademicsList,
 } from "@/hooks/use-admin-academics";
-import type { AdminAcademic } from "@/interfaces/admin-academics";
-import { ACADEMIC_FILTERS } from "@/lib/admin-academics";
+import {
+  AcademicFilter,
+  OfficeHoursFilter,
+  type AdminAcademic,
+  type AdminAcademicOfficeHours,
+} from "@/interfaces/admin-academics";
+import { ACADEMIC_FILTERS, OFFICE_HOURS_FILTERS } from "@/lib/admin-academics";
 import { errorMessage, formatLongDate, initials } from "@/lib/utils";
 
-const COLUMNS =
-  "grid grid-cols-[minmax(240px,2fr)_minmax(180px,1.5fr)_110px_170px_110px_90px] items-center gap-4";
+/** "Tüm bölümler" in the Bölüm chip; the hook keeps it as no department. */
+const ALL_DEPARTMENTS = "";
 
-/** Kullanıcılar › Akademisyenler: the institution's academicians, read-only. */
+/** Kullanıcılar › Akademisyenler (Figma 152:7644): the institution's academicians, read-only. */
 export function AdminAcademicsTable() {
   const t = useTranslations("adminAcademics");
   return (
@@ -38,7 +42,8 @@ export function AdminAcademicsTable() {
 
 /**
  * The academicians list, shared by the admin's Kullanıcılar and an Office Hours program's Katılımcılar.
- * Without {@code showContact} there is no e-mail or sign-in time to show (the program list leaves them out).
+ * Without {@code showContact} there is no e-mail, no Office Hours numbers and no filter for them (the program list
+ * leaves them out).
  */
 export function AcademicsTable({
   academics,
@@ -52,78 +57,60 @@ export function AcademicsTable({
   const t = useTranslations("adminAcademics");
 
   return (
-    <div className="space-y-4">
-      <p className="text-[13px] text-[#676e78]">{intro}</p>
-      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center">
-        <FilterPills
-          value={academics.filter}
-          onChange={academics.setFilter}
-          options={ACADEMIC_FILTERS.map((id) => ({
-            id,
-            label: `${t(`filters.${id}`)} ${academics.counts[id]}`,
-          }))}
+    <div className="space-y-7">
+      <InfoBanner>{intro}</InfoBanner>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <SearchInput
+          label={t("searchLabel")}
+          placeholder={t("searchPlaceholder")}
+          value={academics.search}
+          onChange={academics.setSearch}
+          className="w-full sm:w-80"
         />
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2.5">
-          <SearchField
-            value={academics.search}
-            onChange={academics.setSearch}
-            placeholder={t("searchPlaceholder")}
+        {showContact ? (
+          <ChipSelect
+            label={t("officeHoursFilter")}
+            value={academics.officeHours}
+            options={OFFICE_HOURS_FILTERS.map((value) => ({
+              value,
+              label:
+                value === OfficeHoursFilter.All
+                  ? t("officeHoursAll")
+                  : t(`officeHoursFilters.${value}`),
+            }))}
+            onChange={academics.setOfficeHours}
           />
-          <label className="flex h-10 items-center gap-2 rounded-full border border-[#e9ecef] bg-white px-3.5 text-[13px]">
-            <span className="text-[#858c96]">{t("department")}</span>
-            <select
-              aria-label={t("department")}
-              value={academics.department ?? ""}
-              onChange={(event) =>
-                academics.setDepartment(event.target.value || null)
-              }
-              className="bg-transparent font-medium text-[#22262b] outline-none"
-            >
-              <option value="">{t("allDepartments")}</option>
-              {academics.departments.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        ) : null}
+        <ChipSelect
+          label={t("department")}
+          value={academics.department ?? ALL_DEPARTMENTS}
+          options={[
+            { value: ALL_DEPARTMENTS, label: t("allDepartments") },
+            ...academics.departments.map((name) => ({
+              value: name,
+              label: name,
+            })),
+          ]}
+          onChange={(value) => academics.setDepartment(value || null)}
+        />
+        <ChipSelect
+          label={t("signInFilter")}
+          value={academics.filter}
+          options={ACADEMIC_FILTERS.map((value) => ({
+            value,
+            label: t("filterWithCount", {
+              label:
+                value === AcademicFilter.All
+                  ? t("signInAll")
+                  : t(`filters.${value}`),
+              count: academics.counts[value],
+            }),
+          }))}
+          onChange={academics.setFilter}
+        />
       </div>
 
-      {academics.error ? (
-        <p role="alert" className="text-sm text-[#d9464b]">
-          {errorMessage(academics.error, t("loadFailed"))}
-        </p>
-      ) : academics.isLoading ? (
-        <QueryNotice isLoading error={null} />
-      ) : (
-        <ScrollTable minWidth={980}>
-          <div
-            className={`${COLUMNS} border-b border-[#f0f2f4] px-5 py-3 text-[12px] font-medium text-[#858c96]`}
-          >
-            <span>{t("columns.academic")}</span>
-            <span>{t("columns.department")}</span>
-            <span>{t("columns.advisees")}</span>
-            <span>{t("columns.signIn")}</span>
-            <span>{t("columns.status")}</span>
-            <span />
-          </div>
-          {academics.rows.length === 0 ? (
-            <EmptyNote>
-              {academics.total === 0 ? t("none") : t("empty")}
-            </EmptyNote>
-          ) : (
-            academics.rows.map((row) => (
-              <AcademicRow
-                key={row.personId}
-                row={row}
-                showContact={showContact}
-                onOpen={() => academics.openDrawer(row.personId)}
-              />
-            ))
-          )}
-        </ScrollTable>
-      )}
+      <AcademicsBody academics={academics} showContact={showContact} />
 
       {academics.open ? (
         <AcademicDrawer
@@ -133,6 +120,88 @@ export function AcademicsTable({
         />
       ) : null}
     </div>
+  );
+}
+
+function AcademicsBody({
+  academics,
+  showContact,
+}: {
+  academics: AcademicsList;
+  showContact: boolean;
+}) {
+  const t = useTranslations("adminAcademics");
+  if (academics.error) {
+    return (
+      <p role="alert" className="type-body-sm text-status-error-text">
+        {errorMessage(academics.error, t("loadFailed"))}
+      </p>
+    );
+  }
+  if (academics.isLoading) {
+    return (
+      <p role="status" className="type-body-sm text-text-muted">
+        {t("loading")}
+      </p>
+    );
+  }
+  if (academics.rows.length === 0) {
+    return (
+      <p className="rounded-card border border-dashed border-border-default px-6 py-10 text-center type-body-sm text-text-secondary">
+        {academics.total === 0 ? t("none") : t("empty")}
+      </p>
+    );
+  }
+  return (
+    <DataTable
+      caption={t("caption")}
+      columns={[
+        {
+          key: "academic",
+          label: t("columns.academic"),
+          className: "w-[280px]",
+        },
+        {
+          key: "department",
+          label: t("columns.department"),
+          className: "w-[220px]",
+        },
+        ...(showContact
+          ? [
+              {
+                key: "officeHours",
+                label: t("columns.officeHours"),
+                className: "w-[180px]",
+              },
+              {
+                key: "meetingsThisMonth",
+                label: t("columns.meetingsThisMonth"),
+                className: "w-[120px]",
+              },
+            ]
+          : []),
+        {
+          key: "advisees",
+          label: t("columns.advisees"),
+          className: "w-[130px]",
+        },
+        { key: "signIn", label: t("columns.signIn"), className: "w-[170px]" },
+        { key: "status", label: t("columns.status"), className: "w-[120px]" },
+        {
+          key: "actions",
+          label: <span className="sr-only">{t("columns.actions")}</span>,
+        },
+      ]}
+    >
+      {academics.rows.map((row) => (
+        <AcademicRow
+          key={row.personId}
+          row={row}
+          showContact={showContact}
+          onOpen={() => academics.openDrawer(row.personId)}
+        />
+      ))}
+    </DataTable>
   );
 }
 
@@ -146,38 +215,36 @@ function AcademicRow({
   onOpen: () => void;
 }) {
   const t = useTranslations("adminAcademics");
+  const name = [row.academicTitle, row.fullName].filter(Boolean).join(" ");
   return (
-    <div
-      className={`${COLUMNS} border-b border-[#f0f2f4] px-5 py-3.5 last:border-0`}
-    >
-      <span className="flex min-w-0 items-center gap-2.5">
-        <Avatar initials={initials(row.fullName)} tone="blue" size="lg" />
-        <span className="min-w-0">
-          <span className="block truncate text-[14px] font-medium text-[#22262b]">
-            {[row.academicTitle, row.fullName].filter(Boolean).join(" ")}
-          </span>
-          <span className="block truncate text-[12px] text-[#858c96]">
-            {(showContact ? row.email : row.faculty) ?? "—"}
+    <tr>
+      <DataCell rowHeader>
+        <span className="flex items-center gap-1.5">
+          <InitialsAvatar name={row.fullName} />
+          <span className="min-w-0">
+            <span className="block">{name}</span>
+            <span className="block type-caption text-text-muted">
+              {(showContact ? row.email : row.faculty) ?? "—"}
+            </span>
           </span>
         </span>
-      </span>
-      <span className="min-w-0 truncate text-[13px] text-[#22262b]">
-        {row.departmentName ?? "—"}
-      </span>
-      <span className="text-[13px] text-[#22262b]">{row.adviseeCount}</span>
-      <SignInCell row={row} />
-      <span>
-        <RecordChip active={row.active} />
-      </span>
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={`${t("open")}: ${row.fullName}`}
-        className="justify-self-end rounded-full border border-[#e9ecef] px-3 py-1.5 text-[12.5px] font-medium text-[#22262b]"
-      >
-        {t("open")}
-      </button>
-    </div>
+      </DataCell>
+      <DataCell>{row.departmentName ?? "—"}</DataCell>
+      {showContact ? <OfficeHoursCells officeHours={row.officeHours} /> : null}
+      <DataCell>{row.adviseeCount}</DataCell>
+      <DataCell>
+        <SignInCell row={row} />
+      </DataCell>
+      <DataCell>
+        <RecordTag active={row.active} />
+      </DataCell>
+      <DataCell className="text-right">
+        <RowActionsMenu
+          label={t("rowActions", { name: row.fullName })}
+          actions={[{ id: "open", label: t("open"), onSelect: onOpen }]}
+        />
+      </DataCell>
+    </tr>
   );
 }
 
@@ -185,12 +252,10 @@ function SignInCell({ row }: { row: AdminAcademic }) {
   const t = useTranslations("adminAcademics");
   const locale = useLocale();
   if (!row.signedIn) {
-    return (
-      <span className="text-[12.5px] text-[#858c96]">{t("notSignedIn")}</span>
-    );
+    return <span className="text-text-muted">{t("notSignedIn")}</span>;
   }
   return (
-    <span className="text-[12.5px] text-[#22262b]">
+    <span>
       {row.lastLoginAt
         ? t("lastSignIn", { date: formatLongDate(row.lastLoginAt, locale) })
         : t("signedIn")}
@@ -198,15 +263,16 @@ function SignInCell({ row }: { row: AdminAcademic }) {
   );
 }
 
-function RecordChip({ active }: { active: boolean }) {
+function RecordTag({ active }: { active: boolean }) {
   const t = useTranslations("adminAcademics");
   return active ? (
-    <StatusChip tone="green">{t("active")}</StatusChip>
+    <Tag tone={StatusTone.Success}>{t("active")}</Tag>
   ) : (
-    <StatusChip tone="neutral">{t("inactive")}</StatusChip>
+    <Tag tone={StatusTone.Neutral}>{t("inactive")}</Tag>
   );
 }
 
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
 function AcademicDrawer({
   academic,
   showContact,
@@ -274,7 +340,7 @@ function AcademicDrawer({
             <Field label={t("drawer.email")}>{academic.email ?? "—"}</Field>
           ) : null}
           <Field label={t("drawer.record")}>
-            <RecordChip active={academic.active} />
+            <RecordTag active={academic.active} />
           </Field>
           <Field label={t("drawer.signIn")}>
             <SignInCell row={academic} />
@@ -283,9 +349,7 @@ function AcademicDrawer({
             {t("advisees", { count: academic.adviseeCount })}
           </Field>
           <Field label={t("drawer.officeHours")}>
-            <span className="text-[12.5px] text-[#858c96]">
-              {t("drawer.officeHoursPending")}
-            </span>
+            <OfficeHoursSummary officeHours={academic.officeHours} />
           </Field>
         </dl>
         <p className="mx-6 mb-6 rounded-2xl bg-[#f5f6f8] px-4 py-3 text-[12.5px] text-[#676e78]">
@@ -293,6 +357,60 @@ function AcademicDrawer({
         </p>
       </aside>
     </div>
+  );
+}
+
+/** The two admin columns; a program's list has no numbers and no columns for them. */
+function OfficeHoursCells({
+  officeHours,
+}: {
+  officeHours: AdminAcademicOfficeHours | null;
+}) {
+  if (!officeHours) {
+    return (
+      <>
+        <DataCell className="text-text-muted">—</DataCell>
+        <DataCell className="text-text-muted">—</DataCell>
+      </>
+    );
+  }
+  return (
+    <>
+      <DataCell>
+        <HoursTag defined={officeHours.hoursDefined} />
+      </DataCell>
+      <DataCell>{officeHours.meetingsThisMonth}</DataCell>
+    </>
+  );
+}
+
+function HoursTag({ defined }: { defined: boolean }) {
+  const t = useTranslations("adminAcademics");
+  return defined ? (
+    <Tag tone={StatusTone.Success}>{t("hoursDefined")}</Tag>
+  ) : (
+    <Tag tone={StatusTone.Warning}>{t("hoursNotYet")}</Tag>
+  );
+}
+
+function OfficeHoursSummary({
+  officeHours,
+}: {
+  officeHours: AdminAcademicOfficeHours | null;
+}) {
+  const t = useTranslations("adminAcademics");
+  if (!officeHours) {
+    return (
+      <span className="text-[12.5px] text-[#858c96]">
+        {t("drawer.officeHoursPending")}
+      </span>
+    );
+  }
+  return (
+    <span className="flex flex-wrap items-center gap-2 text-[12.5px]">
+      <HoursTag defined={officeHours.hoursDefined} />
+      {t("drawer.meetingsThisMonth", { count: officeHours.meetingsThisMonth })}
+    </span>
   );
 }
 

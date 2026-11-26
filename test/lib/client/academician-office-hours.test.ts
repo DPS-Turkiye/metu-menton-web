@@ -16,7 +16,9 @@ import {
   saveOfficeHoursProfileSettings,
 } from "@/lib/client/academician-office-hours";
 import { ClientApiError } from "@/lib/client/api";
+import { OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED } from "@/lib/const";
 import { httpClient } from "@/lib/http-client";
+import { AvailabilitySaveResult } from "@/types/academician-office-hours";
 import {
   academicianAppointment,
   academicianAvailability,
@@ -39,9 +41,18 @@ vi.mock("@/lib/http-client", () => ({
 }));
 
 const BASE = "/api/office-hours/me";
+const NOTHING_AFFECTED = { meetings: [], requests: [] };
 const TIME = {
   startsAt: "2026-11-17T14:00:00+03:00",
   endsAt: "2026-11-17T14:30:00+03:00",
+};
+const affectedMeeting = {
+  requestId: "request-1",
+  status: OfficeHoursRequestStatus.Accepted,
+  time: TIME,
+  studentName: "Ali Kaya",
+  topic: "Staj",
+  courseName: null,
 };
 
 beforeEach(() => {
@@ -180,14 +191,24 @@ describe("academician Office Hours client", () => {
     expect((await getAcademicianAvailability()).oneOffs).toEqual(
       settings.oneOffs,
     );
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(NOTHING_AFFECTED),
+    );
     const payload = { ...settings, oneOffs: [{ ...TIME, place: "B-204" }] };
-    const saved = await saveAcademicianAvailability(payload);
+    const outcome = await saveAcademicianAvailability(payload, null);
 
-    expect(httpClient.put).toHaveBeenCalledWith(
-      `${BASE}/availability`,
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${BASE}/availability/preview`,
       payload,
     );
-    expect(saved.oneOffs).toEqual(settings.oneOffs);
+    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/availability`, {
+      ...payload,
+      confirmedAffected: [],
+    });
+    expect(outcome).toEqual({
+      result: AvailabilitySaveResult.Saved,
+      availability: expect.objectContaining({ oneOffs: settings.oneOffs }),
+    });
   });
 
   it("leaves ended one-off hours out of a save", async () => {
@@ -201,15 +222,120 @@ describe("academician Office Hours client", () => {
       place: null,
     };
 
-    await saveAcademicianAvailability({
-      ...settings,
-      oneOffs: [{ ...TIME, place: null }, ahead],
-    });
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(NOTHING_AFFECTED),
+    );
 
+    await saveAcademicianAvailability(
+      { ...settings, oneOffs: [{ ...TIME, place: null }, ahead] },
+      null,
+    );
+
+    // The preview sees the same hours as the save.
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${BASE}/availability/preview`,
+      { ...settings, oneOffs: [ahead] },
+    );
     expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/availability`, {
       ...settings,
       oneOffs: [ahead],
+      confirmedAffected: [],
     });
+  });
+
+  it("stops a change that touches a meeting for review, saving nothing", async () => {
+    const impact = { meetings: [affectedMeeting], requests: [] };
+    vi.mocked(httpClient.post).mockResolvedValue(createMentorResponse(impact));
+
+    const outcome = await saveAcademicianAvailability(
+      academicianAvailability(),
+      null,
+    );
+
+    expect(outcome).toEqual({
+      result: AvailabilitySaveResult.Review,
+      impact,
+      changed: false,
+    });
+    expect(httpClient.put).not.toHaveBeenCalled();
+  });
+
+  it("saves what the academician confirmed without asking again", async () => {
+    const settings = academicianAvailability();
+    vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(settings));
+    const confirmed = [
+      { requestId: "request-1", status: OfficeHoursRequestStatus.Accepted },
+    ];
+
+    const outcome = await saveAcademicianAvailability(settings, confirmed);
+
+    expect(httpClient.post).not.toHaveBeenCalled();
+    expect(httpClient.put).toHaveBeenCalledWith(
+      `${BASE}/availability`,
+      expect.objectContaining({ confirmedAffected: confirmed }),
+    );
+    expect(outcome.result).toBe(AvailabilitySaveResult.Saved);
+  });
+
+  it("brings back the fresh list when it changed after the review", async () => {
+    const fresh = { meetings: [affectedMeeting], requests: [] };
+    vi.mocked(httpClient.put).mockResolvedValue(
+      createMentorResponse(
+        {
+          message: "Siz düzenlerken değişti.",
+          code: OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED,
+        },
+        409,
+      ),
+    );
+    vi.mocked(httpClient.post).mockResolvedValue(createMentorResponse(fresh));
+
+    const outcome = await saveAcademicianAvailability(
+      academicianAvailability(),
+      [],
+    );
+
+    expect(outcome).toEqual({
+      result: AvailabilitySaveResult.Review,
+      impact: fresh,
+      changed: true,
+    });
+  });
+
+  it("saves once more when the list that changed is empty again", async () => {
+    const settings = academicianAvailability();
+    vi.mocked(httpClient.put)
+      .mockResolvedValueOnce(
+        createMentorResponse(
+          { message: "changed", code: OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED },
+          409,
+        ),
+      )
+      .mockResolvedValueOnce(createMentorResponse(settings));
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(NOTHING_AFFECTED),
+    );
+
+    const outcome = await saveAcademicianAvailability(settings, [
+      { requestId: "request-1", status: OfficeHoursRequestStatus.Pending },
+    ]);
+
+    expect(outcome.result).toBe(AvailabilitySaveResult.Saved);
+    expect(httpClient.put).toHaveBeenLastCalledWith(
+      `${BASE}/availability`,
+      expect.objectContaining({ confirmedAffected: [] }),
+    );
+  });
+
+  it("passes any other refusal of a save on", async () => {
+    vi.mocked(httpClient.put).mockResolvedValue(
+      createMentorResponse({ message: "Kaydedilemedi." }, 400),
+    );
+
+    await expect(
+      saveAcademicianAvailability(academicianAvailability(), []),
+    ).rejects.toBeInstanceOf(ClientApiError);
+    expect(httpClient.post).not.toHaveBeenCalled();
   });
 
   it("reads where and how students meet them", async () => {

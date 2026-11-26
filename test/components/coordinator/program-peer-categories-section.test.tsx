@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -15,6 +15,13 @@ vi.mock("@/lib/client/program-peer-categories", () => ({
   replaceProgramPeerCategories: vi.fn(),
 }));
 
+const PROPS = {
+  programId: "p1",
+  anchorId: "peer_categories",
+  title: "Aktif mentorluk kategorileri",
+  note: "Öğrenciler yalnızca aktif kategorilerde mentor arayabilir.",
+};
+
 describe("ProgramPeerCategories", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,14 +33,14 @@ describe("ProgramPeerCategories", () => {
 
   it("starts with every category off and says what that means", async () => {
     renderWithQueryClient(
-      <ProgramPeerCategories programId="p1" readOnly={false} />,
+      <ProgramPeerCategories {...PROPS} readOnly={false} />,
     );
 
     expect(
       await screen.findByText(/Hiçbir kategori etkin değil/),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole("checkbox")).toHaveLength(8);
-    for (const box of screen.getAllByRole("checkbox")) {
+    expect(screen.getAllByRole("switch")).toHaveLength(8);
+    for (const box of screen.getAllByRole("switch")) {
       expect(box).not.toBeChecked();
     }
     expect(
@@ -51,13 +58,13 @@ describe("ProgramPeerCategories", () => {
     });
     const user = userEvent.setup();
     renderWithQueryClient(
-      <ProgramPeerCategories programId="p1" readOnly={false} />,
+      <ProgramPeerCategories {...PROPS} readOnly={false} />,
     );
 
     await user.click(
-      await screen.findByRole("checkbox", { name: "Uluslararası Fırsatlar" }),
+      await screen.findByRole("switch", { name: "Uluslararası Fırsatlar" }),
     );
-    await user.click(screen.getByRole("checkbox", { name: "Kariyer ve Staj" }));
+    await user.click(screen.getByRole("switch", { name: "Kariyer ve Staj" }));
     expect(screen.getByText("2 kategori etkin")).toBeInTheDocument();
     await user.click(
       screen.getByRole("button", { name: "Kategorileri kaydet" }),
@@ -82,9 +89,9 @@ describe("ProgramPeerCategories", () => {
     });
     const user = userEvent.setup();
     renderWithQueryClient(
-      <ProgramPeerCategories programId="p1" readOnly={false} />,
+      <ProgramPeerCategories {...PROPS} readOnly={false} />,
     );
-    const campus = await screen.findByRole("checkbox", {
+    const campus = await screen.findByRole("switch", {
       name: "Üniversite ve Kampüs Yaşamı",
     });
     expect(campus).toBeChecked();
@@ -101,18 +108,43 @@ describe("ProgramPeerCategories", () => {
       programId: "p1",
       active: [PeerTopicCategory.TechnicalDigital],
     });
-    renderWithQueryClient(<ProgramPeerCategories programId="p1" readOnly />);
+    renderWithQueryClient(<ProgramPeerCategories {...PROPS} readOnly />);
 
     expect(
-      await screen.findByRole("checkbox", {
+      await screen.findByRole("switch", {
         name: "Teknik ve Dijital Beceriler",
       }),
     ).toBeChecked();
-    for (const box of screen.getAllByRole("checkbox")) {
+    for (const box of screen.getAllByRole("switch")) {
       expect(box).toBeDisabled();
     }
     expect(
       screen.queryByRole("button", { name: "Kategorileri kaydet" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("is the frame's card: a titled region at the settings anchor, one switch per category", async () => {
+    renderWithQueryClient(
+      <ProgramPeerCategories {...PROPS} readOnly={false} />,
+    );
+
+    const card = await screen.findByRole("region", {
+      name: "Aktif mentorluk kategorileri",
+    });
+    expect(card).toHaveAttribute("id", "peer_categories");
+    expect(within(card).getByText(PROPS.note)).toBeInTheDocument();
+    expect(
+      await within(card).findByRole("switch", { name: "Kariyer ve Staj" }),
+    ).not.toBeChecked();
+  });
+
+  it("says so when the categories cannot load", async () => {
+    vi.mocked(getProgramPeerCategories).mockRejectedValue("down");
+    renderWithQueryClient(
+      <ProgramPeerCategories {...PROPS} readOnly={false} />,
+    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Kategoriler yüklenemedi.",
+    );
   });
 });

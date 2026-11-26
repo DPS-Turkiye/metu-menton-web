@@ -4220,7 +4220,7 @@
       "TRAINING": "Peer Mentor training",
       "ARCHIVE": "Archive",
       "CURRICULUM": "Curriculum & phases",
-      "PEER_CATEGORIES": "Peer categories"
+      "PEER_CATEGORIES": "Active mentoring categories"
     },
     "sectionsLabel": "Settings sections",
     "archivedNote": "This program is archived and read-only. Reopen it below to make changes.",
@@ -4267,7 +4267,7 @@
     "adminViewNote": "The program’s coordinators set up its settings; as an admin you only view them. You can assign coordinators here.",
     "coordinatorsByAdmin": "The admin assigns coordinators.",
     "type": "Program type",
-    "peerCategoriesNote": "Students and peer mentors only see the categories you turn on here. None is on to begin with."
+    "peerCategoriesNote": "Students can look for mentors only in active categories; mentors choose from these categories. None is active at the start."
   },
   "programTeams": {
     "filters": {
@@ -5164,7 +5164,9 @@
     "yesterday": "Yesterday",
     "daysAgo": "{count, plural, one {# day} other {# days}} ago",
     "hoursAgo": "{count, plural, one {# hour} other {# hours}} ago",
-    "minutesAgo": "{count} min ago"
+    "minutesAgo": "{count} min ago",
+    "tabsLabel": "User groups",
+    "tabSoon": "Coming soon"
   },
   "coordinatorApproval": {
     "capabilities": {
@@ -5981,10 +5983,16 @@
     "loading": "Loading students…",
     "loadFailed": "Could not load the students.",
     "empty": "No students for this filter.",
-    "name": "Name",
+    "name": "Student",
     "program": "Program",
-    "badge": "Badge state",
-    "since": "Date"
+    "badge": "Badge",
+    "since": "Badge date",
+    "filterAll": "Badge status: All",
+    "intro": "Students in peer mentoring programs. METU students' accounts come from institutional data; they are not approved by hand.",
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search by name, e-mail or program",
+    "footnote": "Badges are awarded and taken back on the program's Participants page; the program name in the row leads there.",
+    "caption": "Students"
   },
   "trainingEditor": {
     "loading": "Loading the training…",
@@ -6968,22 +6976,22 @@
     }
   },
   "programPeerCategories": {
-    "title": "Peer categories",
     "noneActive": "No category is on: students cannot look for mentors and peer mentors cannot pick a category for their profile.",
     "activeCount": "{count, plural, one {# category on} other {# categories on}}",
     "save": "Save categories",
     "saving": "Saving…",
     "cancel": "Cancel",
     "saved": "Categories saved.",
-    "saveFailed": "Could not save the categories."
+    "saveFailed": "Could not save the categories.",
+    "loading": "Loading categories…",
+    "loadFailed": "Could not load the categories."
   },
   "adminAcademics": {
     "intro": "Academics come from the institution's records; nobody approves them by hand or edits them here.",
-    "searchPlaceholder": "Search name, e-mail or department",
+    "searchPlaceholder": "Search academics",
     "department": "Department",
     "allDepartments": "All departments",
     "filters": {
-      "ALL": "All",
       "SIGNED_IN": "Signed in",
       "NOT_SIGNED_IN": "Not signed in yet",
       "INACTIVE": "Inactive at the institution"
@@ -6993,7 +7001,10 @@
       "department": "Department",
       "advisees": "Advisees",
       "signIn": "Menton sign-in",
-      "status": "Institution record"
+      "status": "Institution record",
+      "officeHours": "Office Hours availability",
+      "meetingsThisMonth": "Meetings this month",
+      "actions": "Actions"
     },
     "empty": "No academics in this filter.",
     "none": "The institution's records list no academics yet.",
@@ -7016,10 +7027,26 @@
       "advisees": "Advisees",
       "officeHours": "Office Hours",
       "officeHoursPending": "Office Hours activity isn't in Menton yet; it will show here once connected.",
-      "readOnly": "This comes from the institution's records and can't be changed in Menton."
+      "readOnly": "This comes from the institution's records and can't be changed in Menton.",
+      "meetingsThisMonth": "{count, plural, =0 {No meetings this month} one {# meeting this month} other {# meetings this month}}"
     },
     "programIntro": "Every active ODTÜ academic takes part in Office Hours without an invite; the list comes from the institution's records.",
-    "signedIn": "Signed in"
+    "signedIn": "Signed in",
+    "officeHoursFilter": "Office Hours availability",
+    "officeHoursFilters": {
+      "DEFINED": "Set",
+      "NOT_YET": "Not yet"
+    },
+    "hoursDefined": "Set",
+    "hoursNotYet": "Not yet",
+    "searchLabel": "Search academics",
+    "officeHoursAll": "Office Hours availability: All",
+    "signInFilter": "Menton sign-in",
+    "signInAll": "Menton sign-in: All",
+    "filterWithCount": "{label} · {count}",
+    "loading": "Loading academics…",
+    "caption": "Academics",
+    "rowActions": "Actions for {name}"
   },
   "programThisWeek": {
     "eyebrow": "This week",
@@ -7935,23 +7962,34 @@
     },
     "documents": {
       "title": "Your documents",
-      "intro": "Your CV is required, your transcript optional. PDF, at most 10 MB. Only your program’s coordinators see them.",
+      "intro": "Your CV is required, your transcript optional. Documents are used only to place you in a team.",
       "off": "Document upload is turned off for now",
       "offBody": "You can send the form without documents. When upload opens, your coordinator may ask for your CV.",
       "CV": "CV",
       "TRANSCRIPT": "Transcript",
       "required": "Required",
       "optional": "Optional",
-      "choose": "Choose a PDF",
       "replace": "Replace",
       "remove": "Remove",
       "uploading": "Uploading…",
-      "file": "{name} · {size}",
-      "empty": "Not uploaded yet",
       "uploadFailed": "The document could not be uploaded.",
       "removeFailed": "The document could not be removed.",
       "tooLarge": "The file is larger than 10 MB.",
-      "notPdf": "Only PDF files can be uploaded."
+      "notPdf": "Only PDF files can be uploaded.",
+      "uploaded": "{size} · Uploaded",
+      "replaceLabel": "Replace the {slot} file",
+      "drop": "Drag the file here or",
+      "dropChoose": "choose",
+      "formats": "PDF · at most {max}",
+      "requirementsTitle": "File requirements",
+      "requirements": {
+        "pdfOnly": "PDF only",
+        "maxSize": "At most {max} per file",
+        "cvPages": "1–2 pages recommended for a CV"
+      },
+      "whoTitle": "Who sees them?",
+      "whoCoordinators": "CV and transcript: only the program's coordinators",
+      "chooseLabel": "Choose {slot}"
     },
     "leadership": {
       "title": "Would you like to lead a team?",
@@ -7983,20 +8021,28 @@
       "counter": "{count} / {max}"
     },
     "preview": {
-      "title": "Review your form",
-      "intro": "You cannot change it after sending; your coordinator places you in a team from it.",
-      "days": "Work days",
+      "title": "Check and send",
+      "intro": "You can edit your answers until you are placed in a team.",
       "daysValue": "{days} days · {hours} h",
-      "prior": "İŞKUR days left: {days}",
       "units": "Units",
       "skills": "Skills",
-      "roles": "Team roles",
+      "roles": "Your role in the team",
       "documents": "Documents",
-      "leadership": "Leadership application",
       "leadershipYes": "Applying",
       "leadershipNo": "Not applying",
       "edit": "Edit",
-      "none": "—"
+      "none": "—",
+      "daysTitle": "Work period and days",
+      "weekly": "Weekly time",
+      "calendar": "Calendar days",
+      "right": "İŞKUR days",
+      "rightValue": "{days} days left",
+      "unitsTitle": "Units and skills",
+      "leadershipTitle": "Leadership",
+      "application": "Application",
+      "notUploaded": "Not uploaded",
+      "notUploadedOptional": "Not uploaded (optional)",
+      "editSection": "Edit {section}"
     },
     "submitted": {
       "title": "Your form is sent",

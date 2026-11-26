@@ -250,7 +250,21 @@
     },
     "saved": "Müsaitlik kaydedildi.",
     "removed": "Silindi.",
-    "failed": "Kaydedilemedi; tekrar dene."
+    "failed": "Kaydedilemedi; tekrar dene.",
+    "impact": {
+      "title": "Bu değişiklik bazı randevu ve talepleri etkiliyor",
+      "intro": "Yeni saatlerin dışında kalanlar aşağıda. Hiçbiri iptal edilmez: onaylı randevular durur, talepler senin cevabını bekler.",
+      "changed": "Sen bakarken liste değişti. Güncel hâlini kontrol edip tekrar kaydet.",
+      "meetings": "Onaylı randevular",
+      "requests": "Bekleyen talepler",
+      "someone": "Öğrenci",
+      "lost": "Kalkan saatler: {times}",
+      "kept": "Kalan saatler: {times}",
+      "manageHint": "İptal etmek ya da cevap vermek için Randevularım'ı kullan.",
+      "manage": "Randevularıma git",
+      "confirm": "Yine de kaydet",
+      "cancel": "Vazgeç"
+    }
   },
   "advisees": {
     "title": "Danışan öğrencilerim",

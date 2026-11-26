@@ -20,6 +20,9 @@ import { MoveTeamProgram } from "@/components/admin/move-team-program";
 import { RemoveMentorFromProgram } from "@/components/admin/remove-mentor-from-program";
 import { RevokeSignInsButton } from "@/components/admin/revoke-sign-ins-button";
 import { TeamHistory } from "@/components/common/team-history";
+import { Button } from "@/components/ia/button";
+import { PageHeader } from "@/components/ia/page-header";
+import { UnderlineTabs } from "@/components/ia/underline-tabs";
 import { ProfileLink } from "@/components/people/profile-link";
 import { useAdminOverview } from "@/hooks/use-admin-overview";
 import {
@@ -77,13 +80,13 @@ type TabLink = {
   href: string;
   label: string;
   count: number | null;
-  dot?: string;
 };
 
 type AccountDecision = UserAccountStatus.Approved | UserAccountStatus.Rejected;
 
 export function UsersView({ tab }: { tab: UserTab }) {
   const t = useTranslations("adminUsers");
+  const tNav = useTranslations("roleFrame.nav");
   const query = useAdminOverview();
   const focusUserId = useSearchParams().get("user");
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -102,13 +105,11 @@ export function UsersView({ tab }: { tab: UserTab }) {
       href: USER_TAB_HREFS[UserTab.Mentors],
       label: t("tabs.mentors"),
       count: mentorsOf(data).length,
-      dot: "#26a4ff",
     },
     [UserTab.Teams]: {
       href: USER_TAB_HREFS[UserTab.Teams],
       label: t("tabs.teams"),
       count: startupsOf(data).length,
-      dot: "#ff6a3d",
     },
     [UserTab.Students]: {
       href: USER_TAB_HREFS[UserTab.Students],
@@ -121,62 +122,27 @@ export function UsersView({ tab }: { tab: UserTab }) {
       count: null,
     },
   };
-  const tabs = offeredTabs.map((id) => ({ id, ...tabLinks[id] }));
+  const tabs = offeredTabs.map((id) => ({
+    id,
+    ...tabLinks[id],
+    active: id === tab,
+  }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={() => setInviteOpen(true)}
-          className="rounded-full bg-[#22262b] px-5 py-[11px] text-[13.5px] leading-[1.3] font-medium text-white"
-        >
-          {t("addCoordinator")}
-        </button>
-      </div>
-      <div className="flex border-b border-[#e9ecef]">
-        {tabs.map((item) => {
-          const active = item.id === tab;
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="flex flex-1 flex-col items-center gap-3 px-6"
-            >
-              <span className="flex items-center gap-1.5">
-                {item.dot ? (
-                  <span
-                    aria-hidden
-                    className="size-[7px] rounded-full"
-                    style={{ background: item.dot }}
-                  />
-                ) : null}
-                <span
-                  className={`text-[14.5px] leading-[1.3] ${
-                    active ? "font-semibold text-[#22262b]" : "text-[#676e78]"
-                  }`}
-                >
-                  {item.label}
-                </span>
-                {item.count != null ? (
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-[11.5px] leading-[1.3] font-medium ${
-                      active
-                        ? "bg-[#22262b] text-white"
-                        : "bg-[#f5f6f8] text-[#676e78]"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                ) : null}
-              </span>
-              <span
-                className={`h-[2.5px] w-full rounded-sm ${active ? "bg-[#22262b]" : ""}`}
-              />
-            </Link>
-          );
-        })}
-      </div>
+    <div className="space-y-7">
+      <PageHeader
+        title={tNav("users")}
+        actions={
+          <Button onClick={() => setInviteOpen(true)}>
+            {t("addCoordinator")}
+          </Button>
+        }
+      />
+      <UnderlineTabs
+        label={t("tabsLabel")}
+        tabs={tabs}
+        disabledTitle={t("tabSoon")}
+      />
       {tab === UserTab.Coordinators ? (
         <CoordinatorsTable data={data} focusUserId={focusUserId} />
       ) : null}
@@ -184,9 +150,7 @@ export function UsersView({ tab }: { tab: UserTab }) {
         <MentorsTable data={data} focusUserId={focusUserId} />
       ) : null}
       {tab === UserTab.Teams ? <TeamsTable data={data} /> : null}
-      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
       {tab === UserTab.Students ? <AdminStudentsTable /> : null}
-      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
       {tab === UserTab.Academics ? <AdminAcademicsTable /> : null}
       {inviteOpen ? (
         <AddCoordinatorDialog onClose={() => setInviteOpen(false)} />

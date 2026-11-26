@@ -1,9 +1,28 @@
 import {
   AcademicFilter,
+  OfficeHoursFilter,
   type AdminAcademic,
 } from "@/interfaces/admin-academics";
 
 export const ACADEMIC_FILTERS = Object.values(AcademicFilter);
+
+export const OFFICE_HOURS_FILTERS = Object.values(OfficeHoursFilter);
+
+/** Hours set for a row; a program's list has no Office Hours numbers, so it counts as none. */
+export function hasOfficeHours(row: AdminAcademic) {
+  return row.officeHours?.hoursDefined ?? false;
+}
+
+function matchesOfficeHours(row: AdminAcademic, filter: OfficeHoursFilter) {
+  switch (filter) {
+    case OfficeHoursFilter.All:
+      return true;
+    case OfficeHoursFilter.Defined:
+      return hasOfficeHours(row);
+    case OfficeHoursFilter.NotYet:
+      return !hasOfficeHours(row);
+  }
+}
 
 function matchesFilter(row: AdminAcademic, filter: AcademicFilter) {
   switch (filter) {
@@ -42,14 +61,21 @@ export function filterAcademics(
   rows: AdminAcademic[],
   {
     filter,
+    officeHours = OfficeHoursFilter.All,
     query,
     department,
-  }: { filter: AcademicFilter; query: string; department: string | null },
+  }: {
+    filter: AcademicFilter;
+    officeHours?: OfficeHoursFilter;
+    query: string;
+    department: string | null;
+  },
 ) {
   const needle = query.trim().toLocaleLowerCase("tr");
   return rows.filter(
     (row) =>
       matchesFilter(row, filter) &&
+      matchesOfficeHours(row, officeHours) &&
       (department == null || row.departmentName === department) &&
       (needle === "" ||
         [row.fullName, row.email, row.departmentName, row.departmentCode]

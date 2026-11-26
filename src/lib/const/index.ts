@@ -66,6 +66,9 @@ export const REGISTRATION_REQUIRED = "REGISTRATION_REQUIRED";
 /** Sign-up met a login or an address that already has an account; the person signs in instead. */
 export const ACCOUNT_ALREADY_REGISTERED = "ACCOUNT_ALREADY_REGISTERED";
 export const EMAIL_ALREADY_REGISTERED = "EMAIL_ALREADY_REGISTERED";
+/** A save of the office hours met a meeting or request the academician had not been shown (FR-OH-29). */
+export const OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED =
+  "OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED";
 
 export const TRANSCRIPT_BOT_LEAD_MS = 60_000;
 export const TRANSCRIPT_BOT_MAX_TIMER_MS = 86_400_000;

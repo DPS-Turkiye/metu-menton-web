@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { GateBadgeState, inTraining, StudentFilter } from "@/interfaces/badges";
+import { matchesSearch } from "@/lib/admin-mentorships";
 import { getAdminStudents } from "@/lib/client/badges";
 
 const STATE_OF: Record<StudentFilter, GateBadgeState | null> = {
@@ -14,19 +15,33 @@ const STATE_OF: Record<StudentFilter, GateBadgeState | null> = {
   [StudentFilter.Revoked]: GateBadgeState.Revoked,
 };
 
-/** Admin › Kullanıcılar › Öğrenciler, narrowed by "Rozet durumu"; "Eğitimde" narrows "Rozet yok" further. */
+/**
+ * Admin › Kullanıcılar › Öğrenciler, narrowed by "Rozet durumu" ("Eğitimde" narrows "Rozet yok" further) and by a
+ * search over name, e-mail and program.
+ */
 export function useAdminStudents() {
   const [filter, setFilter] = useState<StudentFilter>(StudentFilter.All);
+  const [search, setSearch] = useState("");
   const state = STATE_OF[filter];
   const query = useQuery({
     queryKey: ["admin", "students", state ?? "ALL"],
     queryFn: () => getAdminStudents(state),
   });
-  const rows = query.data ?? [];
+  const inFilter =
+    filter === StudentFilter.InTraining
+      ? (query.data ?? []).filter(inTraining)
+      : (query.data ?? []);
+  const needle = search.trim();
   return {
     filter,
     setFilter,
-    rows: filter === StudentFilter.InTraining ? rows.filter(inTraining) : rows,
+    search,
+    setSearch,
+    rows: needle
+      ? inFilter.filter((row) =>
+          matchesSearch([row.fullName, row.email, row.programName], needle),
+        )
+      : inFilter,
     isLoading: query.isLoading,
     error: query.error,
   };

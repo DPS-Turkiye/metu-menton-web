@@ -4222,7 +4222,7 @@
       "TRAINING": "Akran Mentoru eğitimi",
       "ARCHIVE": "Arşiv",
       "CURRICULUM": "Müfredat & fazlar",
-      "PEER_CATEGORIES": "Akran kategorileri"
+      "PEER_CATEGORIES": "Aktif mentorluk kategorileri"
     },
     "sectionsLabel": "Ayar bölümleri",
     "archivedNote": "Bu program arşivlendi ve salt okunur. Değiştirmek için aşağıdan yeniden açın.",
@@ -4269,7 +4269,7 @@
     "adminViewNote": "Program ayarlarını programın koordinatörleri yapılandırır; yönetici olarak yalnızca görüntülersin. Koordinatörleri buradan atayabilirsin.",
     "coordinatorsByAdmin": "Koordinatörleri yönetici atar.",
     "type": "Program türü",
-    "peerCategoriesNote": "Öğrenciler ve akran mentorları yalnızca burada etkinleştirdiğin kategorileri görür. Başlangıçta hiçbiri etkin değildir."
+    "peerCategoriesNote": "Öğrenciler yalnızca aktif kategorilerde mentor arayabilir; mentorlar bu kategorilerden seçim yapar. Başlangıçta hiçbiri etkin değildir."
   },
   "programTeams": {
     "filters": {
@@ -5166,7 +5166,9 @@
     "yesterday": "Dün",
     "daysAgo": "{count} gün önce",
     "hoursAgo": "{count} saat önce",
-    "minutesAgo": "{count} dk önce"
+    "minutesAgo": "{count} dk önce",
+    "tabsLabel": "Kullanıcı grupları",
+    "tabSoon": "Yakında"
   },
   "coordinatorApproval": {
     "capabilities": {
@@ -5983,10 +5985,16 @@
     "loading": "Öğrenciler yükleniyor…",
     "loadFailed": "Öğrenciler yüklenemedi.",
     "empty": "Bu filtrede öğrenci yok.",
-    "name": "Ad",
+    "name": "Öğrenci",
     "program": "Program",
-    "badge": "Rozet durumu",
-    "since": "Tarih"
+    "badge": "Rozet",
+    "since": "Rozet tarihi",
+    "filterAll": "Rozet durumu: Tümü",
+    "intro": "Akran mentörlüğü programlarındaki öğrenciler. ODTÜ öğrencilerinin hesapları kurum verisinden gelir; elle onaylanmaz.",
+    "searchLabel": "Öğrenci ara",
+    "searchPlaceholder": "Ad, e-posta veya program ara",
+    "footnote": "Rozet verme ve geri alma programın Katılımcılar sayfasından yapılır; satırdaki program adı oraya götürür.",
+    "caption": "Öğrenciler"
   },
   "trainingEditor": {
     "loading": "Eğitim yükleniyor…",
@@ -6970,22 +6978,22 @@
     }
   },
   "programPeerCategories": {
-    "title": "Akran kategorileri",
     "noneActive": "Hiçbir kategori etkin değil: öğrenciler mentor arayamaz, akran mentorları profilinde kategori seçemez.",
     "activeCount": "{count, plural, one {# kategori etkin} other {# kategori etkin}}",
     "save": "Kategorileri kaydet",
     "saving": "Kaydediliyor…",
     "cancel": "Vazgeç",
     "saved": "Kategoriler kaydedildi.",
-    "saveFailed": "Kategoriler kaydedilemedi."
+    "saveFailed": "Kategoriler kaydedilemedi.",
+    "loading": "Kategoriler yükleniyor…",
+    "loadFailed": "Kategoriler yüklenemedi."
   },
   "adminAcademics": {
     "intro": "Akademisyenler kurum verisinden gelir; elle onaylanmaz, buradan düzenlenmez.",
-    "searchPlaceholder": "Ad, e-posta veya bölüm ara",
+    "searchPlaceholder": "Akademisyen ara",
     "department": "Bölüm",
     "allDepartments": "Tüm bölümler",
     "filters": {
-      "ALL": "Tümü",
       "SIGNED_IN": "Giriş yaptı",
       "NOT_SIGNED_IN": "Henüz giriş yapmadı",
       "INACTIVE": "Kurumda pasif"
@@ -6993,9 +7001,12 @@
     "columns": {
       "academic": "Akademisyen",
       "department": "Bölüm",
-      "advisees": "Danışan",
+      "advisees": "Danışan öğrenci",
       "signIn": "Menton girişi",
-      "status": "Kurum kaydı"
+      "status": "Kurum kaydı",
+      "officeHours": "Office Hours müsaitliği",
+      "meetingsThisMonth": "Bu ay randevu",
+      "actions": "İşlemler"
     },
     "empty": "Bu filtrede akademisyen yok.",
     "none": "Kurum verisinde henüz akademisyen yok.",
@@ -7018,10 +7029,26 @@
       "advisees": "Danışan öğrenciler",
       "officeHours": "Office Hours",
       "officeHoursPending": "Office Hours etkinliği henüz Menton'da yok; bağlandığında burada görünür.",
-      "readOnly": "Bu bilgiler kurum verisinden okunur; Menton'da değiştirilemez."
+      "readOnly": "Bu bilgiler kurum verisinden okunur; Menton'da değiştirilemez.",
+      "meetingsThisMonth": "{count, plural, =0 {Bu ay randevu yok} other {Bu ay # randevu}}"
     },
     "programIntro": "Office Hours'a ODTÜ'nün tüm aktif akademisyenleri davetsiz katılır; liste kurum verisinden gelir.",
-    "signedIn": "Giriş yaptı"
+    "signedIn": "Giriş yaptı",
+    "officeHoursFilter": "Office Hours müsaitliği",
+    "officeHoursFilters": {
+      "DEFINED": "Tanımlı",
+      "NOT_YET": "Henüz yok"
+    },
+    "hoursDefined": "Tanımlı",
+    "hoursNotYet": "Henüz yok",
+    "searchLabel": "Akademisyen ara",
+    "officeHoursAll": "Office Hours müsaitliği: Tümü",
+    "signInFilter": "Menton girişi",
+    "signInAll": "Menton girişi: Tümü",
+    "filterWithCount": "{label} · {count}",
+    "loading": "Akademisyenler yükleniyor…",
+    "caption": "Akademisyenler",
+    "rowActions": "{name} için işlemler"
   },
   "programThisWeek": {
     "eyebrow": "Bu hafta",
@@ -7937,23 +7964,34 @@
     },
     "documents": {
       "title": "Belgelerin",
-      "intro": "CV’n zorunlu, transkriptin isteğe bağlı. PDF, en fazla 10 MB. Belgelerini yalnızca program koordinatörlerin görür.",
+      "intro": "CV zorunlu, transkript isteğe bağlı. Belgeler yalnızca ekip yerleştirmesi için kullanılır.",
       "off": "Belge yükleme şu an kapalı",
       "offBody": "Formu belgesiz gönderebilirsin. Yükleme açıldığında koordinatörün CV’ni ayrıca isteyebilir.",
       "CV": "CV",
       "TRANSCRIPT": "Transkript",
       "required": "Zorunlu",
       "optional": "İsteğe bağlı",
-      "choose": "PDF seç",
       "replace": "Değiştir",
       "remove": "Kaldır",
       "uploading": "Yükleniyor…",
-      "file": "{name} · {size}",
-      "empty": "Henüz yüklenmedi",
       "uploadFailed": "Belge yüklenemedi.",
       "removeFailed": "Belge kaldırılamadı.",
       "tooLarge": "Dosya 10 MB’tan büyük.",
-      "notPdf": "Yalnızca PDF yüklenebilir."
+      "notPdf": "Yalnızca PDF yüklenebilir.",
+      "uploaded": "{size} · Yüklendi",
+      "replaceLabel": "{slot} dosyasını değiştir",
+      "drop": "Dosyayı sürükle ya da",
+      "dropChoose": "seç",
+      "formats": "PDF · en fazla {max}",
+      "requirementsTitle": "Dosya gereksinimleri",
+      "requirements": {
+        "pdfOnly": "Yalnızca PDF",
+        "maxSize": "Dosya başına en fazla {max}",
+        "cvPages": "CV için 1–2 sayfa önerilir"
+      },
+      "whoTitle": "Kimler görür?",
+      "whoCoordinators": "CV ve transkript: yalnızca program koordinatörleri",
+      "chooseLabel": "{slot} seç"
     },
     "leadership": {
       "title": "Ekip lideri olmak ister misin?",
@@ -7985,20 +8023,28 @@
       "counter": "{count} / {max}"
     },
     "preview": {
-      "title": "Formunu gözden geçir",
-      "intro": "Gönderdikten sonra değiştiremezsin; koordinatörün seni bu bilgilere göre bir ekibe yerleştirir.",
-      "days": "Görev günleri",
+      "title": "Kontrol et ve gönder",
+      "intro": "Ekip atamana kadar bilgilerini düzenleyebilirsin.",
       "daysValue": "{days} gün · {hours} sa",
-      "prior": "Kalan İŞKUR hakkın: {days} gün",
       "units": "Birimler",
       "skills": "Yetkinlikler",
-      "roles": "Ekip rolleri",
+      "roles": "Ekipteki rolün",
       "documents": "Belgeler",
-      "leadership": "Liderlik başvurusu",
       "leadershipYes": "Başvuruyorum",
       "leadershipNo": "Başvurmuyorum",
       "edit": "Düzenle",
-      "none": "—"
+      "none": "—",
+      "daysTitle": "Görev süresi ve günler",
+      "weekly": "Haftalık süre",
+      "calendar": "Takvim günleri",
+      "right": "İŞKUR hakkı",
+      "rightValue": "{days} gün kaldı",
+      "unitsTitle": "Birimler ve yetkinlikler",
+      "leadershipTitle": "Liderlik",
+      "application": "Başvuru",
+      "notUploaded": "Yüklenmedi",
+      "notUploadedOptional": "Yüklenmedi (isteğe bağlı)",
+      "editSection": "{section}: düzenle"
     },
     "submitted": {
       "title": "Formun gönderildi",

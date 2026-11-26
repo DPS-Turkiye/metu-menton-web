@@ -3,13 +3,19 @@
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useId } from "react";
 
+import { Button } from "@/components/ia/button";
 import { ProgramLifecyclePill } from "@/components/ia/program-status-pill";
 import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
 import { UnderlineTabs } from "@/components/ia/underline-tabs";
+import { useLaunchProgram } from "@/hooks/use-coordinator-program";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
 import { useProgramSwitcher } from "@/hooks/use-program-switcher";
-import type { CoordinatorProgramDetail } from "@/interfaces/coordinator-program";
+import {
+  ProgramLifecycle,
+  type CoordinatorProgramDetail,
+} from "@/interfaces/coordinator-program";
 import {
   isActiveTab,
   odtuProgramHeaderLine,
@@ -72,7 +78,14 @@ export function OdtuProgramHeader({
             {odtuProgramHeaderLine(detail, t, locale)}
           </p>
         </div>
-        {navigation.admin ? null : (
+        {navigation.admin ? (
+          program.lifecycle === ProgramLifecycle.Draft ? (
+            <LaunchAction
+              programId={programId}
+              hasCoordinator={detail.coordinators.length > 0}
+            />
+          ) : null
+        ) : (
           <ProgramSwitcher programId={programId} programName={program.name} />
         )}
       </header>
@@ -81,6 +94,35 @@ export function OdtuProgramHeader({
         tabs={tabs}
         disabledTitle={t("soon")}
       />
+    </div>
+  );
+}
+
+/** The admin's "Programı Başlat" in a draft's header (Figma 152:7447), closed until a coordinator is assigned. */
+function LaunchAction({
+  programId,
+  hasCoordinator,
+}: {
+  programId: string;
+  hasCoordinator: boolean;
+}) {
+  const t = useTranslations("coordinatorPrograms");
+  const launch = useLaunchProgram(programId);
+  const hintId = useId();
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <Button
+        onClick={launch.launch}
+        disabled={!hasCoordinator || launch.launching}
+        aria-describedby={hasCoordinator ? undefined : hintId}
+      >
+        {launch.launching ? t("launching") : t("launchProgram")}
+      </Button>
+      {hasCoordinator ? null : (
+        <p id={hintId} className="type-caption text-text-muted">
+          {t("launchNeedsCoordinator")}
+        </p>
+      )}
     </div>
   );
 }

@@ -681,7 +681,7 @@ describe("coordinator program detail", () => {
     expect(screen.getByText("Program türü")).toBeInTheDocument();
   });
 
-  it("gives only a peer program the Akran kategorileri section", async () => {
+  it("gives only a peer program the Aktif mentorluk kategorileri section", async () => {
     const detail = coordinatorProgramDetail();
     vi.mocked(getCoordinatorProgram).mockResolvedValue({
       ...detail,
@@ -691,10 +691,12 @@ describe("coordinator program detail", () => {
       <ProgramSettingsView programId="program-1" />,
     );
     expect(
-      await screen.findByRole("heading", { name: "Akran kategorileri" }),
+      await screen.findByRole("heading", {
+        name: "Aktif mentorluk kategorileri",
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Akran kategorileri" }),
+      screen.getByRole("link", { name: "Aktif mentorluk kategorileri" }),
     ).toHaveAttribute("href", "#peer_categories");
     unmount();
 
@@ -704,10 +706,10 @@ describe("coordinator program detail", () => {
       await screen.findByText("Genel bilgiler", { selector: "h2" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("heading", { name: "Akran kategorileri" }),
+      screen.queryByRole("heading", { name: "Aktif mentorluk kategorileri" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: "Akran kategorileri" }),
+      screen.queryByRole("link", { name: "Aktif mentorluk kategorileri" }),
     ).not.toBeInTheDocument();
   });
 
