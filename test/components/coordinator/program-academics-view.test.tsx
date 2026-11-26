@@ -65,6 +65,11 @@ describe("Office Hours › Katılımcılar › Akademisyenler", () => {
       0,
     );
     expect(screen.getByText("Giriş yaptı")).toBeInTheDocument();
+    // The Office Hours columns and their filter are the admin's only.
+    expect(screen.queryByText("Bu ay randevu")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: "Office Hours müsaitliği" }),
+    ).not.toBeInTheDocument();
     const sub = screen.getByRole("navigation", { name: "Katılımcılar" });
     expect(
       within(sub).getByRole("link", { name: /Akademisyenler/ }),

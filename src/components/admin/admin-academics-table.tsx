@@ -17,12 +17,21 @@ import {
   useAdminAcademics,
   type AcademicsList,
 } from "@/hooks/use-admin-academics";
-import type { AdminAcademic } from "@/interfaces/admin-academics";
-import { ACADEMIC_FILTERS } from "@/lib/admin-academics";
+import {
+  OfficeHoursFilter,
+  type AdminAcademic,
+  type AdminAcademicOfficeHours,
+} from "@/interfaces/admin-academics";
+import { ACADEMIC_FILTERS, OFFICE_HOURS_FILTERS } from "@/lib/admin-academics";
+import { isEnumValue } from "@/lib/enum";
 import { errorMessage, formatLongDate, initials } from "@/lib/utils";
 
 const COLUMNS =
   "grid grid-cols-[minmax(240px,2fr)_minmax(180px,1.5fr)_110px_170px_110px_90px] items-center gap-4";
+
+/** The admin's list adds the two Office Hours columns after Danışan (Figma 152:7644). */
+const ADMIN_COLUMNS =
+  "grid grid-cols-[minmax(240px,2fr)_minmax(180px,1.5fr)_90px_150px_110px_170px_110px_90px] items-center gap-4";
 
 /** Kullanıcılar › Akademisyenler: the institution's academicians, read-only. */
 export function AdminAcademicsTable() {
@@ -87,6 +96,7 @@ export function AcademicsTable({
               ))}
             </select>
           </label>
+          <OfficeHoursSelect academics={academics} shown={showContact} />
         </div>
       </div>
 
@@ -97,13 +107,14 @@ export function AcademicsTable({
       ) : academics.isLoading ? (
         <QueryNotice isLoading error={null} />
       ) : (
-        <ScrollTable minWidth={980}>
+        <ScrollTable minWidth={showContact ? 1180 : 980}>
           <div
-            className={`${COLUMNS} border-b border-[#f0f2f4] px-5 py-3 text-[12px] font-medium text-[#858c96]`}
+            className={`${showContact ? ADMIN_COLUMNS : COLUMNS} border-b border-[#f0f2f4] px-5 py-3 text-[12px] font-medium text-[#858c96]`}
           >
             <span>{t("columns.academic")}</span>
             <span>{t("columns.department")}</span>
             <span>{t("columns.advisees")}</span>
+            <OfficeHoursHeadings shown={showContact} />
             <span>{t("columns.signIn")}</span>
             <span>{t("columns.status")}</span>
             <span />
@@ -148,7 +159,7 @@ function AcademicRow({
   const t = useTranslations("adminAcademics");
   return (
     <div
-      className={`${COLUMNS} border-b border-[#f0f2f4] px-5 py-3.5 last:border-0`}
+      className={`${showContact ? ADMIN_COLUMNS : COLUMNS} border-b border-[#f0f2f4] px-5 py-3.5 last:border-0`}
     >
       <span className="flex min-w-0 items-center gap-2.5">
         <Avatar initials={initials(row.fullName)} tone="blue" size="lg" />
@@ -165,6 +176,7 @@ function AcademicRow({
         {row.departmentName ?? "—"}
       </span>
       <span className="text-[13px] text-[#22262b]">{row.adviseeCount}</span>
+      <OfficeHoursCells officeHours={row.officeHours} shown={showContact} />
       <SignInCell row={row} />
       <span>
         <RecordChip active={row.active} />
@@ -283,9 +295,7 @@ function AcademicDrawer({
             {t("advisees", { count: academic.adviseeCount })}
           </Field>
           <Field label={t("drawer.officeHours")}>
-            <span className="text-[12.5px] text-[#858c96]">
-              {t("drawer.officeHoursPending")}
-            </span>
+            <OfficeHoursSummary officeHours={academic.officeHours} />
           </Field>
         </dl>
         <p className="mx-6 mb-6 rounded-2xl bg-[#f5f6f8] px-4 py-3 text-[12.5px] text-[#676e78]">
@@ -293,6 +303,106 @@ function AcademicDrawer({
         </p>
       </aside>
     </div>
+  );
+}
+
+/** "Office Hours müsaitliği": hours set or not yet, whatever students see. */
+function OfficeHoursSelect({
+  academics,
+  shown,
+}: {
+  academics: AcademicsList;
+  shown: boolean;
+}) {
+  const t = useTranslations("adminAcademics");
+  if (!shown) return null;
+  return (
+    <label className="flex h-10 items-center gap-2 rounded-full border border-[#e9ecef] bg-white px-3.5 text-[13px]">
+      <span className="text-[#858c96]">{t("officeHoursFilter")}</span>
+      <select
+        aria-label={t("officeHoursFilter")}
+        value={academics.officeHours}
+        onChange={(event) => {
+          if (isEnumValue(OfficeHoursFilter, event.target.value)) {
+            academics.setOfficeHours(event.target.value);
+          }
+        }}
+        className="bg-transparent font-medium text-[#22262b] outline-none"
+      >
+        {OFFICE_HOURS_FILTERS.map((filter) => (
+          <option key={filter} value={filter}>
+            {t(`officeHoursFilters.${filter}`)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function OfficeHoursHeadings({ shown }: { shown: boolean }) {
+  const t = useTranslations("adminAcademics");
+  if (!shown) return null;
+  return (
+    <>
+      <span>{t("columns.officeHours")}</span>
+      <span>{t("columns.meetingsThisMonth")}</span>
+    </>
+  );
+}
+
+/** The two admin columns; a program's list has no numbers and no columns for them. */
+function OfficeHoursCells({
+  officeHours,
+  shown,
+}: {
+  officeHours: AdminAcademicOfficeHours | null;
+  shown: boolean;
+}) {
+  if (!shown) return null;
+  if (!officeHours) {
+    return (
+      <>
+        <span className="text-[13px] text-[#858c96]">—</span>
+        <span className="text-[13px] text-[#858c96]">—</span>
+      </>
+    );
+  }
+  return (
+    <>
+      <span>
+        <HoursChip defined={officeHours.hoursDefined} />
+      </span>
+      <span className="text-[13px] text-[#22262b]">
+        {officeHours.meetingsThisMonth}
+      </span>
+    </>
+  );
+}
+
+function HoursChip({ defined }: { defined: boolean }) {
+  const t = useTranslations("adminAcademics");
+  if (defined) return <StatusChip tone="green">{t("hoursDefined")}</StatusChip>;
+  return <StatusChip tone="amber">{t("hoursNotYet")}</StatusChip>;
+}
+
+function OfficeHoursSummary({
+  officeHours,
+}: {
+  officeHours: AdminAcademicOfficeHours | null;
+}) {
+  const t = useTranslations("adminAcademics");
+  if (!officeHours) {
+    return (
+      <span className="text-[12.5px] text-[#858c96]">
+        {t("drawer.officeHoursPending")}
+      </span>
+    );
+  }
+  return (
+    <span className="flex flex-wrap items-center gap-2 text-[12.5px]">
+      <HoursChip defined={officeHours.hoursDefined} />
+      {t("drawer.meetingsThisMonth", { count: officeHours.meetingsThisMonth })}
+    </span>
   );
 }
 

@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import {
   AcademicFilter,
+  OfficeHoursFilter,
   type AdminAcademic,
 } from "@/interfaces/admin-academics";
 import {
@@ -46,6 +47,7 @@ export type AcademicsList = ReturnType<typeof useAcademicsList>;
 
 function useAcademicsList(query: UseQueryResult<AdminAcademic[]>) {
   const [filter, setFilter] = useState(AcademicFilter.All);
+  const [officeHours, setOfficeHours] = useState(OfficeHoursFilter.All);
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -55,11 +57,18 @@ function useAcademicsList(query: UseQueryResult<AdminAcademic[]>) {
     isLoading: query.isLoading,
     error: query.error,
     total: all.length,
-    rows: filterAcademics(all, { filter, query: search, department }),
+    rows: filterAcademics(all, {
+      filter,
+      officeHours,
+      query: search,
+      department,
+    }),
     counts: academicCounts(all),
     departments: academicDepartments(all),
     filter,
     setFilter,
+    officeHours,
+    setOfficeHours,
     search,
     setSearch,
     department,
