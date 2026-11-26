@@ -7,9 +7,8 @@ import {
 } from "@/interfaces/appointment";
 import { currentTime } from "@/lib/appointments";
 import {
-  isSameDay,
+  isSameCalendarDay,
   shortWeekday,
-  timeLabel,
   type MonthCell,
 } from "@/lib/calendar";
 import { titledName } from "@/lib/profile-completion";
@@ -19,6 +18,7 @@ import {
   shortPersonName,
 } from "@/lib/student-appointments";
 import { isAwaitingAnswer } from "@/lib/student-home";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDayMonth } from "@/lib/utils";
 
 const HOUR_HEIGHT = 60;
@@ -127,7 +127,7 @@ export function AppointmentDayGrid({
                 >
                   <span className="truncate type-label-sm">
                     {[
-                      `${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`,
+                      `${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`,
                       titledName(
                         item.counterpart.title,
                         item.counterpart.fullName,
@@ -148,7 +148,7 @@ export function AppointmentDayGrid({
           >
             <span className="sr-only">
               {tCalendar("now", {
-                time: timeLabel(clock.toISOString(), locale),
+                time: formatTurkishTime(clock.toISOString(), locale),
               })}
             </span>
           </div>
@@ -182,7 +182,7 @@ export function AppointmentTimeGrid({
           <p
             key={dayKey(day)}
             className={`grid h-9 place-items-center rounded-lg type-body-sm ${
-              isSameDay(day.toISOString(), today)
+              isSameCalendarDay(day, today)
                 ? "bg-background-selected text-text-accent"
                 : "text-text-secondary"
             }`}
@@ -236,7 +236,7 @@ export function AppointmentTimeGrid({
                     className={`flex size-full flex-col justify-center overflow-hidden rounded-md px-2 py-0.5 text-left type-caption ${blockClass(item, isSelected)}`}
                   >
                     <span className="truncate">
-                      {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
+                      {`${formatTurkishTime(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                     </span>
                     <span className={secondLine(place.height)}>
                       {confirmed ? item.topic : t(item.status)}
@@ -278,9 +278,8 @@ export function AppointmentMonthGrid({
           </p>
         ))}
         {cells.map((cell) => {
-          const iso = cell.date.toISOString();
-          const isToday = isSameDay(iso, today);
-          const isSelected = isSameDay(iso, selectedDay);
+          const isToday = isSameCalendarDay(cell.date, today);
+          const isSelected = isSameCalendarDay(cell.date, selectedDay);
           return (
             <button
               key={dayKey(cell.date)}
@@ -314,7 +313,7 @@ export function AppointmentMonthGrid({
                   aria-hidden
                   className={`truncate rounded-md px-1.5 py-0.5 type-caption ${blockClass(item)}`}
                 >
-                  {`${timeLabel(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
+                  {`${formatTurkishTime(currentTime(item).startsAt, locale)} ${shortPersonName(item.counterpart.fullName)}`}
                 </span>
               ))}
             </button>

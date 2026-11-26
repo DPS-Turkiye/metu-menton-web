@@ -9,7 +9,8 @@ import type {
   OfficeHoursAcademician,
   StudentOfficeHoursSlot,
 } from "@/interfaces/student-office-hours";
-import { isSameDay, startOfWeek, weekDays } from "@/lib/calendar";
+import { isOnCalendarDay, startOfWeek, weekDays } from "@/lib/calendar";
+import { startOfTurkishDay, toTurkishWallClock } from "@/lib/turkey-time";
 
 /** The student's own advisor is not in the directory: the screens build the entry from the institutional record. */
 export const ADVISOR_ACADEMICIAN_ID = "advisor";
@@ -102,8 +103,8 @@ export function slotsByDay(slots: StudentOfficeHoursSlot[]) {
   const days: { day: Date; slots: StudentOfficeHoursSlot[] }[] = [];
   for (const slot of slots) {
     const last = days.at(-1);
-    if (last && isSameDay(slot.startsAt, last.day)) last.slots.push(slot);
-    else days.push({ day: new Date(slot.startsAt), slots: [slot] });
+    if (last && isOnCalendarDay(slot.startsAt, last.day)) last.slots.push(slot);
+    else days.push({ day: toTurkishWallClock(slot.startsAt), slots: [slot] });
   }
   return days;
 }
@@ -112,7 +113,7 @@ export function slotsByDay(slots: StudentOfficeHoursSlot[]) {
 export function officeHoursWeek(slots: StudentOfficeHoursSlot[], anchor: Date) {
   return weekDays(startOfWeek(anchor), OFFICE_HOURS_WEEK_DAYS).map((day) => {
     const daySlots = slots
-      .filter((slot) => isSameDay(slot.startsAt, day))
+      .filter((slot) => isOnCalendarDay(slot.startsAt, day))
       .toSorted((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
     return {
       day,
@@ -179,10 +180,9 @@ export function offeredTimes(appointment: Appointment): AppointmentTime[] {
 const SUNDAY = 0;
 const SATURDAY = 6;
 
-/** The day the booking week opens on: today, or the coming Monday when today is a weekend. */
-export function firstBookableWeekDay(today: Date) {
-  const day = new Date(today);
-  day.setHours(0, 0, 0, 0);
+/** The day the booking week opens on: today in Turkey, or the coming Monday when it is a weekend there. */
+export function firstBookableWeekDay(now: Date) {
+  const day = startOfTurkishDay(now);
   const weekday = day.getDay();
   if (weekday === SATURDAY) day.setDate(day.getDate() + 2);
   if (weekday === SUNDAY) day.setDate(day.getDate() + 1);
@@ -191,7 +191,7 @@ export function firstBookableWeekDay(today: Date) {
 
 /** The day of a time named in a link, when it is one to book: a real time, not before the first bookable day. */
 export function bookableDay(startsAt: string | null, firstDay: Date) {
-  const day = startsAt === null ? null : new Date(startsAt);
+  const day = startsAt === null ? null : toTurkishWallClock(startsAt);
   return day !== null && day.getTime() >= firstDay.getTime() ? day : null;
 }
 

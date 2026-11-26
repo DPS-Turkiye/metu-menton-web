@@ -25,8 +25,6 @@ import {
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   acceptableTime,
   slotShortLabel,
-  TURKEY_TIME_ZONE,
-  turkeyTime,
 } from "@/lib/academician-office-hours";
 import { ACADEMICIAN_ROUTES } from "@/lib/academician-routes";
 import { adviseeIds } from "@/lib/academician-students";
@@ -35,6 +33,7 @@ import {
   getAcademicianAvailability,
   getAcademicianRequests,
 } from "@/lib/client/academician-office-hours";
+import { formatTurkishTime, TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import { dayPart } from "@/lib/utils";
 import { RequestStep } from "@/types/academician-calendar";
 
@@ -192,7 +191,7 @@ export function useAcademicianHome() {
         ),
       today: summary.today.map((item) => ({
         id: item.id,
-        time: turkeyTime(item.startsAt, locale),
+        time: formatTurkishTime(item.startsAt, locale),
         studentName: item.counterpart.fullName,
         topic: [item.topic, item.place].filter(Boolean).join(" · "),
         href: calendarHref({ appointment: item.id }),

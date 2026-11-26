@@ -20,7 +20,7 @@ import type {
 } from "@/interfaces/student-office-hours";
 import { ToastTone } from "@/interfaces/toast";
 import { splitAppointments } from "@/lib/appointments";
-import { isSameDay, startOfWeek } from "@/lib/calendar";
+import { isSameCalendarDay, startOfWeek } from "@/lib/calendar";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
 import {
   answerOfficeHoursAlternative,
@@ -30,7 +30,6 @@ import {
   getOfficeHoursSlots,
   requestOfficeHours,
 } from "@/lib/client/student-office-hours";
-import { startOfDay } from "@/lib/mobile-calendar";
 import { titledName } from "@/lib/profile-completion";
 import {
   academicianName,
@@ -55,6 +54,7 @@ import {
   type OfficeHoursFilter,
   type OfficeHoursRequestErrors,
 } from "@/lib/student-office-hours";
+import { fromTurkishWallClock, startOfTurkishDay } from "@/lib/turkey-time";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
@@ -77,7 +77,7 @@ export function officeHoursBookingHref(id: string, slot?: string) {
 }
 
 function startOfToday() {
-  return startOfDay(new Date());
+  return startOfTurkishDay(new Date());
 }
 
 function slotsQuery(
@@ -245,7 +245,8 @@ export function useOfficeHoursProfile(id: string) {
     ...entry,
     nearest: free[0] ?? null,
     thisWeek: free.filter(
-      (slot) => Date.parse(slot.startsAt) < weekEnd.getTime(),
+      (slot) =>
+        Date.parse(slot.startsAt) < fromTurkishWallClock(weekEnd).getTime(),
     ),
     past: splitAppointments(withThem, new Date(appointments.dataUpdatedAt))
       .past,
@@ -287,7 +288,7 @@ export function useOfficeHoursBooking(id: string, slot: string | null = null) {
   const week = officeHoursWeek(slots.data ?? [], anchor);
   const day =
     week.find(
-      (column) => pickedDay && isSameDay(column.day.toISOString(), pickedDay),
+      (column) => pickedDay && isSameCalendarDay(column.day, pickedDay),
     ) ??
     week.find((column) => column.freeCount > 0) ??
     null;

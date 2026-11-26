@@ -10,12 +10,10 @@ import {
 } from "@/interfaces/academician-office-hours";
 import { ToastTone } from "@/interfaces/toast";
 import { cancelNeedsReason } from "@/lib/academician-calendar";
-import {
-  ACADEMICIAN_OFFICE_HOURS_QUERY_KEY,
-  TURKEY_TIME_ZONE,
-} from "@/lib/academician-office-hours";
+import { ACADEMICIAN_OFFICE_HOURS_QUERY_KEY } from "@/lib/academician-office-hours";
 import { cancelAcademicianAppointment } from "@/lib/client/academician-office-hours";
 import { formatDateRange } from "@/lib/format";
+import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import { useToast } from "@/stores/toast-store";
 
 /** The appointment drawer: its details, and cancelling it where the source allows. */

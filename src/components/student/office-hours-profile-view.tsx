@@ -24,9 +24,9 @@ import {
   useOfficeHoursProfile,
 } from "@/hooks/use-student-office-hours";
 import type { OfficeHoursCourse } from "@/interfaces/student-office-hours";
-import { timeLabel } from "@/lib/calendar";
 import { wasHeld } from "@/lib/student-appointments";
 import { academicianName, slotsByDay } from "@/lib/student-office-hours";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatDayMonth, formatWeekdayDayMonth, initials } from "@/lib/utils";
 
 /** Akademisyen Profili, tam sayfa (Figma 3.3). */
@@ -149,7 +149,10 @@ export function OfficeHoursProfileView({
                   />
                   {t("past", {
                     topic: item.topic,
-                    day: formatDayMonth(new Date(item.startsAt), locale),
+                    day: formatDayMonth(
+                      toTurkishWallClock(item.startsAt),
+                      locale,
+                    ),
                     status: wasHeld(item)
                       ? tHeld("held")
                       : tStatus(item.status),
@@ -189,10 +192,10 @@ export function OfficeHoursProfileView({
                 {profile.nearest
                   ? t("nearest", {
                       day: formatWeekdayDayMonth(
-                        new Date(profile.nearest.startsAt),
+                        toTurkishWallClock(profile.nearest.startsAt),
                         locale,
                       ),
-                      time: timeLabel(profile.nearest.startsAt, locale),
+                      time: formatTurkishTime(profile.nearest.startsAt, locale),
                     })
                   : t("noSlotsThisWeek")}
               </p>
@@ -212,7 +215,7 @@ export function OfficeHoursProfileView({
                           )}
                           className="grid h-11 w-24 place-items-center rounded-full border border-border-default type-label text-text-primary hover:bg-background-subtle"
                         >
-                          {timeLabel(slot.startsAt, locale)}
+                          {formatTurkishTime(slot.startsAt, locale)}
                         </Link>
                       </li>
                     ))}

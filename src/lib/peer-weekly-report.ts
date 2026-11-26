@@ -7,11 +7,8 @@ import {
   type PeerWeeklySummary,
   type SavePeerWeeklyReportInput,
 } from "@/interfaces/peer-reports";
-import {
-  fromIsoDay,
-  peerReportBadge,
-  REPORT_TIME_ZONE,
-} from "@/lib/peer-reports";
+import { fromIsoDay, peerReportBadge } from "@/lib/peer-reports";
+import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import type { PeerReportBadge } from "@/types/peer-reports";
 import {
   WeeklyCheck,
@@ -226,13 +223,13 @@ export function formatReportTime(value: string, locale: string) {
   const day = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
-    timeZone: REPORT_TIME_ZONE,
+    timeZone: TURKEY_TIME_ZONE,
   }).format(at);
   const time = new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-    timeZone: REPORT_TIME_ZONE,
+    timeZone: TURKEY_TIME_ZONE,
   }).format(at);
   return `${day}, ${time}`;
 }

@@ -4,6 +4,8 @@ import {
   CalendarFilter,
   formatWeekdayDate,
   hourOf,
+  isOnCalendarDay,
+  isSameCalendarDay,
   isSameDay,
   monthGridCells,
   monthLabel,
@@ -18,6 +20,7 @@ import {
 import en from "@/messages/en.json";
 import tr from "@/messages/tr.json";
 import { expectLength, itemAt } from "@test/fixtures/list-assertions";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("calendar helpers", () => {
   it("reads the local hour from an ISO timestamp", () => {
@@ -160,3 +163,25 @@ describe("weekday labels", () => {
     expect(formatWeekdayDate(thursday, "en")).toBe("Thursday, November 12");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "calendar days in a browser in %s",
+  (zone) => {
+    it("reads a moment on Turkey's calendar and compares two calendar days", () => {
+      inTimeZone(zone, () => {
+        expect(
+          isOnCalendarDay("2026-11-10T21:30:00Z", new Date(2026, 10, 11)),
+        ).toBe(true);
+        expect(
+          isOnCalendarDay("2026-11-10T21:30:00Z", new Date(2026, 10, 10)),
+        ).toBe(false);
+        expect(
+          isSameCalendarDay(
+            new Date(2026, 10, 11, 9),
+            new Date(2026, 10, 11, 23),
+          ),
+        ).toBe(true);
+      });
+    });
+  },
+);

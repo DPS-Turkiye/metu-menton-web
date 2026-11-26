@@ -1,6 +1,7 @@
 import { PeerReportStatus } from "@/interfaces/peer-reports";
 import { addDays, isoDay, startOfWeek } from "@/lib/coordinator-calendar";
 import { PEER_MENTOR_GIVE_HREF } from "@/lib/peer-mentoring";
+import { TURKEY_TIME_ZONE } from "@/lib/turkey-time";
 import { PeerReportBadge } from "@/types/peer-reports";
 
 /** A report week is Monday to Friday: the working days a daily report is due on. */
@@ -78,13 +79,10 @@ export function fromIsoDay(day: string) {
   return new Date(year ?? 0, (month ?? 1) - 1, date ?? 1);
 }
 
-/** The program's time zone: report days and deadlines are Istanbul days, wherever the browser is (as on the backend). */
-export const REPORT_TIME_ZONE = "Europe/Istanbul";
-
 /** The report day ("yyyy-mm-dd") a moment falls on, in the program's time zone. */
 export function reportDayOf(at: string) {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: REPORT_TIME_ZONE,
+    timeZone: TURKEY_TIME_ZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

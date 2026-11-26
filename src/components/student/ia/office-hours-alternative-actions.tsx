@@ -9,7 +9,7 @@ import {
   useOfficeHoursWithdraw,
 } from "@/hooks/use-student-office-hours";
 import type { Appointment } from "@/interfaces/appointment";
-import { timeLabel } from "@/lib/calendar";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatDayMonth } from "@/lib/utils";
 
 /**
@@ -52,7 +52,7 @@ export function OfficeHoursAlternativeActions({
             onClick={() => void answer.accept(time.startsAt)}
           >
             {t("acceptTime", {
-              time: `${formatDayMonth(new Date(time.startsAt), locale)} · ${timeLabel(time.startsAt, locale)}`,
+              time: `${formatDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)}`,
             })}
           </Button>
         ))

@@ -7,7 +7,6 @@ import { useMinuteClock } from "@/hooks/use-minute-clock";
 import type { Appointment } from "@/interfaces/appointment";
 import { monthGridCells } from "@/lib/calendar";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
-import { startOfDay } from "@/lib/mobile-calendar";
 import {
   appointmentRequestGroups,
   appointmentsInMonth,
@@ -19,6 +18,7 @@ import {
   visibleDays,
 } from "@/lib/student-appointments";
 import { isAwaitingAnswer } from "@/lib/student-home";
+import { startOfTurkishDay } from "@/lib/turkey-time";
 import {
   AppointmentsTab,
   AppointmentsView,
@@ -37,7 +37,7 @@ export type StudentAppointmentsOptions = {
 };
 
 function today() {
-  return startOfDay(new Date());
+  return startOfTurkishDay(new Date());
 }
 
 /**

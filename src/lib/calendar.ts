@@ -1,4 +1,5 @@
 import { formatDateRange } from "@/lib/format";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 
 export enum CalendarFilter {
   All = "all",
@@ -40,6 +41,16 @@ export function shortWeekday(date: Date, locale: string) {
 
 export function isSameDay(iso: string, day: Date) {
   return new Date(iso).toDateString() === day.toDateString();
+}
+
+/** Whether a moment falls on a calendar day, both read on Turkey's calendar (`day` is a wall-clock Date). */
+export function isOnCalendarDay(instant: string, day: Date) {
+  return isSameCalendarDay(toTurkishWallClock(instant), day);
+}
+
+/** Whether two calendar days (wall-clock Dates) are the same day. */
+export function isSameCalendarDay(left: Date, right: Date) {
+  return left.toDateString() === right.toDateString();
 }
 
 /** "14–18 Eylül", "31 Ağustos – 4 Eylül" */

@@ -3,8 +3,9 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import type { AvailabilityItem } from "@/lib/academician-availability";
-import { turkeyShortDay, turkeyTime } from "@/lib/academician-office-hours";
+import { turkeyShortDay } from "@/lib/academician-office-hours";
 import { exceptionLabel } from "@/lib/mentor-availability";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { AvailabilityItemKind } from "@/types/academician-office-hours";
 
 export type AvailabilityRow = {
@@ -35,7 +36,7 @@ export function useAvailabilityRows() {
           key: item.oneOff.id ?? item.oneOff.startsAt,
           label: turkeyShortDay(item.oneOff.startsAt, locale),
           hours: t("oneOff", {
-            hours: `${turkeyTime(item.oneOff.startsAt, locale)} – ${turkeyTime(item.oneOff.endsAt, locale)}`,
+            hours: `${formatTurkishTime(item.oneOff.startsAt, locale)} – ${formatTurkishTime(item.oneOff.endsAt, locale)}`,
           }),
         };
       case AvailabilityItemKind.Unavailable: {

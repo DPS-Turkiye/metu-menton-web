@@ -25,6 +25,7 @@ import {
   getMyOfficeHoursRequests,
   sendOfficeHoursRequest,
 } from "@/lib/client/office-hours-me";
+import { fromTurkishWallClock } from "@/lib/turkey-time";
 
 // Office Hours for an ODTÜ-signed-in student, through /api/office-hours/me: the academicians who chose to be listed,
 // their open slots, and the student's own requests. The screens keep their own shapes; this maps to them.
@@ -151,15 +152,18 @@ export async function getOfficeHoursSlots(
   from: Date,
   days: number,
 ): Promise<StudentOfficeHoursSlot[]> {
+  // `from` is a day on Turkey's calendar; the slots are moments.
   const until = new Date(from);
   until.setDate(until.getDate() + days);
+  const end = fromTurkishWallClock(until);
   const now = new Date();
-  const start = from > now ? from : now;
+  const begin = fromTurkishWallClock(from);
+  const start = begin > now ? begin : now;
   try {
     return (await getAcademicianOpenSlots(academicianId))
       .filter((slot) => {
         const startsAt = new Date(slot.startsAt);
-        return startsAt >= start && startsAt < until;
+        return startsAt >= start && startsAt < end;
       })
       .map((slot) => ({ ...slot, available: true }));
   } catch (error) {

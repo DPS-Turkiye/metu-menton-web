@@ -23,6 +23,7 @@ import {
 } from "@/lib/student-office-hours";
 import { peerAppointment } from "@test/fixtures/student-appointments";
 import { STUDENT_RECORD } from "@test/fixtures/student-home";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 const ALL: OfficeHoursFilter = {
   query: "",
@@ -298,5 +299,32 @@ describe("canCancelOfficeHours", () => {
         now,
       ),
     ).toBe(false);
+  });
+});
+
+describe.each(BROWSER_TIME_ZONES)("booking days in a browser in %s", (zone) => {
+  // 00:30 in Istanbul on Friday the 13th is still Thursday the 12th in UTC and London.
+  const afterMidnight: StudentOfficeHoursSlot = {
+    startsAt: "2026-11-13T00:30:00+03:00",
+    endsAt: "2026-11-13T01:00:00+03:00",
+    available: true,
+  };
+
+  it("puts a slot under its Turkey day", () => {
+    inTimeZone(zone, () => {
+      expect(
+        slotsByDay([afterMidnight]).map(({ day }) => day.getDate()),
+      ).toEqual([13]);
+      const week = officeHoursWeek([afterMidnight], new Date(2026, 10, 12));
+      expect(week.map((column) => column.freeCount)).toEqual([0, 0, 0, 0, 1]);
+    });
+  });
+
+  it("opens the week on Turkey's today", () => {
+    inTimeZone(zone, () => {
+      // Friday 22:30 UTC is already Saturday in Istanbul, so booking opens on Monday the 16th.
+      const first = firstBookableWeekDay(new Date("2026-11-13T22:30:00Z"));
+      expect([first.getDate(), first.getHours()]).toEqual([16, 0]);
+    });
   });
 });

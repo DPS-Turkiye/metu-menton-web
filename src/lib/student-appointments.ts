@@ -1,7 +1,8 @@
 import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
 import { currentTime, isUpcoming, splitAppointments } from "@/lib/appointments";
 import {
-  isSameDay,
+  isOnCalendarDay,
+  isSameCalendarDay,
   monthLabel,
   startOfWeek,
   weekdayName,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/calendar";
 import { startOfDay } from "@/lib/mobile-calendar";
 import { isAwaitingAnswer } from "@/lib/student-home";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { splitFullName } from "@/lib/utils";
 import {
   AppointmentRequestGroup,
@@ -45,7 +47,7 @@ export function appointmentTabs(
 export function appointmentsOnDay(appointments: Appointment[], day: Date) {
   const startOf = (item: Appointment) => currentTime(item).startsAt;
   return appointments
-    .filter((item) => isSameDay(startOf(item), day))
+    .filter((item) => isOnCalendarDay(startOf(item), day))
     .toSorted((a, b) => Date.parse(startOf(a)) - Date.parse(startOf(b)));
 }
 
@@ -55,7 +57,7 @@ export function appointmentsInMonth(
   month: Date,
 ) {
   return appointments.filter((item) => {
-    const start = new Date(currentTime(item).startsAt);
+    const start = toTurkishWallClock(currentTime(item).startsAt);
     return (
       start.getFullYear() === month.getFullYear() &&
       start.getMonth() === month.getMonth()
@@ -98,16 +100,20 @@ export function wasHeld({ status }: Pick<Appointment, "status">) {
   return status === AppointmentStatus.Confirmed;
 }
 
-/** Where the "Şu an" line crosses the day grid, in hours from its first row; null on another day or off the grid. */
+/**
+ * Where the "Şu an" line crosses the day grid, in hours from its first row; null on another day or off the grid.
+ * `now` is the moment itself, read on Turkey's clock like the grid.
+ */
 export function nowLineOffset(
   now: Date,
   day: Date,
   hours: readonly number[] = APPOINTMENT_GRID_HOURS,
 ) {
-  if (hours.length === 0 || now.toDateString() !== day.toDateString()) {
+  const clock = toTurkishWallClock(now);
+  if (hours.length === 0 || !isSameCalendarDay(clock, day)) {
     return null;
   }
-  const offset = now.getHours() + now.getMinutes() / 60 - (hours[0] ?? 0);
+  const offset = clock.getHours() + clock.getMinutes() / 60 - (hours[0] ?? 0);
   return offset >= 0 && offset <= hours.length ? offset : null;
 }
 
@@ -123,8 +129,8 @@ export function gridPlacement(
   const first = hours[0] ?? 0;
   const span = hours.length;
   const time = currentTime(appointment);
-  const start = new Date(time.startsAt);
-  const end = new Date(time.endsAt);
+  const start = toTurkishWallClock(time.startsAt);
+  const end = toTurkishWallClock(time.endsAt);
   const minimum = 0.5;
   const top = Math.min(
     Math.max(start.getHours() + start.getMinutes() / 60 - first, 0),

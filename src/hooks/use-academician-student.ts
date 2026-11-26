@@ -10,7 +10,6 @@ import {
   ACADEMICIAN_REQUESTS_QUERY_KEY,
   slotWhenLabel,
   turkeyShortDay,
-  turkeyTime,
 } from "@/lib/academician-office-hours";
 import {
   ACADEMICIAN_ROUTES,
@@ -21,6 +20,7 @@ import {
   getAcademicianAppointments,
   getAcademicianRequests,
 } from "@/lib/client/academician-office-hours";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { RequestStep } from "@/types/academician-calendar";
 import { StudentProfileOrigin } from "@/types/academician-office-hours";
 
@@ -137,7 +137,7 @@ export function useAcademicianStudent(
         key: item.key,
         title: item.title,
         when: t("historyWhen", {
-          when: `${turkeyShortDay(item.startsAt, locale)} · ${turkeyTime(item.startsAt, locale)}`,
+          when: `${turkeyShortDay(item.startsAt, locale)} · ${formatTurkishTime(item.startsAt, locale)}`,
         }),
         badge: item.badge,
       })),

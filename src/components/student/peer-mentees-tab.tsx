@@ -17,10 +17,11 @@ import { usePeerMenteesTab } from "@/hooks/use-peer-mentees-tab";
 import type { PeerGivePublished } from "@/hooks/use-peer-mentor-give";
 import type { Appointment } from "@/interfaces/appointment";
 import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
-import { turkeyShortDay, turkeyTime } from "@/lib/academician-office-hours";
+import { turkeyShortDay } from "@/lib/academician-office-hours";
 import { currentTime } from "@/lib/appointments";
 import { mentorshipSince } from "@/lib/peer-mentoring";
 import { requestMenteeHref } from "@/lib/peer-profile-links";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { initials } from "@/lib/utils";
 import { PeerGiveTab } from "@/types/iskur-student";
 
@@ -179,7 +180,7 @@ function MenteeRow({
           <p className="type-body-sm text-status-success-text">
             {t("nextSession", {
               day: turkeyShortDay(time.startsAt, locale),
-              time: turkeyTime(time.startsAt, locale),
+              time: formatTurkishTime(time.startsAt, locale),
             })}
           </p>
         ) : null}

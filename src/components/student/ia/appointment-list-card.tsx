@@ -10,10 +10,10 @@ import {
 } from "@/components/student/ia/ui";
 import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
 import { currentTime } from "@/lib/appointments";
-import { timeLabel } from "@/lib/calendar";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
 import { offeredTimes } from "@/lib/student-office-hours";
+import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 
 function useSubject({ category, topic }: Appointment) {
@@ -101,8 +101,8 @@ export function AppointmentRow({
       <Person appointment={appointment}>
         {[
           tKind(appointment.kind),
-          formatWeekdayDayMonth(new Date(time.startsAt), locale),
-          `${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`,
+          formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale),
+          `${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`,
           subject,
         ].join(" · ")}
       </Person>
@@ -131,7 +131,7 @@ export function AppointmentReplyCard({
   const locale = useLocale();
   const subject = useSubject(appointment);
   const day = (startsAt: string) =>
-    formatWeekdayDayMonth(new Date(startsAt), locale);
+    formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale);
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-status-warning-border bg-background-surface p-4 sm:p-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -146,7 +146,7 @@ export function AppointmentReplyCard({
             {t("alternative.requested")}
           </span>
           <s className="type-label text-text-muted">
-            {`${day(appointment.startsAt)} · ${timeLabel(appointment.startsAt, locale)}`}
+            {`${day(appointment.startsAt)} · ${formatTurkishTime(appointment.startsAt, locale)}`}
           </s>
         </p>
         <ArrowRight
@@ -163,7 +163,7 @@ export function AppointmentReplyCard({
               key={time.startsAt}
               className="type-label-lg text-text-primary"
             >
-              {`${day(time.startsAt)} · ${timeLabel(time.startsAt, locale)} – ${timeLabel(time.endsAt, locale)}`}
+              {`${day(time.startsAt)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`}
             </span>
           ))}
         </p>

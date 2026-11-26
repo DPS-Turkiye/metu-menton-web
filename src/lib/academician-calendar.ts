@@ -14,10 +14,7 @@ import type {
   Weekday,
 } from "@/interfaces/mentor";
 import { isDayOff } from "@/lib/academician-availability";
-import {
-  turkeyWallClock,
-  waitsForAcademician,
-} from "@/lib/academician-office-hours";
+import { waitsForAcademician } from "@/lib/academician-office-hours";
 import {
   monthGridCells,
   monthLabel,
@@ -29,6 +26,7 @@ import { addDays, isoDay, startOfWeek } from "@/lib/coordinator-calendar";
 import { isEnumValue } from "@/lib/enum";
 import { formatDateRange } from "@/lib/format";
 import { weekdayOf } from "@/lib/mentor-availability";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { minutesOfDay } from "@/lib/utils";
 import {
   AppointmentsCalendarView,
@@ -132,7 +130,7 @@ export function appointmentsHref(
 /** The anchor day of a view: the date in the URL, or today in Turkey. */
 export function anchorDay(date: string | null, now: Date) {
   if (date === null) {
-    const today = turkeyWallClock(now);
+    const today = toTurkishWallClock(now);
     return new Date(today.getFullYear(), today.getMonth(), today.getDate());
   }
   const [year = 0, month = 0, day = 0] = date.split("-").map(Number);
@@ -185,11 +183,11 @@ export type CalendarSource = {
   availability: AcademicianAvailability;
 };
 
-/** Spans are on Turkey's wall clock (see turkeyWallClock), like everything the grid draws. */
+/** Spans are on Turkey's wall clock (see toTurkishWallClock), like everything the grid draws. */
 function spanOf(time: AppointmentTime): CalendarSpan {
   return {
-    start: turkeyWallClock(time.startsAt),
-    end: turkeyWallClock(time.endsAt),
+    start: toTurkishWallClock(time.startsAt),
+    end: toTurkishWallClock(time.endsAt),
   };
 }
 
@@ -490,7 +488,7 @@ export function monthCells(
 
 /** Where the red "now" line crosses `day`'s column, in hours from the grid top; null on other days. */
 export function nowOffset(now: Date, day: Date, grid: GridHours) {
-  const wall = turkeyWallClock(now);
+  const wall = toTurkishWallClock(now);
   if (isoDay(wall) !== isoDay(day)) return null;
   const offset = hourOf(wall) - grid.startHour;
   return offset < 0 || offset > grid.hours ? null : offset;
@@ -549,7 +547,7 @@ export function monthSummary(
   month: Date,
 ) {
   const inMonth = (time: AppointmentTime) => {
-    const start = turkeyWallClock(time.startsAt);
+    const start = toTurkishWallClock(time.startsAt);
     return (
       start.getFullYear() === month.getFullYear() &&
       start.getMonth() === month.getMonth()
@@ -611,7 +609,7 @@ export function requestFit(
 ): { fit: RequestFit; weekday: Weekday } {
   const span = spanOf(time);
   const weekday = weekdayOf(span.start);
-  if (span.start.getTime() <= turkeyWallClock(now).getTime()) {
+  if (span.start.getTime() <= toTurkishWallClock(now).getTime()) {
     return { fit: RequestFit.Past, weekday };
   }
   const day = isoDay(span.start);
