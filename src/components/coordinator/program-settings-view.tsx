@@ -366,17 +366,14 @@ function SettingsBody({
           </Row>
         </Section>
 
-        {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
         {detail.program.type === ProgramType.PeerMentoring ? (
-          <Section
-            id={SettingsSection.PeerCategories}
+          <ProgramPeerCategories
+            programId={programId}
+            readOnly={locked}
+            anchorId={SettingsSection.PeerCategories.toLowerCase()}
             title={t(`sections.${SettingsSection.PeerCategories}`)}
             note={t("peerCategoriesNote")}
-          >
-            <Row>
-              <ProgramPeerCategories programId={programId} readOnly={locked} />
-            </Row>
-          </Section>
+          />
         ) : null}
 
         {draftProgram ? null : (

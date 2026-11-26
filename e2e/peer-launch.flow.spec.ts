@@ -162,7 +162,7 @@ test.describe("Akran", () => {
     }
 
     await page.goto(`/coordinator/programs/${programId}/settings`);
-    await page.getByRole("checkbox", { name: CATEGORY }).check();
+    await page.getByRole("switch", { name: CATEGORY }).check();
     await page.getByRole("button", { name: "Kategorileri kaydet" }).click();
     await expect(page.getByText("Kategoriler kaydedildi.")).toBeVisible();
 

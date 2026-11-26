@@ -4222,7 +4222,7 @@
       "TRAINING": "Akran Mentoru eğitimi",
       "ARCHIVE": "Arşiv",
       "CURRICULUM": "Müfredat & fazlar",
-      "PEER_CATEGORIES": "Akran kategorileri"
+      "PEER_CATEGORIES": "Aktif mentorluk kategorileri"
     },
     "sectionsLabel": "Ayar bölümleri",
     "archivedNote": "Bu program arşivlendi ve salt okunur. Değiştirmek için aşağıdan yeniden açın.",
@@ -4269,7 +4269,7 @@
     "adminViewNote": "Program ayarlarını programın koordinatörleri yapılandırır; yönetici olarak yalnızca görüntülersin. Koordinatörleri buradan atayabilirsin.",
     "coordinatorsByAdmin": "Koordinatörleri yönetici atar.",
     "type": "Program türü",
-    "peerCategoriesNote": "Öğrenciler ve akran mentorları yalnızca burada etkinleştirdiğin kategorileri görür. Başlangıçta hiçbiri etkin değildir."
+    "peerCategoriesNote": "Öğrenciler yalnızca aktif kategorilerde mentor arayabilir; mentorlar bu kategorilerden seçim yapar. Başlangıçta hiçbiri etkin değildir."
   },
   "programTeams": {
     "filters": {
@@ -6970,14 +6970,15 @@
     }
   },
   "programPeerCategories": {
-    "title": "Akran kategorileri",
     "noneActive": "Hiçbir kategori etkin değil: öğrenciler mentor arayamaz, akran mentorları profilinde kategori seçemez.",
     "activeCount": "{count, plural, one {# kategori etkin} other {# kategori etkin}}",
     "save": "Kategorileri kaydet",
     "saving": "Kaydediliyor…",
     "cancel": "Vazgeç",
     "saved": "Kategoriler kaydedildi.",
-    "saveFailed": "Kategoriler kaydedilemedi."
+    "saveFailed": "Kategoriler kaydedilemedi.",
+    "loading": "Kategoriler yükleniyor…",
+    "loadFailed": "Kategoriler yüklenemedi."
   },
   "adminAcademics": {
     "intro": "Akademisyenler kurum verisinden gelir; elle onaylanmaz, buradan düzenlenmez.",

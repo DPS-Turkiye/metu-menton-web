@@ -19,7 +19,7 @@ import { useToast } from "@/stores/toast-store";
 export const programPeerCategoriesQueryKey = (programId: string) =>
   ["program-peer-categories", programId] as const;
 
-/** Program Ayarları › Akran kategorileri: the active set, edited as a draft and saved as a whole. */
+/** Program Ayarları › Aktif mentorluk kategorileri: the active set, edited as a draft and saved as a whole. */
 export function useProgramPeerCategories(programId: string) {
   const t = useTranslations("programPeerCategories");
   const { showToast } = useToast();
