@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { CoordinatorPicker } from "@/components/admin/coordinator-picker";
+import { ProgramBlockers } from "@/components/common/program-blockers";
 import { ProgramCurriculumSection } from "@/components/coordinator/program-curriculum-section";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { ProgramPeerCategories } from "@/components/coordinator/program-peer-categories-section";
@@ -12,10 +13,10 @@ import { ProgramRosterSection } from "@/components/coordinator/program-roster-se
 import { ProgramTrainingEditor } from "@/components/coordinator/program-training-editor";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
 import { RuleStepper } from "@/components/coordinator/rule-stepper";
-import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import {
   useProgramArchive,
   useProgramCoordinators,
+  useProgramFeatures,
   useProgramSettings,
 } from "@/hooks/use-coordinator-program";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
@@ -31,6 +32,7 @@ import {
   settingsSections,
   stepDays,
 } from "@/lib/coordinator-program-detail";
+import { PROGRAM_FEATURES, programFeaturesOf } from "@/lib/program-features";
 
 const FIELD =
   "mt-1.5 h-11 w-full rounded-2xl border border-[#e9ecef] px-4 text-[13.5px] text-[#22262b] outline-none focus:border-[#22262b] disabled:bg-[#f7f8f9]";
@@ -176,15 +178,13 @@ function SettingsBody({
 
         {sections.includes(SettingsSection.Features) ? (
           /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
-          <Section
-            id={SettingsSection.Features}
-            title={t(`sections.${SettingsSection.Features}`)}
-            note={t("featuresNote")}
-          >
-            <Row>
-              <ProgramKindBadges program={detail.program} />
-            </Row>
-          </Section>
+          <FeaturesSection
+            // A refetch with other features (saved elsewhere) starts the switches again from what is saved.
+            key={programFeaturesOf(detail.program).join()}
+            programId={programId}
+            detail={detail}
+            admin={navigation.admin}
+          />
         ) : null}
 
         <ProgramCurriculumSection
@@ -422,6 +422,92 @@ function SettingsBody({
   );
 }
 
+/**
+ * Program özellikleri: the switches save on their own, since the admin may change them after launch while the rest of
+ * the settings are the coordinators'.
+ */
+function FeaturesSection({
+  programId,
+  detail,
+  admin,
+}: {
+  programId: string;
+  detail: CoordinatorProgramDetail;
+  admin: boolean;
+}) {
+  const t = useTranslations("programSettings");
+  const tFeature = useTranslations("programFeatures");
+  const features = useProgramFeatures(programId, detail, admin);
+  const locked = features.lock !== null;
+  return (
+    <Section
+      id={SettingsSection.Features}
+      title={t(`sections.${SettingsSection.Features}`)}
+      note={features.lock ?? tFeature("draftNote")}
+    >
+      <div role="group" aria-label={tFeature("switchesTitle")}>
+        {PROGRAM_FEATURES.map((feature) => (
+          <Row key={feature}>
+            <Toggle
+              title={tFeature(`names.${feature}`)}
+              hint={tFeature(`hints.${feature}`)}
+              checked={features.features.includes(feature)}
+              disabled={locked || features.saving}
+              onChange={(on) => features.setFeature(feature, on)}
+            />
+          </Row>
+        ))}
+      </div>
+      {features.blockers.length > 0 ? (
+        <Row>
+          <ProgramBlockers
+            title={tFeature("refused")}
+            blockers={features.blockers}
+          />
+        </Row>
+      ) : null}
+      {features.problem ? (
+        <Row>
+          <p role="status" className="text-[13px] text-[#d9464b]">
+            {features.problem}
+          </p>
+        </Row>
+      ) : null}
+      {features.error ? (
+        <Row>
+          <p role="alert" className="text-[13px] text-[#d9464b]">
+            {features.error}
+          </p>
+        </Row>
+      ) : null}
+      {locked ? null : (
+        <Row>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={features.cancel}
+              disabled={!features.dirty || features.saving}
+              className="rounded-full border border-[#e9ecef] px-5 py-[11px] text-[13.5px] font-medium text-[#22262b] disabled:text-[#aeb4bc]"
+            >
+              {tFeature("cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={features.save}
+              disabled={
+                !features.dirty || features.saving || features.problem !== null
+              }
+              className="rounded-full bg-[#22262b] px-5 py-[11px] text-[13.5px] font-medium text-white disabled:bg-[#aeb4bc]"
+            >
+              {features.saving ? tFeature("saving") : tFeature("save")}
+            </button>
+          </div>
+        </Row>
+      )}
+    </Section>
+  );
+}
+
 /** The admin assigns and changes coordinators; coordinators see the list only. */
 function CoordinatorsSection({
   programId,
@@ -433,13 +519,25 @@ function CoordinatorsSection({
   editable: boolean;
 }) {
   const t = useTranslations("programSettings");
-  const team = useProgramCoordinators(programId, detail.coordinators);
+  const team = useProgramCoordinators(
+    programId,
+    detail.coordinators,
+    detail.program,
+  );
+  const tFeature = useTranslations("programFeatures.names");
   return (
     <Section
       id={SettingsSection.Coordinators}
       title={t(`sections.${SettingsSection.Coordinators}`)}
       note={t("coordinatorsNote")}
     >
+      {team.featureOptions.length > 0 ? (
+        <Row>
+          <p className="text-[12.5px] text-[#858c96]">
+            {t("coordinatorFeaturesNote")}
+          </p>
+        </Row>
+      ) : null}
       <ul aria-label={t("coordinatorsList")}>
         {team.coordinators.map((coordinator) => (
           <li key={coordinator.id}>
@@ -467,6 +565,48 @@ function CoordinatorsSection({
                   </button>
                 ) : null}
               </div>
+              {team.featureOptions.length > 0 &&
+              team.featuresOf(coordinator) !== null ? (
+                /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
+                <div
+                  role="group"
+                  aria-label={t("coordinatorFeaturesLabel", {
+                    name: coordinator.fullName,
+                  })}
+                  className="mt-2 flex flex-wrap gap-1.5"
+                >
+                  {team.featureOptions.map((feature) => {
+                    const held = (team.featuresOf(coordinator) ?? []).includes(
+                      feature,
+                    );
+                    return editable && team.choosesFeatures(coordinator) ? (
+                      <button
+                        key={feature}
+                        type="button"
+                        aria-pressed={held}
+                        disabled={
+                          team.busy || !team.canToggle(coordinator, feature)
+                        }
+                        onClick={() => team.toggleFeature(coordinator, feature)}
+                        className={`rounded-full border px-3 py-1 text-[12px] disabled:opacity-60 ${
+                          held
+                            ? "border-[#22262b] bg-[#22262b] text-white"
+                            : "border-[#e9ecef] text-[#676e78]"
+                        }`}
+                      >
+                        {tFeature(feature)}
+                      </button>
+                    ) : held ? (
+                      <span
+                        key={feature}
+                        className="rounded-full bg-[#f4f5f7] px-3 py-1 text-[12px] text-[#676e78]"
+                      >
+                        {tFeature(feature)}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              ) : null}
             </Row>
           </li>
         ))}

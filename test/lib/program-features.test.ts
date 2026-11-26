@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ProgramLifecycle } from "@/interfaces/coordinator-program";
 import {
   ProgramBlockerKind,
   ProgramFeature,
@@ -9,7 +10,10 @@ import {
   ALL_PROGRAM_FEATURES,
   ALL_STUDENT_FEATURES,
   blockersOf,
+  coordinatorFeatureChange,
   featureList,
+  FeatureLock,
+  featureLock,
   FeatureSetProblem,
   featureSetProblem,
   hasFeature,
@@ -191,5 +195,34 @@ describe("blockersOf", () => {
     expect(blockersOf("conflict")).toEqual([]);
     expect(blockersOf({ message: "x" })).toEqual([]);
     expect(blockersOf({ blockers: "x" })).toEqual([]);
+  });
+});
+
+describe("featureLock", () => {
+  it("lets the admin change features until the semester is completed", () => {
+    expect(featureLock(ProgramLifecycle.Draft, true)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Active, true)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Completed, true)).toBe(
+      FeatureLock.Completed,
+    );
+  });
+
+  it("lets coordinators change features only while it is a draft", () => {
+    expect(featureLock(ProgramLifecycle.Draft, false)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Active, false)).toBe(
+      FeatureLock.Coordinator,
+    );
+    expect(featureLock(ProgramLifecycle.Completed, false)).toBe(
+      FeatureLock.Completed,
+    );
+  });
+});
+
+describe("coordinatorFeatureChange", () => {
+  it("switches one feature in the listed order and never leaves none", () => {
+    expect(coordinatorFeatureChange([Oh], Peer, true)).toEqual([Peer, Oh]);
+    expect(coordinatorFeatureChange([Peer, Oh], Peer, false)).toEqual([Oh]);
+    expect(coordinatorFeatureChange([Iskur], Iskur, false)).toBeNull();
+    expect(coordinatorFeatureChange([Iskur], Iskur, true)).toEqual([Iskur]);
   });
 });
