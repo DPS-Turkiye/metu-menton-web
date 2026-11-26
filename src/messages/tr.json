@@ -4192,7 +4192,6 @@
     "autoMatchHint": "Uzmanlık, müsaitlik ve yüke göre öneri listesi oluşturulur"
   },
   "programSettings": {
-    "featuresNote": "Bu dönem programında açık olan özellikler. Her özellik kendi sayfalarını gösterir.",
     "trainingNote": "Öğrenciler videoyu izleyip 10 soruluk sınavdan en az 8 doğru yapınca Akran Mentoru rozetini kazanır. Programın koordinatörleri ve yöneticiler düzenler.",
     "eligibilityNote": "Bu programa kimlerin katılabileceğini belirler. Diğer programları etkilemez; açık olduğunda yönetici de kuralın dışına çıkamaz.",
     "eligibleDomain": "İzin verilen e-posta uzantısı",
@@ -6388,7 +6387,8 @@
     "iskurInternsLoadFailed": "İŞKUR stajyer listesi yüklenemedi.",
     "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
     "iskurInternsInvalid": "Eklenecek adresler geçersiz.",
-    "programFeaturesLoadFailed": "Program özellikleri yüklenemedi."
+    "programFeaturesLoadFailed": "Program özellikleri yüklenemedi.",
+    "programFeaturesSaveFailed": "Program özellikleri kaydedilemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6631,7 +6631,35 @@
       "OFFICE_HOURS": "Office Hours",
       "ISKUR": "İŞKUR"
     },
-    "none": "Özellik seçilmedi"
+    "none": "Özellik seçilmedi",
+    "blockerLine": "{feature}: {work}",
+    "blockers": {
+      "ACTIVE_MENTORSHIP": "{count} süren mentorluk",
+      "OPEN_REQUEST": "{count} yanıt bekleyen mentorluk talebi",
+      "ISKUR_PLACEMENT": "{count} İŞKUR yerleştirmesi",
+      "UPCOMING_OFFICE_HOURS_MEETING": "{count} yaklaşan Office Hours görüşmesi",
+      "UNSENT_REPORT": "{count} gönderilmemiş rapor"
+    },
+    "blockersHint": "Bu işler bitince ya da kapatılınca yeniden dene.",
+    "switchesTitle": "Özellikleri değiştir",
+    "refused": "Kapatılamadı; açık işler var:",
+    "saved": "Program özellikleri kaydedildi.",
+    "save": "Özellikleri kaydet",
+    "saving": "Kaydediliyor…",
+    "cancel": "Vazgeç",
+    "draftNote": "Program taslakken koordinatörler de özellikleri değiştirebilir. Program başladıktan sonra yalnızca yönetici değiştirir; açık işi olan bir özellik kapatılamaz.",
+    "lockedCoordinator": "Program başladı; özellikleri artık yönetici değiştirir.",
+    "lockedCompleted": "Program tamamlandı; özellikleri değiştirilemez.",
+    "iskurNeedsPeer": "Akran Mentörlüğü ile birlikte açılır",
+    "hints": {
+      "PEER_MENTORING": "Öğrenciler, rozetli akran mentorlardan mentorluk alır.",
+      "OFFICE_HOURS": "Öğrenciler ve koordinatörler Office Hours sayfalarını görür.",
+      "ISKUR": "İŞKUR stajyerleri birimlere ve ekiplere yerleşir."
+    },
+    "problems": {
+      "EMPTY": "En az bir özellik açık kalmalı.",
+      "ISKUR_NEEDS_PEER": "İŞKUR için Akran Mentörlüğü de açık olmalı."
+    }
   },
   "odtuProgramWizard": {
     "title": "Yeni Program Oluştur",

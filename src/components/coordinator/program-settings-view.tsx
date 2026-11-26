@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { CoordinatorPicker } from "@/components/admin/coordinator-picker";
+import { ProgramBlockers } from "@/components/common/program-blockers";
 import { ProgramCurriculumSection } from "@/components/coordinator/program-curriculum-section";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { ProgramPeerCategories } from "@/components/coordinator/program-peer-categories-section";
@@ -12,10 +13,10 @@ import { ProgramRosterSection } from "@/components/coordinator/program-roster-se
 import { ProgramTrainingEditor } from "@/components/coordinator/program-training-editor";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
 import { RuleStepper } from "@/components/coordinator/rule-stepper";
-import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import {
   useProgramArchive,
   useProgramCoordinators,
+  useProgramFeatures,
   useProgramSettings,
 } from "@/hooks/use-coordinator-program";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
@@ -23,6 +24,7 @@ import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
+import { ProgramFeature } from "@/interfaces/program";
 import { NO_COORDINATOR_CHOICES } from "@/lib/coordinator-picker";
 import {
   ProgramTab,
@@ -31,6 +33,7 @@ import {
   settingsSections,
   stepDays,
 } from "@/lib/coordinator-program-detail";
+import { PROGRAM_FEATURES } from "@/lib/program-features";
 
 const FIELD =
   "mt-1.5 h-11 w-full rounded-2xl border border-[#e9ecef] px-4 text-[13.5px] text-[#22262b] outline-none focus:border-[#22262b] disabled:bg-[#f7f8f9]";
@@ -176,15 +179,11 @@ function SettingsBody({
 
         {sections.includes(SettingsSection.Features) ? (
           /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
-          <Section
-            id={SettingsSection.Features}
-            title={t(`sections.${SettingsSection.Features}`)}
-            note={t("featuresNote")}
-          >
-            <Row>
-              <ProgramKindBadges program={detail.program} />
-            </Row>
-          </Section>
+          <FeaturesSection
+            programId={programId}
+            detail={detail}
+            admin={navigation.admin}
+          />
         ) : null}
 
         <ProgramCurriculumSection
@@ -419,6 +418,87 @@ function SettingsBody({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Program özellikleri: the switches save on their own, since the admin may change them after launch while the rest of
+ * the settings are the coordinators'.
+ */
+function FeaturesSection({
+  programId,
+  detail,
+  admin,
+}: {
+  programId: string;
+  detail: CoordinatorProgramDetail;
+  admin: boolean;
+}) {
+  const t = useTranslations("programSettings");
+  const tFeature = useTranslations("programFeatures");
+  const features = useProgramFeatures(programId, detail, admin);
+  const locked = features.lock !== null;
+  return (
+    <Section
+      id={SettingsSection.Features}
+      title={t(`sections.${SettingsSection.Features}`)}
+      note={features.lock ?? tFeature("draftNote")}
+    >
+      {PROGRAM_FEATURES.map((feature) => (
+        <Row key={feature}>
+          <Toggle
+            title={tFeature(`names.${feature}`)}
+            hint={
+              feature === ProgramFeature.Iskur
+                ? `${tFeature(`hints.${feature}`)} ${tFeature("iskurNeedsPeer")}.`
+                : tFeature(`hints.${feature}`)
+            }
+            checked={features.features.includes(feature)}
+            disabled={locked || features.saving}
+            onChange={(on) => features.setFeature(feature, on)}
+          />
+        </Row>
+      ))}
+      {features.blockers.length > 0 ? (
+        <Row>
+          <ProgramBlockers
+            title={tFeature("refused")}
+            blockers={features.blockers}
+          />
+        </Row>
+      ) : null}
+      {(features.problem ?? features.error) ? (
+        <Row>
+          <p role="alert" className="text-[13px] text-[#d9464b]">
+            {features.problem ?? features.error}
+          </p>
+        </Row>
+      ) : null}
+      {locked ? null : (
+        <Row>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={features.cancel}
+              disabled={!features.dirty || features.saving}
+              className="rounded-full border border-[#e9ecef] px-5 py-[11px] text-[13.5px] font-medium text-[#22262b] disabled:text-[#aeb4bc]"
+            >
+              {tFeature("cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={features.save}
+              disabled={
+                !features.dirty || features.saving || features.problem !== null
+              }
+              className="rounded-full bg-[#22262b] px-5 py-[11px] text-[13.5px] font-medium text-white disabled:bg-[#aeb4bc]"
+            >
+              {features.saving ? tFeature("saving") : tFeature("save")}
+            </button>
+          </div>
+        </Row>
+      )}
+    </Section>
   );
 }
 
