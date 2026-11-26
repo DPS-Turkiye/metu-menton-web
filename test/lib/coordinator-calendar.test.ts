@@ -11,6 +11,7 @@ import {
   eventInput,
   fullRecordingCount,
   isoDay,
+  itemsOnDay,
   mentorshipHref,
   placeDayItems,
   proposalItems,
@@ -30,6 +31,7 @@ import {
 } from "@test/fixtures/coordinator-calendar";
 import { itemAt } from "@test/fixtures/list-assertions";
 import { meetingProposal } from "@test/fixtures/meeting-proposals";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 import { translatorIn } from "@test/translators";
 
 const WEDNESDAY = new Date(2026, 8, 16, 15, 0);
@@ -225,3 +227,52 @@ describe("coordinator calendar", () => {
     expect(items.map((item) => item.proposalId)).toEqual(["proposal-1"]);
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "the coordinator calendar in a browser in %s",
+  (zone) => {
+    // 10:00–11:00 in Istanbul on Wednesday 16 September; 00:30 on the 17th is still the 16th in UTC and London.
+    const morning = calendarMeeting({
+      startsAt: "2026-09-16T07:00:00Z",
+      endsAt: "2026-09-16T08:00:00Z",
+    });
+    const afterMidnight = calendarMeeting({
+      id: "late",
+      startsAt: "2026-09-16T21:30:00Z",
+      endsAt: "2026-09-16T22:00:00Z",
+    });
+
+    it("draws a meeting at its Turkey hour and on its Turkey day", () => {
+      inTimeZone(zone, () => {
+        expect(placeDayItems([morning])[0]).toMatchObject({
+          top: 1,
+          height: 1,
+        });
+        expect(slotLabel(morning, "tr")).toBe("Çar 16 Eyl · 10:00–11:00");
+        expect(
+          itemsOnDay([morning, afterMidnight], new Date(2026, 8, 17)).map(
+            (item) => item.id,
+          ),
+        ).toEqual(["late"]);
+      });
+    });
+
+    it("saves an event's day and times as Turkey's", () => {
+      inTimeZone(zone, () => {
+        const input = eventInput({
+          programId: "program-1",
+          title: "Demo Day",
+          kind: ProgramEventKind.Event,
+          day: "2026-09-16",
+          startTime: "10:00",
+          endTime: "11:30",
+          description: "",
+        });
+        expect([input.startsAt, input.endsAt]).toEqual([
+          "2026-09-16T07:00:00.000Z",
+          "2026-09-16T08:30:00.000Z",
+        ]);
+      });
+    });
+  },
+);

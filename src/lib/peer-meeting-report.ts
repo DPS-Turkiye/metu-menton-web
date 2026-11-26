@@ -5,6 +5,11 @@ import {
   type SavePeerMeetingReportInput,
 } from "@/interfaces/peer-reports";
 import { withKey, withKeys } from "@/lib/keyed-list";
+import {
+  formatTurkishTime,
+  parseTurkishDateTime,
+  toTurkishWallClock,
+} from "@/lib/turkey-time";
 import { formatLongDate, toDateTimeLocalValue } from "@/lib/utils";
 import {
   MeetingReportSection,
@@ -53,7 +58,7 @@ export function meetingReportForm(
     ),
     followUpNeeded: report.followUpNeeded,
     followUpAt: report.followUpAt
-      ? toDateTimeLocalValue(new Date(report.followUpAt))
+      ? toDateTimeLocalValue(toTurkishWallClock(report.followUpAt))
       : "",
     productivity: report.productivity,
     nextTime: report.nextTime ?? "",
@@ -90,7 +95,11 @@ export function meetingReportInput(
     followUpNeeded: form.followUpNeeded,
     followUpAt:
       form.followUpNeeded && form.followUpAt !== ""
-        ? new Date(form.followUpAt).toISOString()
+        ? // The field's "YYYY-MM-DDTHH:mm" is Turkey's time, wherever the mentor's browser is.
+          parseTurkishDateTime(
+            form.followUpAt.slice(0, 10),
+            form.followUpAt.slice(11, 16),
+          )
         : null,
     productivity: form.productivity,
     nextTime: textOrNull(form.nextTime),
@@ -237,7 +246,7 @@ export function supportValue(choice: SupportChoice): boolean {
 /** "12 Kasım 2026, Perşembe" */
 export function meetingDayLabel(at: string, locale: string): string {
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(
-    new Date(at),
+    toTurkishWallClock(at),
   );
   return `${formatLongDate(at, locale)}, ${weekday}`;
 }
@@ -248,10 +257,9 @@ export function meetingSlotLabel(
   minutes: number,
   locale: string,
 ): string {
-  const time = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
   const start = new Date(at);
   const end = new Date(start.getTime() + minutes * 60_000);
-  return `${time.format(start)} – ${time.format(end)}`;
+  return `${formatTurkishTime(start, locale)} – ${formatTurkishTime(end, locale)}`;
 }
 
 function textOrNull(value: string) {

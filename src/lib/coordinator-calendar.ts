@@ -14,6 +14,12 @@ import {
 } from "@/interfaces/meeting-proposal";
 import { placeInLanes, type Placed } from "@/lib/calendar";
 import { formatDateRange } from "@/lib/format";
+import {
+  formatTurkishTime,
+  parseTurkishDateTime,
+  toTurkishDate,
+  toTurkishWallClock,
+} from "@/lib/turkey-time";
 import { formatDayMonth } from "@/lib/utils";
 
 export enum CalendarView {
@@ -118,10 +124,6 @@ export function weekdayLabel(date: Date, locale: string) {
     .replace(".", "");
 }
 
-export function timeLabel(value: string, locale: string) {
-  return clock(locale).format(new Date(value));
-}
-
 export function longDayLabel(date: Date, locale: string) {
   return new Intl.DateTimeFormat(locale, {
     weekday: "long",
@@ -130,16 +132,21 @@ export function longDayLabel(date: Date, locale: string) {
   }).format(date);
 }
 
+/** An item's start on Turkey's clock, which the grid, the day lists and the labels read. */
+function itemStart(item: CoordinatorCalendarItem) {
+  return toTurkishWallClock(item.startsAt);
+}
+
 function itemEnd(item: CoordinatorCalendarItem) {
-  if (item.endsAt) return new Date(item.endsAt);
+  if (item.endsAt) return toTurkishWallClock(item.endsAt);
   return item.kind === CoordinatorAgendaKind.Deadline
     ? null
-    : new Date(new Date(item.startsAt).getTime() + DEFAULT_MINUTES * 60_000);
+    : new Date(itemStart(item).getTime() + DEFAULT_MINUTES * 60_000);
 }
 
 /** "Çar 16 Eyl · 14:00–15:00", or just the day and time for a deadline. */
 export function slotLabel(item: CoordinatorCalendarItem, locale: string) {
-  const start = new Date(item.startsAt);
+  const start = itemStart(item);
   const day = `${weekdayLabel(start, locale)} ${formatDayMonth(start, locale)}`;
   const end = itemEnd(item);
   return end
@@ -148,7 +155,7 @@ export function slotLabel(item: CoordinatorCalendarItem, locale: string) {
 }
 
 export function itemsOnDay(items: CoordinatorCalendarItem[], day: Date) {
-  return items.filter((item) => sameDay(new Date(item.startsAt), day));
+  return items.filter((item) => sameDay(itemStart(item), day));
 }
 
 export type PlacedItem = Placed<CoordinatorCalendarItem>;
@@ -157,7 +164,7 @@ export function placeDayItems(items: CoordinatorCalendarItem[]): PlacedItem[] {
   return placeInLanes(
     items,
     (item) => {
-      const start = new Date(item.startsAt);
+      const start = itemStart(item);
       const end = itemEnd(item);
       return {
         start,
@@ -179,11 +186,9 @@ export function conflictSummary(
     .filter((item): item is CoordinatorCalendarItem => Boolean(item));
   const names = meetings.map(
     (item) =>
-      `${item.organizationName ?? item.title} (${timeLabel(item.startsAt, locale)})`,
+      `${item.organizationName ?? item.title} (${formatTurkishTime(item.startsAt, locale)})`,
   );
-  const day = meetings[0]
-    ? weekdayLabel(new Date(meetings[0].startsAt), locale)
-    : "";
+  const day = meetings[0] ? weekdayLabel(itemStart(meetings[0]), locale) : "";
   return {
     heading: t("conflictHeading", { count: conflict.meetingIds.length }),
     who: day ? `${conflict.mentorName} · ${day}` : conflict.mentorName,
@@ -233,8 +238,8 @@ export function eventDraftError(draft: EventDraft) {
 }
 
 export function eventInput(draft: EventDraft) {
-  const at = (time: string) =>
-    new Date(`${draft.day}T${time}:00`).toISOString();
+  // The form's day and times are Turkey's, wherever the coordinator's browser is.
+  const at = (time: string) => parseTurkishDateTime(draft.day, time);
   return {
     title: draft.title.trim(),
     kind: draft.kind,
@@ -282,8 +287,8 @@ export function proposalItems(
       (proposal): proposal is MeetingProposal & { programId: string } =>
         proposal.programId !== null &&
         proposal.status === MeetingProposalStatus.Pending &&
-        isoDay(new Date(proposal.scheduledAt)) >= range.from &&
-        isoDay(new Date(proposal.scheduledAt)) <= range.to,
+        toTurkishDate(proposal.scheduledAt) >= range.from &&
+        toTurkishDate(proposal.scheduledAt) <= range.to,
     )
     .map((proposal) => ({
       id: `proposal-${proposal.id}`,

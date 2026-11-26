@@ -22,6 +22,7 @@ import {
   viewRange,
   type EventDraft,
 } from "@/lib/coordinator-calendar";
+import { startOfTurkishDay } from "@/lib/turkey-time";
 
 export const COORDINATOR_CALENDAR_QUERY_KEY = ["coordinator-calendar"] as const;
 
@@ -29,7 +30,7 @@ export const COORDINATOR_CALENDAR_QUERY_KEY = ["coordinator-calendar"] as const;
  * The coordinator's Takvim: the visible range, program filter, the open item, the add-event form, pending
  * proposals as "Önerilen slot" and a conflict's "Yeniden planla".
  */
-export function useCoordinatorCalendar(today = new Date()) {
+export function useCoordinatorCalendar(today = startOfTurkishDay(new Date())) {
   const t = useTranslations("coordinatorCalendar");
   const locale = useLocale();
   const queryClient = useQueryClient();
@@ -79,6 +80,8 @@ export function useCoordinatorCalendar(today = new Date()) {
       setSelectedId(null);
     },
     days: viewDays(view, anchor),
+    /** Today on Turkey's calendar, which the grids mark. */
+    today,
     label: rangeLabel(view, anchor, locale),
     previous: () => {
       setAnchor(shiftAnchor(view, anchor, -1));

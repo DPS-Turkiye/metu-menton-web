@@ -26,7 +26,7 @@ import {
   weekRangeLabel,
 } from "@/lib/calendar";
 import { academicianName } from "@/lib/student-office-hours";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDayMonthLong, formatWeekdayDayMonth } from "@/lib/utils";
 
 type Booking = ReturnType<typeof useOfficeHoursBooking>;
@@ -69,7 +69,7 @@ export function OfficeHoursBookingView({
 
 /** "Per 12 Kas · 14:00 – 14:30" */
 function whenLine(slot: StudentOfficeHoursSlot, locale: string) {
-  return `${formatWeekdayDayMonth(toTurkishWallClock(slot.startsAt), locale)} · ${formatTurkishTime(slot.startsAt, locale)} – ${formatTurkishTime(slot.endsAt, locale)}`;
+  return `${formatWeekdayDayMonth(slot.startsAt, locale)} · ${formatTurkishTime(slot.startsAt, locale)} – ${formatTurkishTime(slot.endsAt, locale)}`;
 }
 
 /** A step replaces the page, so its title takes focus as a page change would. */

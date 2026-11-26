@@ -1,11 +1,13 @@
 /**
  * The browser zones a Turkey-time screen is checked in. The suite pins Istanbul (vitest.config.mts), which hides a
- * date read on the browser's own clock; UTC is CI's browser, London a student abroad.
+ * date read on the browser's own clock; UTC is CI's browser, London a student abroad, and Tokyo a zone east of Turkey,
+ * where local midnight is still the day before in Istanbul.
  */
 export const BROWSER_TIME_ZONES = [
   "Europe/Istanbul",
   "UTC",
   "Europe/London",
+  "Asia/Tokyo",
 ] as const;
 
 /**
@@ -15,7 +17,9 @@ export const BROWSER_TIME_ZONES = [
 export function inTimeZone<T>(zone: string, check: () => T): T {
   const pinned = process.env.TZ;
   const restore = () => {
-    process.env.TZ = pinned;
+    // Assigning undefined would leave the text "undefined", which Node reads as a zone name.
+    if (pinned === undefined) delete process.env.TZ;
+    else process.env.TZ = pinned;
   };
   process.env.TZ = zone;
   let result: T;

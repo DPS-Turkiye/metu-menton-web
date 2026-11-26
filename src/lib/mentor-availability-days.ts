@@ -1,4 +1,11 @@
 import type { MentorAvailabilitySlot } from "@/interfaces/mentor";
+import {
+  parseTurkishDateTime,
+  startOfTurkishDay,
+  toCalendarDate,
+  toTurkishWallClock,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
 
 export type PreferredSlot = {
   date: string;
@@ -22,8 +29,7 @@ export function upcomingPreferenceDays(
   count = 14,
   locale = "tr",
 ) {
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
+  const start = startOfTurkishDay(now);
   const label = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     weekday: "long",
@@ -35,13 +41,12 @@ export function upcomingPreferenceDays(
   });
 }
 
-/** "12 Pzt" / "12 Mon" */
+/** "12 Pzt" / "12 Mon": a moment's Turkey day, or a calendar day (a wall-clock Date) as it is. */
 export function slotDayLabel(startsAt: string | Date, locale = "tr") {
-  const date = typeof startsAt === "string" ? new Date(startsAt) : startsAt;
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     weekday: "short",
-  }).format(date);
+  }).format(toCalendarDate(startsAt));
 }
 
 /** "14:15" in every language: the slot chips are too narrow for "02:15 PM". */
@@ -50,6 +55,7 @@ export function slotTimeLabel(startsAt: string, locale = "tr") {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
+    timeZone: TURKEY_TIME_ZONE,
   }).format(new Date(startsAt));
 }
 
@@ -59,8 +65,7 @@ export function availabilityColumns(
   columnCount = 5,
   locale = "tr",
 ) {
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
+  const start = startOfTurkishDay(now);
   const free = slots
     .filter((slot) => !slot.booked && new Date(slot.startsAt) >= now)
     .sort(
@@ -84,7 +89,7 @@ export function availabilityColumns(
     const next = new Date(day);
     next.setDate(day.getDate() + 1);
     const daySlots = free.filter((slot) => {
-      const at = new Date(slot.startsAt);
+      const at = toTurkishWallClock(slot.startsAt);
       return at >= day && at < next;
     });
     if (daySlots.length === 0) continue;
@@ -109,17 +114,17 @@ export function emptyPreferredSlots(): PreferredSlot[] {
 }
 
 export function timeFromStartsAt(startsAt: string) {
-  const date = new Date(startsAt);
+  const date = toTurkishWallClock(startsAt);
   return `${String(date.getHours()).padStart(2, "0")}:${String(
     date.getMinutes(),
   ).padStart(2, "0")}`;
 }
 
 export function dateFromStartsAt(startsAt: string) {
-  return toDateInputValue(new Date(startsAt));
+  return toDateInputValue(toTurkishWallClock(startsAt));
 }
 
-/** Free slots grouped by local day, soonest first: pick a day, then a time. */
+/** Free slots grouped by Turkey day, soonest first: pick a day, then a time. */
 export function slotsByDay(
   slots: readonly MentorAvailabilitySlot[],
   locale = "tr",
@@ -258,13 +263,10 @@ export function hasProposedSlots(slots: readonly PreferredSlot[]) {
   );
 }
 
+/** The moment a chosen day and time stand for; they are Turkey's, wherever the browser is. */
 export function preferredSlotStartsAt(slot: PreferredSlot) {
-  const date = parseLocalDate(slot.date);
-  if (!date || !isHalfOrFullHour(slot.time)) return null;
-  const [hours, minutes] = slot.time.split(":").map(Number);
-  if (hours === undefined || minutes === undefined) return null;
-  date.setHours(hours, minutes, 0, 0);
-  return date.toISOString();
+  if (!parseLocalDate(slot.date) || !isHalfOrFullHour(slot.time)) return null;
+  return parseTurkishDateTime(slot.date, slot.time.slice(0, 5));
 }
 
 /** The message as people should read it: the machine-readable slot lines are for parsing only. */
