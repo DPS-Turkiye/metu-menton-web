@@ -1,8 +1,10 @@
 import type { AxiosResponse } from "axios";
 
 import { clientLocale, clientText } from "@/i18n/client-texts";
+import type { ProgramBlocker } from "@/interfaces/program";
 import { amplifyBlockedMessage } from "@/lib/amplify-safe-body";
 import { Locale } from "@/lib/i18n";
+import { blockersOf } from "@/lib/program-features";
 
 /** Codes this app gives failures that never reached a route handler; other codes come from the backend. */
 export const ClientErrorCode = {
@@ -16,6 +18,8 @@ export class ClientApiError extends Error {
     readonly status: number,
     readonly code?: string,
     readonly fieldErrors: Record<string, string> = {},
+    /** The open work behind a 409 `PROGRAM_WORK_OPEN`; empty for any other failure. */
+    readonly blockers: ProgramBlocker[] = [],
   ) {
     super(message);
     this.name = "ClientApiError";
@@ -109,5 +113,11 @@ export function requireSuccess<T>(response: AxiosResponse<T>): T {
     typeof body.fieldErrors === "object"
       ? (body.fieldErrors as Record<string, string>)
       : {};
-  throw new ClientApiError(message, response.status, code, fieldErrors);
+  throw new ClientApiError(
+    message,
+    response.status,
+    code,
+    fieldErrors,
+    blockersOf(body),
+  );
 }
