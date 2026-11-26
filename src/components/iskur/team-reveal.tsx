@@ -20,7 +20,7 @@ import {
 
 /**
  * 05 · Ekibin belli oldu (Figma 288:395) on the student's Ana Sayfa: the team as the coordinator placed it, who to
- * ask about what, and the channels to come. Nothing for someone who is not an İŞKUR intern.
+ * ask about what, and the channels the placement opened. Nothing for someone who is not an İŞKUR intern.
  */
 export function IskurTeamReveal() {
   const t = useTranslations("iskurOnboarding.reveal");
@@ -211,19 +211,17 @@ function Reveal({
             <h3 className="type-h4 text-text-primary">{t("channels")}</h3>
             {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
             <p className="type-body-sm text-text-secondary">
-              {t(provisional ? "channelsLater" : "channelsOpen")}
+              {t("channelsOpen")}
             </p>
-            {provisional ? null : (
-              <div className="mt-2">
-                <Button
-                  href={ISKUR_MESSAGES_HREF}
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                >
-                  {t("channelsAction")}
-                </Button>
-              </div>
-            )}
+            <div className="mt-2">
+              <Button
+                href={ISKUR_MESSAGES_HREF}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+              >
+                {t("channelsAction")}
+              </Button>
+            </div>
           </Card>
         </div>
       </div>

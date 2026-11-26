@@ -122,7 +122,9 @@ describe("IskurMessagesView", () => {
       <IskurMessagesView linkedChannelId={null} />,
     );
     expect(
-      await screen.findByText("Kanalların, ekip ataman kesinleşince açılır."),
+      await screen.findByText(
+        "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır; ekip değişirse erişimin de güncellenir.",
+      ),
     ).toBeVisible();
     unmount();
 
@@ -259,7 +261,9 @@ describe("IskurMessagesView", () => {
       <IskurMessagesView linkedChannelId={null} />,
     );
     expect(
-      await screen.findByText("Kanalların, ekip ataman kesinleşince açılır."),
+      await screen.findByText(
+        "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır.",
+      ),
     ).toBeInTheDocument();
     unmount();
 

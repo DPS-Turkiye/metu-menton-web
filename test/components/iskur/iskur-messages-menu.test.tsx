@@ -73,9 +73,7 @@ describe("İŞKUR Mesajlar panel and home card", () => {
     expect(
       screen.queryByRole("heading", { name: "Ekibim" }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/Ekip atamanız kesinleşti/),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Kanalların açıldı/)).not.toBeInTheDocument();
   });
 
   it("lists the channels on the home card and announces a newly finalized team", async () => {
@@ -93,9 +91,7 @@ describe("İŞKUR Mesajlar panel and home card", () => {
       </>,
     );
     expect(
-      await screen.findByText(
-        "Ekip atamanız kesinleşti: Medya ve Kreatif Üretim",
-      ),
+      await screen.findByText("Kanalların açıldı: Medya ve Kreatif Üretim"),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/2 kanal otomatik oluşturuldu/),

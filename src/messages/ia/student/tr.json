@@ -171,7 +171,8 @@
       "courses": "Bu dönem verdiği dersler · {codes}",
       "info": {
         "title": "Office Hours",
-        "minutes": "{count} dakikalık görüşmeler"
+        "minutes": "{count} dakikalık görüşmeler",
+        "responseDays": "Genellikle {count} gün içinde yanıt verir"
       },
       "thisWeek": "Bu haftaki müsait saatler",
       "noSlotsThisWeek": "Bu hafta müsait saat yok.",

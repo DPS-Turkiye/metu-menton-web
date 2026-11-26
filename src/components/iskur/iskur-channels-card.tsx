@@ -8,7 +8,7 @@ import { Card } from "@/components/ia/card";
 import { useIskurChannelMenu } from "@/hooks/use-iskur-channels";
 import { channelHref, channelMark } from "@/lib/iskur-channels";
 
-/** 5.1 "Ekip atamanız kesinleşti": shown until the intern first opens their new team channel. */
+/** "Kanalların açıldı" (handbook p.04): shown from the placement until the intern first opens their new team channel. */
 export function IskurChannelsOpenedAlert() {
   const t = useTranslations("iskurChannels.opened");
   const { openedTeam, channels } = useIskurChannelMenu();

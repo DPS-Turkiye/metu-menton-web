@@ -51,8 +51,8 @@ const MESSAGE_SHOWN = new Set([
 ]);
 
 /**
- * Tags, about, topics, courses and response time have no source yet, and where to meet comes only once a request is
- * a meeting; the screens leave out what is empty.
+ * What the academician wrote for students comes as it is; where to meet comes only once a request is a meeting. The
+ * screens leave out what is empty.
  */
 function toAcademician(
   listed: OfficeHoursListedAcademician,
@@ -64,13 +64,13 @@ function toAcademician(
     academicTitle: listed.academicTitle,
     department: listed.department,
     faculty: listed.faculty,
-    tags: [],
-    about: null,
-    topics: [],
-    courses: [],
+    tags: listed.expertise,
+    about: listed.about,
+    topics: listed.topics,
+    courses: listed.courses,
     place: null,
     durationMinutes: listed.meetingMinutes,
-    responseTime: null,
+    responseDays: listed.responseDays,
   };
 }
 

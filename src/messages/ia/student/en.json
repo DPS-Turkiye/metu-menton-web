@@ -171,7 +171,8 @@
       "courses": "Courses this term · {codes}",
       "info": {
         "title": "Office Hours",
-        "minutes": "{count}-minute meetings"
+        "minutes": "{count}-minute meetings",
+        "responseDays": "Usually answers within {count, plural, one {# day} other {# days}}"
       },
       "thisWeek": "Free times this week",
       "noSlotsThisWeek": "No free times this week.",
