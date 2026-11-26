@@ -91,10 +91,11 @@ export function ProgramDetailFrame({
           tab={tab}
           tabCounts={tabCounts}
         />
-        {program.lifecycle === ProgramLifecycle.Draft ? (
+        {/* The admin starts a draft from the header (Figma 152:7447); coordinators keep the banner. */}
+        {program.lifecycle === ProgramLifecycle.Draft && !navigation.admin ? (
           <DraftBanner
             programId={programId}
-            admin={navigation.admin}
+            admin={false}
             hasCoordinator={detail.coordinators.length > 0}
           />
         ) : null}
