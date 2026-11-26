@@ -21,7 +21,6 @@ import {
   channelSubtitle,
   ISKUR_MESSAGE_MAX,
   ISKUR_TITLE_MAX,
-  MUTABLE_CHANNEL_KINDS,
   needsAcknowledgement,
   ODTU_THREAD_ACCENT,
 } from "@/lib/iskur-channels";
@@ -408,7 +407,7 @@ function NotificationCard({ screen }: { screen: IskurMessagesScreen }) {
           {t("notifications.important")}
         </span>
       </div>
-      {MUTABLE_CHANNEL_KINDS.map((kind) => {
+      {screen.notifyKinds.map((kind) => {
         const on = !screen.muted.includes(kind);
         return (
           <div key={kind} className="flex items-center gap-3">

@@ -7,8 +7,8 @@ import { useState } from "react";
 import { useCoordinatorProgram } from "@/hooks/use-coordinator-program";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PROGRAM_OFFICE_HOURS_QUERY_KEY } from "@/hooks/use-program-office-hours-appointments";
-import { ProgramType } from "@/interfaces/program";
 import { getProgramOfficeHoursStudents } from "@/lib/client/program-office-hours";
+import { studentsAreOfficeHours } from "@/lib/coordinator-program-detail";
 import {
   ALL_APPOINTMENTS,
   APPOINTMENT_SEARCH_DELAY_MS,
@@ -36,7 +36,7 @@ export function useProgramOfficeHoursStudents(programId: string) {
   const result = useQuery({
     queryKey: [...PROGRAM_OFFICE_HOURS_QUERY_KEY, programId, "students", query],
     queryFn: () => getProgramOfficeHoursStudents(programId, query),
-    enabled: program.data?.program.type === ProgramType.OfficeHours,
+    enabled: program.data ? studentsAreOfficeHours(program.data) : false,
     placeholderData: keepPreviousData,
   });
 

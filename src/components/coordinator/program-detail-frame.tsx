@@ -114,7 +114,7 @@ export function ProgramDetailFrame({
             ) : null}
           </div>
         ) : null}
-        {hasTabContent(program.type, tab) ? (
+        {hasTabContent(detail, tab) ? (
           children(detail)
         ) : (
           <TypeTabEmptyState type={program.type} admin={navigation.admin} />
@@ -250,7 +250,7 @@ export function ProgramDetailFrame({
         />
       ) : null}
 
-      {hasTabContent(program.type, tab) ? (
+      {hasTabContent(detail, tab) ? (
         children(detail)
       ) : (
         <TypeTabEmptyState type={program.type} admin={navigation.admin} />

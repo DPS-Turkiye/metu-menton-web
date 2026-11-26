@@ -63,15 +63,14 @@ describe("programTypesOf", () => {
     expect(programTypesOf(Edition.Teknokent)).toEqual([
       ProgramType.StartupMentoring,
     ]);
-    expect(programTypesOf(Edition.Odtu)).toEqual([
-      ProgramType.PeerMentoring,
-      ProgramType.OfficeHours,
-    ]);
+    expect(programTypesOf(Edition.Odtu)).toEqual([ProgramType.Semester]);
   });
 
-  it("gives every program type to exactly one edition", () => {
+  it("offers no edition the older ODTÜ types the backend converts to semesters", () => {
     const offered = Object.values(Edition).flatMap(programTypesOf);
-    expect([...offered].sort()).toEqual(Object.values(ProgramType).sort());
+    expect(offered).not.toContain(ProgramType.PeerMentoring);
+    expect(offered).not.toContain(ProgramType.OfficeHours);
+    expect(new Set(offered).size).toBe(offered.length);
   });
 });
 

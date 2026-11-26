@@ -9,13 +9,13 @@ import { Card } from "@/components/ia/card";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
+import { ProgramFeatureBadge } from "@/components/ia/program-type-badge";
 import { SearchInput } from "@/components/ia/search-input";
 import { StatusTone } from "@/components/ia/status-badge";
 import { StepPills } from "@/components/ia/step-pills";
 import { Tag } from "@/components/ia/tag";
 import { useOdtuProgramWizard } from "@/hooks/use-odtu-program-wizard";
-import type { ProgramType } from "@/interfaces/program";
+import { ProgramFeature } from "@/interfaces/program";
 import {
   PROGRAM_DESCRIPTION_MAX,
   WIZARD_STEPS,
@@ -24,6 +24,7 @@ import {
   type CoordinatorLoad,
 } from "@/lib/admin-program-wizard";
 import { choiceKey } from "@/lib/coordinator-picker";
+import { PROGRAM_FEATURES } from "@/lib/program-features";
 import { formatLongDateRange } from "@/lib/utils";
 
 type Wizard = ReturnType<typeof useOdtuProgramWizard>;
@@ -89,7 +90,7 @@ export function OdtuProgramWizardView() {
         }
       />
       {wizard.step === WizardStep.Type ? (
-        <TypeStep wizard={wizard} />
+        <FeaturesStep wizard={wizard} />
       ) : wizard.step === WizardStep.Info ? (
         <InfoStep wizard={wizard} />
       ) : wizard.step === WizardStep.Coordinators ? (
@@ -123,7 +124,8 @@ export function OdtuProgramWizardView() {
   );
 }
 
-function TypeStep({ wizard }: { wizard: Wizard }) {
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function FeaturesStep({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("odtuProgramWizard");
   const headingId = useId();
   return (
@@ -134,22 +136,21 @@ function TypeStep({ wizard }: { wizard: Wizard }) {
           id={headingId}
           className="type-h3 text-text-primary"
         >
-          {t("typeQuestion")}
+          {t("featuresQuestion")}
         </StepHeading>
-        <p className="type-body text-text-secondary">{t("typeNote")}</p>
+        <p className="type-body text-text-secondary">{t("featuresNote")}</p>
       </div>
       <div
-        role="radiogroup"
+        role="group"
         aria-labelledby={headingId}
         className="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
       >
-        {wizard.programTypes.map((type) => (
-          <TypeCard
-            key={type}
-            group={headingId}
-            type={type}
-            selected={wizard.draft.type === type}
-            onSelect={() => wizard.update({ type })}
+        {PROGRAM_FEATURES.map((feature) => (
+          <FeatureCard
+            key={feature}
+            feature={feature}
+            selected={wizard.draft.features.includes(feature)}
+            onChange={(on) => wizard.setFeature(feature, on)}
           />
         ))}
       </div>
@@ -157,20 +158,19 @@ function TypeStep({ wizard }: { wizard: Wizard }) {
   );
 }
 
-/** A type card around a native radio, so the arrow keys move between the types. */
-function TypeCard({
-  group,
-  type,
+/** A feature card around a native checkbox. */
+function FeatureCard({
+  feature,
   selected,
-  onSelect,
+  onChange,
 }: {
-  group: string;
-  type: ProgramType;
+  feature: ProgramFeature;
   selected: boolean;
-  onSelect: () => void;
+  onChange: (on: boolean) => void;
 }) {
   const t = useTranslations("odtuProgramWizard");
-  const tType = useTranslations("programTypes");
+  const tFeature = useTranslations("programFeatures.names");
+  const hintId = useId();
   return (
     <label
       className={`flex cursor-pointer flex-col gap-4 rounded-card p-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-border-selected ${
@@ -180,18 +180,18 @@ function TypeCard({
       }`}
     >
       <input
-        type="radio"
-        name={group}
-        value={type}
+        type="checkbox"
         checked={selected}
-        onChange={onSelect}
+        onChange={(event) => onChange(event.target.checked)}
+        aria-label={tFeature(feature)}
+        aria-describedby={hintId}
         className="sr-only"
       />
       <span className="flex w-full items-center justify-between">
-        <ProgramTypeBadge type={type} />
+        <ProgramFeatureBadge feature={feature} />
         <span
           aria-hidden
-          className={`grid size-[22px] place-items-center rounded-full ${
+          className={`grid size-[22px] place-items-center rounded-md ${
             selected
               ? "bg-background-inverse"
               : "border border-border-control bg-background-surface"
@@ -207,9 +207,10 @@ function TypeCard({
           ) : null}
         </span>
       </span>
-      <span className="type-h4 text-text-primary">{tType(type)}</span>
-      <span className="type-body-sm text-text-secondary">
-        {t(`types.${type}.description`)}
+      <span className="type-h4 text-text-primary">{tFeature(feature)}</span>
+      <span id={hintId} className="type-body-sm text-text-secondary">
+        {t(`features.${feature}.description`)}
+        {feature === ProgramFeature.Iskur ? ` ${t("needsPeer")}.` : null}
       </span>
       <span aria-hidden className="h-px w-full bg-border-subtle" />
       <span className="type-overline text-text-muted">{t("includes")}</span>
@@ -218,7 +219,7 @@ function TypeCard({
           <span key={item} className="flex items-center gap-2">
             <Image alt="" src="/ia/icons/check.svg" width={14} height={14} />
             <span className="type-body-sm text-text-primary">
-              {t(`types.${type}.${item}`)}
+              {t(`features.${feature}.${item}`)}
             </span>
           </span>
         ))}
@@ -240,9 +241,11 @@ function InfoStep({ wizard }: { wizard: Wizard }) {
           {t("steps.INFO")}
         </StepHeading>
         <div className="space-y-5">
-          <p className="flex items-center gap-2 type-caption text-text-secondary">
-            {t("typeLabel")}
-            {draft.type ? <ProgramTypeBadge type={draft.type} /> : null}
+          <p className="flex flex-wrap items-center gap-2 type-caption text-text-secondary">
+            {t("featuresLabel")}
+            {draft.features.map((feature) => (
+              <ProgramFeatureBadge key={feature} feature={feature} />
+            ))}
           </p>
           <div className="space-y-2">
             <label htmlFor={`${id}-name`} className="type-label">
@@ -517,14 +520,17 @@ function CoordinatorRow({
 
 function SummaryStep({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("odtuProgramWizard");
-  const tType = useTranslations("programTypes");
+  const tFeature = useTranslations("programFeatures.names");
   const locale = useLocale();
   const { draft } = wizard;
   const coordinatorNames = draft.coordinators
     .map((choice) => choice.fullName)
     .join(", ");
   const rows = [
-    { label: t("summaryType"), value: draft.type ? tType(draft.type) : "—" },
+    {
+      label: t("summaryFeatures"),
+      value: draft.features.map((feature) => tFeature(feature)).join(", "),
+    },
     { label: t("summaryName"), value: draft.name.trim() },
     {
       label: t("summaryDates"),

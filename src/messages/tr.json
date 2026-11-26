@@ -3991,8 +3991,8 @@
       "ACTIVE": "Aktif {count}",
       "DRAFT": "Taslak {count}"
     },
-    "typeLabel": "Program türü",
-    "typeAll": "Program türü: Tümü",
+    "featureLabel": "Özellik",
+    "featureAll": "Özellik: Tümü",
     "draftsTitle": "Yapılandırma bekleyen program",
     "draftsBody": "{names} için koşulları belirle. Admin programı başlatmadan önce ayarlarını kaydetmen önerilir.",
     "stats": {
@@ -4192,6 +4192,7 @@
     "autoMatchHint": "Uzmanlık, müsaitlik ve yüke göre öneri listesi oluşturulur"
   },
   "programSettings": {
+    "featuresNote": "Bu dönem programında açık olan özellikler. Her özellik kendi sayfalarını gösterir.",
     "trainingNote": "Öğrenciler videoyu izleyip 10 soruluk sınavdan en az 8 doğru yapınca Akran Mentoru rozetini kazanır. Programın koordinatörleri ve yöneticiler düzenler.",
     "eligibilityNote": "Bu programa kimlerin katılabileceğini belirler. Diğer programları etkilemez; açık olduğunda yönetici de kuralın dışına çıkamaz.",
     "eligibleDomain": "İzin verilen e-posta uzantısı",
@@ -4222,7 +4223,8 @@
       "TRAINING": "Akran Mentoru eğitimi",
       "ARCHIVE": "Arşiv",
       "CURRICULUM": "Müfredat & fazlar",
-      "PEER_CATEGORIES": "Aktif mentorluk kategorileri"
+      "PEER_CATEGORIES": "Aktif mentorluk kategorileri",
+      "FEATURES": "Program özellikleri"
     },
     "sectionsLabel": "Ayar bölümleri",
     "archivedNote": "Bu program arşivlendi ve salt okunur. Değiştirmek için aşağıdan yeniden açın.",
@@ -4825,15 +4827,15 @@
       "COMPLETED": "Tamamlanan {count}"
     },
     "searchLabel": "Program ara",
-    "typeLabel": "Program türü",
-    "typeAll": "Program türü: Tümü",
+    "featureLabel": "Özellik",
+    "featureAll": "Özellik: Tümü",
     "coordinatorLabel": "Koordinatör",
     "coordinatorAll": "Koordinatör: Tümü",
     "newProgram": "Yeni Program Oluştur",
     "caption": "Programlar",
     "columns": {
       "program": "Program",
-      "type": "Program türü",
+      "features": "Özellikler",
       "status": "Durum",
       "coordinator": "Koordinatör",
       "date": "Tarih",
@@ -6388,7 +6390,8 @@
     "prismDecisionFailed": "Kararlar uygulanamadı.",
     "iskurInternsLoadFailed": "İŞKUR stajyer listesi yüklenemedi.",
     "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
-    "iskurInternsInvalid": "Eklenecek adresler geçersiz."
+    "iskurInternsInvalid": "Eklenecek adresler geçersiz.",
+    "programFeaturesLoadFailed": "Program özellikleri yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -6622,28 +6625,31 @@
     "ALL": "Tüm türler",
     "STARTUP_MENTORING": "Girişim Mentörlüğü",
     "PEER_MENTORING": "Akran Mentörlüğü",
-    "OFFICE_HOURS": "Office Hours"
+    "OFFICE_HOURS": "Office Hours",
+    "SEMESTER": "Dönem programı"
+  },
+  "programFeatures": {
+    "names": {
+      "PEER_MENTORING": "Akran Mentörlüğü",
+      "OFFICE_HOURS": "Office Hours",
+      "ISKUR": "İŞKUR"
+    },
+    "none": "Özellik seçilmedi"
   },
   "odtuProgramWizard": {
     "title": "Yeni Program Oluştur",
     "back": "Programlar",
     "stepsLabel": "Adımlar",
     "steps": {
-      "TYPE": "Program türü",
+      "TYPE": "Program özellikleri",
       "INFO": "Program bilgileri",
       "COORDINATORS": "Koordinatör",
       "SUMMARY": "Özet ve kaydet"
     },
-    "typeQuestion": "Hangi tür programı oluşturuyorsun?",
-    "typeNote": "Program türü, programda hangi yapıların görüneceğini belirler ve sonradan değiştirilemez.",
+    "featuresQuestion": "Bu dönem programında neler olacak?",
+    "featuresNote": "Her özellik programa kendi sayfalarını ekler. İŞKUR, Akran Mentörlüğü ile birlikte çalışır. Program taslakken koordinatörler de özellikleri değiştirebilir.",
     "includes": "Programda neler var",
-    "types": {
-      "STARTUP_MENTORING": {
-        "description": "Girişim takımları ile mentorları eşleştirir. Mevcut program yapısı aynen kullanılır.",
-        "first": "Takımlar · Mentor Havuzu",
-        "second": "Eşleşmeler ve onaylar",
-        "third": "Müfredat ve fazlar"
-      },
+    "features": {
       "PEER_MENTORING": {
         "description": "ODTÜ öğrencileri, rozeti doğrulanmış öğrencilerden mentorluk alır.",
         "first": "Öğrenciler · Akran Mentorları",
@@ -6655,11 +6661,18 @@
         "first": "Akademisyenler · Öğrenciler (otomatik)",
         "second": "Randevular — akademisyen onaylı",
         "third": "Davet ve eşleştirme yok"
+      },
+      "ISKUR": {
+        "description": "İŞKUR stajyerleri birimlere ve ekiplere yerleşir; haftalık plan, görevler ve raporlar burada yürür.",
+        "first": "İŞKUR Ekipleri · Kanallar",
+        "second": "Haftalık plan, görevler ve raporlar",
+        "third": "Akran Mentörlüğü ile birlikte çalışır"
       }
     },
-    "typeLabel": "Program türü",
+    "needsPeer": "Akran Mentörlüğü ile birlikte açılır",
+    "featuresLabel": "Özellikler",
     "name": "Program adı",
-    "namePlaceholder": "örn. Kariyer Akran Mentörlüğü 2027",
+    "namePlaceholder": "örn. 2026 Güz",
     "start": "Başlangıç",
     "end": "Bitiş",
     "description": "Kısa açıklama",
@@ -6681,7 +6694,7 @@
     "noneChosen": "Henüz koordinatör seçilmedi.",
     "removeCoordinator": "{name} seçimini kaldır",
     "summaryTitle": "Özet",
-    "summaryType": "Program türü",
+    "summaryFeatures": "Özellikler",
     "summaryName": "Program adı",
     "summaryDates": "Tarih",
     "noDates": "Belirtilmedi",
@@ -6731,7 +6744,8 @@
     "typeNotes": {
       "STARTUP_MENTORING": "Mevcut yapı aynen: Takımlar · Mentor Havuzu · Eşleşmeler · Onaylar",
       "PEER_MENTORING": "Mentee: ODTÜ öğrencileri · Mentor: rozeti doğrulanmış öğrenciler",
-      "OFFICE_HOURS": "Tüm ODTÜ akademisyenleri dahil, davet yok · Öğrenciler randevu talep eder"
+      "OFFICE_HOURS": "Tüm ODTÜ akademisyenleri dahil, davet yok · Öğrenciler randevu talep eder",
+      "SEMESTER": "Akran Mentörlüğü, Office Hours ve İŞKUR ayrı ayrı açılır"
     },
     "name": "Program adı",
     "namePlaceholder": "örn. ODTÜ Akran Mentörlüğü 2026",
@@ -6752,7 +6766,9 @@
       "TYPE_REQUIRED": "Bir program türü seç.",
       "NAME_REQUIRED": "Program adını yaz.",
       "DATES_ORDER": "Bitiş tarihi başlangıçtan önce olamaz.",
-      "COORDINATOR_REQUIRED": "En az bir koordinatör ekle."
+      "COORDINATOR_REQUIRED": "En az bir koordinatör ekle.",
+      "FEATURES_REQUIRED": "En az bir özellik seç.",
+      "ISKUR_NEEDS_PEER": "İŞKUR için Akran Mentörlüğü de açık olmalı."
     },
     "cancel": "Vazgeç",
     "back": "Geri",
@@ -8373,6 +8389,7 @@
     "group": {
       "ANNOUNCEMENTS": "Duyurular",
       "UNIT": "Birim",
+      "LEADERS": "Liderler odası",
       "TEAM": "Tematik ekip",
       "LEADER_DIRECT": "Birebir"
     },
@@ -8382,6 +8399,7 @@
     "subtitle": {
       "announcements": "Yayın kanalı · {count} kişi · yalnızca yetkili koordinatörler paylaşır",
       "unit": "Birim kanalı · {count} kişi",
+      "leaders": "Ekip liderleri ve birim koordinatörü · {count} kişi",
       "team": "Tematik ekip kanalı · {count} kişi",
       "withLeader": "Ekip liderinle birebir",
       "withMember": "Ekibinden birebir"
@@ -8417,6 +8435,7 @@
       "TEAM": "Tematik ekip kanalı",
       "LEADER_DIRECT": "Ekip liderinle birebir",
       "UNIT": "Birim kanalı",
+      "LEADERS": "Liderler odası",
       "hint": "Görev günü dışında ve 19:00’dan sonra bildirim gönderilmez. Mesajlar çalışma süresine sayılmaz."
     },
     "menu": {

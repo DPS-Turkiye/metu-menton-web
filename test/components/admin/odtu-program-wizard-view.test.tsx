@@ -5,7 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OdtuProgramWizardView } from "@/components/admin/odtu-program-wizard-view";
 import { useAdminOverview } from "@/hooks/use-admin-overview";
 import type { AdminOverview, AdminUser } from "@/interfaces/admin-overview";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { UserAccountStatus, UserRole } from "@/interfaces/session";
 import { createCoordinatorProgram } from "@/lib/client/coordinator-programs";
 import { adminProgram } from "@test/fixtures/admin-programs";
@@ -79,11 +83,11 @@ const overview: AdminOverview = {
 };
 
 async function fillDetails(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("radio", { name: /Akran Mentörlüğü/ }));
+  await user.click(screen.getByRole("checkbox", { name: "Office Hours" }));
   await user.click(screen.getByRole("button", { name: "Devam Et" }));
   await user.type(
     screen.getByRole("textbox", { name: /Program adı/ }),
-    "Kariyer Akran Mentörlüğü 2027",
+    "2027 Bahar",
   );
 }
 
@@ -97,56 +101,63 @@ describe("ODTÜ Yeni Program Oluştur", () => {
     } as ReturnType<typeof useAdminOverview>);
   });
 
-  it("offers only the ODTÜ program types, each with what it includes", () => {
+  it("starts a semester with every feature on, each with what it includes", () => {
     renderWithQueryClient(<OdtuProgramWizardView />);
 
-    const radios = screen.getAllByRole("radio");
-    expect(radios).toHaveLength(2);
-    expect(screen.queryByText("Girişim Mentörlüğü")).not.toBeInTheDocument();
-    const peer = screen.getByRole("radio", { name: /Akran Mentörlüğü/ });
-    expect(peer).not.toBeChecked();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    const features = screen.getAllByRole("checkbox");
+    expect(features).toHaveLength(3);
+    for (const feature of features) expect(feature).toBeChecked();
+    const peer = screen.getByRole("checkbox", { name: "Akran Mentörlüğü" });
     const card = peer.closest("label");
-    if (!card) throw new Error("the radio sits in its card");
+    if (!card) throw new Error("the checkbox sits in its card");
     expect(
       within(card).getByText("Aktif mentorluk kategorileri"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: "İŞKUR" }),
+    ).toHaveAccessibleDescription(/Akran Mentörlüğü ile birlikte açılır/);
     expect(screen.getByRole("link", { name: "Vazgeç" })).toHaveAttribute(
       "href",
       "/admin/programs",
     );
   });
 
-  it("asks for a type, then a name, before moving on", async () => {
+  it("ties İŞKUR to Akran Mentörlüğü and asks for at least one feature, then a name", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<OdtuProgramWizardView />);
+    const peer = screen.getByRole("checkbox", { name: "Akran Mentörlüğü" });
+    const officeHours = screen.getByRole("checkbox", { name: "Office Hours" });
+    const iskur = screen.getByRole("checkbox", { name: "İŞKUR" });
 
+    await user.click(peer);
+    expect(peer).not.toBeChecked();
+    expect(iskur).not.toBeChecked();
+    await user.click(iskur);
+    expect(peer).toBeChecked();
+    expect(iskur).toBeChecked();
+
+    await user.click(peer);
+    await user.click(officeHours);
     await user.click(screen.getByRole("button", { name: "Devam Et" }));
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Bir program türü seç.",
+      "En az bir özellik seç.",
     );
 
-    await user.click(screen.getByRole("radio", { name: /Office Hours/ }));
-    expect(screen.getByRole("radio", { name: /Office Hours/ })).toBeChecked();
+    await user.click(officeHours);
     await user.click(screen.getByRole("button", { name: "Devam Et" }));
     expect(
       screen.getByRole("heading", { name: "Program bilgileri" }),
     ).toHaveFocus();
+    expect(
+      screen.getByRole("textbox", { name: /Program adı/ }),
+    ).toHaveAttribute("placeholder", "örn. 2026 Güz");
 
     await user.click(screen.getByRole("button", { name: "Devam Et" }));
     const name = screen.getByRole("textbox", { name: /Program adı/ });
     expect(name).toBeInvalid();
     expect(name).toHaveAccessibleDescription("Program adını yaz.");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  });
-
-  it("moves between the types with the arrow keys", async () => {
-    const user = userEvent.setup();
-    renderWithQueryClient(<OdtuProgramWizardView />);
-
-    await user.click(screen.getByRole("radio", { name: /Akran Mentörlüğü/ }));
-    await user.keyboard("{ArrowRight}");
-
-    expect(screen.getByRole("radio", { name: /Office Hours/ })).toBeChecked();
   });
 
   it("points the end date at its problem when it comes before the start", async () => {
@@ -243,9 +254,8 @@ describe("ODTÜ Yeni Program Oluştur", () => {
     await user.click(screen.getByRole("checkbox", { name: /Serkan Kaya/ }));
     await user.click(screen.getByRole("button", { name: "Devam Et" }));
 
-    expect(
-      screen.getByText("Kariyer Akran Mentörlüğü 2027"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("2027 Bahar")).toBeInTheDocument();
+    expect(screen.getByText("Akran Mentörlüğü, İŞKUR")).toBeInTheDocument();
     expect(screen.getByText("Kaydedildiğinde: Taslak")).toBeInTheDocument();
     expect(screen.getByText("Belirtilmedi")).toBeInTheDocument();
     expect(
@@ -254,13 +264,16 @@ describe("ODTÜ Yeni Program Oluştur", () => {
 
     await user.click(screen.getByRole("button", { name: "Kaydet" }));
 
-    expect(createCoordinatorProgram).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: ProgramType.PeerMentoring,
-        name: "Kariyer Akran Mentörlüğü 2027",
-        coordinatorIds: ["serkan"],
-      }),
-    );
+    expect(createCoordinatorProgram).toHaveBeenCalledWith({
+      type: ProgramType.Semester,
+      features: [ProgramFeature.PeerMentoring, ProgramFeature.Iskur],
+      name: "2027 Bahar",
+      description: null,
+      startDate: null,
+      endDate: null,
+      coordinatorIds: ["serkan"],
+      newCoordinators: [],
+    });
   });
 
   it("says so while the coordinators load", async () => {

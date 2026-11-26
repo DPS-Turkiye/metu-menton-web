@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { ProgramLifecycle } from "@/interfaces/coordinator-program";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { formatProgramRun } from "@/lib/coordinator-programs";
 import {
   draftsToConfigure,
@@ -10,8 +14,11 @@ import {
   programStats,
   type ProgramlarimSegment,
 } from "@/lib/odtu-coordinator-programs";
+import {
+  ALL_PROGRAM_FEATURES,
+  type ProgramFeatureFilter,
+} from "@/lib/program-features";
 import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
-import { ALL_PROGRAM_TYPES, type ProgramTypeFilter } from "@/lib/program-types";
 import { coordinatorProgram } from "@test/fixtures/coordinator-programs";
 import { translatorIn } from "@test/translators";
 
@@ -85,15 +92,17 @@ describe("ODTÜ Programlarım", () => {
     });
   });
 
-  it("filters by segment and type", () => {
+  it("filters by segment and feature", () => {
     const ids = (
       segment: ProgramlarimSegment,
-      type: ProgramTypeFilter = ALL_PROGRAM_TYPES,
+      feature: ProgramFeatureFilter = ALL_PROGRAM_FEATURES,
     ) =>
-      filterOdtuPrograms(programs, segment, type).map((program) => program.id);
+      filterOdtuPrograms(programs, segment, feature).map(
+        (program) => program.id,
+      );
     expect(ids(ProgramStatusFilter.Active)).toEqual(["peer", "oh"]);
     expect(ids(ProgramStatusFilter.Draft)).toEqual(["draft"]);
-    expect(ids(ProgramStatusFilter.All, ProgramType.OfficeHours)).toEqual([
+    expect(ids(ProgramStatusFilter.All, ProgramFeature.OfficeHours)).toEqual([
       "oh",
     ]);
   });

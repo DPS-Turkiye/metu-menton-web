@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import type { AdminUser } from "@/interfaces/admin-overview";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { UserAccountStatus, UserRole } from "@/interfaces/session";
 import {
   ALL_COORDINATORS,
@@ -13,8 +17,8 @@ import {
   programDateLabel,
 } from "@/lib/admin-programs";
 import { formatMonthRange } from "@/lib/coordinator-programs";
+import { ALL_PROGRAM_FEATURES } from "@/lib/program-features";
 import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
-import { ALL_PROGRAM_TYPES } from "@/lib/program-types";
 import { adminProgram } from "@test/fixtures/admin-programs";
 import { translatorIn } from "@test/translators";
 
@@ -93,7 +97,7 @@ describe("admin Programlar (ODTÜ)", () => {
   it("filters by status, type, any of the coordinators and name", () => {
     const all = {
       status: ProgramStatusFilter.All,
-      type: ALL_PROGRAM_TYPES,
+      feature: ALL_PROGRAM_FEATURES,
       coordinatorId: ALL_COORDINATORS,
       search: "",
     } as const;
@@ -104,7 +108,9 @@ describe("admin Programlar (ODTÜ)", () => {
     expect(names({ ...all, status: ProgramStatusFilter.Draft })).toEqual([
       "draft",
     ]);
-    expect(names({ ...all, type: ProgramType.OfficeHours })).toEqual(["oh"]);
+    expect(names({ ...all, feature: ProgramFeature.OfficeHours })).toEqual([
+      "oh",
+    ]);
     expect(names({ ...all, coordinatorId: "selin" })).toEqual(["peer", "oh"]);
     expect(names({ ...all, search: "  OFFİCE " })).toEqual(["oh"]);
   });

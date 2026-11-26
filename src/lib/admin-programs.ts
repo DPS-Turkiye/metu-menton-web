@@ -1,16 +1,18 @@
 import type { useTranslations } from "next-intl";
 
 import type { AdminProgram, AdminUser } from "@/interfaces/admin-overview";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramStatus } from "@/interfaces/program";
 import { formatMonthYear, formatProgramRun } from "@/lib/coordinator-programs";
+import {
+  hasFeature,
+  isOfficeHoursOnly,
+  matchesFeatureFilter,
+  type ProgramFeatureFilter,
+} from "@/lib/program-features";
 import {
   matchesStatus,
   type ProgramStatusFilter,
 } from "@/lib/program-status-filter";
-import {
-  matchesProgramType,
-  type ProgramTypeFilter,
-} from "@/lib/program-types";
 
 export type AdminProgramsT = ReturnType<
   typeof useTranslations<"odtuAdminPrograms">
@@ -22,7 +24,7 @@ export type CoordinatorRef = { id: string; name: string };
 
 export type AdminProgramFilters = {
   status: ProgramStatusFilter;
-  type: ProgramTypeFilter;
+  feature: ProgramFeatureFilter;
   coordinatorId: string;
   search: string;
 };
@@ -69,7 +71,7 @@ export function filterAdminPrograms(
   return programs.filter(
     (program) =>
       matchesStatus(program, filters.status) &&
-      matchesProgramType(program.type, filters.type) &&
+      matchesFeatureFilter(program, filters.feature) &&
       (filters.coordinatorId === ALL_COORDINATORS ||
         (program.coordinatorIds ?? []).includes(filters.coordinatorId)) &&
       program.name.toLocaleLowerCase("tr").includes(search),
@@ -89,7 +91,7 @@ export function coordinatorLabel(
 }
 
 /**
- * The Tarih column: Office Hours runs university-wide; a draft shows its planned start; otherwise the run, with the
+ * The Tarih column: Office Hours alone runs university-wide; a draft shows its planned start; otherwise the run, with the
  * year named once inside one year ("Şub – Ara 2026", "Eyl 2026 – Oca 2027").
  */
 export function programDateLabel(
@@ -97,7 +99,7 @@ export function programDateLabel(
   t: AdminProgramsT,
   locale: string,
 ) {
-  if (program.type === ProgramType.OfficeHours) return t("universityWide");
+  if (isOfficeHoursOnly(program)) return t("universityWide");
   const start = program.startDate ?? null;
   const end = program.endDate ?? null;
   if (program.status === ProgramStatus.Draft) {
@@ -109,8 +111,8 @@ export function programDateLabel(
 }
 
 /**
- * The Katılımcı column: nobody takes part in a draft yet, an Office Hours program is open to the whole university,
- * a peer program counts its students, and a startup program its teams and mentors.
+ * The Katılımcı column: nobody takes part in a draft yet, Office Hours alone is open to the whole university, a
+ * program with Akran Mentörlüğü counts its students, and a startup program its teams and mentors.
  */
 export function participantsLabel(
   program: AdminProgram,
@@ -118,11 +120,10 @@ export function participantsLabel(
   locale: string,
 ) {
   if (program.status === ProgramStatus.Draft) return "—";
-  if (program.type === ProgramType.OfficeHours) return t("participantsAll");
-  const count =
-    program.type === ProgramType.PeerMentoring
-      ? program.counts?.peer?.students
-      : program.startupCount + program.acceptedMentorCount;
+  if (isOfficeHoursOnly(program)) return t("participantsAll");
+  const count = hasFeature(program, ProgramFeature.PeerMentoring)
+    ? program.counts?.peer?.students
+    : program.startupCount + program.acceptedMentorCount;
   return count === undefined
     ? "—"
     : new Intl.NumberFormat(locale).format(count);

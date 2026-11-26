@@ -9,7 +9,7 @@ import { ChipSelect } from "@/components/ia/filter-chip";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { PageHeader } from "@/components/ia/page-header";
 import { ProgramLifecyclePill } from "@/components/ia/program-status-pill";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
+import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import { SegmentedControl } from "@/components/ia/segmented-tabs";
 import { StatusTone } from "@/components/ia/status-badge";
 import {
@@ -37,10 +37,10 @@ export function OdtuProgramsListView() {
                 onSelect={programs.setSegment}
               />
               <ChipSelect
-                label={t("typeLabel")}
-                value={programs.type}
-                options={programs.typeOptions}
-                onChange={programs.setType}
+                label={t("featureLabel")}
+                value={programs.feature}
+                options={programs.featureOptions}
+                onChange={programs.setFeature}
               />
             </>
           ) : null
@@ -109,7 +109,7 @@ function ProgramCard({ card }: { card: ProgramCardData }) {
       className="flex h-full flex-col gap-[18px] rounded-[20px] border border-border-subtle bg-background-surface p-6"
     >
       <div className="flex items-center justify-between gap-3">
-        <ProgramTypeBadge type={program.type} />
+        <ProgramKindBadges program={program} />
         <ProgramLifecyclePill lifecycle={program.lifecycle}>
           {tLifecycle(program.lifecycle)}
         </ProgramLifecyclePill>

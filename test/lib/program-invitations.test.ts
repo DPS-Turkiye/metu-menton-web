@@ -21,6 +21,7 @@ function program(
     coordinatorName: "C",
     createdAt: "2026-10-01T09:00:00Z",
     status: ProgramStatus.Active,
+    features: [],
     startups: [],
     mentors: [
       {
