@@ -76,8 +76,9 @@ describe("Office Hours › Katılımcılar › Akademisyenler", () => {
     ).toHaveAttribute("aria-current", "page");
 
     await user.click(
-      screen.getByRole("button", { name: "Ayrıntılar: Ali Demir" }),
+      screen.getByRole("button", { name: "Ali Demir için işlemler" }),
     );
+    await user.click(screen.getByRole("button", { name: "Ayrıntılar" }));
     const drawer = screen.getByRole("dialog", {
       name: "Akademisyen: Ali Demir",
     });

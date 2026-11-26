@@ -5164,7 +5164,9 @@
     "yesterday": "Yesterday",
     "daysAgo": "{count, plural, one {# day} other {# days}} ago",
     "hoursAgo": "{count, plural, one {# hour} other {# hours}} ago",
-    "minutesAgo": "{count} min ago"
+    "minutesAgo": "{count} min ago",
+    "tabsLabel": "User groups",
+    "tabSoon": "Coming soon"
   },
   "coordinatorApproval": {
     "capabilities": {
@@ -5981,10 +5983,16 @@
     "loading": "Loading students…",
     "loadFailed": "Could not load the students.",
     "empty": "No students for this filter.",
-    "name": "Name",
+    "name": "Student",
     "program": "Program",
-    "badge": "Badge state",
-    "since": "Date"
+    "badge": "Badge",
+    "since": "Badge date",
+    "filterAll": "Badge status: All",
+    "intro": "Students in peer mentoring programs. METU students' accounts come from institutional data; they are not approved by hand.",
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search by name, e-mail or program",
+    "footnote": "Badges are awarded and taken back on the program's Participants page; the program name in the row leads there.",
+    "caption": "Students"
   },
   "trainingEditor": {
     "loading": "Loading the training…",
@@ -6979,11 +6987,10 @@
   },
   "adminAcademics": {
     "intro": "Academics come from the institution's records; nobody approves them by hand or edits them here.",
-    "searchPlaceholder": "Search name, e-mail or department",
+    "searchPlaceholder": "Search academics",
     "department": "Department",
     "allDepartments": "All departments",
     "filters": {
-      "ALL": "All",
       "SIGNED_IN": "Signed in",
       "NOT_SIGNED_IN": "Not signed in yet",
       "INACTIVE": "Inactive at the institution"
@@ -6995,7 +7002,8 @@
       "signIn": "Menton sign-in",
       "status": "Institution record",
       "officeHours": "Office Hours availability",
-      "meetingsThisMonth": "Meetings this month"
+      "meetingsThisMonth": "Meetings this month",
+      "actions": "Actions"
     },
     "empty": "No academics in this filter.",
     "none": "The institution's records list no academics yet.",
@@ -7025,12 +7033,19 @@
     "signedIn": "Signed in",
     "officeHoursFilter": "Office Hours availability",
     "officeHoursFilters": {
-      "ALL": "All",
       "DEFINED": "Set",
       "NOT_YET": "Not yet"
     },
     "hoursDefined": "Set",
-    "hoursNotYet": "Not yet"
+    "hoursNotYet": "Not yet",
+    "searchLabel": "Search academics",
+    "officeHoursAll": "Office Hours availability: All",
+    "signInFilter": "Menton sign-in",
+    "signInAll": "Menton sign-in: All",
+    "filterWithCount": "{label} · {count}",
+    "loading": "Loading academics…",
+    "caption": "Academics",
+    "rowActions": "Actions for {name}"
   },
   "programThisWeek": {
     "eyebrow": "This week",

@@ -5166,7 +5166,9 @@
     "yesterday": "Dün",
     "daysAgo": "{count} gün önce",
     "hoursAgo": "{count} saat önce",
-    "minutesAgo": "{count} dk önce"
+    "minutesAgo": "{count} dk önce",
+    "tabsLabel": "Kullanıcı grupları",
+    "tabSoon": "Yakında"
   },
   "coordinatorApproval": {
     "capabilities": {
@@ -5983,10 +5985,16 @@
     "loading": "Öğrenciler yükleniyor…",
     "loadFailed": "Öğrenciler yüklenemedi.",
     "empty": "Bu filtrede öğrenci yok.",
-    "name": "Ad",
+    "name": "Öğrenci",
     "program": "Program",
-    "badge": "Rozet durumu",
-    "since": "Tarih"
+    "badge": "Rozet",
+    "since": "Rozet tarihi",
+    "filterAll": "Rozet durumu: Tümü",
+    "intro": "Akran mentörlüğü programlarındaki öğrenciler. ODTÜ öğrencilerinin hesapları kurum verisinden gelir; elle onaylanmaz.",
+    "searchLabel": "Öğrenci ara",
+    "searchPlaceholder": "Ad, e-posta veya program ara",
+    "footnote": "Rozet verme ve geri alma programın Katılımcılar sayfasından yapılır; satırdaki program adı oraya götürür.",
+    "caption": "Öğrenciler"
   },
   "trainingEditor": {
     "loading": "Eğitim yükleniyor…",
@@ -6981,11 +6989,10 @@
   },
   "adminAcademics": {
     "intro": "Akademisyenler kurum verisinden gelir; elle onaylanmaz, buradan düzenlenmez.",
-    "searchPlaceholder": "Ad, e-posta veya bölüm ara",
+    "searchPlaceholder": "Akademisyen ara",
     "department": "Bölüm",
     "allDepartments": "Tüm bölümler",
     "filters": {
-      "ALL": "Tümü",
       "SIGNED_IN": "Giriş yaptı",
       "NOT_SIGNED_IN": "Henüz giriş yapmadı",
       "INACTIVE": "Kurumda pasif"
@@ -6993,11 +7000,12 @@
     "columns": {
       "academic": "Akademisyen",
       "department": "Bölüm",
-      "advisees": "Danışan",
+      "advisees": "Danışan öğrenci",
       "signIn": "Menton girişi",
       "status": "Kurum kaydı",
       "officeHours": "Office Hours müsaitliği",
-      "meetingsThisMonth": "Bu ay randevu"
+      "meetingsThisMonth": "Bu ay randevu",
+      "actions": "İşlemler"
     },
     "empty": "Bu filtrede akademisyen yok.",
     "none": "Kurum verisinde henüz akademisyen yok.",
@@ -7027,12 +7035,19 @@
     "signedIn": "Giriş yaptı",
     "officeHoursFilter": "Office Hours müsaitliği",
     "officeHoursFilters": {
-      "ALL": "Tümü",
       "DEFINED": "Tanımlı",
       "NOT_YET": "Henüz yok"
     },
     "hoursDefined": "Tanımlı",
-    "hoursNotYet": "Henüz yok"
+    "hoursNotYet": "Henüz yok",
+    "searchLabel": "Akademisyen ara",
+    "officeHoursAll": "Office Hours müsaitliği: Tümü",
+    "signInFilter": "Menton girişi",
+    "signInAll": "Menton girişi: Tümü",
+    "filterWithCount": "{label} · {count}",
+    "loading": "Akademisyenler yükleniyor…",
+    "caption": "Akademisyenler",
+    "rowActions": "{name} için işlemler"
   },
   "programThisWeek": {
     "eyebrow": "Bu hafta",
