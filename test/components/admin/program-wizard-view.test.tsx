@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProgramWizardView } from "@/components/admin/program-wizard-view";
 import { CoordinatorCandidateStatus } from "@/interfaces/admin-coordinator";
 import { Edition } from "@/interfaces/edition";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
   getCoordinatorCandidate,
   searchCoordinators,
@@ -41,7 +41,6 @@ vi.mock("@/hooks/use-edition", () => ({
 }));
 
 async function reachSummary(clicker: ReturnType<typeof pickerUser>) {
-  await clicker.click(screen.getByRole("radio", { name: /Office Hours/ }));
   await clicker.click(screen.getByRole("button", { name: /Devam/ }));
   await clicker.type(screen.getByLabelText("Program adı"), "ODTÜ OH 2027");
   await clicker.click(screen.getByRole("button", { name: /Devam/ }));
@@ -60,15 +59,13 @@ describe("admin Yeni Program Oluştur", () => {
     editionState.current = Edition.Odtu;
   });
 
-  it("offers ODTÜ only peer mentoring and Office Hours", () => {
+  it("offers ODTÜ only the semester program, already chosen", () => {
     renderWithQueryClient(<ProgramWizardView />);
 
     expect(
       screen.getAllByRole("radio").map((radio) => radio.getAttribute("value")),
-    ).toEqual([ProgramType.PeerMentoring, ProgramType.OfficeHours]);
-    expect(
-      screen.getByRole("radio", { name: /Office Hours/ }),
-    ).not.toBeChecked();
+    ).toEqual([ProgramType.Semester]);
+    expect(screen.getByRole("radio", { name: /Dönem programı/ })).toBeChecked();
     expect(screen.queryByText("Girişim Mentörlüğü")).not.toBeInTheDocument();
   });
 
@@ -134,13 +131,6 @@ describe("admin Yeni Program Oluştur", () => {
     renderWithQueryClient(<ProgramWizardView />);
 
     await clicker.click(screen.getByRole("button", { name: /Devam/ }));
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Bir program türü seç.",
-    );
-    await clicker.click(
-      screen.getByRole("radio", { name: /Akran Mentörlüğü/ }),
-    );
-    await clicker.click(screen.getByRole("button", { name: /Devam/ }));
 
     await clicker.type(
       screen.getByLabelText("Program adı"),
@@ -160,14 +150,19 @@ describe("admin Yeni Program Oluştur", () => {
     );
     await clicker.click(screen.getByRole("button", { name: /Devam/ }));
 
-    expect(screen.getByText("Akran Mentörlüğü")).toBeInTheDocument();
+    expect(screen.getByText("Dönem programı")).toBeInTheDocument();
     expect(screen.getByText("Belirtilmedi")).toBeInTheDocument();
     await clicker.click(
       screen.getByRole("button", { name: "Taslak olarak kaydet" }),
     );
 
     expect(createCoordinatorProgram).toHaveBeenCalledWith({
-      type: ProgramType.PeerMentoring,
+      type: ProgramType.Semester,
+      features: [
+        ProgramFeature.PeerMentoring,
+        ProgramFeature.OfficeHours,
+        ProgramFeature.Iskur,
+      ],
       name: "ODTÜ Akran 2027",
       description: null,
       startDate: null,
@@ -234,7 +229,6 @@ describe("admin Yeni Program Oluştur", () => {
     vi.mocked(createCoordinatorProgram).mockResolvedValue(detail);
     const clicker = pickerUser();
     renderWithQueryClient(<ProgramWizardView />);
-    await clicker.click(screen.getByRole("radio", { name: /Office Hours/ }));
     await clicker.click(screen.getByRole("button", { name: /Devam/ }));
     await clicker.type(screen.getByLabelText("Program adı"), "ODTÜ OH 2027");
     await clicker.click(screen.getByRole("button", { name: /Devam/ }));
@@ -253,7 +247,12 @@ describe("admin Yeni Program Oluştur", () => {
       screen.getByRole("button", { name: "Taslak olarak kaydet" }),
     );
     expect(createCoordinatorProgram).toHaveBeenCalledWith({
-      type: ProgramType.OfficeHours,
+      type: ProgramType.Semester,
+      features: [
+        ProgramFeature.PeerMentoring,
+        ProgramFeature.OfficeHours,
+        ProgramFeature.Iskur,
+      ],
       name: "ODTÜ OH 2027",
       description: null,
       startDate: null,

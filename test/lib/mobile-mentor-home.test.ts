@@ -77,6 +77,7 @@ function program(name: string, mentorStatus: ProgramMentorStatus): Program {
     coordinatorName: "Burcu Şen",
     createdAt: "2026-01-01T00:00:00Z",
     status: ProgramStatus.Active,
+    features: [],
     startups: [{ id: "atlas", name: "Atlas AI" }],
     mentors: [
       {

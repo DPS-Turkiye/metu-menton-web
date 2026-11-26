@@ -1,9 +1,11 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StudentHomeView } from "@/components/student/home-view";
 import { useStudentHome } from "@/hooks/use-student-home";
 import { AppointmentKind, AppointmentStatus } from "@/interfaces/appointment";
+import { ProgramFeature } from "@/interfaces/program";
+import { getMyProgramFeatures } from "@/lib/client/program-features";
 import { itemAt } from "@test/fixtures/list-assertions";
 import {
   PEER_MENTORS_FIXTURE,
@@ -14,6 +16,9 @@ import { studentHomeModel } from "@test/fixtures/student-home";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/hooks/use-student-home", () => ({ useStudentHome: vi.fn() }));
+vi.mock("@/lib/client/program-features", () => ({
+  getMyProgramFeatures: vi.fn(),
+}));
 
 const officeHours = peerAppointment({
   id: "oh-1",
@@ -47,7 +52,13 @@ function homeReturns(overrides: Parameters<typeof studentHomeModel>[0] = {}) {
 }
 
 describe("StudentHomeView", () => {
-  beforeEach(() => homeReturns());
+  beforeEach(() => {
+    homeReturns();
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([
+      ProgramFeature.PeerMentoring,
+      ProgramFeature.OfficeHours,
+    ]);
+  });
 
   it("greets the student by name", () => {
     renderWithQueryClient(<StudentHomeView />);
@@ -135,6 +146,59 @@ describe("StudentHomeView", () => {
       "/student/profile",
     ]);
     expect(within(quick).getByText("2 yaklaşan · 1 talep")).toBeVisible();
+  });
+
+  it("leaves out the Office Hours shortcut when the semester has it off", async () => {
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([
+      ProgramFeature.PeerMentoring,
+    ]);
+    renderWithQueryClient(<StudentHomeView />);
+    const quick = screen.getByRole("navigation", { name: "Hızlı işlemler" });
+    await waitFor(() =>
+      expect(
+        within(quick)
+          .getAllByRole("link")
+          .map((link) => link.getAttribute("href")),
+      ).toEqual([
+        "/student/peer-mentoring",
+        "/student/appointments",
+        "/student/profile",
+      ]),
+    );
+  });
+
+  it("drops the links to peer mentoring and Office Hours a semester has switched off", async () => {
+    homeReturns({ mentors: PEER_MENTORS_FIXTURE.slice(0, 1) });
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([
+      ProgramFeature.OfficeHours,
+    ]);
+    renderWithQueryClient(<StudentHomeView />);
+    const mentors = screen.getByRole("region", {
+      name: "Sana önerilen mentorlar",
+    });
+    await waitFor(() =>
+      expect(
+        within(mentors).queryByRole("link", { name: "Tümünü gör" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      within(
+        screen.getByRole("region", { name: "Akademik danışmanın" }),
+      ).getByRole("link", { name: "Randevu talep et" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the advisor but not the Office Hours request when the semester has Office Hours off", async () => {
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([
+      ProgramFeature.PeerMentoring,
+    ]);
+    renderWithQueryClient(<StudentHomeView />);
+    const advisor = screen.getByRole("region", { name: "Akademik danışmanın" });
+    await waitFor(() =>
+      expect(
+        within(advisor).queryByRole("link", { name: "Randevu talep et" }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it("shows the advisor with a way to ask for Office Hours", () => {

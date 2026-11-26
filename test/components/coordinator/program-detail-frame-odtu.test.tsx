@@ -7,7 +7,7 @@ import { ProgramDetailFrame } from "@/components/coordinator/program-detail-fram
 import { useEdition } from "@/hooks/use-edition";
 import { ProgramLifecycle } from "@/interfaces/coordinator-program";
 import { Edition } from "@/interfaces/edition";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
   getCoordinatorProgram,
   getCoordinatorPrograms,
@@ -71,7 +71,7 @@ describe("program detail frame, ODTÜ edition", () => {
     ]);
   });
 
-  it("shows the breadcrumb, the name with its type and status, the line under it and Raporlar as a tab", async () => {
+  it("shows the breadcrumb, the name with its type and status and the line under it, with no Raporlar for Office Hours alone", async () => {
     renderFrame(ProgramTab.Academics, { [ProgramTab.Appointments]: 86 });
 
     expect(
@@ -99,14 +99,56 @@ describe("program detail frame, ODTÜ edition", () => {
     expect(screen.getByRole("link", { name: /^Randevular/ })).toHaveTextContent(
       "86",
     );
-    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
-      "href",
-      "/coordinator/programs/oh-1/report",
-    );
+    // Raporlar are the mentorship reports, which Office Hours alone does not have.
+    expect(
+      screen.queryByRole("link", { name: "Raporlar" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Katılımcılar" })).toHaveAttribute(
       "aria-current",
       "page",
     );
+    expect(screen.getByText("Sekme içeriği")).toBeInTheDocument();
+  });
+
+  it("shows a semester's features, its run and only the tabs of the coordinator's features", async () => {
+    vi.mocked(getCoordinatorProgram).mockResolvedValue(
+      coordinatorProgramDetail({
+        program: coordinatorProgram({
+          id: "oh-1",
+          name: "2026 Güz",
+          type: ProgramType.Semester,
+          features: [
+            ProgramFeature.PeerMentoring,
+            ProgramFeature.OfficeHours,
+            ProgramFeature.Iskur,
+          ],
+          myFeatures: [ProgramFeature.OfficeHours],
+          startDate: "2026-09-01",
+          endDate: "2027-01-31",
+          lifecycle: ProgramLifecycle.Active,
+        }),
+        coordinators: [{ id: "c-1", fullName: "Elif Demir", owner: true }],
+      }),
+    );
+    renderFrame(ProgramTab.Academics);
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "2026 Güz" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Akran Mentörlüğü")).toBeInTheDocument();
+    expect(screen.getByText("İŞKUR")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Üniversite geneli", { exact: false }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /^Randevular/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^Eşleşmeler/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Akran Mentorları" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Sekme içeriği")).toBeInTheDocument();
   });
 
@@ -143,10 +185,9 @@ describe("program detail frame, ODTÜ edition", () => {
     expect(
       screen.queryByRole("combobox", { name: "Program seç" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Raporlar" })).toHaveAttribute(
-      "href",
-      "/admin/programs/oh-1/report",
-    );
+    expect(
+      screen.getByRole("link", { name: "Program Ayarları" }),
+    ).toHaveAttribute("href", "/admin/programs/oh-1/settings");
   });
 
   it("puts the counts a page knows on Katılımcılar's sub-tabs, with its filters beside them", async () => {

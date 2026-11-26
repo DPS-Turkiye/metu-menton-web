@@ -2,6 +2,7 @@ import type { MentorshipStatus } from "@/interfaces/coordinator-mentorship";
 import type { MeetingStatus } from "@/interfaces/meeting";
 import type { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import type {
+  ProgramFeature,
   ProgramMentorStatus,
   ProgramStatus,
   ProgramType,
@@ -14,6 +15,8 @@ export type AdminProgram = {
   name: string;
   status: ProgramStatus;
   type: ProgramType;
+  /** A semester's features; [] for other types. */
+  features: ProgramFeature[];
   createdAt: string;
   /** The planned run; null while a draft has none. Absent from a backend without the participant counts. */
   startDate?: string | null;

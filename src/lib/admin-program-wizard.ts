@@ -1,6 +1,10 @@
 import type { AdminOverview } from "@/interfaces/admin-overview";
 import type { CreateProgramInput } from "@/interfaces/coordinator-program";
-import { ProgramStatus, type ProgramType } from "@/interfaces/program";
+import {
+  ProgramStatus,
+  ProgramType,
+  type ProgramFeature,
+} from "@/interfaces/program";
 import { UserAccountStatus } from "@/interfaces/session";
 import { coordinatorsOf } from "@/lib/admin-model";
 import {
@@ -11,6 +15,11 @@ import {
   splitChoices,
   type CoordinatorChoice,
 } from "@/lib/coordinator-picker";
+import {
+  FeatureSetProblem,
+  featureSetProblem,
+  PROGRAM_FEATURES,
+} from "@/lib/program-features";
 
 export enum WizardStep {
   Type = "TYPE",
@@ -26,10 +35,14 @@ export enum WizardProblem {
   NameRequired = "NAME_REQUIRED",
   DatesOrder = "DATES_ORDER",
   CoordinatorRequired = "COORDINATOR_REQUIRED",
+  FeaturesRequired = "FEATURES_REQUIRED",
+  IskurNeedsPeer = "ISKUR_NEEDS_PEER",
 }
 
 export type ProgramWizardDraft = {
   type: ProgramType | null;
+  /** A semester's features; every one is on until the admin switches some off. */
+  features: ProgramFeature[];
   name: string;
   description: string;
   startDate: string;
@@ -43,6 +56,7 @@ export function emptyWizardDraft(
 ): ProgramWizardDraft {
   return {
     type: programTypes.length === 1 ? (programTypes[0] ?? null) : null,
+    features: [...PROGRAM_FEATURES],
     name: "",
     description: "",
     startDate: "",
@@ -51,13 +65,25 @@ export function emptyWizardDraft(
   };
 }
 
-/** What stops the admin from leaving a step; dates are optional but must be in order. */
+const FEATURE_PROBLEMS: Record<FeatureSetProblem, WizardProblem> = {
+  [FeatureSetProblem.Empty]: WizardProblem.FeaturesRequired,
+  [FeatureSetProblem.IskurNeedsPeer]: WizardProblem.IskurNeedsPeer,
+};
+
+/**
+ * What stops the admin from leaving a step; dates are optional but must be in order. A semester's first step is its
+ * features rather than a type.
+ */
 export function stepProblem(
   step: WizardStep,
   draft: ProgramWizardDraft,
 ): WizardProblem | null {
   if (step === WizardStep.Type && !draft.type) {
     return WizardProblem.TypeRequired;
+  }
+  if (step === WizardStep.Type && draft.type === ProgramType.Semester) {
+    const problem = featureSetProblem(draft.features);
+    if (problem) return FEATURE_PROBLEMS[problem];
   }
   if (step === WizardStep.Info) {
     if (!draft.name.trim()) return WizardProblem.NameRequired;
@@ -77,6 +103,7 @@ export function createProgramInput(
 ): CreateProgramInput {
   return {
     type,
+    ...(type === ProgramType.Semester ? { features: draft.features } : {}),
     name: draft.name.trim(),
     description: draft.description.trim() || null,
     startDate: draft.startDate || null,

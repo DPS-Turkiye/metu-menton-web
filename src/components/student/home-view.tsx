@@ -23,6 +23,7 @@ import {
   InitialsAvatar,
   SectionHeader,
 } from "@/components/student/ia/ui";
+import { useStudentFeatures } from "@/hooks/use-student-features";
 import {
   useStudentHome,
   type StudentHomeModel,
@@ -38,11 +39,13 @@ import {
   appointmentProfileHref,
   peerMentorHref,
 } from "@/lib/peer-profile-links";
+import {
+  STUDENT_OFFICE_HOURS_HREF,
+  STUDENT_PEER_MENTORING_HREF,
+} from "@/lib/student-features";
 import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDayMonthLong, formatWeekdayDayMonth } from "@/lib/utils";
 
-const OFFICE_HOURS_HREF = "/student/office-hours";
-const PEER_MENTORING_HREF = "/student/peer-mentoring";
 const APPOINTMENTS_HREF = "/student/appointments";
 const QUICK_IMAGE_DIR = "/ia/student";
 
@@ -62,6 +65,7 @@ export function StudentHomeView({
   const t = useTranslations("iaStudent.home");
   const locale = useLocale();
   const home = useStudentHome();
+  const features = useStudentFeatures();
 
   return (
     <div className="flex flex-col gap-8">
@@ -105,7 +109,14 @@ export function StudentHomeView({
                     id="student-mentors"
                     title={t("mentors.title")}
                     hint={t("mentors.hint")}
-                    action={{ href: PEER_MENTORING_HREF, label: t("seeAll") }}
+                    action={
+                      features.shows(STUDENT_PEER_MENTORING_HREF)
+                        ? {
+                            href: STUDENT_PEER_MENTORING_HREF,
+                            label: t("seeAll"),
+                          }
+                        : undefined
+                    }
                   />
                   <ul className={LIST}>
                     {home.mentors.map((mentor) => (
@@ -118,7 +129,12 @@ export function StudentHomeView({
             </div>
             <div className="flex flex-col gap-8">
               <PendingRequests home={home} />
-              {home.advisor ? <AdvisorCard advisor={home.advisor} /> : null}
+              {home.advisor ? (
+                <AdvisorCard
+                  advisor={home.advisor}
+                  officeHours={features.shows(STUDENT_OFFICE_HOURS_HREF)}
+                />
+              ) : null}
               {aside}
             </div>
           </div>
@@ -260,16 +276,17 @@ function ReplyNeeded({ appointment }: { appointment: Appointment }) {
 
 function QuickActions({ home }: { home: StudentHomeModel }) {
   const t = useTranslations("iaStudent.home.quick");
+  const features = useStudentFeatures();
   const cards = [
     {
       key: "officeHours",
-      href: OFFICE_HOURS_HREF,
+      href: STUDENT_OFFICE_HOURS_HREF,
       image: `${QUICK_IMAGE_DIR}/quick-office-hours.png`,
       body: t("officeHours.body"),
     },
     {
       key: "peerMentor",
-      href: PEER_MENTORING_HREF,
+      href: STUDENT_PEER_MENTORING_HREF,
       image: `${QUICK_IMAGE_DIR}/quick-peer-mentor.png`,
       body: t("peerMentor.body"),
     },
@@ -293,7 +310,7 @@ function QuickActions({ home }: { home: StudentHomeModel }) {
   return (
     <nav aria-label={t("label")}>
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map((card) => (
+        {features.visible(cards).map((card) => (
           <li key={card.key}>
             <Link
               href={card.href}
@@ -376,8 +393,11 @@ function MentorRow({ mentor }: { mentor: PeerMentorCard }) {
 
 function AdvisorCard({
   advisor,
+  officeHours,
 }: {
   advisor: NonNullable<StudentHomeModel["advisor"]>;
+  /** Whether the student's semester shows Office Hours, where the advisor is asked for a meeting. */
+  officeHours: boolean;
 }) {
   const t = useTranslations("iaStudent.home.advisor");
   const name = [advisor.academicTitle, advisor.fullName]
@@ -394,15 +414,17 @@ function AdvisorCard({
             <p className="type-body-sm text-text-muted">{t("source")}</p>
           </div>
         </div>
-        <Button
-          variant={ButtonVariant.Secondary}
-          href={OFFICE_HOURS_HREF}
-          fullWidth
-          className="justify-start"
-        >
-          <CalendarPlus aria-hidden className="size-5" strokeWidth={1.5} />
-          {t("request")}
-        </Button>
+        {officeHours ? (
+          <Button
+            variant={ButtonVariant.Secondary}
+            href={STUDENT_OFFICE_HOURS_HREF}
+            fullWidth
+            className="justify-start"
+          >
+            <CalendarPlus aria-hidden className="size-5" strokeWidth={1.5} />
+            {t("request")}
+          </Button>
+        ) : null}
       </div>
     </section>
   );

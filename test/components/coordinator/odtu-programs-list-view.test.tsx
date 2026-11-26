@@ -8,7 +8,11 @@ import {
   ProgramLifecycle,
   type CoordinatorProgram,
 } from "@/interfaces/coordinator-program";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { coordinatorProgram } from "@test/fixtures/coordinator-programs";
 import { renderWithQueryClient } from "@test/test-utils";
 
@@ -156,7 +160,7 @@ describe("ODTÜ Programlarım", () => {
     ).toBeInTheDocument();
   });
 
-  it("narrows the cards by segment and by the edition's program types", async () => {
+  it("narrows the cards by segment and by feature", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<OdtuProgramsListView />);
 
@@ -170,13 +174,13 @@ describe("ODTÜ Programlarım", () => {
     expect(screen.getAllByRole("article")).toHaveLength(1);
     await user.click(within(segments).getByRole("button", { name: "Aktif 2" }));
 
-    const type = screen.getByRole("combobox", { name: "Program türü" });
+    const type = screen.getByRole("combobox", { name: "Özellik" });
     expect(
       within(type)
         .getAllByRole("option")
         .map((option) => option.textContent),
-    ).toEqual(["Program türü: Tümü", "Akran Mentörlüğü", "Office Hours"]);
-    await user.selectOptions(type, ProgramType.OfficeHours);
+    ).toEqual(["Özellik: Tümü", "Akran Mentörlüğü", "Office Hours", "İŞKUR"]);
+    await user.selectOptions(type, ProgramFeature.OfficeHours);
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(
       screen.getByRole("article", { name: "ODTÜ Office Hours" }),

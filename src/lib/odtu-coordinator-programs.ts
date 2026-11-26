@@ -1,20 +1,22 @@
 import type { useTranslations } from "next-intl";
 
 import type { CoordinatorProgram } from "@/interfaces/coordinator-program";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramStatus } from "@/interfaces/program";
 import {
   formatMonthYear,
   formatProgramRun,
   openActionCount,
 } from "@/lib/coordinator-programs";
 import {
+  hasFeature,
+  isOfficeHoursOnly,
+  matchesFeatureFilter,
+  type ProgramFeatureFilter,
+} from "@/lib/program-features";
+import {
   matchesStatus,
   ProgramStatusFilter,
 } from "@/lib/program-status-filter";
-import {
-  matchesProgramType,
-  type ProgramTypeFilter,
-} from "@/lib/program-types";
 
 export type OdtuProgramsT = ReturnType<
   typeof useTranslations<"odtuCoordinatorPrograms">
@@ -35,11 +37,11 @@ export type ProgramlarimSegment = (typeof PROGRAMLARIM_SEGMENTS)[number];
 export function filterOdtuPrograms(
   programs: readonly CoordinatorProgram[],
   segment: ProgramlarimSegment,
-  type: ProgramTypeFilter,
+  feature: ProgramFeatureFilter,
 ) {
   return programs.filter(
     (program) =>
-      matchesStatus(program, segment) && matchesProgramType(program.type, type),
+      matchesStatus(program, segment) && matchesFeatureFilter(program, feature),
   );
 }
 
@@ -49,7 +51,7 @@ export function draftsToConfigure(programs: readonly CoordinatorProgram[]) {
 }
 
 /**
- * The card's date line: Office Hours runs university-wide; a draft shows when it is planned to start; otherwise the
+ * The card's date line: Office Hours alone runs university-wide; a draft shows when it is planned to start; otherwise the
  * run.
  */
 export function programDateLine(
@@ -57,7 +59,7 @@ export function programDateLine(
   universityWide: string,
   locale: string,
 ) {
-  if (program.type === ProgramType.OfficeHours) return universityWide;
+  if (isOfficeHoursOnly(program)) return universityWide;
   if (program.status === ProgramStatus.Draft) {
     return program.startDate
       ? formatMonthYear(program.startDate, locale)
@@ -85,9 +87,9 @@ export enum ProgramStatKey {
 export type ProgramStat = { key: ProgramStatKey; value: string; label: string };
 
 /**
- * The three numbers on a card, by program type: a startup program's teams, mentors and open actions; a peer
- * program's students, peer mentors and open requests; an Office Hours program's academicians, those with weekly
- * hours and requests awaiting a decision. A peer draft shows its active categories instead of requests, and its
+ * The three numbers on a card, by the program's features: a startup program's teams, mentors and open actions; with
+ * Akran Mentörlüğü, its students, peer mentors and open requests; with Office Hours alone, the academicians, those
+ * with weekly hours and requests awaiting a decision. A peer draft shows its active categories instead of requests, and its
  * students as a dash, as the frame draws them before the program starts. A count an older backend does not send
  * reads as a dash too.
  */
@@ -105,7 +107,7 @@ export function programStats(
     value: number(value),
     label: t(`stats.${key}`),
   });
-  if (program.type === ProgramType.PeerMentoring) {
+  if (hasFeature(program, ProgramFeature.PeerMentoring)) {
     const peer = program.counts?.peer ?? undefined;
     const draft = program.status === ProgramStatus.Draft;
     return [
@@ -116,7 +118,7 @@ export function programStats(
         : stat(ProgramStatKey.OpenRequests, peer?.openRequests),
     ];
   }
-  if (program.type === ProgramType.OfficeHours) {
+  if (hasFeature(program, ProgramFeature.OfficeHours)) {
     const officeHours = program.counts?.officeHours ?? undefined;
     return [
       stat(ProgramStatKey.Academicians, officeHours?.academicians),

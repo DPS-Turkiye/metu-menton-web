@@ -15,12 +15,48 @@ export enum ProgramStatus {
   Completed = "COMPLETED",
 }
 
-/** Mirrors the backend ProgramType; decides which tabs and structures a program has. */
+/**
+ * Mirrors the backend ProgramType. Teknokent runs STARTUP_MENTORING; ODTÜ creates only SEMESTER programs, whose
+ * features decide their tabs. PEER_MENTORING and OFFICE_HOURS are the older ODTÜ types, converted to SEMESTER by the
+ * backend.
+ */
 export enum ProgramType {
   StartupMentoring = "STARTUP_MENTORING",
   PeerMentoring = "PEER_MENTORING",
   OfficeHours = "OFFICE_HOURS",
+  Semester = "SEMESTER",
 }
+
+/** What a semester runs; İŞKUR needs Akran Mentörlüğü, and a semester has at least one. */
+export enum ProgramFeature {
+  PeerMentoring = "PEER_MENTORING",
+  OfficeHours = "OFFICE_HOURS",
+  Iskur = "ISKUR",
+}
+
+/** The kinds of open work that keep a feature on or a student in their semester (409 `PROGRAM_WORK_OPEN`). */
+export enum ProgramBlockerKind {
+  ActiveMentorship = "ACTIVE_MENTORSHIP",
+  OpenRequest = "OPEN_REQUEST",
+  IskurPlacement = "ISKUR_PLACEMENT",
+  UpcomingOfficeHoursMeeting = "UPCOMING_OFFICE_HOURS_MEETING",
+  UnsentReport = "UNSENT_REPORT",
+}
+
+/** One line of a refusal: how much open work of a kind there is. Counts only, never names. */
+export type ProgramBlocker = {
+  kind: ProgramBlockerKind;
+  feature: ProgramFeature;
+  count: number;
+};
+
+/** The backend's codes for refused program and membership changes; `code` is free text, so a const object. */
+export const ProgramErrorCode = {
+  WorkOpen: "PROGRAM_WORK_OPEN",
+  FeaturesInvalid: "PROGRAM_FEATURES_INVALID",
+  AlreadyInProgram: "ALREADY_IN_PROGRAM",
+  NotInProgram: "NOT_IN_PROGRAM",
+} as const;
 
 export type ProgramStartup = {
   id: string;
@@ -59,6 +95,8 @@ export type Program = {
   coordinatorName: string;
   createdAt: string;
   status: ProgramStatus;
+  /** A semester's features; [] for other types. */
+  features: ProgramFeature[];
   startups: ProgramStartup[];
   mentors: ProgramMentor[];
 };
@@ -105,4 +143,12 @@ export type ProgramName = {
 export type ProgramEligibility = {
   eligible: boolean;
   message: string | null;
+};
+
+/**
+ * The signed-in person's semester features (`GET /api/me/program-features`): [] when they are in no semester, null
+ * when the backend does not say (one older than semesters), so nothing is hidden.
+ */
+export type MyProgramFeatures = {
+  programFeatures: ProgramFeature[] | null;
 };

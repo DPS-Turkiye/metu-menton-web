@@ -40,6 +40,7 @@ describe("describeMeetingParticipants", () => {
       coordinatorName: "Koordinatör",
       createdAt: "2026-01-01T00:00:00.000Z",
       status: ProgramStatus.Active,
+      features: [],
       startups: [{ id: "org-1", name: "Döngü" }],
       mentors: [
         {

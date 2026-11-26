@@ -15,6 +15,7 @@ export function program(overrides: Partial<Program> = {}): Program {
     coordinatorName: "Demo Coordinator",
     createdAt: "2026-09-01T08:00:00Z",
     status: ProgramStatus.Active,
+    features: [],
     startups: [],
     mentors: [],
     ...overrides,

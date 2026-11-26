@@ -36,7 +36,7 @@ const SCREENS: Record<Edition, EditionScreens> = {
     loginOptions: [LoginOption.Password, LoginOption.Odtu, LoginOption.SignUp],
     // /signup on ODTÜ is the student e-mail sign-up (StudentSignupFlow), so this role list is not shown there.
     signupRoles: [SignupRole.Founder],
-    programTypes: [ProgramType.PeerMentoring, ProgramType.OfficeHours],
+    programTypes: [ProgramType.Semester],
     adminUserTabs: [UserTab.Coordinators, UserTab.Students, UserTab.Academics],
     // Deferred: deleting an ODTÜ account would have to settle its roster and institution login first.
     userDeletion: false,

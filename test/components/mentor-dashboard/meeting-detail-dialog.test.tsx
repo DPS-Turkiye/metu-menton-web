@@ -39,6 +39,7 @@ const programs: Program[] = [
     coordinatorName: "Koordinator",
     createdAt: "2026-01-01T00:00:00.000Z",
     status: ProgramStatus.Active,
+    features: [],
     startups: [
       { id: "org-1", name: "Döngü" },
       { id: "org-2", name: "NovaMed" },
