@@ -23,10 +23,11 @@ const open = [
 
 describe("membershipActions", () => {
   it("offers removal only to a student who is in a semester", () => {
-    expect(membershipActions({ programId: null })).toEqual([
+    expect(membershipActions({ programId: null, student: true })).toEqual([
       MembershipAction.Add,
     ]);
-    expect(membershipActions({ programId: "p1" })).toEqual([
+    expect(membershipActions({ programId: "p1", student: false })).toEqual([]);
+    expect(membershipActions({ programId: "p1", student: true })).toEqual([
       MembershipAction.Add,
       MembershipAction.Remove,
     ]);

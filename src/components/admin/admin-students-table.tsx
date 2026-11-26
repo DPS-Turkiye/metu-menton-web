@@ -139,16 +139,20 @@ function StudentsBody({
             {row.awardedAt ? formatLongDate(row.awardedAt, locale) : "—"}
           </DataCell>
           <DataCell className="text-right">
-            {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
-            <RowActionsMenu
-              label={tMember("rowActions", { name: row.fullName })}
-              actions={membership.actionsFor(row).map((action) => ({
-                id: action,
-                label: tMember(action),
-                destructive: action === MembershipAction.Remove,
-                onSelect: () => membership.open(row, action),
-              }))}
-            />
+            {membership.actionsFor(row).length > 0 ? (
+              <>
+                {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+                <RowActionsMenu
+                  label={tMember("rowActions", { name: row.fullName })}
+                  actions={membership.actionsFor(row).map((action) => ({
+                    id: action,
+                    label: tMember(action),
+                    destructive: action === MembershipAction.Remove,
+                    onSelect: () => membership.open(row, action),
+                  }))}
+                />
+              </>
+            ) : null}
           </DataCell>
         </tr>
       ))}

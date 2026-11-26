@@ -37,4 +37,6 @@ export type AdminStudentRow = Omit<
 > & {
   programId: string | null;
   programName: string | null;
+  /** A student account; other badge holders (an academic's mentor account) cannot be added to a semester. */
+  student: boolean;
 };

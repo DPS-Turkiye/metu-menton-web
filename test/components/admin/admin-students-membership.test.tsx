@@ -44,6 +44,7 @@ function student(overrides: Partial<AdminStudentRow>): AdminStudentRow {
     training: { videoWatched: false, attempts: 0, bestScore: null },
     profile: null,
     prism: null,
+    student: true,
     ...overrides,
   };
 }
@@ -71,6 +72,14 @@ describe("Kullanıcılar › Öğrenciler: Programa ekle / Programdan çıkar", 
     vi.mocked(currentIdToken).mockResolvedValue("admin-token");
     vi.mocked(getAdminStudents).mockResolvedValue([
       student({}),
+      student({
+        userId: "u3",
+        fullName: "Doç. Mentor",
+        email: "mentor@odtu-dev.invalid",
+        programId: "p1",
+        programName: "2026 Güz",
+        student: false,
+      }),
       student({
         userId: "u2",
         fullName: "Ali Dönemsiz",
@@ -236,5 +245,16 @@ describe("Kullanıcılar › Öğrenciler: Programa ekle / Programdan çıkar", 
 
     await openAction("Zeynep Öğrenci", "Programa ekle");
     await waitFor(() => expect(getProgramMembership).toHaveBeenCalledTimes(2));
+  });
+
+  it("offers no membership actions to a badge holder who is not a student", async () => {
+    renderWithQueryClient(<AdminStudentsTable />);
+    await screen.findByText("Doç. Mentor");
+    expect(
+      screen.queryByRole("button", { name: "Doç. Mentor için işlemler" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Zeynep Öğrenci için işlemler" }),
+    ).toBeInTheDocument();
   });
 });

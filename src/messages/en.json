@@ -6020,7 +6020,7 @@
       "loadFailed": "The semester details could not be loaded.",
       "saveFailed": "The program change could not be saved.",
       "notInSemester": "Not in any semester right now.",
-      "moveNote": "Now in {current}; they move to the semester you choose. Their peer mentor record moves too; past mentorships and reports stay in {current}, read-only.",
+      "moveNote": "Now in {current}; they move to the semester you choose. Their peer mentor record moves too when the new semester runs peer mentoring, and ends otherwise. Past mentorships and reports stay in {current}, read-only.",
       "removeNote": "They leave {current}. Their peer mentor record ends; past mentorships and reports are not deleted.",
       "target": "Semester",
       "targetOption": "{name} ({status})",

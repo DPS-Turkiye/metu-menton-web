@@ -10,10 +10,14 @@ export enum MembershipAction {
   Remove = "REMOVE",
 }
 
-/** The row menu's actions: anyone can be added (moved), only a student in a semester can be removed. */
+/**
+ * The row menu's actions: a student can be added (moved), and removed when in a semester; other badge holders have
+ * none, since only students belong to a semester.
+ */
 export function membershipActions(
-  row: Pick<AdminStudentRow, "programId">,
+  row: Pick<AdminStudentRow, "programId" | "student">,
 ): MembershipAction[] {
+  if (!row.student) return [];
   return row.programId === null
     ? [MembershipAction.Add]
     : [MembershipAction.Add, MembershipAction.Remove];

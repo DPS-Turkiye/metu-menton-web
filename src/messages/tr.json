@@ -6022,7 +6022,7 @@
       "loadFailed": "Dönem bilgisi yüklenemedi.",
       "saveFailed": "Program değişikliği kaydedilemedi.",
       "notInSemester": "Şu an hiçbir dönemde değil.",
-      "moveNote": "Şu an {current} döneminde; seçtiğin döneme taşınır. Akran mentoru kaydı da taşınır; geçmiş mentorlukları ve raporları {current} döneminde okunur olarak kalır.",
+      "moveNote": "Şu an {current} döneminde; seçtiğin döneme taşınır. Yeni dönemde Akran Mentörlüğü varsa akran mentoru kaydı da taşınır, yoksa sona erer. Geçmiş mentorlukları ve raporları {current} döneminde okunur olarak kalır.",
       "removeNote": "{current} döneminden çıkar. Akran mentoru kaydı sona erer; geçmiş mentorlukları ve raporları silinmez.",
       "target": "Dönem",
       "targetOption": "{name} ({status})",
