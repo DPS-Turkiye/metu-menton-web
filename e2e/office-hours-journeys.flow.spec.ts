@@ -66,7 +66,8 @@ async function openRequestDrawer(
 
 /**
  * The academician's calendar entry for a request or a meeting, named by the student, the time and the status, once
- * Randevularım has loaded both lists: an entry that is gone is only gone after they have arrived.
+ * Randevularım has drawn the day: the grid waits for the hours too, so an entry that is gone is only gone after the
+ * day's hours ("Müsait 09:00–17:00", every day of the run) are on the page.
  */
 async function findAcademicianEntry(
   page: Page,
@@ -85,6 +86,7 @@ async function findAcademicianEntry(
     `/academician/appointments?date=${toTurkishDate(time.startsAt)}`,
   );
   await Promise.all(loaded);
+  await expect(page.getByText("Müsait 09:00–17:00").first()).toBeVisible();
   return page.getByRole("button", {
     name: `${Persona.AyseYilmaz}, ${toTurkishTimeRange(time.startsAt, time.endsAt)}, ${status}`,
   });
@@ -156,6 +158,11 @@ test("the student cancels a booked meeting and the time is free again", async ({
     { action: "ACCEPT", time: sent.startsAt },
   );
 
+  await signInAs(page, Persona.AhmetOzturk);
+  await expect(
+    await findAcademicianEntry(page, sent, "Onaylandı"),
+  ).toBeVisible();
+
   await signInAs(page, Persona.AyseYilmaz);
   await (
     await findStudentAppointment(page, "Yaklaşan", topic)
@@ -171,21 +178,19 @@ test("the student cancels a booked meeting and the time is free again", async ({
     await findStudentAppointment(page, "Geçmiş", topic),
   ).toContainText("İptal Edildi");
 
-  // The booking page draws days and times in the browser's own zone, so the labels are read the same way.
-  await page.goto(`/student/office-hours/${academicianId}/book`);
-  const { day, time } = await page.evaluate((startsAt) => {
-    const at = new Date(startsAt);
-    return {
-      day: String(at.getDate()),
-      time: at.toLocaleTimeString("tr", { hour: "2-digit", minute: "2-digit" }),
-    };
-  }, sent.startsAt);
-  await page.getByRole("button", { name: "Sonraki hafta" }).click();
-  await page
-    .getByRole("group", { name: "Günler" })
-    .getByRole("button")
-    .filter({ has: page.getByText(day, { exact: true }) })
-    .click();
+  // Opened on the freed time itself, so the page shows its day whatever week it opens on (at the weekend it already
+  // opens on the coming week). It draws times in the browser's own zone for now, so the label is read the same way.
+  await page.goto(
+    `/student/office-hours/${academicianId}/book?slot=${encodeURIComponent(sent.startsAt)}`,
+  );
+  const time = await page.evaluate(
+    (startsAt) =>
+      new Date(startsAt).toLocaleTimeString("tr", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    sent.startsAt,
+  );
   await expect(
     page
       .getByRole("group", { name: "Saatler" })
@@ -205,6 +210,9 @@ test("the academician declines a request and the student sees why", async ({
   const sent = await sendRequest(page, topic);
 
   await signInAs(page, Persona.AhmetOzturk);
+  await expect(
+    await findAcademicianEntry(page, sent, "Onay Bekliyor"),
+  ).toBeVisible();
   await openRequestDrawer(page, sent);
   await page.getByRole("button", { name: "Reddet" }).click();
   await page

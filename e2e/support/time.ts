@@ -22,8 +22,8 @@ export function toTurkishTimeRange(startsAt: string, endsAt: string) {
 }
 
 /**
- * Next week's Wednesday in Turkey ("2026-12-02"). On any day of the week it is past the four-hour booking lead and
- * in the week behind "Sonraki hafta"; its daytime hours fall on the same date in UTC, where CI's browser runs.
+ * Next week's Wednesday in Turkey ("2026-12-02"). On any day of the week it is past the four-hour booking lead, and
+ * its daytime hours fall on the same date in UTC, where CI's browser runs.
  */
 export function getNextWednesday(now = new Date()) {
   const today = new Date(`${toTurkishDate(now.toISOString())}T12:00:00Z`);
