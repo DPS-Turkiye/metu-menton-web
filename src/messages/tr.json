@@ -6365,6 +6365,9 @@
     "iskurSupportLoadFailed": "Destek faaliyetleri yüklenemedi.",
     "iskurSupportInvalid": "Destek faaliyeti bilgileri geçersiz.",
     "iskurSupportSaveFailed": "Destek faaliyeti kaydedilemedi.",
+    "iskurTeamChangeLoadFailed": "Ekip değişikliği talepleri yüklenemedi.",
+    "iskurTeamChangeInvalid": "Ekip değişikliği talebi geçersiz.",
+    "iskurTeamChangeSaveFailed": "Ekip değişikliği talebi kaydedilemedi.",
     "iskurOnboardingLoadFailed": "Yerleştirme formu yüklenemedi.",
     "iskurOnboardingSaveFailed": "Yerleştirme formu kaydedilemedi.",
     "iskurOnboardingInvalid": "Yerleştirme formu bilgileri geçersiz.",
@@ -8521,5 +8524,47 @@
       "send": "Gönder",
       "open": "Aç"
     }
+  },
+  "iskurTeamChange": {
+    "title": "Ekip değişikliği",
+    "hint": "İlk 4 hafta deneme dönemidir. Ekip değiştirmek istersen 4. haftada belirt; kararı koordinatör verir.",
+    "start": "Ekip değişikliği iste",
+    "reasonLabel": "Neden ekip değiştirmek istiyorsun?",
+    "reasonHint": "Koordinatörün okur. Kısa tut; en fazla {max} karakter.",
+    "cancel": "Vazgeç",
+    "send": "Talebi gönder",
+    "sending": "Gönderiliyor…",
+    "sent": "Talebin koordinatörüne iletildi.",
+    "sendFailed": "Talebin gönderilemedi.",
+    "waiting": "Talebin koordinatörüne iletildi · {date}",
+    "waitingHint": "Koordinatörün kararını verdiğinde bildirim alırsın.",
+    "yourReason": "Gerekçen: {reason}",
+    "moved": "Koordinatörün talebini kabul etti; yeni ekibin {team}.",
+    "declinedTitle": "Koordinatörün ekibini değiştirmedi",
+    "declinedNote": "Koordinatörünün notu: {note}",
+    "cancelledTitle": "Talebin kapandı",
+    "coordinator": {
+      "title": "Ekip değişikliği talepleri",
+      "hint": "Deneme dönemindeki stajyerler ekip değiştirmek istediklerini buradan bildirir. Taşımak için yerleştirmeyi değiştir; talep kendiliğinden kapanır.",
+      "empty": "Yanıt bekleyen talep yok.",
+      "loadFailed": "Ekip değişikliği talepleri yüklenemedi.",
+      "from": "{team} ekibinden · {date}",
+      "move": "Taşı",
+      "moveNamed": "{name} kişisini taşı",
+      "decline": "Reddet",
+      "declineNamed": "{name} kişisinin talebini reddet",
+      "noteLabel": "Öğrenciye not",
+      "noteHint": "Öğrenci bu notu bildirimde ve Ana Sayfa’sında görür.",
+      "confirmDecline": "Reddet ve bildir",
+      "cancel": "Vazgeç",
+      "answered": "Yanıtlanan talepler ({count})",
+      "status": {
+        "MOVED": "Taşındı · {team}",
+        "DECLINED": "Reddedildi · {note}",
+        "CANCELLED": "Yerleştirme kaldırıldı"
+      }
+    },
+    "declined": "Talep reddedildi; öğrenciye bildirildi.",
+    "declineFailed": "Talep reddedilemedi."
   }
 }

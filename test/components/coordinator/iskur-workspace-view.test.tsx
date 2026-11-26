@@ -10,6 +10,7 @@ import {
   getIskurApplications,
   replaceIskurUnitSkills,
 } from "@/lib/client/iskur-onboarding";
+import { getIskurTeamChanges } from "@/lib/client/iskur-team-change";
 import {
   createDefaultIskurStructure,
   createIskurTeam,
@@ -25,6 +26,7 @@ import {
 } from "@/lib/client/iskur-workspace";
 import { iskurInternList } from "@test/fixtures/iskur-interns";
 import { applications, KREATIF } from "@test/fixtures/iskur-onboarding";
+import { iskurTeamChange } from "@test/fixtures/iskur-team-change";
 import { iskurWorkspace } from "@test/fixtures/iskur-workspace";
 import { renderWithQueryClient } from "@test/test-utils";
 
@@ -47,6 +49,14 @@ vi.mock("@/lib/client/iskur-workspace", () => ({
   unplaceIskurIntern: vi.fn(),
   updateIskurTeam: vi.fn(),
   updateIskurUnit: vi.fn(),
+}));
+
+vi.mock("@/lib/client/iskur-team-change", () => ({
+  getIskurTeamChanges: vi.fn().mockResolvedValue({
+    programId: "p1",
+    requests: [],
+  }),
+  declineIskurTeamChange: vi.fn(),
 }));
 
 vi.mock("@/lib/client/iskur-interns", () => ({
@@ -453,6 +463,29 @@ describe("IskurWorkspaceView", () => {
     expect(
       within(dialog).getByText("Bu kişi yerleştirme formunu henüz göndermedi."),
     ).toBeInTheDocument();
+  });
+
+  it("moves an intern who asked to change team with the placement dialog (handbook p.18)", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getIskurTeamChanges).mockResolvedValueOnce({
+      programId: "p1",
+      requests: [
+        iskurTeamChange({ userId: "u-member", fullName: "Burak Tan" }),
+      ],
+    });
+    await renderView();
+    const card = await screen.findByRole("region", {
+      name: "Ekip değişikliği talepleri",
+    });
+    expect(
+      within(card).getByText(
+        "“Dijital Dönüşüm ekibindeki işler bana daha uygun.”",
+      ),
+    ).toBeInTheDocument();
+    await user.click(
+      within(card).getByRole("button", { name: "Burak Tan kişisini taşı" }),
+    );
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
   it("edits a unit's skills one per line", async () => {

@@ -16,6 +16,9 @@ import { renderWithQueryClient } from "@test/test-utils";
 vi.mock("@/lib/client/iskur-onboarding", () => ({
   getIskurTeamReveal: vi.fn(),
 }));
+vi.mock("@/components/iskur/team-change-request", () => ({
+  IskurTeamChangeRequest: () => null,
+}));
 
 function placed() {
   const base = reveal();
