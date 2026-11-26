@@ -82,9 +82,13 @@ export function StudentProgramDialog({
           )}
         </div>
       ) : null}
-      {membership.blockers.length > 0 && current ? (
+      {membership.blockers.length > 0 ? (
         <ProgramBlockers
-          title={t("blocked", { current: current.name })}
+          title={
+            current
+              ? t("blocked", { current: current.name })
+              : t("blockedNoName")
+          }
           blockers={membership.blockers}
         />
       ) : null}

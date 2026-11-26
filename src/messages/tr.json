@@ -6016,6 +6016,7 @@
       "targetOption": "{name} ({status})",
       "noTargets": "Eklenebilecek taslak ya da aktif dönem yok.",
       "blocked": "Açık işler bitmeden {current} döneminden ayrılamaz:",
+      "blockedNoName": "Açık işler bitmeden döneminden ayrılamaz:",
       "cancel": "Vazgeç",
       "added": "{name}, {program} dönemine eklendi.",
       "removed": "{name} programdan çıkarıldı.",

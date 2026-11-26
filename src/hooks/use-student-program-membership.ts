@@ -23,6 +23,7 @@ import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
 const ADMIN_STUDENTS_QUERY_KEY = ["admin", "students"] as const;
+const MEMBERSHIP_QUERY_ROOT = ["admin", "student-membership"] as const;
 
 type Target = { row: AdminStudentRow; action: MembershipAction };
 
@@ -39,10 +40,12 @@ export function useStudentProgramMembership() {
   const [chosenId, setChosenId] = useState<string | null>(null);
 
   const membership = useQuery({
-    queryKey: [...ADMIN_STUDENTS_QUERY_KEY, "membership", target?.row.userId],
+    queryKey: [...MEMBERSHIP_QUERY_ROOT, target?.row.userId],
     queryFn: () => getProgramMembership(target?.row.userId ?? ""),
     enabled: target !== null,
     staleTime: 0,
+    // Each opening reads the student's semesters afresh, never a cached answer.
+    gcTime: 0,
   });
 
   const change = useMutation({
@@ -53,9 +56,11 @@ export function useStudentProgramMembership() {
     }: Target & { programId: string | null }) => {
       const idToken = await currentIdToken();
       if (!idToken) throw new Error(t("signInAgain"));
-      return action === MembershipAction.Remove || programId === null
-        ? removeStudentFromProgram(row.userId, idToken)
-        : addStudentToProgram(row.userId, programId, idToken);
+      if (action === MembershipAction.Remove) {
+        return removeStudentFromProgram(row.userId, idToken);
+      }
+      if (programId === null) throw new Error(t("saveFailed"));
+      return addStudentToProgram(row.userId, programId, idToken);
     },
     onSuccess: (_result, { row, action, programId }) => {
       void queryClient.invalidateQueries({
@@ -75,6 +80,7 @@ export function useStudentProgramMembership() {
         tone: ToastTone.Success,
       });
       setTarget(null);
+      queryClient.removeQueries({ queryKey: MEMBERSHIP_QUERY_ROOT });
     },
   });
 
@@ -100,7 +106,9 @@ export function useStudentProgramMembership() {
       setTarget({ row, action });
     },
     close: () => {
-      if (!change.isPending) setTarget(null);
+      if (change.isPending) return;
+      setTarget(null);
+      queryClient.removeQueries({ queryKey: MEMBERSHIP_QUERY_ROOT });
     },
     membership: data,
     loading: membership.isLoading,

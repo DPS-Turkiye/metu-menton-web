@@ -6014,6 +6014,7 @@
       "targetOption": "{name} ({status})",
       "noTargets": "There is no draft or active semester to add them to.",
       "blocked": "They cannot leave {current} until this open work is done:",
+      "blockedNoName": "They cannot leave their semester until this open work is done:",
       "cancel": "Cancel",
       "added": "{name} was added to {program}.",
       "removed": "{name} was removed from the program.",

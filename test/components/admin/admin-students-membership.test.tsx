@@ -200,4 +200,41 @@ describe("Kullanıcılar › Öğrenciler: Programa ekle / Programdan çıkar", 
     ).toBeInTheDocument();
     expect(removeStudentFromProgram).not.toHaveBeenCalled();
   });
+
+  it("removes a student, reloads the list and reads the dialog afresh next time", async () => {
+    vi.mocked(getProgramMembership).mockResolvedValue({
+      current: fall,
+      targets: [spring],
+      blockers: [],
+    });
+    vi.mocked(removeStudentFromProgram).mockResolvedValue({
+      userId: "u1",
+      fromProgramId: "p1",
+      toProgramId: null,
+      movedMentorRow: true,
+    });
+    renderWithQueryClient(<AdminStudentsTable />);
+
+    const { user, dialog } = await openAction(
+      "Zeynep Öğrenci",
+      "Programdan çıkar",
+    );
+    expect(
+      await within(dialog).findByText(/2026 Güz döneminden çıkar/),
+    ).toBeInTheDocument();
+    const remove = within(dialog).getByRole("button", {
+      name: "Programdan çıkar",
+    });
+    await waitFor(() => expect(remove).toBeEnabled());
+    await user.click(remove);
+
+    expect(removeStudentFromProgram).toHaveBeenCalledWith("u1", "admin-token");
+    expect(
+      await screen.findByText("Zeynep Öğrenci programdan çıkarıldı."),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(getAdminStudents).toHaveBeenCalledTimes(2));
+
+    await openAction("Zeynep Öğrenci", "Programa ekle");
+    await waitFor(() => expect(getProgramMembership).toHaveBeenCalledTimes(2));
+  });
 });
