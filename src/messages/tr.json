@@ -8399,6 +8399,7 @@
     "group": {
       "ANNOUNCEMENTS": "Duyurular",
       "UNIT": "Birim",
+      "LEADERS": "Liderler odası",
       "TEAM": "Tematik ekip",
       "LEADER_DIRECT": "Birebir"
     },
@@ -8408,6 +8409,7 @@
     "subtitle": {
       "announcements": "Yayın kanalı · {count} kişi · yalnızca yetkili koordinatörler paylaşır",
       "unit": "Birim kanalı · {count} kişi",
+      "leaders": "Ekip liderleri ve birim koordinatörü · {count} kişi",
       "team": "Tematik ekip kanalı · {count} kişi",
       "withLeader": "Ekip liderinle birebir",
       "withMember": "Ekibinden birebir"
@@ -8443,6 +8445,7 @@
       "TEAM": "Tematik ekip kanalı",
       "LEADER_DIRECT": "Ekip liderinle birebir",
       "UNIT": "Birim kanalı",
+      "LEADERS": "Liderler odası",
       "hint": "Görev günü dışında ve 19:00’dan sonra bildirim gönderilmez. Mesajlar çalışma süresine sayılmaz."
     },
     "menu": {

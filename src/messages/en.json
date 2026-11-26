@@ -8397,6 +8397,7 @@
     "group": {
       "ANNOUNCEMENTS": "Announcements",
       "UNIT": "Unit",
+      "LEADERS": "Leaders' room",
       "TEAM": "Thematic team",
       "LEADER_DIRECT": "One to one"
     },
@@ -8406,6 +8407,7 @@
     "subtitle": {
       "announcements": "Broadcast channel · {count} people · only authorised coordinators post",
       "unit": "Unit channel · {count} people",
+      "leaders": "Team leaders and the unit coordinator · {count} people",
       "team": "Thematic team channel · {count} people",
       "withLeader": "One to one with your team leader",
       "withMember": "One to one with your team"
@@ -8441,6 +8443,7 @@
       "TEAM": "Thematic team channel",
       "LEADER_DIRECT": "One to one with your team leader",
       "UNIT": "Unit channel",
+      "LEADERS": "Leaders' room",
       "hint": "No notifications outside work days or after 19:00. Messages do not count as work time."
     },
     "menu": {
