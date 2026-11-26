@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ProgramLifecycle } from "@/interfaces/coordinator-program";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
   emptyPhase,
   hasTabContent,
@@ -22,6 +22,7 @@ import {
   SettingsSection,
   settingsSections,
   stepDays,
+  studentsAreOfficeHours,
 } from "@/lib/coordinator-program-detail";
 import { coordinatorProgramDetail } from "@test/fixtures/coordinator-programs";
 import { translatorIn } from "@test/translators";
@@ -197,25 +198,34 @@ describe("program tabs by type", () => {
       },
     ]);
     expect(
-      hasTabContent(ProgramType.PeerMentoring, ProgramTab.IskurTeams),
+      hasTabContent(detailOf(ProgramType.PeerMentoring), ProgramTab.IskurTeams),
     ).toBe(true);
     expect(
-      hasTabContent(ProgramType.PeerMentoring, ProgramTab.IskurChannels),
+      hasTabContent(
+        detailOf(ProgramType.PeerMentoring),
+        ProgramTab.IskurChannels,
+      ),
     ).toBe(true);
-    expect(hasTabContent(ProgramType.PeerMentoring, ProgramTab.Students)).toBe(
-      true,
-    );
     expect(
-      hasTabContent(ProgramType.PeerMentoring, ProgramTab.PeerMentors),
+      hasTabContent(detailOf(ProgramType.PeerMentoring), ProgramTab.Students),
     ).toBe(true);
-    expect(hasTabContent(ProgramType.PeerMentoring, ProgramTab.Matching)).toBe(
-      false,
-    );
-    expect(hasTabContent(ProgramType.PeerMentoring, ProgramTab.Settings)).toBe(
-      true,
-    );
     expect(
-      hasTabContent(ProgramType.StartupMentoring, ProgramTab.Approvals),
+      hasTabContent(
+        detailOf(ProgramType.PeerMentoring),
+        ProgramTab.PeerMentors,
+      ),
+    ).toBe(true);
+    expect(
+      hasTabContent(detailOf(ProgramType.PeerMentoring), ProgramTab.Matching),
+    ).toBe(false);
+    expect(
+      hasTabContent(detailOf(ProgramType.PeerMentoring), ProgramTab.Settings),
+    ).toBe(true);
+    expect(
+      hasTabContent(
+        detailOf(ProgramType.StartupMentoring),
+        ProgramTab.Approvals,
+      ),
     ).toBe(true);
   });
 
@@ -286,35 +296,160 @@ describe("program tabs by type", () => {
 });
 
 describe("settingsSections", () => {
+  const sectionsOf = (type: ProgramType, lifecycle: ProgramLifecycle) =>
+    settingsSections({ type, lifecycle, features: [], myFeatures: [] });
+
   it("gives only a peer program the Akran Mentoru training", () => {
     expect(
-      settingsSections(ProgramType.PeerMentoring, ProgramLifecycle.Active),
+      sectionsOf(ProgramType.PeerMentoring, ProgramLifecycle.Active),
     ).toContain(SettingsSection.Training);
     expect(
-      settingsSections(ProgramType.StartupMentoring, ProgramLifecycle.Active),
+      sectionsOf(ProgramType.StartupMentoring, ProgramLifecycle.Active),
     ).not.toContain(SettingsSection.Training);
     expect(
-      settingsSections(ProgramType.OfficeHours, ProgramLifecycle.Active),
+      sectionsOf(ProgramType.OfficeHours, ProgramLifecycle.Active),
     ).not.toContain(SettingsSection.Training);
   });
 
   it("lists Akran kategorileri only for peer programs, before Arşiv, and no Arşiv for a draft", () => {
-    const peer = settingsSections(
-      ProgramType.PeerMentoring,
-      ProgramLifecycle.Active,
-    );
+    const peer = sectionsOf(ProgramType.PeerMentoring, ProgramLifecycle.Active);
     expect(peer).toContain(SettingsSection.PeerCategories);
     expect(peer.indexOf(SettingsSection.PeerCategories)).toBe(
       peer.indexOf(SettingsSection.Archive) - 1,
     );
     expect(
-      settingsSections(ProgramType.StartupMentoring, ProgramLifecycle.Active),
+      sectionsOf(ProgramType.StartupMentoring, ProgramLifecycle.Active),
     ).not.toContain(SettingsSection.PeerCategories);
     expect(
-      settingsSections(ProgramType.OfficeHours, ProgramLifecycle.Active),
+      sectionsOf(ProgramType.OfficeHours, ProgramLifecycle.Active),
     ).not.toContain(SettingsSection.PeerCategories);
     expect(
-      settingsSections(ProgramType.PeerMentoring, ProgramLifecycle.Draft),
+      sectionsOf(ProgramType.PeerMentoring, ProgramLifecycle.Draft),
     ).not.toContain(SettingsSection.Archive);
+  });
+});
+
+describe("a semester's tabs by its features", () => {
+  const { PeerMentoring: Peer, OfficeHours: Oh, Iskur } = ProgramFeature;
+  const base = "/coordinator/programs/p1";
+
+  function semester(
+    features: ProgramFeature[],
+    myFeatures: ProgramFeature[] = features,
+    lifecycle = ProgramLifecycle.Active,
+  ) {
+    const detail = coordinatorProgramDetail();
+    return {
+      ...detail,
+      program: {
+        ...detail.program,
+        type: ProgramType.Semester,
+        features,
+        myFeatures,
+        lifecycle,
+      },
+    };
+  }
+
+  it("shows every feature's tabs when the semester runs all three", () => {
+    const detail = semester([Peer, Oh, Iskur]);
+    expect(programTabs(detail, "p1").map((tab) => [tab.id, tab.href])).toEqual([
+      [ProgramTab.Overview, base],
+      [ProgramTab.Participants, `${base}/students`],
+      [ProgramTab.Matching, `${base}/matching`],
+      [ProgramTab.Appointments, `${base}/appointments`],
+      [ProgramTab.Approvals, `${base}/approvals`],
+      [ProgramTab.Settings, `${base}/settings`],
+    ]);
+    expect(participantTabs(detail, "p1").map((tab) => tab.id)).toEqual([
+      ParticipantTab.Students,
+      ParticipantTab.PeerMentors,
+      ParticipantTab.IskurTeams,
+      ParticipantTab.IskurChannels,
+      ParticipantTab.Academics,
+    ]);
+    expect(studentsAreOfficeHours(detail)).toBe(false);
+    expect(hasTabContent(detail, ProgramTab.Appointments)).toBe(true);
+    expect(hasTabContent(detail, ProgramTab.Academics)).toBe(true);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Appointments)).toBeNull();
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Teams)).toBe(
+      `${base}/students`,
+    );
+  });
+
+  it("drops İŞKUR's tabs without İŞKUR and sends their links to Öğrenciler", () => {
+    const detail = semester([Peer]);
+    expect(participantTabs(detail, "p1").map((tab) => tab.id)).toEqual([
+      ParticipantTab.Students,
+      ParticipantTab.PeerMentors,
+    ]);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.IskurTeams)).toBe(
+      `${base}/students`,
+    );
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Appointments)).toBe(
+      `${base}/matching`,
+    );
+    expect(hasTabContent(detail, ProgramTab.IskurTeams)).toBe(false);
+  });
+
+  it("gives a coordinator only the tabs of the features they hold", () => {
+    const detail = semester([Peer, Oh, Iskur], [Oh]);
+    expect(programTabs(detail, "p1").map((tab) => tab.id)).toEqual([
+      ProgramTab.Overview,
+      ProgramTab.Participants,
+      ProgramTab.Appointments,
+      ProgramTab.Settings,
+    ]);
+    expect(participantTabs(detail, "p1").map((tab) => tab.id)).toEqual([
+      ParticipantTab.Academics,
+      ParticipantTab.Students,
+    ]);
+    expect(studentsAreOfficeHours(detail)).toBe(true);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.PeerMentors)).toBe(
+      `${base}/academics`,
+    );
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Matching)).toBe(
+      `${base}/appointments`,
+    );
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Approvals)).toBe(base);
+    expect(settingsSections(detail.program)).not.toContain(
+      SettingsSection.Training,
+    );
+  });
+
+  it("leaves a coordinator with no feature the shared tabs only", () => {
+    const detail = semester([Peer, Oh], []);
+    expect(programTabs(detail, "p1").map((tab) => tab.id)).toEqual([
+      ProgramTab.Overview,
+      ProgramTab.Settings,
+    ]);
+    expect(participantTabs(detail, "p1")).toEqual([]);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Students)).toBe(base);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Matching)).toBe(base);
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Reports)).toBeNull();
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Overview)).toBeNull();
+  });
+
+  it("lists Program özellikleri and the peer sections in a semester's settings", () => {
+    const sections = settingsSections(semester([Peer, Iskur]).program);
+    expect(sections).toContain(SettingsSection.Features);
+    expect(sections).toContain(SettingsSection.Training);
+    expect(sections).toContain(SettingsSection.PeerCategories);
+    expect(
+      settingsSections(semester([Oh], [Oh], ProgramLifecycle.Draft).program),
+    ).toEqual(
+      expect.not.arrayContaining([
+        SettingsSection.Training,
+        SettingsSection.Archive,
+      ]),
+    );
+    expect(
+      settingsSections({
+        type: ProgramType.StartupMentoring,
+        lifecycle: ProgramLifecycle.Active,
+        features: [],
+        myFeatures: [],
+      }),
+    ).not.toContain(SettingsSection.Features);
   });
 });

@@ -1,6 +1,10 @@
 import type { NewCoordinatorInput } from "@/interfaces/admin-coordinator";
 import type { CoordinatorMentorship } from "@/interfaces/coordinator-mentorship";
-import type { ProgramStatus, ProgramType } from "@/interfaces/program";
+import type {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import type { ProgramCounts } from "@/interfaces/program-counts";
 import type { DocumentKind } from "@/interfaces/startup-document";
 
@@ -37,6 +41,10 @@ export type CoordinatorProgram = {
   status: ProgramStatus;
   lifecycle: ProgramLifecycle;
   type: ProgramType;
+  /** A semester's features; [] for other types. */
+  features: ProgramFeature[];
+  /** The features the caller may open here: an admin all of them, a coordinator the ones assigned to them. */
+  myFeatures: ProgramFeature[];
   description: string | null;
   startDate: string | null;
   endDate: string | null;
@@ -204,6 +212,8 @@ export type ProgramCoordinatorTarget =
 /** The admin's "Yeni Program Oluştur", sent in one request; the program starts as a draft. */
 export type CreateProgramInput = {
   type: ProgramType;
+  /** Required for a semester, ignored for other types. */
+  features?: ProgramFeature[] | undefined;
   name: string;
   description: string | null;
   startDate: string | null;

@@ -6,9 +6,9 @@ import { useId } from "react";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
 import { AppointmentStatusPill } from "@/components/coordinator/appointment-status-pill";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
+import { ProgramFeatureBadge } from "@/components/ia/program-type-badge";
 import { useProgramOfficeHoursAppointment } from "@/hooks/use-program-office-hours-appointment";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature } from "@/interfaces/program";
 import type { ProgramOfficeHoursPerson } from "@/interfaces/program-office-hours";
 import {
   appointmentDay,
@@ -66,7 +66,7 @@ export function AppointmentDetailDrawer({
       {appointment ? (
         <>
           <div className="flex flex-wrap gap-2">
-            <ProgramTypeBadge type={ProgramType.OfficeHours} />
+            <ProgramFeatureBadge feature={ProgramFeature.OfficeHours} />
             <AppointmentStatusPill status={appointment.status} />
           </div>
           <p className="type-h2 text-text-primary">{appointment.topic}</p>

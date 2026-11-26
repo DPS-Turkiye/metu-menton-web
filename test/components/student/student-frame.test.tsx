@@ -1,12 +1,15 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AcademicianFrame } from "@/components/academician/academician-frame";
 import { StudentFrame } from "@/components/student/student-frame";
 import { Edition } from "@/interfaces/edition";
+import { ProgramFeature } from "@/interfaces/program";
 import { IdentityKind, UserRole, type AppSession } from "@/interfaces/session";
+import { getMyProgramFeatures } from "@/lib/client/program-features";
 import { itemAt } from "@test/fixtures/list-assertions";
+import { renderWithQueryClient } from "@test/test-utils";
 
 const replace = vi.fn();
 let pathname = "/student";
@@ -56,6 +59,9 @@ vi.mock("@/components/common/notification-menu", () => ({
 vi.mock("@/components/iskur/iskur-messages-menu", () => ({
   IskurMessagesMenu: () => <button type="button">İŞKUR Mesajlar</button>,
 }));
+vi.mock("@/lib/client/program-features", () => ({
+  getMyProgramFeatures: vi.fn(),
+}));
 // The tour has its own tests (test/components/product-tour); here it would only open over the menus.
 vi.mock("@/components/product-tour/product-tour", () => ({
   ProductTour: () => null,
@@ -68,12 +74,17 @@ function desktopNav(name: string) {
 beforeEach(() => {
   session = odtuStudent;
   replace.mockClear();
+  vi.mocked(getMyProgramFeatures).mockResolvedValue([
+    ProgramFeature.PeerMentoring,
+    ProgramFeature.OfficeHours,
+    ProgramFeature.Iskur,
+  ]);
 });
 
 describe("StudentFrame", () => {
   it("shows the student menu with the screens that have landed open", () => {
     pathname = "/student";
-    render(
+    renderWithQueryClient(
       <StudentFrame>
         <p>Ana içerik</p>
       </StudentFrame>,
@@ -102,8 +113,54 @@ describe("StudentFrame", () => {
     expect(screen.getByText("Ana içerik")).toBeInTheDocument();
   });
 
+  it("hides Office Hours when the student's semester has it switched off", async () => {
+    pathname = "/student";
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([
+      ProgramFeature.PeerMentoring,
+    ]);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
+    const nav = desktopNav("Öğrenci menüsü");
+    await waitFor(() =>
+      expect(
+        within(nav).queryByRole("link", { name: "Office Hours" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      within(nav).getByRole("link", { name: "Akran Mentörlüğü" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps Office Hours but not peer mentoring for a student in no semester", async () => {
+    pathname = "/student";
+    vi.mocked(getMyProgramFeatures).mockResolvedValue([]);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
+    const nav = desktopNav("Öğrenci menüsü");
+    await waitFor(() =>
+      expect(
+        within(nav).queryByRole("link", { name: "Akran Mentörlüğü" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      within(nav).getByRole("link", { name: "Office Hours" }),
+    ).toBeInTheDocument();
+  });
+
+  it("hides nothing while the features cannot be read", async () => {
+    pathname = "/student";
+    vi.mocked(getMyProgramFeatures).mockRejectedValue(new Error("down"));
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
+    await waitFor(() => expect(getMyProgramFeatures).toHaveBeenCalled());
+    const nav = desktopNav("Öğrenci menüsü");
+    expect(
+      within(nav).getByRole("link", { name: "Akran Mentörlüğü" }),
+    ).toBeInTheDocument();
+    expect(
+      within(nav).getByRole("link", { name: "Office Hours" }),
+    ).toBeInTheDocument();
+  });
+
   it("opens a peer mentoring notification inside the student workspace", () => {
-    render(<StudentFrame>x</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
     expect(screen.getByRole("link", { name: "Bildirim" })).toHaveAttribute(
       "href",
       "/student/peer-mentoring?tab=mine",
@@ -111,7 +168,7 @@ describe("StudentFrame", () => {
   });
 
   it("names the workspace, not the account's role, under the user's name", () => {
-    render(<StudentFrame>x</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
     expect(
       screen.getByRole("button", { name: "Ayşe Yılmaz, Öğrenci" }),
     ).toBeInTheDocument();
@@ -120,7 +177,7 @@ describe("StudentFrame", () => {
 
   it("opens Profilim from the account menu", async () => {
     const user = userEvent.setup();
-    render(<StudentFrame>x</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
     await user.click(screen.getByRole("button", { name: /Ayşe Yılmaz/ }));
     expect(screen.getByRole("menuitem", { name: "Profilim" })).toHaveAttribute(
       "href",
@@ -129,20 +186,20 @@ describe("StudentFrame", () => {
   });
 
   it("opens for an ODTÜ student", () => {
-    render(<StudentFrame>x</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
     expect(replace).not.toHaveBeenCalled();
   });
 
   it("sends a Teknokent mentee to their own home instead", () => {
     session = teknokentMentee;
-    render(<StudentFrame>İçerik</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>İçerik</StudentFrame>);
     expect(screen.queryByText("İçerik")).toBeNull();
     expect(replace).toHaveBeenCalledWith("/dashboard");
   });
 
   it("opens for a research assistant, who is a student too", () => {
     session = researchAssistant;
-    render(<StudentFrame>İçerik</StudentFrame>);
+    renderWithQueryClient(<StudentFrame>İçerik</StudentFrame>);
     expect(screen.getByText("İçerik")).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
@@ -159,7 +216,7 @@ const ACADEMICIAN_SCREENS_GONE = ["Randevu Talepleri", "Takvim"];
 describe("AcademicianFrame", () => {
   it("does not open for a student who is not an academician", () => {
     pathname = "/academician";
-    render(<AcademicianFrame>İçerik</AcademicianFrame>);
+    renderWithQueryClient(<AcademicianFrame>İçerik</AcademicianFrame>);
     expect(screen.queryByText("İçerik")).toBeNull();
     expect(replace).toHaveBeenCalledWith("/student");
   });
@@ -167,7 +224,7 @@ describe("AcademicianFrame", () => {
   it("shows the academician menu with the screens built so far", () => {
     session = researchAssistant;
     pathname = "/academician";
-    render(<AcademicianFrame>x</AcademicianFrame>);
+    renderWithQueryClient(<AcademicianFrame>x</AcademicianFrame>);
     const nav = desktopNav("Akademisyen menüsü");
     expect(
       within(nav).getByRole("link", { name: "Ana Sayfa" }),

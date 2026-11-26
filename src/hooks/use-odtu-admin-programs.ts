@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 
 import { useAdminOverview } from "@/hooks/use-admin-overview";
-import { useEdition } from "@/hooks/use-edition";
 import type { AdminProgram } from "@/interfaces/admin-overview";
 import {
   ALL_COORDINATORS,
@@ -15,9 +14,12 @@ import {
   programCoordinators,
   programDateLabel,
 } from "@/lib/admin-programs";
-import { programTypesOf } from "@/lib/edition-screens";
+import {
+  ALL_PROGRAM_FEATURES,
+  PROGRAM_FEATURES,
+  type ProgramFeatureFilter,
+} from "@/lib/program-features";
 import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
-import { ALL_PROGRAM_TYPES, type ProgramTypeFilter } from "@/lib/program-types";
 
 /** One row of the ODTÜ Programlar table, with its texts worked out. */
 export type AdminProgramRow = {
@@ -32,17 +34,17 @@ export type AdminProgramRow = {
 export type AssigningProgram = Pick<AdminProgram, "id" | "name">;
 
 /**
- * The ODTÜ admin's Programlar (Figma 152:7056): the status segments with their counts, search, the type and
- * coordinator chips (only the edition's own program types), and the coordinator dialog a row opens.
+ * The ODTÜ admin's Programlar (Figma 152:7056): the status segments with their counts, search, the feature and
+ * coordinator chips, and the coordinator dialog a row opens.
  */
 export function useOdtuAdminPrograms() {
   const t = useTranslations("odtuAdminPrograms");
-  const tType = useTranslations("programTypes");
+  const tFeature = useTranslations("programFeatures.names");
   const locale = useLocale();
-  const edition = useEdition();
   const query = useAdminOverview();
   const [status, setStatus] = useState(ProgramStatusFilter.All);
-  const [type, setType] = useState<ProgramTypeFilter>(ALL_PROGRAM_TYPES);
+  const [feature, setFeature] =
+    useState<ProgramFeatureFilter>(ALL_PROGRAM_FEATURES);
   const [coordinatorId, setCoordinatorId] = useState(ALL_COORDINATORS);
   const [search, setSearch] = useState("");
   const [assigning, setAssigning] = useState<AssigningProgram | null>(null);
@@ -69,7 +71,7 @@ export function useOdtuAdminPrograms() {
     () =>
       filterAdminPrograms(programs, {
         status,
-        type,
+        feature,
         coordinatorId: activeCoordinator,
         search,
       }).map((program) => {
@@ -83,7 +85,16 @@ export function useOdtuAdminPrograms() {
           participants: participantsLabel(program, t, locale),
         };
       }),
-    [activeCoordinator, locale, programs, search, status, t, type, usersById],
+    [
+      activeCoordinator,
+      feature,
+      locale,
+      programs,
+      search,
+      status,
+      t,
+      usersById,
+    ],
   );
 
   const stopAssigning = useCallback(() => setAssigning(null), []);
@@ -96,12 +107,9 @@ export function useOdtuAdminPrograms() {
         active: id === status,
       }))
     : [];
-  const typeOptions: { value: ProgramTypeFilter; label: string }[] = [
-    { value: ALL_PROGRAM_TYPES, label: t("typeAll") },
-    ...programTypesOf(edition).map((value) => ({
-      value,
-      label: tType(value),
-    })),
+  const featureOptions: { value: ProgramFeatureFilter; label: string }[] = [
+    { value: ALL_PROGRAM_FEATURES, label: t("featureAll") },
+    ...PROGRAM_FEATURES.map((value) => ({ value, label: tFeature(value) })),
   ];
   const coordinatorOptions = [
     { value: ALL_COORDINATORS, label: t("coordinatorAll") },
@@ -120,9 +128,9 @@ export function useOdtuAdminPrograms() {
     setStatus,
     search,
     setSearch,
-    type,
-    typeOptions,
-    setType,
+    feature,
+    featureOptions,
+    setFeature,
     coordinatorId: activeCoordinator,
     coordinatorOptions,
     setCoordinatorId,

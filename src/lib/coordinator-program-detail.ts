@@ -7,8 +7,9 @@ import {
   type ProgramRules,
   type UpdateProgramDetailsInput,
 } from "@/interfaces/coordinator-program";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { formatMonthRange, type ProgramsT } from "@/lib/coordinator-programs";
+import { isOfficeHoursOnly, openFeaturesOf } from "@/lib/program-features";
 
 export enum ProgramTab {
   Overview = "OVERVIEW",
@@ -45,6 +46,7 @@ export type ParticipantTab =
 
 export enum SettingsSection {
   General = "GENERAL",
+  Features = "FEATURES",
   Curriculum = "CURRICULUM",
   Coordinators = "COORDINATORS",
   Rules = "RULES",
@@ -55,20 +57,24 @@ export enum SettingsSection {
 }
 
 /**
- * The sections Program Ayarları shows: only a peer program has the Akran Mentoru training and chooses
- * categories, and a draft has no Arşiv.
+ * The sections Program Ayarları shows: the Akran Mentoru training and the categories only with Akran Mentörlüğü, the
+ * features only for a semester, and a draft has no Arşiv.
  */
 export function settingsSections(
-  type: ProgramType,
-  lifecycle: ProgramLifecycle,
+  program: Pick<
+    CoordinatorProgram,
+    "type" | "features" | "myFeatures" | "lifecycle"
+  >,
 ) {
-  const peer = type === ProgramType.PeerMentoring;
+  const peer = openFeaturesOf(program).includes(ProgramFeature.PeerMentoring);
   return Object.values(SettingsSection).filter(
     (section) =>
+      (section !== SettingsSection.Features ||
+        program.type === ProgramType.Semester) &&
       (section !== SettingsSection.Training || peer) &&
       (section !== SettingsSection.PeerCategories || peer) &&
       (section !== SettingsSection.Archive ||
-        lifecycle !== ProgramLifecycle.Draft),
+        program.lifecycle !== ProgramLifecycle.Draft),
   );
 }
 
@@ -83,51 +89,88 @@ const PARTICIPANT_PAGES = [
   ProgramTab.Academics,
 ];
 
+/** The features the tabs follow for a program that is not a startup program. */
+function tabFeatures(detail: CoordinatorProgramDetail) {
+  const features = openFeaturesOf(detail.program);
+  return {
+    peer: features.includes(ProgramFeature.PeerMentoring),
+    iskur: features.includes(ProgramFeature.Iskur),
+    officeHours: features.includes(ProgramFeature.OfficeHours),
+  };
+}
+
+/** Whether Katılımcılar › Öğrenciler lists who asked the academicians (Office Hours without Akran Mentörlüğü). */
+export function studentsAreOfficeHours(detail: CoordinatorProgramDetail) {
+  const { peer, officeHours } = tabFeatures(detail);
+  return officeHours && !peer;
+}
+
 /**
- * The shared tabs, adapted to the type: Girişim keeps its screens under Katılımcılar,
- * Office Hours shows Randevular in place of Eşleşmeler and has no Onaylar.
+ * The shared tabs, adapted to the program: Girişim keeps its screens under Katılımcılar; otherwise Akran Mentörlüğü
+ * brings Eşleşmeler and Onaylar, and Office Hours brings Randevular.
  */
 export function programTabs(
   detail: CoordinatorProgramDetail,
   programId: string,
 ) {
   const base = `/coordinator/programs/${encodeURIComponent(programId)}`;
-  const type = detail.program.type;
-  const startup = type === ProgramType.StartupMentoring;
-  const peer = type === ProgramType.PeerMentoring;
-  const officeHours = type === ProgramType.OfficeHours;
+  const settings = {
+    id: ProgramTab.Settings,
+    href: `${base}/settings`,
+    count: null,
+  };
+  if (detail.program.type === ProgramType.StartupMentoring) {
+    return [
+      { id: ProgramTab.Overview, href: base, count: null },
+      { id: ProgramTab.Participants, href: `${base}/teams`, count: null },
+      {
+        id: ProgramTab.Matching,
+        href: `${base}/matching`,
+        count: detail.program.awaitingMatchCount,
+      },
+      {
+        id: ProgramTab.Approvals,
+        href: `${base}/approvals`,
+        count: detail.pendingApprovalCount,
+      },
+      settings,
+    ];
+  }
+  const { peer, officeHours } = tabFeatures(detail);
+  const firstParticipants = participantTabs(detail, programId)[0];
   return [
     { id: ProgramTab.Overview, href: base, count: null },
-    {
-      id: ProgramTab.Participants,
-      href: startup
-        ? `${base}/teams`
-        : peer
-          ? `${base}/students`
-          : `${base}/academics`,
-      count: null,
-    },
-    officeHours
-      ? {
-          id: ProgramTab.Appointments,
-          href: `${base}/appointments`,
-          count: null,
-        }
-      : {
-          id: ProgramTab.Matching,
-          href: `${base}/matching`,
-          count: startup ? detail.program.awaitingMatchCount : null,
-        },
+    ...(firstParticipants
+      ? [
+          {
+            id: ProgramTab.Participants,
+            href: firstParticipants.href,
+            count: null,
+          },
+        ]
+      : []),
+    ...(peer
+      ? [{ id: ProgramTab.Matching, href: `${base}/matching`, count: null }]
+      : []),
     ...(officeHours
-      ? []
-      : [
+      ? [
+          {
+            id: ProgramTab.Appointments,
+            href: `${base}/appointments`,
+            count: null,
+          },
+        ]
+      : []),
+    ...(peer
+      ? [
           {
             id: ProgramTab.Approvals,
             href: `${base}/approvals`,
             count: detail.pendingApprovalCount,
           },
-        ]),
-    { id: ProgramTab.Settings, href: `${base}/settings`, count: null },
+        ]
+      : []),
+    settings,
   ];
 }
 
@@ -173,68 +216,61 @@ export const NO_WAITING_COUNTS: ProgramWaitingCounts = {
   mentors: null,
 };
 
-/** Katılımcılar's sub-tabs; the ones without a screen yet have no link. */
+/** Katılımcılar's sub-tabs, by the program's features; the ones without a screen yet have no link. */
 export function participantTabs(
   detail: CoordinatorProgramDetail,
   programId: string,
   waiting: ProgramWaitingCounts = NO_WAITING_COUNTS,
 ): {
   id: ParticipantTab;
-  href: string | null;
+  href: string;
   count: number | null;
   waiting?: number | null;
 }[] {
   const base = `/coordinator/programs/${encodeURIComponent(programId)}`;
-  switch (detail.program.type) {
-    case ProgramType.PeerMentoring:
-      return [
-        { id: ParticipantTab.Students, href: `${base}/students`, count: null },
-        {
-          id: ParticipantTab.PeerMentors,
-          href: `${base}/peer-mentors`,
-          count: null,
-        },
-        {
-          id: ParticipantTab.IskurTeams,
-          href: `${base}/iskur`,
-          count: null,
-        },
-        {
-          id: ParticipantTab.IskurChannels,
-          href: `${base}/iskur/messages`,
-          count: null,
-        },
-      ];
-    case ProgramType.OfficeHours:
-      return [
-        {
-          id: ParticipantTab.Academics,
-          href: `${base}/academics`,
-          count: null,
-        },
-        { id: ParticipantTab.Students, href: `${base}/students`, count: null },
-      ];
-    default:
-      return [
-        {
-          id: ParticipantTab.Teams,
-          href: `${base}/teams`,
-          count: detail.program.teamCount,
-          waiting: waiting.teams,
-        },
-        {
-          id: ParticipantTab.MentorPool,
-          href: `${base}/mentors`,
-          count: detail.program.mentorCount,
-          waiting: waiting.mentors,
-        },
-      ];
+  if (detail.program.type === ProgramType.StartupMentoring) {
+    return [
+      {
+        id: ParticipantTab.Teams,
+        href: `${base}/teams`,
+        count: detail.program.teamCount,
+        waiting: waiting.teams,
+      },
+      {
+        id: ParticipantTab.MentorPool,
+        href: `${base}/mentors`,
+        count: detail.program.mentorCount,
+        waiting: waiting.mentors,
+      },
+    ];
   }
+  const { peer, iskur, officeHours } = tabFeatures(detail);
+  const tab = (id: ParticipantTab, path: string) => ({
+    id,
+    href: `${base}/${path}`,
+    count: null,
+  });
+  return [
+    ...(peer
+      ? [
+          tab(ParticipantTab.Students, "students"),
+          tab(ParticipantTab.PeerMentors, "peer-mentors"),
+        ]
+      : []),
+    ...(iskur
+      ? [
+          tab(ParticipantTab.IskurTeams, "iskur"),
+          tab(ParticipantTab.IskurChannels, "iskur/messages"),
+        ]
+      : []),
+    ...(officeHours ? [tab(ParticipantTab.Academics, "academics")] : []),
+    ...(officeHours && !peer ? [tab(ParticipantTab.Students, "students")] : []),
+  ];
 }
 
 /**
- * Where a tab URL that the program's type does not show should go instead, or null when the type
- * shows it. Keeps a typed or old link from opening another type's screen or a wrong empty state.
+ * Where a tab URL the program does not show should go instead, or null when it shows it. Keeps a typed or old link
+ * (or a feature switched off since) from opening another program's screen or a wrong empty state.
  */
 export function misplacedTabHref(
   detail: CoordinatorProgramDetail,
@@ -242,62 +278,51 @@ export function misplacedTabHref(
   tab: ProgramTab,
 ): string | null {
   const base = `/coordinator/programs/${encodeURIComponent(programId)}`;
-  switch (detail.program.type) {
-    case ProgramType.StartupMentoring:
-      if (
-        tab === ProgramTab.Participants ||
-        tab === ProgramTab.Students ||
-        tab === ProgramTab.PeerMentors ||
-        tab === ProgramTab.IskurTeams ||
-        tab === ProgramTab.IskurChannels ||
-        tab === ProgramTab.Academics
-      )
-        return `${base}/teams`;
-      if (tab === ProgramTab.Appointments) return `${base}/matching`;
-      return null;
-    case ProgramType.OfficeHours:
-      if (
-        tab === ProgramTab.Teams ||
-        tab === ProgramTab.MentorPool ||
-        tab === ProgramTab.PeerMentors ||
-        tab === ProgramTab.IskurTeams ||
-        tab === ProgramTab.IskurChannels ||
-        tab === ProgramTab.Participants
-      )
-        return `${base}/academics`;
-      if (tab === ProgramTab.Matching) return `${base}/appointments`;
-      if (tab === ProgramTab.Approvals) return base;
-      return null;
-    default:
-      if (
-        tab === ProgramTab.Teams ||
-        tab === ProgramTab.MentorPool ||
-        tab === ProgramTab.Participants ||
-        tab === ProgramTab.Academics
-      )
-        return `${base}/students`;
-      if (tab === ProgramTab.Appointments) return `${base}/matching`;
-      return null;
+  if (detail.program.type === ProgramType.StartupMentoring) {
+    if (
+      tab === ProgramTab.Participants ||
+      tab === ProgramTab.Students ||
+      tab === ProgramTab.PeerMentors ||
+      tab === ProgramTab.IskurTeams ||
+      tab === ProgramTab.IskurChannels ||
+      tab === ProgramTab.Academics
+    )
+      return `${base}/teams`;
+    if (tab === ProgramTab.Appointments) return `${base}/matching`;
+    return null;
   }
+  if (
+    tab === ProgramTab.Overview ||
+    tab === ProgramTab.Reports ||
+    tab === ProgramTab.Settings
+  )
+    return null;
+  const participants = participantTabs(detail, programId);
+  if (PARTICIPANT_PAGES.includes(tab)) {
+    if (participants.some((item) => item.id === tab)) return null;
+    return participants[0]?.href ?? base;
+  }
+  const shown = programTabs(detail, programId);
+  if (shown.some((item) => item.id === tab)) return null;
+  const { peer, officeHours } = tabFeatures(detail);
+  if (tab === ProgramTab.Matching && officeHours) return `${base}/appointments`;
+  if (tab === ProgramTab.Appointments && peer) return `${base}/matching`;
+  return base;
 }
 
 /**
- * Girişim has screens behind its tabs; a peer program its two Katılımcılar lists; Office Hours its academicians and
+ * Girişim has screens behind its tabs; the other programs have their Katılımcılar lists and, with Office Hours,
  * Randevular; the rest an empty state.
  */
-export function hasTabContent(type: ProgramType, tab: ProgramTab) {
+export function hasTabContent(
+  detail: CoordinatorProgramDetail,
+  tab: ProgramTab,
+) {
   return (
-    type === ProgramType.StartupMentoring ||
+    detail.program.type === ProgramType.StartupMentoring ||
     tab === ProgramTab.Settings ||
-    (type === ProgramType.PeerMentoring &&
-      (tab === ProgramTab.Students ||
-        tab === ProgramTab.PeerMentors ||
-        tab === ProgramTab.IskurTeams ||
-        tab === ProgramTab.IskurChannels)) ||
-    (type === ProgramType.OfficeHours &&
-      (tab === ProgramTab.Academics ||
-        tab === ProgramTab.Students ||
-        tab === ProgramTab.Appointments))
+    (tab === ProgramTab.Appointments && tabFeatures(detail).officeHours) ||
+    participantTabs(detail, "").some((item) => item.id === tab)
   );
 }
 
@@ -554,10 +579,9 @@ export function odtuProgramHeaderLine(
 ) {
   const program = detail.program;
   const parts: string[] = [];
-  const range =
-    program.type === ProgramType.OfficeHours
-      ? t("universityWide")
-      : formatMonthRange(program.startDate, program.endDate, locale);
+  const range = isOfficeHoursOnly(program)
+    ? t("universityWide")
+    : formatMonthRange(program.startDate, program.endDate, locale);
   if (range) parts.push(range);
   if (detail.coordinators.length > 0) {
     parts.push(

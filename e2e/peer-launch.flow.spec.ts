@@ -107,15 +107,16 @@ async function upcomingAppointment(page: Page, counterpart: string) {
 }
 
 test.describe("Akran", () => {
-  test("the admin creates the peer program with its coordinator and launches it", async ({
+  test("the admin creates the semester with its coordinator and launches it", async ({
     page,
   }) => {
     await signInAsStaff(page, Staff.Admin);
     await page.goto("/admin/programs/new");
 
-    await page
-      .getByRole("radio", { name: /Akran Mentörlüğü/ })
-      .check({ force: true });
+    // A semester starts with every feature on: Akran Mentörlüğü, Office Hours and İŞKUR.
+    await expect(
+      page.getByRole("checkbox", { name: "Akran Mentörlüğü" }),
+    ).toBeChecked();
     await page.getByRole("button", { name: "Devam Et" }).click();
     await page.getByLabel("Program adı").fill(PROGRAM);
     await page.getByRole("button", { name: "Devam Et" }).click();

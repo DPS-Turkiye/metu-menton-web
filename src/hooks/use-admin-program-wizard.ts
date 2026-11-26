@@ -12,7 +12,7 @@ import {
 } from "@/hooks/use-coordinator-picker";
 import { coordinatorProgramQueryKey } from "@/hooks/use-coordinator-program";
 import { useEdition } from "@/hooks/use-edition";
-import type { ProgramType } from "@/interfaces/program";
+import type { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { ToastTone } from "@/interfaces/toast";
 import {
   createProgramInput,
@@ -26,11 +26,13 @@ import {
 import { createCoordinatorProgram } from "@/lib/client/coordinator-programs";
 import type { CoordinatorChoice } from "@/lib/coordinator-picker";
 import { programTypesOf } from "@/lib/edition-screens";
+import { withFeature } from "@/lib/program-features";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
 /**
- * The admin's "Yeni Program Oluştur": type, details, coordinators, summary; saved as a draft at the end. Only the
+ * The admin's "Yeni Program Oluştur": type (a semester's features), details, coordinators, summary; saved as a draft
+ * at the end. Only the
  * deployment's own program types are offered; the backend refuses the others. Coordinators are picked by email search
  * or invited by email; invited people get their account when the program is saved.
  */
@@ -87,6 +89,9 @@ export function useAdminProgramWizard() {
     update,
     setCoordinators: (coordinators: CoordinatorChoice[]) =>
       update({ coordinators }),
+    /** Switches a semester feature; İŞKUR and Akran Mentörlüğü follow each other as `withFeature` says. */
+    setFeature: (feature: ProgramFeature, on: boolean) =>
+      update({ features: withFeature(draft.features, feature, on) }),
     /** What stopped the last "next", so a field can point at it. */
     problem,
     error: problem

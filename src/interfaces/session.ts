@@ -66,6 +66,8 @@ export type BackendUser = {
   personalOrganization?: boolean;
   /** The backend's edition; only /api/auth/me fills it. */
   edition?: Edition | null;
+  /** The features of the person's semester, [] when in none; read as untrusted, see `featureList`. */
+  programFeatures?: unknown;
 };
 
 export type SessionData = {
