@@ -12,6 +12,7 @@ import type {
   CoordinatorRef,
   ProgramEligibleEmail,
 } from "@/interfaces/coordinator-program";
+import { ProgramType, type ProgramFeature } from "@/interfaces/program";
 import { ToastTone } from "@/interfaces/toast";
 import {
   addProgramEligibleEmails,
@@ -21,6 +22,7 @@ import {
   removeProgramCoordinator,
   removeProgramEligibleEmail,
   setCoordinatorProgramArchived,
+  setProgramCoordinatorFeatures,
   updateCoordinatorProgram,
 } from "@/lib/client/coordinator-programs";
 import {
@@ -31,6 +33,10 @@ import {
   SettingsSection,
   type ProgramSettingsDraft,
 } from "@/lib/coordinator-program-detail";
+import {
+  coordinatorFeatureChange,
+  programFeaturesOf,
+} from "@/lib/program-features";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
@@ -114,6 +120,7 @@ export function useProgramSettings(
 export function useProgramCoordinators(
   programId: string,
   coordinators: CoordinatorRef[],
+  program?: CoordinatorProgramDetail["program"],
 ) {
   const t = useTranslations("programSettings");
   const cache = useProgramCache(programId);
@@ -137,14 +144,48 @@ export function useProgramCoordinators(
         tone: ToastTone.Error,
       }),
   });
+  const features = useMutation({
+    mutationFn: ({
+      userId,
+      next,
+    }: {
+      userId: string;
+      next: ProgramFeature[];
+    }) => setProgramCoordinatorFeatures(programId, userId, next),
+    onSuccess: refresh,
+    onError: (failure: Error) =>
+      showToast({
+        message: errorMessage(failure, t("coordinatorFeaturesFailed")),
+        tone: ToastTone.Error,
+      }),
+  });
+  const programFeatures =
+    program?.type === ProgramType.Semester ? programFeaturesOf(program) : [];
   return {
     coordinators,
+    /** A semester's features, each of which a coordinator may run; none for other program types. */
+    featureOptions: programFeatures,
+    /** Whether switching this feature is allowed: a coordinator keeps at least one. */
+    canToggle: (coordinator: CoordinatorRef, feature: ProgramFeature) =>
+      coordinatorFeatureChange(
+        coordinator.features,
+        feature,
+        !coordinator.features.includes(feature),
+      ) !== null,
+    toggleFeature: (coordinator: CoordinatorRef, feature: ProgramFeature) => {
+      const next = coordinatorFeatureChange(
+        coordinator.features,
+        feature,
+        !coordinator.features.includes(feature),
+      );
+      if (next) features.mutate({ userId: coordinator.id, next });
+    },
     picking,
     openPicker: () => setPicking(true),
     closePicker: () => setPicking(false),
     pick: add.pick,
     remove: (userId: string) => remove.mutate(userId),
-    busy: add.adding || remove.isPending,
+    busy: add.adding || remove.isPending || features.isPending,
   };
 }
 

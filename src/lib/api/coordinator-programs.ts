@@ -16,6 +16,7 @@ import type {
   UpdateProgramDetailsInput,
 } from "@/interfaces/coordinator-program";
 import type { MentorPoolReview, MentorPoolRow } from "@/interfaces/mentor-pool";
+import type { ProgramFeature } from "@/interfaces/program";
 import type {
   ApprovalKind,
   ProgramApprovalPerson,
@@ -121,6 +122,19 @@ export function addProgramCoordinator(
     method: "POST",
     url: `${programUrl(programId)}/coordinators`,
     data: { ...target, actorId },
+  });
+}
+
+export function setProgramCoordinatorFeatures(
+  actorId: string,
+  programId: string,
+  userId: string,
+  features: ProgramFeature[],
+) {
+  return backendRequest<CoordinatorRef[]>({
+    method: "PUT",
+    url: `${programUrl(programId)}/coordinators/${encodeURIComponent(userId)}/features`,
+    data: { features, actorId },
   });
 }
 

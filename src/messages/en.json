@@ -4269,7 +4269,10 @@
     "adminViewNote": "The program’s coordinators set up its settings; as an admin you only view them. You can assign coordinators here.",
     "coordinatorsByAdmin": "The admin assigns coordinators.",
     "type": "Program type",
-    "peerCategoriesNote": "Students can look for mentors only in active categories; mentors choose from these categories. None is active at the start."
+    "peerCategoriesNote": "Students can look for mentors only in active categories; mentors choose from these categories. None is active at the start.",
+    "coordinatorFeaturesLabel": "Which features {name} runs",
+    "coordinatorFeaturesFailed": "The coordinator's features could not be saved.",
+    "coordinatorFeaturesNote": "In a semester, each coordinator sees only the pages of the features chosen for them; at least one stays chosen."
   },
   "programTeams": {
     "filters": {
@@ -6386,7 +6389,8 @@
     "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
     "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
     "iskurInternsInvalid": "The addresses to add are not valid.",
-    "programFeaturesLoadFailed": "Program features could not be loaded."
+    "programFeaturesLoadFailed": "Program features could not be loaded.",
+    "coordinatorFeaturesSaveFailed": "The coordinator's features could not be saved."
   },
   "startupStart": {
     "title": "My startup",

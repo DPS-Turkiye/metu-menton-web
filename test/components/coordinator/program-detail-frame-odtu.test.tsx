@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { useEdition } from "@/hooks/use-edition";
-import { ProgramLifecycle } from "@/interfaces/coordinator-program";
+import {
+  ProgramLifecycle,
+  type CoordinatorRef,
+} from "@/interfaces/coordinator-program";
 import { Edition } from "@/interfaces/edition";
 import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
@@ -44,7 +47,9 @@ function officeHours() {
       type: ProgramType.OfficeHours,
       lifecycle: ProgramLifecycle.Active,
     }),
-    coordinators: [{ id: "c-1", fullName: "Elif Demir", owner: true }],
+    coordinators: [
+      { id: "c-1", fullName: "Elif Demir", owner: true, features: [] },
+    ],
   });
 }
 
@@ -127,7 +132,9 @@ describe("program detail frame, ODTÜ edition", () => {
           endDate: "2027-01-31",
           lifecycle: ProgramLifecycle.Active,
         }),
-        coordinators: [{ id: "c-1", fullName: "Elif Demir", owner: true }],
+        coordinators: [
+          { id: "c-1", fullName: "Elif Demir", owner: true, features: [] },
+        ],
       }),
     );
     renderFrame(ProgramTab.Academics);
@@ -238,9 +245,7 @@ describe("program detail frame, ODTÜ edition", () => {
   });
 
   describe("a draft (Figma 152:7447)", () => {
-    function draft(
-      coordinators: { id: string; fullName: string; owner: boolean }[],
-    ) {
+    function draft(coordinators: CoordinatorRef[]) {
       return coordinatorProgramDetail({
         program: coordinatorProgram({
           id: "oh-1",
@@ -255,7 +260,9 @@ describe("program detail frame, ODTÜ edition", () => {
     it("gives the admin Programı Başlat in the header instead of the banner", async () => {
       vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
       vi.mocked(getCoordinatorProgram).mockResolvedValue(
-        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+        draft([
+          { id: "c-1", fullName: "Elif Demir", owner: true, features: [] },
+        ]),
       );
       vi.mocked(launchCoordinatorProgram).mockResolvedValue(officeHours());
       const user = userEvent.setup();
@@ -286,7 +293,9 @@ describe("program detail frame, ODTÜ edition", () => {
 
     it("keeps the banner for coordinators, with no launch", async () => {
       vi.mocked(getCoordinatorProgram).mockResolvedValue(
-        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+        draft([
+          { id: "c-1", fullName: "Elif Demir", owner: true, features: [] },
+        ]),
       );
       renderFrame(ProgramTab.Overview);
 

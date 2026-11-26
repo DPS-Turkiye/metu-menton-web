@@ -6,7 +6,7 @@ import {
   type CreateProgramInput,
   type UpdateProgramDetailsInput,
 } from "@/interfaces/coordinator-program";
-import { ProgramType } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { ApprovalKind } from "@/interfaces/program-approvals";
 import {
   addProgramCoordinator,
@@ -40,6 +40,7 @@ import {
   replaceCoordinatorProgramPhases,
   sendProgramTeamCode,
   setCoordinatorProgramArchived,
+  setProgramCoordinatorFeatures,
   updateCoordinatorProgram,
   updateProgramTeam,
   withdrawProgramMentorInvite,
@@ -113,6 +114,18 @@ const calls: ClientCall[] = [
     call: () => getCoordinatorProgram(PROGRAM),
     method: "get",
     args: [P],
+  },
+  {
+    title: "setProgramCoordinatorFeatures puts one coordinator's features",
+    call: () =>
+      setProgramCoordinatorFeatures(PROGRAM, "user/1", [
+        ProgramFeature.OfficeHours,
+      ]),
+    method: "put",
+    args: [
+      `${P}/coordinators/user%2F1/features`,
+      { features: [ProgramFeature.OfficeHours] },
+    ],
   },
   {
     title: "updateCoordinatorProgram puts the new details",

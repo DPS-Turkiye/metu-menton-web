@@ -24,7 +24,9 @@ function detail(type: ProgramType) {
       startDate: "2026-09-01",
       endDate: "2027-01-31",
     }),
-    coordinators: [{ id: "c-1", fullName: "Elif Demir", owner: true }],
+    coordinators: [
+      { id: "c-1", fullName: "Elif Demir", owner: true, features: [] },
+    ],
   });
 }
 

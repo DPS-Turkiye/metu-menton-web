@@ -1,4 +1,6 @@
 import { screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProgramSettingsView } from "@/components/coordinator/program-settings-view";
@@ -7,6 +9,7 @@ import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
   getCoordinatorProgram,
   getProgramEligibleEmails,
+  setProgramCoordinatorFeatures,
 } from "@/lib/client/coordinator-programs";
 import { coordinatorProgramDetail } from "@test/fixtures/coordinator-programs";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -22,6 +25,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/client/coordinator-programs", () => ({
   getCoordinatorProgram: vi.fn(),
   getProgramEligibleEmails: vi.fn(),
+  setProgramCoordinatorFeatures: vi.fn(),
+  removeProgramCoordinator: vi.fn(),
 }));
 vi.mock("@/components/coordinator/program-training-editor", () => ({
   ProgramTrainingEditor: () => <p>Eğitim düzenleyici</p>,
@@ -53,6 +58,9 @@ describe("Program Ayarları of a semester", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getProgramEligibleEmails).mockResolvedValue([]);
+    vi.mocked(usePathname).mockReturnValue(
+      "/coordinator/programs/program-1/settings",
+    );
   });
 
   it("lists the semester's features and the peer sections it runs", async () => {
@@ -88,5 +96,75 @@ describe("Program Ayarları of a semester", () => {
     expect(
       screen.queryByRole("link", { name: "Akran Mentoru eğitimi" }),
     ).not.toBeInTheDocument();
+  });
+
+  describe("coordinators per feature", () => {
+    function withCoordinators(): CoordinatorProgramDetail {
+      return {
+        ...semester([ProgramFeature.PeerMentoring, ProgramFeature.OfficeHours]),
+        coordinators: [
+          {
+            id: "c-1",
+            fullName: "Elif Demir",
+            owner: true,
+            features: [
+              ProgramFeature.PeerMentoring,
+              ProgramFeature.OfficeHours,
+            ],
+          },
+          {
+            id: "c-2",
+            fullName: "Burcu Şen",
+            owner: false,
+            features: [ProgramFeature.OfficeHours],
+          },
+        ],
+      };
+    }
+
+    it("lets the admin switch which features a coordinator runs, keeping at least one", async () => {
+      const user = userEvent.setup();
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      vi.mocked(setProgramCoordinatorFeatures).mockResolvedValue([]);
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      const officeHours = within(burcu).getByRole("button", {
+        name: "Office Hours",
+      });
+      expect(officeHours).toHaveAttribute("aria-pressed", "true");
+      expect(officeHours).toBeDisabled();
+      expect(
+        within(burcu).queryByRole("button", { name: "İŞKUR" }),
+      ).not.toBeInTheDocument();
+
+      await user.click(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      );
+      expect(setProgramCoordinatorFeatures).toHaveBeenCalledWith(
+        "program-1",
+        "c-2",
+        [ProgramFeature.PeerMentoring, ProgramFeature.OfficeHours],
+      );
+    });
+
+    it("shows a coordinator each colleague's features without switches", async () => {
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      expect(within(burcu).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(burcu).getByText("Office Hours")).toBeInTheDocument();
+      expect(
+        within(burcu).queryByText("Akran Mentörlüğü"),
+      ).not.toBeInTheDocument();
+    });
   });
 });

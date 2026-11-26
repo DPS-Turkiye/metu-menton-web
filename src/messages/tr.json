@@ -4271,7 +4271,10 @@
     "adminViewNote": "Program ayarlarını programın koordinatörleri yapılandırır; yönetici olarak yalnızca görüntülersin. Koordinatörleri buradan atayabilirsin.",
     "coordinatorsByAdmin": "Koordinatörleri yönetici atar.",
     "type": "Program türü",
-    "peerCategoriesNote": "Öğrenciler yalnızca aktif kategorilerde mentor arayabilir; mentorlar bu kategorilerden seçim yapar. Başlangıçta hiçbiri etkin değildir."
+    "peerCategoriesNote": "Öğrenciler yalnızca aktif kategorilerde mentor arayabilir; mentorlar bu kategorilerden seçim yapar. Başlangıçta hiçbiri etkin değildir.",
+    "coordinatorFeaturesLabel": "{name} hangi özellikleri yürütür",
+    "coordinatorFeaturesFailed": "Koordinatörün özellikleri kaydedilemedi.",
+    "coordinatorFeaturesNote": "Bir dönemde her koordinatör yalnızca seçili özelliklerin sayfalarını görür; en az bir özellik seçili kalır."
   },
   "programTeams": {
     "filters": {
@@ -6388,7 +6391,8 @@
     "iskurInternsLoadFailed": "İŞKUR stajyer listesi yüklenemedi.",
     "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
     "iskurInternsInvalid": "Eklenecek adresler geçersiz.",
-    "programFeaturesLoadFailed": "Program özellikleri yüklenemedi."
+    "programFeaturesLoadFailed": "Program özellikleri yüklenemedi.",
+    "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
