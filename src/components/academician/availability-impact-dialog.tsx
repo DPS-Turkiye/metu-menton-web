@@ -39,7 +39,11 @@ export function AvailabilityImpactDialog({
       <AffectedList title={t("requests")} rows={review.requests} />
       {/* The dialog focuses its first control, so the safe "Vazgeç" comes first and the link that leaves the page last. */}
       <div className="flex justify-end gap-2">
-        <Button variant={ButtonVariant.Ghost} onClick={editor.closeReview}>
+        <Button
+          variant={ButtonVariant.Ghost}
+          disabled={editor.isSaving}
+          onClick={editor.closeReview}
+        >
           {t("cancel")}
         </Button>
         <Button disabled={editor.isSaving} onClick={editor.confirmReview}>

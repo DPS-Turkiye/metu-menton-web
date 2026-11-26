@@ -94,14 +94,7 @@ export async function saveAcademicianAvailability(
     }
   }
   try {
-    const saved = await saveMyOfficeHoursAvailability({
-      ...hours,
-      confirmedAffected: confirmed ?? [],
-    });
-    return {
-      result: AvailabilitySaveResult.Saved,
-      availability: toAcademicianAvailability(saved),
-    };
+    return await saveConfirmed(hours, confirmed ?? []);
   } catch (error) {
     if (
       !(error instanceof ClientApiError) ||
@@ -109,12 +102,29 @@ export async function saveAcademicianAvailability(
     ) {
       throw error;
     }
+    const fresh = await previewMyOfficeHoursAvailability(hours);
+    // What changed is already gone again (a request taken back, say): nothing is left to show, so save once more.
+    if (isUnaffected(fresh)) return saveConfirmed(hours, []);
     return {
       result: AvailabilitySaveResult.Review,
-      impact: await previewMyOfficeHoursAvailability(hours),
+      impact: fresh,
       changed: true,
     };
   }
+}
+
+async function saveConfirmed(
+  hours: UpdateAcademicianAvailabilityPayload,
+  confirmedAffected: OfficeHoursAffectedItem[],
+): Promise<AvailabilitySaveOutcome> {
+  const saved = await saveMyOfficeHoursAvailability({
+    ...hours,
+    confirmedAffected,
+  });
+  return {
+    result: AvailabilitySaveResult.Saved,
+    availability: toAcademicianAvailability(saved),
+  };
 }
 
 export async function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {

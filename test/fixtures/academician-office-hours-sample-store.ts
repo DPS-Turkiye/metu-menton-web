@@ -31,6 +31,8 @@ type SampleState = {
   impact: OfficeHoursAvailabilityImpact;
   /** The list changes once after the academician confirmed it, as if a request came in meanwhile. */
   changesOnConfirm: boolean;
+  /** A confirmed save never answers, so a test can look at the dialog while it runs. */
+  holdsConfirm: boolean;
 };
 
 function fresh(): SampleState {
@@ -41,6 +43,7 @@ function fresh(): SampleState {
     profile: OFFICE_HOURS_PROFILE_SAMPLE,
     impact: { meetings: [], requests: [] },
     changesOnConfirm: false,
+    holdsConfirm: false,
   });
 }
 
@@ -150,10 +153,14 @@ export function saveSampleAvailability(
 
 export function setSampleImpact(
   impact: OfficeHoursAvailabilityImpact,
-  { changesOnConfirm = false }: { changesOnConfirm?: boolean } = {},
+  {
+    changesOnConfirm = false,
+    holdsConfirm = false,
+  }: { changesOnConfirm?: boolean; holdsConfirm?: boolean } = {},
 ) {
   state.impact = structuredClone(impact);
   state.changesOnConfirm = changesOnConfirm;
+  state.holdsConfirm = holdsConfirm;
 }
 
 /** Whether a confirmed save meets a list that changed since; it does so once. */

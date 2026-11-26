@@ -371,5 +371,22 @@ describe("AcademicianAvailabilityEditView", () => {
       );
       expect(await screen.findByText("Silindi.")).toBeVisible();
     });
+
+    it("stays open while the save it sent is still running", async () => {
+      setSampleImpact(IMPACT, { holdsConfirm: true });
+      const user = userEvent.setup();
+      renderView();
+      const review = await removeThursday(user);
+
+      await user.click(
+        within(review).getByRole("button", { name: "Yine de kaydet" }),
+      );
+
+      expect(
+        within(review).getByRole("button", { name: "Vazgeç" }),
+      ).toBeDisabled();
+      await user.keyboard("{Escape}");
+      expect(review).toBeInTheDocument();
+    });
   });
 });

@@ -302,6 +302,31 @@ describe("academician Office Hours client", () => {
     });
   });
 
+  it("saves once more when the list that changed is empty again", async () => {
+    const settings = academicianAvailability();
+    vi.mocked(httpClient.put)
+      .mockResolvedValueOnce(
+        createMentorResponse(
+          { message: "changed", code: OFFICE_HOURS_AFFECTED_BOOKINGS_CHANGED },
+          409,
+        ),
+      )
+      .mockResolvedValueOnce(createMentorResponse(settings));
+    vi.mocked(httpClient.post).mockResolvedValue(
+      createMentorResponse(NOTHING_AFFECTED),
+    );
+
+    const outcome = await saveAcademicianAvailability(settings, [
+      { requestId: "request-1", status: OfficeHoursRequestStatus.Pending },
+    ]);
+
+    expect(outcome.result).toBe(AvailabilitySaveResult.Saved);
+    expect(httpClient.put).toHaveBeenLastCalledWith(
+      `${BASE}/availability`,
+      expect.objectContaining({ confirmedAffected: [] }),
+    );
+  });
+
   it("passes any other refusal of a save on", async () => {
     vi.mocked(httpClient.put).mockResolvedValue(
       createMentorResponse({ message: "Kaydedilemedi." }, 400),

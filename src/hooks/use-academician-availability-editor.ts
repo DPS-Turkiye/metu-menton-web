@@ -365,6 +365,8 @@ export function useAcademicianAvailabilityEditor() {
         });
       },
       closeReview: () => {
+        // A save already sent goes through whatever the dialog does, so it stays open until the answer comes.
+        if (save.isPending) return;
         setReview(null);
       },
       openAdd: (kind: AvailabilityItemKind | null) => {

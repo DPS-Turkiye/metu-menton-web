@@ -64,6 +64,11 @@ export function saveAcademicianAvailability(
   payload: UpdateAcademicianAvailabilityPayload,
   confirmed: OfficeHoursAffectedItem[] | null,
 ): Promise<AvailabilitySaveOutcome> {
+  if (confirmed !== null && sampleState().holdsConfirm) {
+    return new Promise(() => {
+      // Never settles: the save stays running for as long as the test looks.
+    });
+  }
   return sample((): AvailabilitySaveOutcome => {
     const { impact } = sampleState();
     if (confirmed === null && !isUnaffected(impact)) {
