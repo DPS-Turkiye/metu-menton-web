@@ -12,7 +12,11 @@ import { requireAdminSession } from "@/lib/server/require-admin";
 
 // The backend checks the list is a subset of the program's features.
 const featuresSchema = z.object({
-  features: z.array(z.enum(ProgramFeature)).min(1).max(3),
+  features: z
+    .array(z.enum(ProgramFeature))
+    .min(1)
+    .max(3)
+    .refine((features) => new Set(features).size === features.length),
 });
 
 /** Which of a semester's features one coordinator runs; only admins change it, as they choose who coordinates. */

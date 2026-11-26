@@ -152,7 +152,13 @@ export function useProgramCoordinators(
       userId: string;
       next: ProgramFeature[];
     }) => setProgramCoordinatorFeatures(programId, userId, next),
-    onSuccess: refresh,
+    // Stay pending until the detail is read again: the next switch builds on the coordinator's saved features.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ADMIN_OVERVIEW_QUERY_KEY,
+      });
+      return cache.refresh();
+    },
     onError: (failure: Error) =>
       showToast({
         message: errorMessage(failure, t("coordinatorFeaturesFailed")),

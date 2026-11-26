@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -151,6 +151,61 @@ describe("Program Ayarları of a semester", () => {
         "c-2",
         [ProgramFeature.PeerMentoring, ProgramFeature.OfficeHours],
       );
+    });
+
+    it("keeps the switches closed until the saved features are read again", async () => {
+      const user = userEvent.setup();
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      let reread: (detail: CoordinatorProgramDetail) => void = () => undefined;
+      vi.mocked(setProgramCoordinatorFeatures).mockImplementation(async () => {
+        vi.mocked(getCoordinatorProgram).mockReturnValue(
+          new Promise((resolve) => {
+            reread = resolve;
+          }),
+        );
+        return [];
+      });
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      await user.click(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      );
+      expect(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      ).toBeDisabled();
+
+      const saved = withCoordinators();
+      reread({
+        ...saved,
+        coordinators: saved.coordinators.map((coordinator) =>
+          coordinator.id === "c-2"
+            ? {
+                ...coordinator,
+                features: [
+                  ProgramFeature.PeerMentoring,
+                  ProgramFeature.OfficeHours,
+                ],
+              }
+            : coordinator,
+        ),
+      });
+      const after = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      await waitFor(() =>
+        expect(
+          within(after).getByRole("button", { name: "Office Hours" }),
+        ).toBeEnabled(),
+      );
+      expect(
+        within(after).getByRole("button", { name: "Akran Mentörlüğü" }),
+      ).toHaveAttribute("aria-pressed", "true");
     });
 
     it("shows a coordinator each colleague's features without switches", async () => {

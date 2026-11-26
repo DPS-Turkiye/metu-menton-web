@@ -338,6 +338,7 @@ const cases: BodyCase[] = [
       "no list": {},
       "an empty list": { features: [] },
       "a feature that does not exist": { features: ["TEAMS"] },
+      "the same feature twice": { features: ["OFFICE_HOURS", "OFFICE_HOURS"] },
     },
   },
   {
