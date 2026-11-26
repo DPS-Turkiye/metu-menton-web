@@ -43,7 +43,7 @@ export enum IskurTodoKind {
   FridaySubmit = "fridaySubmit",
 }
 
-/** A line of the İŞKUR home's "Bugün yapman gerekenler". */
+/** A line of the İŞKUR home's "Yapılacaklar". */
 export type IskurTodo =
   | {
       kind: IskurTodoKind.Task;

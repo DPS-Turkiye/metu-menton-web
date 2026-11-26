@@ -53,6 +53,18 @@ describe("IskurTeamReveal", () => {
       screen.getByText("Birim koordinatörün · Selin Er"),
     ).toBeInTheDocument();
     expect(
+      screen.getByText("Günlük işin, görevlerin, saatlerin"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Liderin talep açar · Zeynep Kaya"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Mentörlük eşleşmesi veya görüşme"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Akran mentörlüğü koordinatörü"),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText("Kanallar ekip kesinleşince açılır."),
     ).toBeInTheDocument();
   });

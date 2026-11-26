@@ -28,7 +28,7 @@ import { IskurTodoKind, type IskurTodo } from "@/types/iskur-weeks";
 type ThisWeek = ReturnType<typeof useIskurThisWeek>;
 
 /**
- * The İŞKUR home's own blocks (Figma 6.1/6.1b): "Bugün yapman gerekenler", then "Bu Haftam" with the week's hours on
+ * The İŞKUR home's own blocks (Figma 6.1/6.1b): "Yapılacaklar", then "Bu Haftam" with the week's hours on
  * each side.
  */
 export function IskurThisWeekCard() {
@@ -113,7 +113,7 @@ export function IskurThisWeekCard() {
   );
 }
 
-/** "Bugün yapman gerekenler": one row per thing to do, the first one's action as the block's main button. */
+/** "Yapılacaklar": one row per thing to do, the first one's action as the block's main button. */
 function IskurToday({ state }: { state: ThisWeek }) {
   const t = useTranslations("iskurToday");
   return (
@@ -226,7 +226,7 @@ function useTodoText(todo: IskurTodo): TodoText {
         hint: tCard(todo.needsOutput ? "taskWithOutput" : "task", {
           day: dayLabel(todo.dueDate),
         }),
-        action: t("actions.open"),
+        action: t(todo.needsOutput ? "actions.upload" : "actions.open"),
       };
     case IskurTodoKind.Support:
       return {

@@ -11,7 +11,7 @@
     "seeAll": "See all",
     "next": {
       "label": "Your next appointment",
-      "view": "Details",
+      "view": "See meeting",
       "labelDay": {
         "today": "Your next appointment · today",
         "tomorrow": "Your next appointment · tomorrow"

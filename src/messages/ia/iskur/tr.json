@@ -60,7 +60,7 @@
       "notes": {
         "badgeMissing": "Rozetin, koordinatörün seni onayladığında verilir. Onaylandığın halde görünmüyorsa sayfayı yenile; sorun devam ederse program koordinatörüne yaz.",
         "oneAccount": "Mentor olduğunda ayrı bir hesap açılmaz; mentee ve mentor etkinliklerin aynı hesapta durur.",
-        "keepGetting": "Mentorluk al sekmesinde mentor keşfetmeye ve taleplerini takip etmeye devam edebilirsin."
+        "keepGetting": "Mentorluk Al sekmesinde mentor keşfetmeye ve taleplerini takip etmeye devam edebilirsin."
       }
     },
     "journey": {
@@ -96,11 +96,11 @@
       "signInAgain": "Rozetin yeni verildi. Mentorluk işlemleri için çıkış yapıp yeniden giriş yap."
     },
     "tabs": {
-      "label": "Mentorluk ver",
-      "requests": "Talepler",
+      "label": "Mentorluk Ver",
+      "requests": "Mentorluk Talepleri",
       "mentees": "Menteelerim",
       "availability": "Müsaitlik ve kapasite",
-      "profile": "Mentor profilim"
+      "profile": "Mentor Profilim"
     },
     "requests": {
       "title": "Yanıt bekleyen talepler",
@@ -109,7 +109,7 @@
       "sentAt": "{date}",
       "sentAtFrom": "{department} · {date}",
       "quote": "“{message}”",
-      "accept": "Kabul et",
+      "accept": "Kabul Et",
       "decline": "Reddet",
       "lastPlace": "Kabul edersen kapasiten {capacity}/{capacity} olur; yeni talepler duraklatılır.",
       "reason": {
@@ -131,7 +131,7 @@
       "noLimit": "aktif mentee",
       "edit": "Kapasiteyi düzenle",
       "note": {
-        "unset": "Kapasite belirlemedin; yeni talepler gelmeye devam eder. Mentor profilim sekmesinden belirleyebilirsin.",
+        "unset": "Kapasite belirlemedin; yeni talepler gelmeye devam eder. Mentor Profilim sekmesinden belirleyebilirsin.",
         "open": "{free} yer boş. Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür.",
         "lastPlace": "{free} yer boş. Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür.",
         "full": "Kapasiten dolu. Yeni talepler kapasite açılana kadar sana gelmez."
@@ -139,8 +139,8 @@
       "valueText": "{used} / {capacity} mentee",
       "summary": "Kapasite {used} / {capacity}",
       "summaryNoLimit": "{used} aktif mentee",
-      "requests": "Talepler",
-      "requestsCount": "Talepler ({waiting})"
+      "requests": "Mentorluk Talepleri",
+      "requestsCount": "Mentorluk Talepleri ({waiting})"
     },
     "profileCard": {
       "title": "Mentor profilin",
@@ -188,7 +188,7 @@
       }
     },
     "menteeProfile": {
-      "back": "Mentorluk ver",
+      "back": "Mentorluk Ver",
       "notFound": "Bu öğrenci menteen değil ya da talebi artık açık değil.",
       "role": "Mentee",
       "requests": "Sana gönderdiği talepler",
@@ -422,8 +422,8 @@
     "subtitle": "ODTÜ öğrencilerinden mentorluk al. Mentorlar eğitimini tamamlamış ve rozeti doğrulanmış öğrencilerdir.",
     "switchLabel": "Akran mentörlüğü tarafı",
     "switch": {
-      "get": "Mentorluk al",
-      "give": "Mentorluk ver"
+      "get": "Mentorluk Al",
+      "give": "Mentorluk Ver"
     },
     "tabs": {
       "label": "Mentorluk Al",

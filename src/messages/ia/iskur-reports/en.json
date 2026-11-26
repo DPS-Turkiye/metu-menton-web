@@ -340,7 +340,7 @@
     "reportTab": "Activity report",
     "dueTitle": "The report of your meeting with {name} is waiting",
     "dueBody": "Fill it in today; it is added to your daily report.",
-    "dueAction": "Write the report",
+    "dueAction": "Fill in the report",
     "activeMentees": "Active mentees",
     "editCapacity": "Edit capacity and availability",
     "capacityFull": "Your capacity is full; raise it in Mentor profile to accept new requests.",

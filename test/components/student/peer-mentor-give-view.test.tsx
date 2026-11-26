@@ -456,10 +456,9 @@ describe("PeerMentorGiveView", () => {
     });
     expect(within(card).getByText("Kariyer ve Staj")).toBeVisible();
     expect(within(panel).getByText("1 · en yeniden eskiye")).toBeVisible();
-    expect(screen.getByRole("tab", { name: "Talepler · 1" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    expect(
+      screen.getByRole("tab", { name: "Mentorluk Talepleri · 1" }),
+    ).toHaveAttribute("aria-selected", "true");
     expect(
       screen.getByRole("tab", { name: "Menteelerim · 1" }),
     ).toBeInTheDocument();
@@ -477,10 +476,10 @@ describe("PeerMentorGiveView", () => {
 
     expect(
       within(card)
-        .getByRole("button", { name: "Kabul et" })
+        .getByRole("button", { name: "Kabul Et" })
         .closest("[data-tour]"),
     ).toHaveAttribute("data-tour", "peer-request-accept");
-    await user.click(within(card).getByRole("button", { name: "Kabul et" }));
+    await user.click(within(card).getByRole("button", { name: "Kabul Et" }));
     await waitFor(() =>
       expect(vi.mocked(decideMentorRequest).mock.calls[0]?.[0]).toEqual({
         id: "r1",
@@ -509,7 +508,7 @@ describe("PeerMentorGiveView", () => {
     ).toHaveAttribute("aria-pressed", "true");
     await user.click(within(reasons).getByRole("button", { name: "Vazgeç" }));
     expect(
-      within(card).getByRole("button", { name: "Kabul et" }),
+      within(card).getByRole("button", { name: "Kabul Et" }),
     ).toBeVisible();
     expect(decideMentorRequest).not.toHaveBeenCalled();
 
@@ -568,7 +567,7 @@ describe("PeerMentorGiveView", () => {
     ).toBeVisible();
     expect(within(active).getByText("Kabul edildi")).toBeVisible();
     expect(
-      within(active).queryByRole("button", { name: "Kabul et" }),
+      within(active).queryByRole("button", { name: "Kabul Et" }),
     ).not.toBeInTheDocument();
   });
 
@@ -597,7 +596,9 @@ describe("PeerMentorGiveView", () => {
       await within(mentee).findByText(/^Sıradaki görüşme: Per 12 Kas · /),
     ).toBeVisible();
 
-    await user.click(screen.getByRole("button", { name: "Talepler (0)" }));
+    await user.click(
+      screen.getByRole("button", { name: "Mentorluk Talepleri (0)" }),
+    );
     expect(replace).toHaveBeenCalled();
   });
 
@@ -731,7 +732,7 @@ describe("PeerMentorGiveView", () => {
       );
     });
 
-    it("keeps a limit changed on Mentor profilim while these hours are being edited", async () => {
+    it("keeps a limit changed on Mentor Profilim while these hours are being edited", async () => {
       vi.mocked(savePeerMentorIntake).mockResolvedValue(publishedProfile());
       const user = userEvent.setup();
       renderWithQueryClient(<PeerMentorGiveView />);
@@ -794,7 +795,7 @@ describe("PeerMentorGiveView", () => {
     ).toHaveAttribute("aria-selected", "true");
   });
 
-  describe("Mentor profilim", () => {
+  describe("Mentor Profilim", () => {
     beforeEach(() => {
       search = new URLSearchParams("tab=profile");
       vi.mocked(getPeerMentorProfile).mockResolvedValue(publishedProfile());
@@ -825,7 +826,7 @@ describe("PeerMentorGiveView", () => {
       renderWithQueryClient(<PeerMentorGiveView />);
 
       const panel = await screen.findByRole("tabpanel", {
-        name: "Mentor profilim",
+        name: "Mentor Profilim",
       });
       const profile = within(panel).getByRole("region", {
         name: "Zeynep Demir",
@@ -899,7 +900,7 @@ describe("PeerMentorGiveView", () => {
       await waitFor(() =>
         expect(accepting).toHaveAttribute("aria-checked", "false"),
       );
-      const panel = screen.getByRole("tabpanel", { name: "Mentor profilim" });
+      const panel = screen.getByRole("tabpanel", { name: "Mentor Profilim" });
       expect(within(panel).getByText("Yeni talep almıyor")).toBeVisible();
     });
 
@@ -937,7 +938,7 @@ describe("PeerMentorGiveView", () => {
     const card = await screen.findByRole("article", { name: "Ayşe Yılmaz" });
     await waitFor(() =>
       expect(
-        within(card).getByRole("button", { name: "Kabul et" }),
+        within(card).getByRole("button", { name: "Kabul Et" }),
       ).toBeDisabled(),
     );
     expect(
@@ -971,7 +972,7 @@ describe("PeerMentorGiveView", () => {
       name: /Ayşe Yıldız ile görüşmenin raporu bekleniyor/,
     });
     expect(
-      within(banner).getByRole("link", { name: "Raporu yaz" }),
+      within(banner).getByRole("link", { name: "Raporu doldur" }),
     ).toHaveAttribute("href", "/student/peer-mentoring/reports/meetings/m-due");
     expect(getPeerReportMeetings).toHaveBeenCalledWith(
       "2026-11-06",
@@ -1042,7 +1043,7 @@ describe("PeerMentorGiveView", () => {
       await screen.findByRole("region", { name: "Bu haftanın raporu" }),
     ).toBeVisible();
     expect(
-      screen.queryByRole("link", { name: "Raporu yaz" }),
+      screen.queryByRole("link", { name: "Raporu doldur" }),
     ).not.toBeInTheDocument();
   });
 

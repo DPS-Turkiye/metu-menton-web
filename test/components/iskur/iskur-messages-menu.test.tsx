@@ -71,7 +71,7 @@ describe("İŞKUR Mesajlar panel and home card", () => {
       screen.queryByRole("button", { name: /Mesajlar/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("heading", { name: "Kanalların" }),
+      screen.queryByRole("heading", { name: "Ekibim" }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(/Ekip atamanız kesinleşti/),
@@ -100,9 +100,7 @@ describe("İŞKUR Mesajlar panel and home card", () => {
     expect(
       screen.getByText(/2 kanal otomatik oluşturuldu/),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Kanalların" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ekibim" })).toBeInTheDocument();
     expect(screen.getByText("2 okunmamış mesaj")).toBeInTheDocument();
   });
 });

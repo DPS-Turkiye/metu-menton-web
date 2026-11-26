@@ -26,7 +26,7 @@ import type {
 } from "@/interfaces/peer-mentoring";
 import { PeerCapacityNote, PeerGiveTab } from "@/types/iskur-student";
 
-/** Talepler (Figma 7.1): the requests waiting for an answer, with the capacity and the profile beside them. */
+/** Mentorluk Talepleri (Figma 7.1): the requests waiting for an answer, with the capacity and the profile beside them. */
 export function PeerMentorRequestsTab({
   view,
   profile,

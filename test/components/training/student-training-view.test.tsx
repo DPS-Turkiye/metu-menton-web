@@ -187,7 +187,7 @@ describe("StudentTrainingView", () => {
     expect(
       await screen.findByRole("heading", { name: "Eğitimi Prism'de tamamla" }),
     ).toBeInTheDocument();
-    const link = screen.getByRole("link", { name: "Prism'de aç" });
+    const link = screen.getByRole("link", { name: "Eğitime Git" });
     expect(link).toHaveAttribute("href", PRISM);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -226,7 +226,7 @@ describe("StudentTrainingView", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: "Prism'de aç" }),
+      screen.queryByRole("link", { name: "Eğitime Git" }),
     ).not.toBeInTheDocument();
     await user.click(
       screen.getByRole("button", { name: "Prism eğitimini tamamladım" }),
@@ -253,7 +253,7 @@ describe("StudentTrainingView", () => {
         await screen.findByRole("heading", { level: 2 }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole("link", { name: "Prism'de aç" }),
+        screen.queryByRole("link", { name: "Eğitime Git" }),
       ).not.toBeInTheDocument();
       expect(
         screen.queryAllByText(

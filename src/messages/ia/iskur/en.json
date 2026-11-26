@@ -97,7 +97,7 @@
     },
     "tabs": {
       "label": "Give mentoring",
-      "requests": "Requests",
+      "requests": "Mentoring requests",
       "mentees": "My mentees",
       "availability": "Availability and capacity",
       "profile": "My mentor profile"
@@ -139,8 +139,8 @@
       "valueText": "{used} of {capacity} mentees",
       "summary": "Capacity {used} / {capacity}",
       "summaryNoLimit": "{used} active mentees",
-      "requests": "Requests",
-      "requestsCount": "Requests ({waiting})"
+      "requests": "Mentoring requests",
+      "requestsCount": "Mentoring requests ({waiting})"
     },
     "profileCard": {
       "title": "Your mentor profile",

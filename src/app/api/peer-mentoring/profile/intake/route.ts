@@ -22,7 +22,7 @@ const peerMentorIntakeSchema = z.object({
   acceptingRequests: z.boolean(),
 });
 
-/** "Kapasitem" on Mentor profilim: the capacity and the new-requests switch, saved at once. */
+/** "Kapasitem" on Mentor Profilim: the capacity and the new-requests switch, saved at once. */
 export async function PUT(request: NextRequest) {
   try {
     const session = await getSessionUser();
