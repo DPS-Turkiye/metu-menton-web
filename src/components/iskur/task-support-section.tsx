@@ -4,8 +4,8 @@
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/components/ia/card";
+import { IskurTeamSupportDetails } from "@/components/iskur/team-support-details";
 import { IskurTeamSupportForm } from "@/components/iskur/team-support-form";
-import { Details } from "@/components/iskur/team-support-panel";
 import {
   useIskurTaskSupports,
   useIskurTeamSupport,
@@ -43,7 +43,7 @@ export function IskurTaskSupportSection({
               <p className="type-label text-text-primary">
                 {t("line", { team: request.toTeamName })}
               </p>
-              <Details request={request} />
+              <IskurTeamSupportDetails request={request} />
             </li>
           ))}
         </ul>
@@ -54,7 +54,15 @@ export function IskurTaskSupportSection({
 }
 
 function AskForTask({ taskId }: { taskId: string }) {
+  const t = useTranslations("iskurTeamSupport");
   const state = useIskurTeamSupport(taskId);
+  if (state.loadFailed) {
+    return (
+      <p role="alert" className="type-body-sm text-status-error-text">
+        {t("loadFailed")}
+      </p>
+    );
+  }
   if (!state.data) return null;
   return <IskurTeamSupportForm state={state} idPrefix="iskur-task-support" />;
 }

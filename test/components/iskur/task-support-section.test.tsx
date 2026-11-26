@@ -41,6 +41,15 @@ describe("IskurTaskSupportSection", () => {
     expect(getIskurTeamSupports).not.toHaveBeenCalled();
   });
 
+  it("tells a leader when the request form cannot be loaded", async () => {
+    vi.mocked(getIskurTaskSupports).mockResolvedValue([]);
+    vi.mocked(getIskurTeamSupports).mockRejectedValue(new Error("down"));
+    renderWithQueryClient(<IskurTaskSupportSection taskId="task-1" canAsk />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Destek talepleri yüklenemedi.",
+    );
+  });
+
   it("lets the team's leader open a request for this task", async () => {
     const user = userEvent.setup();
     vi.mocked(getIskurTaskSupports).mockResolvedValue([]);

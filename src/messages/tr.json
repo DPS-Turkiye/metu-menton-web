@@ -8570,6 +8570,7 @@
       "DECLINED": "Reddedildi"
     },
     "answerNoteLine": "Not: {note}",
+    "quote": "“{need}”",
     "task": {
       "title": "Başka ekipten destek",
       "empty": "Bu görev için destek talebi açılmadı.",

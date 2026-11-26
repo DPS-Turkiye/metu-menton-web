@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
+import { IskurTeamSupportDetails } from "@/components/iskur/team-support-details";
 import { IskurTeamSupportForm } from "@/components/iskur/team-support-form";
 import { ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import {
@@ -98,7 +99,7 @@ function Incoming({
               date: formatDateTime(request.createdAt, locale),
             })}
           </p>
-          <Details request={request} />
+          <IskurTeamSupportDetails request={request} />
         </div>
         {request.canAnswer && !answering ? (
           <Button
@@ -168,35 +169,7 @@ function Outgoing({ request }: { request: IskurTeamSupport }) {
           date: formatDateTime(request.createdAt, locale),
         })}
       </p>
-      <Details request={request} />
-    </div>
-  );
-}
-
-/** What was asked, for which task, and where it stands. */
-export function Details({ request }: { request: IskurTeamSupport }) {
-  const t = useTranslations("iskurTeamSupport");
-  return (
-    <div className="flex flex-col gap-0.5">
-      <p className="type-body-sm text-text-secondary">“{request.need}”</p>
-      {request.taskTitle ? (
-        <p className="type-caption text-text-muted">
-          {t("forTask", { task: request.taskTitle })}
-        </p>
-      ) : null}
-      {request.openedByName ? (
-        <p className="type-caption text-text-muted">
-          {t("openedBy", { name: request.openedByName })}
-        </p>
-      ) : null}
-      <p className="type-caption text-text-primary">
-        {t(`status.${request.status}`)}
-      </p>
-      {request.answerNote ? (
-        <p className="type-caption text-text-secondary">
-          {t("answerNoteLine", { note: request.answerNote })}
-        </p>
-      ) : null}
+      <IskurTeamSupportDetails request={request} />
     </div>
   );
 }

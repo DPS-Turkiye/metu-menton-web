@@ -29,8 +29,9 @@ const NOT_FOUND = 404;
 const EMPTY_FORM: IskurTeamSupportForm = { toTeamId: "", need: "" };
 
 export const iskurTeamSupportsQueryKey = ["iskur-team-support"] as const;
+const TASK_SUPPORTS_KEY = "iskur-task-support";
 export const iskurTaskSupportsQueryKey = (taskId: string) =>
-  ["iskur-task-support", taskId] as const;
+  [TASK_SUPPORTS_KEY, taskId] as const;
 
 /**
  * A team leader's support requests (handbook p.18, "Başka ekipten destek lazım → Liderin talep açar"): the form for
@@ -61,13 +62,12 @@ export function useIskurTeamSupport(taskId: string | null = null) {
     },
     retry: false,
   });
+  // A task page shows the same requests: an open or an answer changes it, whichever team's task it is.
+  const refreshTasks = () =>
+    void queryClient.invalidateQueries({ queryKey: [TASK_SUPPORTS_KEY] });
   const refreshAll = () => {
     void queryClient.invalidateQueries({ queryKey: iskurTeamSupportsQueryKey });
-    if (taskId) {
-      void queryClient.invalidateQueries({
-        queryKey: iskurTaskSupportsQueryKey(taskId),
-      });
-    }
+    refreshTasks();
   };
   const failed = (fallback: string) => (failure: Error) => {
     showToast({
@@ -80,11 +80,7 @@ export function useIskurTeamSupport(taskId: string | null = null) {
     mutationFn: (input: IskurTeamSupportInput) => openIskurTeamSupport(input),
     onSuccess: (data) => {
       queryClient.setQueryData(iskurTeamSupportsQueryKey, data);
-      if (taskId) {
-        void queryClient.invalidateQueries({
-          queryKey: iskurTaskSupportsQueryKey(taskId),
-        });
-      }
+      refreshTasks();
       setWriting(false);
       setForm(EMPTY_FORM);
       showToast({ message: t("opened"), tone: ToastTone.Success });
@@ -96,6 +92,7 @@ export function useIskurTeamSupport(taskId: string | null = null) {
       answerIskurTeamSupport(call.id, call.accept, call.note),
     onSuccess: (data, call) => {
       queryClient.setQueryData(iskurTeamSupportsQueryKey, data);
+      refreshTasks();
       setAnsweringId(null);
       setNote("");
       showToast({
@@ -120,8 +117,9 @@ export function useIskurTeamSupport(taskId: string | null = null) {
     outgoing: data?.outgoing ?? [],
     writing,
     form,
-    setTeam: (toTeamId: string) => setForm({ ...form, toTeamId }),
-    setNeed: (need: string) => setForm({ ...form, need }),
+    setTeam: (toTeamId: string) =>
+      setForm((current) => ({ ...current, toTeamId })),
+    setNeed: (need: string) => setForm((current) => ({ ...current, need })),
     canOpen: input !== null && !busy,
     busy,
     start: () => setWriting(true),

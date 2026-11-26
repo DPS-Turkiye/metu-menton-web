@@ -8568,6 +8568,7 @@
       "DECLINED": "Declined"
     },
     "answerNoteLine": "Note: {note}",
+    "quote": "“{need}”",
     "task": {
       "title": "Support from another team",
       "empty": "No support request was opened for this task.",
