@@ -24,7 +24,7 @@ export function IskurTaskSupportSection({
 }) {
   const t = useTranslations("iskurTeamSupport.task");
   const supports = useIskurTaskSupports(taskId);
-  if (supports.loading) return null;
+  if (supports.loading || supports.hidden) return null;
   return (
     <Card labelledBy="iskur-task-support" className="flex flex-col gap-3">
       <h2 id="iskur-task-support" className="type-title-card text-text-primary">

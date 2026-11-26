@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IskurTaskSupportSection } from "@/components/iskur/task-support-section";
+import { ClientApiError } from "@/lib/client/api";
 import {
   getIskurTaskSupports,
   getIskurTeamSupports,
@@ -39,6 +40,20 @@ describe("IskurTaskSupportSection", () => {
       screen.queryByRole("button", { name: "Destek talebi aç" }),
     ).toBeNull();
     expect(getIskurTeamSupports).not.toHaveBeenCalled();
+  });
+
+  it("stays away for someone the backend does not let read the task's requests", async () => {
+    vi.mocked(getIskurTaskSupports).mockRejectedValue(
+      new ClientApiError("x", 404),
+    );
+    renderWithQueryClient(
+      <IskurTaskSupportSection taskId="task-1" canAsk={false} />,
+    );
+    await vi.waitFor(() => expect(getIskurTaskSupports).toHaveBeenCalled());
+    expect(
+      screen.queryByRole("region", { name: "Başka ekipten destek" }),
+    ).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("tells a leader when the request form cannot be loaded", async () => {

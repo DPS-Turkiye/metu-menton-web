@@ -152,15 +152,28 @@ export function useIskurTeamSupport(taskId: string | null = null) {
 
 export type IskurTeamSupportState = ReturnType<typeof useIskurTeamSupport>;
 
-/** The support requests opened for one task, for its assignee and its team's leaders ("Görev detayı"). */
+/**
+ * The support requests opened for one task ("Görev detayı"). Only its assignee and its team's leaders may read them;
+ * for anyone else the backend says 404 and the section stays away ({@code hidden}).
+ */
 export function useIskurTaskSupports(taskId: string) {
   const query = useQuery({
     queryKey: iskurTaskSupportsQueryKey(taskId),
-    queryFn: () => getIskurTaskSupports(taskId),
+    queryFn: async () => {
+      try {
+        return await getIskurTaskSupports(taskId);
+      } catch (error) {
+        if (error instanceof ClientApiError && error.status === NOT_FOUND)
+          return null;
+        throw error;
+      }
+    },
+    retry: false,
   });
   return {
     requests: query.data ?? [],
     loading: query.isPending,
     failed: query.isError,
+    hidden: query.data === null,
   };
 }
