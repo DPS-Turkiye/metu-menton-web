@@ -756,6 +756,7 @@ test.describe("İŞKUR", () => {
 
     await peerMentoring(page, "Mentorluk Ver");
     await page.getByRole("link", { name: "Eğitime Git" }).click();
+    await expect(page).toHaveURL(/\/student\/peer-mentoring\/training/);
     await expect(
       page.getByRole("link", { name: "Eğitime Git" }),
     ).toHaveAttribute("href", PRISM_LINK);
