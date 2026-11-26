@@ -1,8 +1,14 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { asPerson } from "./support/backend";
 import { sql } from "./support/database";
+import {
+  findStudentAppointment,
+  openOfficeHours,
+  UUID_REGEX,
+} from "./support/office-hours";
 import { currentUserId, Persona, signInAs } from "./support/personas";
+import { toTurkishDate } from "./support/time";
 
 // Office Hours from Menton itself: a student asks an academician for a slot, the academician accepts and later
 // cancels it, and a request nobody answers expires. One journey on one database, so the steps run in order.
@@ -11,7 +17,6 @@ test.describe.configure({ mode: "serial" });
 const RUN = Date.now().toString(36);
 const BOOKED_TOPIC = `E2E görüşme ${RUN}`;
 const EXPIRING_TOPIC = `E2E cevapsız talep ${RUN}`;
-const UUID = /^[0-9a-f-]{36}$/;
 
 type Academician = { id: string; fullName: string };
 type Slot = { startsAt: string };
@@ -22,71 +27,13 @@ let academicianAccountId = "";
 let studentAccountId = "";
 let academicianId = "";
 
-/** "2026-11-18" for an instant, in Turkey, as Randevularım's ?date= reads it. */
-function turkeyDay(instant: string) {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Istanbul",
-  }).format(new Date(instant));
-}
-
-async function studentAppointment(
-  page: Page,
-  tab: "Yaklaşan" | "Talepler" | "Geçmiş",
-  topic: string,
-) {
-  await page.goto("/student/appointments");
-  await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).click();
-  return page
-    .getByRole("tabpanel")
-    .getByRole("listitem")
-    .filter({ hasText: topic });
-}
-
 test("the academician opens Office Hours: listed, with weekly hours", async ({
   page,
 }) => {
   await signInAs(page, Persona.AhmetOzturk);
   academicianAccountId = await currentUserId(page);
 
-  await asPerson(
-    page.request,
-    "PUT",
-    "/api/office-hours/me/profile",
-    academicianAccountId,
-    {
-      listed: true,
-      defaultPlace: "MM-206",
-      onlineLink: null,
-      contactEmail: null,
-    },
-  );
-  const everyDay = [
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY",
-  ];
-  await asPerson(
-    page.request,
-    "PUT",
-    "/api/office-hours/me/availability",
-    academicianAccountId,
-    {
-      rules: everyDay.map((dayOfWeek) => ({
-        dayOfWeek,
-        startTime: "09:00",
-        endTime: "17:00",
-        slotMinutes: 30,
-      })),
-      exceptions: [],
-      studentCapacity: null,
-      defaultMeetingDurationMinutes: 30,
-      meetingBufferMinutes: 0,
-    },
-  );
+  await openOfficeHours(page.request, academicianAccountId);
 });
 
 test("the student finds the academician and asks for a slot", async ({
@@ -102,7 +49,7 @@ test("the student finds the academician and asks for a slot", async ({
   );
   academicianId =
     academicians.find((one) => one.fullName === Persona.AhmetOzturk)?.id ?? "";
-  expect(academicianId).toMatch(UUID);
+  expect(academicianId).toMatch(UUID_REGEX);
 
   await page.goto("/student/office-hours");
   await expect(page.getByText(Persona.AhmetOzturk).first()).toBeVisible();
@@ -132,7 +79,7 @@ test("the student finds the academician and asks for a slot", async ({
 
   await expect(page).toHaveURL(/\/student\/appointments/);
   await expect(
-    await studentAppointment(page, "Talepler", BOOKED_TOPIC),
+    await findStudentAppointment(page, "Talepler", BOOKED_TOPIC),
   ).toContainText("Onay Bekliyor");
 });
 
@@ -155,7 +102,7 @@ test("the student sees the meeting confirmed", async ({ page }) => {
   await signInAs(page, Persona.AyseYilmaz);
 
   await expect(
-    await studentAppointment(page, "Yaklaşan", BOOKED_TOPIC),
+    await findStudentAppointment(page, "Yaklaşan", BOOKED_TOPIC),
   ).toContainText("Onaylandı");
 });
 
@@ -170,10 +117,10 @@ test("the academician cancels it from Randevularım, with a reason", async ({
     academicianAccountId,
   );
   const meeting = meetings.find((one) => one.topic === BOOKED_TOPIC);
-  expect(meeting?.id).toMatch(UUID);
+  expect(meeting?.id).toMatch(UUID_REGEX);
 
   await page.goto(
-    `/academician/appointments?date=${turkeyDay(meeting!.startsAt)}&appointment=${meeting!.id}`,
+    `/academician/appointments?date=${toTurkishDate(meeting!.startsAt)}&appointment=${meeting!.id}`,
   );
   await page.getByRole("button", { name: "Randevuyu iptal et" }).click();
   await page
@@ -188,7 +135,7 @@ test("the student sees the meeting cancelled", async ({ page }) => {
   await signInAs(page, Persona.AyseYilmaz);
 
   await expect(
-    await studentAppointment(page, "Geçmiş", BOOKED_TOPIC),
+    await findStudentAppointment(page, "Geçmiş", BOOKED_TOPIC),
   ).toContainText("İptal Edildi");
 });
 
@@ -216,7 +163,7 @@ test("a request nobody answers expires and the student sees it", async ({
       description: "Uçtan uca test: kimse yanıtlamazsa süresi dolmalı.",
     },
   );
-  expect(request.id).toMatch(UUID);
+  expect(request.id).toMatch(UUID_REGEX);
 
   // Waiting 72 hours is not an option: the request is made to have been sent four days ago, and the stack's
   // expiry job (every three seconds in E2E_MODE=flows) does the rest, as it would on a server.
@@ -226,7 +173,7 @@ test("a request nobody answers expires and the student sees it", async ({
 
   await expect(async () => {
     await expect(
-      await studentAppointment(page, "Geçmiş", EXPIRING_TOPIC),
+      await findStudentAppointment(page, "Geçmiş", EXPIRING_TOPIC),
     ).toContainText("Süresi Doldu", {
       timeout: 2_000,
     });
