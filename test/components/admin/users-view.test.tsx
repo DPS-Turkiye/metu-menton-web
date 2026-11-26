@@ -97,8 +97,17 @@ describe("UsersView", () => {
     renderWithQueryClient(<UsersView tab={UserTab.Academics} />);
 
     expect(
-      screen.getByRole("link", { name: /Akademisyenler/ }),
-    ).toHaveAttribute("href", "/admin/users/academics");
+      screen.getByRole("heading", { level: 1, name: "Kullanıcılar" }),
+    ).toBeInTheDocument();
+    const tabs = screen.getByRole("navigation", { name: "Kullanıcı grupları" });
+    const academics = within(tabs).getByRole("link", {
+      name: /Akademisyenler/,
+    });
+    expect(academics).toHaveAttribute("href", "/admin/users/academics");
+    expect(academics).toHaveAttribute("aria-current", "page");
+    expect(
+      within(tabs).getByRole("link", { name: /Koordinatörler/ }),
+    ).not.toHaveAttribute("aria-current");
     expect(
       await screen.findByText("Kurum verisinde henüz akademisyen yok."),
     ).toBeInTheDocument();

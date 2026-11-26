@@ -27,7 +27,12 @@ describe("AdminAcademicsTable", () => {
     expect(
       screen.queryByRole("button", { name: /Onayla/ }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tümü 3/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Menton girişi" }),
+    ).toHaveDisplayValue("Menton girişi: Tümü · 3");
+    expect(
+      screen.getByText(/Akademisyenler kurum verisinden gelir/),
+    ).toBeInTheDocument();
   });
 
   it("filters by sign-in, department and search", async () => {
@@ -35,13 +40,12 @@ describe("AdminAcademicsTable", () => {
     renderWithQueryClient(<AdminAcademicsTable />);
     await screen.findByText("Doç. Dr. Ali Demir");
 
-    await user.click(
-      screen.getByRole("button", { name: /Henüz giriş yapmadı 1/ }),
-    );
+    const signIn = screen.getByRole("combobox", { name: "Menton girişi" });
+    await user.selectOptions(signIn, "Henüz giriş yapmadı · 1");
     expect(screen.queryByText("Doç. Dr. Ali Demir")).not.toBeInTheDocument();
     expect(screen.getByText("Prof. Dr. Zeynep Kara")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /Tümü 3/ }));
+    await user.selectOptions(signIn, "Menton girişi: Tümü · 3");
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Bölüm" }),
       "Bilgisayar Mühendisliği",
@@ -49,7 +53,10 @@ describe("AdminAcademicsTable", () => {
     expect(screen.queryByText("Prof. Dr. Zeynep Kara")).not.toBeInTheDocument();
     expect(screen.getByText("Mert Aydın")).toBeInTheDocument();
 
-    await user.type(screen.getByPlaceholderText(/Ad, e-posta/), "zzz");
+    await user.type(
+      screen.getByRole("searchbox", { name: "Akademisyen ara" }),
+      "zzz",
+    );
     expect(
       screen.getByText("Bu filtrede akademisyen yok."),
     ).toBeInTheDocument();
@@ -59,8 +66,11 @@ describe("AdminAcademicsTable", () => {
     const user = userEvent.setup();
     renderWithQueryClient(<AdminAcademicsTable />);
     await user.click(
-      await screen.findByRole("button", { name: "Ayrıntılar: Ali Demir" }),
+      await screen.findByRole("button", {
+        name: "Ali Demir için işlemler",
+      }),
     );
+    await user.click(screen.getByRole("button", { name: "Ayrıntılar" }));
 
     const drawer = screen.getByRole("dialog", {
       name: "Akademisyen: Ali Demir",
@@ -84,12 +94,20 @@ describe("AdminAcademicsTable", () => {
     renderWithQueryClient(<AdminAcademicsTable />);
     await screen.findByText("Doç. Dr. Ali Demir");
 
-    // The column heading and the filter's label.
-    expect(screen.getAllByText("Office Hours müsaitliği")).toHaveLength(2);
-    expect(screen.getByText("Bu ay randevu")).toBeInTheDocument();
-    expect(screen.getAllByText("Tanımlı").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Henüz yok").length).toBeGreaterThan(0);
-    expect(screen.getByText("14")).toBeInTheDocument();
+    const table = screen.getByRole("table", { name: "Akademisyenler" });
+    expect(
+      within(table).getByRole("columnheader", {
+        name: "Office Hours müsaitliği",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(table).getByRole("columnheader", { name: "Bu ay randevu" }),
+    ).toBeInTheDocument();
+    const ali = within(table).getByRole("row", { name: /Ali Demir/ });
+    expect(within(ali).getByText("Tanımlı")).toBeInTheDocument();
+    expect(within(ali).getByText("14")).toBeInTheDocument();
+    const zeynep = within(table).getByRole("row", { name: /Zeynep Kara/ });
+    expect(within(zeynep).getByText("Henüz yok")).toBeInTheDocument();
   });
 
   it("filters by whether Office Hours are set", async () => {

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useId } from "react";
 
+import { GateBadgeTag } from "@/components/badges/gate-badge-tag";
 import { ModalDialog } from "@/components/common/modal-dialog";
 import { ProgramDetailFrame } from "@/components/coordinator/program-detail-frame";
 import { DataCell, DataTable } from "@/components/ia/data-table";
@@ -220,7 +221,7 @@ function MentorsTable({ participants }: { participants: Participants }) {
             )}
           </DataCell>
           <DataCell>
-            <BadgeTag row={row} />
+            <GateBadgeTag row={row} />
           </DataCell>
           <DataCell>
             <CapacityText profile={row.profile} />
@@ -281,7 +282,7 @@ function StudentsTable({
             <DepartmentLine profile={row.profile} />
           </DataCell>
           <DataCell>
-            <BadgeTag row={row} />
+            <GateBadgeTag row={row} />
             {inTraining(row) ? (
               <p className="mt-1 type-caption text-text-muted">
                 {row.training.attempts > 0
@@ -363,23 +364,6 @@ function DepartmentLine({ profile }: { profile: GateBadgeProfile | null }) {
     </>
   ) : (
     <>{profile.department}</>
-  );
-}
-
-const BADGE_TONES: Record<GateBadgeState, StatusTone> = {
-  [GateBadgeState.None]: StatusTone.Neutral,
-  [GateBadgeState.Active]: StatusTone.Success,
-  [GateBadgeState.Expired]: StatusTone.Warning,
-  [GateBadgeState.Revoked]: StatusTone.Warning,
-};
-
-function BadgeTag({ row }: { row: GateBadgeRow }) {
-  const t = useTranslations("peerParticipants");
-  if (inTraining(row)) {
-    return <Tag tone={StatusTone.Warning}>{t("badgeStates.IN_TRAINING")}</Tag>;
-  }
-  return (
-    <Tag tone={BADGE_TONES[row.state]}>{t(`badgeStates.${row.state}`)}</Tag>
   );
 }
 
