@@ -157,6 +157,16 @@ export type CoordinatorProgramDetail = {
   pendingApprovalCount: number;
 };
 
+/**
+ * What a draft semester's launch does (`GET /api/coordinator/programs/{id}/launch-preview`): the active semester it
+ * completes, and how many approved students and accepted Akran mentors of that semester move into this one.
+ */
+export type LaunchPreview = {
+  previous: { id: string; name: string } | null;
+  students: number;
+  peerMentors: number;
+};
+
 export type UpdateProgramDetailsInput = {
   name: string;
   description: string | null;

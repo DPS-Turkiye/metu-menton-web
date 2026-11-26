@@ -5,6 +5,7 @@ import type { IskurTaskKind } from "@/interfaces/iskur-tasks";
 export enum IskurTeamTab {
   Tasks = "tasks",
   Weeks = "weeks",
+  Support = "support",
   Members = "members",
 }
 

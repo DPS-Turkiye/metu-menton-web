@@ -22,6 +22,19 @@ import {
 import { renderWithQueryClient } from "@test/test-utils";
 
 const push = vi.fn();
+vi.mock("@/lib/client/iskur-team-support", () => ({
+  getIskurTeamSupports: vi.fn().mockResolvedValue({
+    programId: "p1",
+    teamId: "t1",
+    teamName: "Medya ve Kreatif Üretim",
+    teams: [],
+    incoming: [],
+    outgoing: [],
+  }),
+  getIskurTaskSupports: vi.fn().mockResolvedValue([]),
+  openIskurTeamSupport: vi.fn(),
+  answerIskurTeamSupport: vi.fn(),
+}));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("@/lib/client/iskur-tasks", () => ({
   deleteIskurTask: vi.fn(),

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
+import { IskurTaskSupportSection } from "@/components/iskur/task-support-section";
 import { IskurTaskOutputFiles } from "@/components/student/iskur-task-output-files";
 import { ISKUR_FIELD_CLASS } from "@/components/student/iskur-ui";
 import { useIskurTask } from "@/hooks/use-iskur-task";
@@ -81,6 +82,7 @@ export function IskurTaskDetailView({ taskId }: { taskId: string }) {
           <Summary task={task} />
           {view.canWork ? <WorkForm view={view} task={task} /> : null}
           {!view.canWork ? <Outcome view={view} task={task} /> : null}
+          <IskurTaskSupportSection taskId={task.id} canAsk={task.canManage} />
         </div>
         <Actions view={view} task={task} />
       </div>

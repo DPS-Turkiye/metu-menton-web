@@ -6,6 +6,7 @@ import type {
   CoordinatorRef,
   CreateProgramEventInput,
   CreateProgramInput,
+  LaunchPreview,
   ProgramCoordinatorTarget,
   ProgramEligibleEmail,
   ProgramEvent,
@@ -102,6 +103,14 @@ export function launchCoordinatorProgram(actorId: string, programId: string) {
   return backendRequest<CoordinatorProgramDetail>({
     method: HttpMethod.Post,
     url: `${programUrl(programId)}/launch`,
+    params: { actorId },
+  });
+}
+
+export function fetchLaunchPreview(actorId: string, programId: string) {
+  return backendRequest<LaunchPreview>({
+    method: HttpMethod.Get,
+    url: `${programUrl(programId)}/launch-preview`,
     params: { actorId },
   });
 }

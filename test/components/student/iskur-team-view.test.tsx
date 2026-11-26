@@ -20,6 +20,19 @@ import {
 } from "@test/fixtures/iskur-tasks";
 import { renderWithQueryClient } from "@test/test-utils";
 
+vi.mock("@/lib/client/iskur-team-support", () => ({
+  getIskurTeamSupports: vi.fn().mockResolvedValue({
+    programId: "p1",
+    teamId: "t1",
+    teamName: "Medya ve Kreatif Üretim",
+    teams: [],
+    incoming: [],
+    outgoing: [],
+  }),
+  getIskurTaskSupports: vi.fn().mockResolvedValue([]),
+  openIskurTeamSupport: vi.fn(),
+  answerIskurTeamSupport: vi.fn(),
+}));
 vi.mock("@/lib/client/iskur-weeks", () => ({
   getIskurLeaderQueue: vi.fn().mockResolvedValue({
     weekStart: "2026-11-16",
