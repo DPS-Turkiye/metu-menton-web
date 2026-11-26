@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { Edition } from "@/interfaces/edition";
 import { UserRole, type AppSession } from "@/interfaces/session";
 import {
   accountChip,
@@ -37,6 +38,29 @@ describe("preferenceRowsFor", () => {
       "meetingChanges",
       "startupActivity",
     ]);
+  });
+
+  it("leaves the startup switch out for an ODTÜ mentor", () => {
+    expect(
+      preferenceRowsFor(UserRole.Mentor, Edition.Odtu).map((row) => row.key),
+    ).toEqual(["messages", "meetingReminders", "meetingChanges"]);
+    expect(
+      preferenceRowsFor(UserRole.Mentor, Edition.Teknokent).map(
+        (row) => row.key,
+      ),
+    ).toContain("startupActivity");
+  });
+
+  it("gives ODTÜ mentees and staff the same switches as Teknokent", () => {
+    for (const role of [
+      UserRole.Mentee,
+      UserRole.Coordinator,
+      UserRole.Admin,
+    ]) {
+      expect(preferenceRowsFor(role, Edition.Odtu)).toEqual(
+        preferenceRowsFor(role, Edition.Teknokent),
+      );
+    }
   });
 
   it("gives coordinators and admins only the message switch", () => {

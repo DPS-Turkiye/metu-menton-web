@@ -196,6 +196,50 @@ describe("NotificationPreferencesDialog", () => {
     expect(screen.getByText("Meeting changes")).toBeInTheDocument();
   });
 
+  it("shows an ODTÜ mentor no startup switch and still saves its stored value", async () => {
+    const user = userEvent.setup();
+    session = {
+      email: "mentor@example.test",
+      role: UserRole.Mentor,
+      edition: Edition.Odtu,
+    };
+    vi.mocked(getNotificationPreferences).mockResolvedValue(preferences);
+    vi.mocked(saveNotificationPreferences).mockImplementation(
+      async (next) => next,
+    );
+    renderWithQueryClient(<NotificationPreferencesDialog onClose={vi.fn()} />);
+
+    const messages = await screen.findByRole("switch", { name: "Mesajlar" });
+    expect(screen.getAllByRole("switch")).toHaveLength(3);
+    for (const name of ["Görüşme hatırlatmaları", "Görüşme değişiklikleri"]) {
+      expect(screen.getByRole("switch", { name })).toBeInTheDocument();
+    }
+    expect(screen.queryByText("Startup aktiviteleri")).not.toBeInTheDocument();
+
+    await user.click(messages);
+
+    expect(saveNotificationPreferences).toHaveBeenCalledWith(
+      { ...preferences, messages: false },
+      expect.anything(),
+    );
+  });
+
+  it("shows no lead time for meeting reminders and a day for task deadlines", async () => {
+    vi.mocked(getNotificationPreferences).mockResolvedValue(preferences);
+    renderWithQueryClient(<NotificationPreferencesDialog onClose={vi.fn()} />);
+
+    const reminders = await screen.findByRole("switch", {
+      name: "Görüşme hatırlatmaları",
+    });
+    expect(reminders.closest("li")).toHaveTextContent(
+      /^Görüşme hatırlatmaları$/,
+    );
+    expect(screen.getByText("1 gün önce").closest("li")).toContainElement(
+      screen.getByRole("switch", { name: "Görev son tarihi" }),
+    );
+    expect(screen.queryByText("30 dk önce")).not.toBeInTheDocument();
+  });
+
   it("says when the switches cannot be loaded", async () => {
     vi.mocked(getNotificationPreferences).mockRejectedValue(new Error("down"));
     renderWithQueryClient(<NotificationPreferencesDialog onClose={vi.fn()} />);
