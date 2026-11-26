@@ -110,6 +110,13 @@ export type OfficeHoursListedAcademician = {
   faculty: string | null;
   contactEmail: string | null;
   meetingMinutes: number;
+  /** What they wrote for students (FR-OH-28); plain text, empty until they fill it in. */
+  about: string | null;
+  topics: { title: string; body: string | null }[];
+  courses: { code: string; name: string }[];
+  expertise: string[];
+  /** How many days they usually take to answer a request. */
+  responseDays: number | null;
 };
 
 export type OfficeHoursRequestInput = {

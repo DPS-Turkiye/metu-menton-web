@@ -32,6 +32,7 @@ import {
   completePeerMeetingReportFixture,
   peerMeetingReportFixture,
 } from "@test/fixtures/peer-reports";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("meetingReportForm and meetingReportInput", () => {
   it("round-trip a complete report, sending blank text as null", () => {
@@ -271,3 +272,31 @@ describe("the time record (Figma 7.1)", () => {
     ).toBeNull();
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "a follow-up time in a browser in %s",
+  (zone) => {
+    it("saves and reads back a follow-up as Turkey's time", () => {
+      inTimeZone(zone, () => {
+        const form = meetingReportForm(peerMeetingReportFixture());
+        const input = meetingReportInput({
+          ...form,
+          followUpNeeded: true,
+          followUpAt: "2026-11-19T14:00",
+        });
+        expect(input.followUpAt).toBe("2026-11-19T11:00:00.000Z");
+        expect(
+          meetingReportForm(
+            peerMeetingReportFixture({
+              followUpNeeded: true,
+              followUpAt: "2026-11-19T11:00:00.000Z",
+            }),
+          ).followUpAt,
+        ).toBe("2026-11-19T14:00");
+        expect(meetingSlotLabel("2026-11-19T11:00:00Z", 30, "tr")).toBe(
+          "14:00 – 14:30",
+        );
+      });
+    });
+  },
+);

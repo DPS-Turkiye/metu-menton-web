@@ -61,7 +61,7 @@ import {
   canWithdrawOfficeHours,
   offeredTimes,
 } from "@/lib/student-office-hours";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 import {
   AppointmentRequestGroup,
@@ -548,7 +548,7 @@ function AppointmentDetail({
       ? offeredTimes(appointment)
       : [];
   const when = (time: AppointmentTime) =>
-    `${formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
+    `${formatWeekdayDayMonth(time.startsAt, locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
   return (
     <section aria-labelledby="appointment-detail-title" className={SIDE_CARD}>
       <p className="type-overline text-text-secondary">{t("picked")}</p>

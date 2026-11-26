@@ -1,6 +1,12 @@
-/** Which `common.greeting` fits the hour. */
+import {
+  toCalendarDate,
+  toTurkishWallClock,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
+
+/** Which `common.greeting` fits the hour in Turkey. */
 export function dayPart(now = new Date()) {
-  const hour = now.getHours();
+  const hour = toTurkishWallClock(now).getHours();
   if (hour >= 5 && hour < 12) return "morning";
   if (hour >= 12 && hour < 18) return "afternoon";
   return "evening";
@@ -37,14 +43,16 @@ export function formatDateTime(value: string, locale = "tr") {
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "long",
     timeStyle: "short",
+    timeZone: TURKEY_TIME_ZONE,
   }).format(new Date(value));
 }
 
 /** "14:05" */
 export function formatTime(value: string, locale = "tr") {
-  return new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat(locale, {
+    timeStyle: "short",
+    timeZone: TURKEY_TIME_ZONE,
+  }).format(new Date(value));
 }
 
 /** "12 Kasım 2026 14:00 – 14:30": a start date and time with the end time of the same day. */
@@ -53,18 +61,17 @@ export function formatTimeRange(
   endsAt: string,
   locale = "tr",
 ) {
-  const end = new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(
-    new Date(endsAt),
-  );
+  const end = formatTime(endsAt, locale);
   return `${formatDateTime(startsAt, locale)} – ${end}`;
 }
 
-/** "2 Eylül 2026" */
+/** "2 Eylül 2026": a moment's Turkey day, or a "YYYY-MM-DD" day (read at UTC midnight, the same day in Turkey). */
 export function formatLongDate(value: string, locale = "tr") {
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: TURKEY_TIME_ZONE,
   }).format(new Date(value));
 }
 
@@ -90,7 +97,8 @@ export function formatLongDateRange(start: string, end: string, locale = "tr") {
 }
 
 /** "30 Ağu" */
-export function formatDayMonth(date: Date, locale = "tr") {
+export function formatDayMonth(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -98,7 +106,8 @@ export function formatDayMonth(date: Date, locale = "tr") {
 }
 
 /** "9 Kasım" */
-export function formatDayMonthLong(date: Date, locale = "tr") {
+export function formatDayMonthLong(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
@@ -106,16 +115,18 @@ export function formatDayMonthLong(date: Date, locale = "tr") {
 }
 
 /** "Sal 10 Kas": the weekday first, as the hocam pages write it. */
-export function formatWeekdayDayMonth(date: Date, locale = "tr") {
+export function formatWeekdayDayMonth(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" });
   return `${weekday.format(date)} ${formatDayMonth(date, locale)}`;
 }
 
 /** "12 Eyl 2026" */
 export function formatShortDate(value: string, locale = "tr") {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: TURKEY_TIME_ZONE,
+  }).format(new Date(value));
 }
 
 export function toDateTimeLocalValue(date: Date) {

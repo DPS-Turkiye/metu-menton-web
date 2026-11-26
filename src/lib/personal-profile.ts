@@ -93,7 +93,7 @@ export function mentorshipRowStatus(
   if (openActionCount > 0) return t("openActions", { count: openActionCount });
   return row.nextMeetingAt
     ? t("nextMeeting", {
-        date: formatDayMonth(new Date(row.nextMeetingAt), locale),
+        date: formatDayMonth(row.nextMeetingAt, locale),
       })
     : null;
 }

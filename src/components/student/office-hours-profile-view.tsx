@@ -26,7 +26,7 @@ import {
 import type { OfficeHoursCourse } from "@/interfaces/student-office-hours";
 import { wasHeld } from "@/lib/student-appointments";
 import { academicianName, slotsByDay } from "@/lib/student-office-hours";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDayMonth, formatWeekdayDayMonth, initials } from "@/lib/utils";
 
 /** Akademisyen Profili, tam sayfa (Figma 3.3). */
@@ -123,9 +123,11 @@ export function OfficeHoursProfileView({
                       <p className="type-label text-text-primary">
                         {topic.title}
                       </p>
-                      <p className="type-body-sm text-text-muted">
-                        {topic.body}
-                      </p>
+                      {topic.body ? (
+                        <p className="type-body-sm text-text-muted">
+                          {topic.body}
+                        </p>
+                      ) : null}
                     </div>
                   </li>
                 ))}
@@ -149,10 +151,7 @@ export function OfficeHoursProfileView({
                   />
                   {t("past", {
                     topic: item.topic,
-                    day: formatDayMonth(
-                      toTurkishWallClock(item.startsAt),
-                      locale,
-                    ),
+                    day: formatDayMonth(item.startsAt, locale),
                     status: wasHeld(item)
                       ? tHeld("held")
                       : tStatus(item.status),
@@ -176,8 +175,10 @@ export function OfficeHoursProfileView({
             <InfoRow icon={AlarmClock}>
               {t("info.minutes", { count: academician.durationMinutes })}
             </InfoRow>
-            {academician.responseTime ? (
-              <InfoRow icon={Mail}>{academician.responseTime}</InfoRow>
+            {academician.responseDays ? (
+              <InfoRow icon={Mail}>
+                {t("info.responseDays", { count: academician.responseDays })}
+              </InfoRow>
             ) : null}
           </ul>
           <section
@@ -192,7 +193,7 @@ export function OfficeHoursProfileView({
                 {profile.nearest
                   ? t("nearest", {
                       day: formatWeekdayDayMonth(
-                        toTurkishWallClock(profile.nearest.startsAt),
+                        profile.nearest.startsAt,
                         locale,
                       ),
                       time: formatTurkishTime(profile.nearest.startsAt, locale),

@@ -29,7 +29,7 @@ import type { PeerMentoringRequest } from "@/interfaces/peer-mentoring";
 import { currentTime } from "@/lib/appointments";
 import { mentorshipSince, peerMentorProfileHref } from "@/lib/peer-mentoring";
 import { peerMentorHref } from "@/lib/peer-profile-links";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDateTime, formatWeekdayDayMonth, initials } from "@/lib/utils";
 
 const APPOINTMENTS_HREF = "/student/appointments";
@@ -310,7 +310,7 @@ function ActiveMentorship({
           <div className="min-w-0 flex-1 basis-56">
             <p className="type-caption text-text-muted">{t("nextSession")}</p>
             <p className="type-label break-words text-text-primary">
-              {`${formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)} · ${session.topic}`}
+              {`${formatWeekdayDayMonth(time.startsAt, locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)} · ${session.topic}`}
             </p>
           </div>
           <AppointmentStatusBadge status={session.status} />
