@@ -257,6 +257,8 @@ export function useIskurOnboarding() {
     step,
     steps,
     busy,
+    /** The slot whose file is on its way up, to say so in that slot only. */
+    uploadingSlot: upload.isPending ? upload.variables.slot : null,
     submitted: form?.submittedAt != null && !reopened,
     editable: context?.editable ?? false,
     reopened,
