@@ -75,6 +75,9 @@ describe("OfficeHoursProfileView", () => {
     ).toBeVisible();
     expect(screen.getByText("30 dakikalık görüşmeler")).toBeVisible();
     expect(
+      screen.getByText("Genellikle 1 gün içinde yanıt verir"),
+    ).toBeVisible();
+    expect(
       screen.getByRole("link", { name: "Saat seç ve talep et" }),
     ).toHaveAttribute(
       "href",

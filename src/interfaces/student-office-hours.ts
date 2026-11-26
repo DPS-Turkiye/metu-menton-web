@@ -1,9 +1,9 @@
 import type { AppointmentTime } from "@/interfaces/appointment";
 
-/** One topic an academician offers to talk about ("Araştırma projeleri" + a short line). */
+/** One topic an academician offers to talk about ("Araştırma projeleri" + an optional short line). */
 export type OfficeHoursTopic = {
   title: string;
-  body: string;
+  body: string | null;
 };
 
 export type OfficeHoursCourse = {
@@ -29,8 +29,8 @@ export type OfficeHoursAcademician = {
   courses: OfficeHoursCourse[];
   place: string | null;
   durationMinutes: number;
-  /** Free text ("genellikle 1 gün içinde"). */
-  responseTime: string | null;
+  /** How many days they usually take to answer; the screen words it. */
+  responseDays: number | null;
 };
 
 /** A bookable time; `available` is false once someone else has it or it has passed. */

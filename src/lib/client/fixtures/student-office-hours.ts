@@ -28,7 +28,7 @@ function academician(
     courses: [],
     place: null,
     durationMinutes: 30,
-    responseTime: null,
+    responseDays: null,
   };
 }
 
@@ -64,7 +64,7 @@ export const OFFICE_HOURS_ACADEMICIANS_SAMPLE: OfficeHoursAcademician[] = [
       { code: "CENG 563", name: "Doğal Dil İşleme (lisansüstü)" },
     ],
     place: "A-312 · çevrimiçi seçeneği var",
-    responseTime: "genellikle 1 gün içinde",
+    responseDays: 1,
   },
   academician(
     "sample-academician-aydin",

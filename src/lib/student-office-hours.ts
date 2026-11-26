@@ -57,7 +57,7 @@ export function advisorAcademician(
     courses: [],
     place: null,
     durationMinutes: 30,
-    responseTime: null,
+    responseDays: null,
   };
 }
 

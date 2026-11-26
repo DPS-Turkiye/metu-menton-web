@@ -123,9 +123,11 @@ export function OfficeHoursProfileView({
                       <p className="type-label text-text-primary">
                         {topic.title}
                       </p>
-                      <p className="type-body-sm text-text-muted">
-                        {topic.body}
-                      </p>
+                      {topic.body ? (
+                        <p className="type-body-sm text-text-muted">
+                          {topic.body}
+                        </p>
+                      ) : null}
                     </div>
                   </li>
                 ))}
@@ -173,8 +175,10 @@ export function OfficeHoursProfileView({
             <InfoRow icon={AlarmClock}>
               {t("info.minutes", { count: academician.durationMinutes })}
             </InfoRow>
-            {academician.responseTime ? (
-              <InfoRow icon={Mail}>{academician.responseTime}</InfoRow>
+            {academician.responseDays ? (
+              <InfoRow icon={Mail}>
+                {t("info.responseDays", { count: academician.responseDays })}
+              </InfoRow>
             ) : null}
           </ul>
           <section
