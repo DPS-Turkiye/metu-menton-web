@@ -6993,7 +6993,9 @@
       "department": "Department",
       "advisees": "Advisees",
       "signIn": "Menton sign-in",
-      "status": "Institution record"
+      "status": "Institution record",
+      "officeHours": "Office Hours availability",
+      "meetingsThisMonth": "Meetings this month"
     },
     "empty": "No academics in this filter.",
     "none": "The institution's records list no academics yet.",
@@ -7016,10 +7018,19 @@
       "advisees": "Advisees",
       "officeHours": "Office Hours",
       "officeHoursPending": "Office Hours activity isn't in Menton yet; it will show here once connected.",
-      "readOnly": "This comes from the institution's records and can't be changed in Menton."
+      "readOnly": "This comes from the institution's records and can't be changed in Menton.",
+      "meetingsThisMonth": "{count, plural, =0 {No meetings this month} one {# meeting this month} other {# meetings this month}}"
     },
     "programIntro": "Every active ODTÜ academic takes part in Office Hours without an invite; the list comes from the institution's records.",
-    "signedIn": "Signed in"
+    "signedIn": "Signed in",
+    "officeHoursFilter": "Office Hours availability",
+    "officeHoursFilters": {
+      "ALL": "All",
+      "DEFINED": "Set",
+      "NOT_YET": "Not yet"
+    },
+    "hoursDefined": "Set",
+    "hoursNotYet": "Not yet"
   },
   "programThisWeek": {
     "eyebrow": "This week",

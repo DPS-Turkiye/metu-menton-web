@@ -6995,7 +6995,9 @@
       "department": "Bölüm",
       "advisees": "Danışan",
       "signIn": "Menton girişi",
-      "status": "Kurum kaydı"
+      "status": "Kurum kaydı",
+      "officeHours": "Office Hours müsaitliği",
+      "meetingsThisMonth": "Bu ay randevu"
     },
     "empty": "Bu filtrede akademisyen yok.",
     "none": "Kurum verisinde henüz akademisyen yok.",
@@ -7018,10 +7020,19 @@
       "advisees": "Danışan öğrenciler",
       "officeHours": "Office Hours",
       "officeHoursPending": "Office Hours etkinliği henüz Menton'da yok; bağlandığında burada görünür.",
-      "readOnly": "Bu bilgiler kurum verisinden okunur; Menton'da değiştirilemez."
+      "readOnly": "Bu bilgiler kurum verisinden okunur; Menton'da değiştirilemez.",
+      "meetingsThisMonth": "{count, plural, =0 {Bu ay randevu yok} other {Bu ay # randevu}}"
     },
     "programIntro": "Office Hours'a ODTÜ'nün tüm aktif akademisyenleri davetsiz katılır; liste kurum verisinden gelir.",
-    "signedIn": "Giriş yaptı"
+    "signedIn": "Giriş yaptı",
+    "officeHoursFilter": "Office Hours müsaitliği",
+    "officeHoursFilters": {
+      "ALL": "Tümü",
+      "DEFINED": "Tanımlı",
+      "NOT_YET": "Henüz yok"
+    },
+    "hoursDefined": "Tanımlı",
+    "hoursNotYet": "Henüz yok"
   },
   "programThisWeek": {
     "eyebrow": "Bu hafta",

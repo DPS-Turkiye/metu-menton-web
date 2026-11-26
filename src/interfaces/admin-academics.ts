@@ -14,7 +14,23 @@ export type AdminAcademic = {
   signedIn: boolean;
   lastLoginAt: string | null;
   adviseeCount: number;
+  /** The admin's Office Hours columns (FR-OH-30); null on a program's list, which doesn't show them. */
+  officeHours: AdminAcademicOfficeHours | null;
 };
+
+export type AdminAcademicOfficeHours = {
+  /** A weekly range, or one-off hours not over yet, whether or not students see them. */
+  hoursDefined: boolean;
+  /** This month's meetings on Istanbul's calendar, cancelled ones left out. */
+  meetingsThisMonth: number;
+};
+
+/** The "Office Hours müsaitliği" filter: hours set ("Tanımlı") or not yet ("Henüz yok"). */
+export enum OfficeHoursFilter {
+  All = "ALL",
+  Defined = "DEFINED",
+  NotYet = "NOT_YET",
+}
 
 export enum AcademicFilter {
   All = "ALL",

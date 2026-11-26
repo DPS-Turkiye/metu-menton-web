@@ -72,13 +72,45 @@ describe("AdminAcademicsTable", () => {
       within(drawer).getByText("Bilgisayar Mühendisliği · CENG"),
     ).toBeInTheDocument();
     expect(within(drawer).getByText("3 danışan")).toBeInTheDocument();
-    expect(
-      within(drawer).getByText(/Office Hours etkinliği henüz/),
-    ).toBeInTheDocument();
+    expect(within(drawer).getByText("Tanımlı")).toBeInTheDocument();
+    expect(within(drawer).getByText(/Bu ay 14 randevu/)).toBeInTheDocument();
     expect(within(drawer).queryByRole("textbox")).not.toBeInTheDocument();
 
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows each academician's Office Hours and this month's meetings", async () => {
+    renderWithQueryClient(<AdminAcademicsTable />);
+    await screen.findByText("Doç. Dr. Ali Demir");
+
+    // The column heading and the filter's label.
+    expect(screen.getAllByText("Office Hours müsaitliği")).toHaveLength(2);
+    expect(screen.getByText("Bu ay randevu")).toBeInTheDocument();
+    expect(screen.getAllByText("Tanımlı").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Henüz yok").length).toBeGreaterThan(0);
+    expect(screen.getByText("14")).toBeInTheDocument();
+  });
+
+  it("filters by whether Office Hours are set", async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(<AdminAcademicsTable />);
+    await screen.findByText("Doç. Dr. Ali Demir");
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Office Hours müsaitliği" }),
+      "NOT_YET",
+    );
+    expect(screen.queryByText("Doç. Dr. Ali Demir")).not.toBeInTheDocument();
+    expect(screen.getByText("Prof. Dr. Zeynep Kara")).toBeInTheDocument();
+    expect(screen.getByText("Mert Aydın")).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Office Hours müsaitliği" }),
+      "DEFINED",
+    );
+    expect(screen.getByText("Doç. Dr. Ali Demir")).toBeInTheDocument();
+    expect(screen.queryByText("Mert Aydın")).not.toBeInTheDocument();
   });
 
   it("shows its own error text when the list cannot load", async () => {

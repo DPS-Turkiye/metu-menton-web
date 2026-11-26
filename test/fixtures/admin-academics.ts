@@ -16,6 +16,7 @@ export function adminAcademic(
     signedIn: true,
     lastLoginAt: "2026-11-07T09:00:00Z",
     adviseeCount: 3,
+    officeHours: { hoursDefined: true, meetingsThisMonth: 14 },
     ...overrides,
   };
 }
@@ -33,6 +34,7 @@ export const ADMIN_ACADEMICS: AdminAcademic[] = [
     signedIn: false,
     lastLoginAt: null,
     adviseeCount: 0,
+    officeHours: { hoursDefined: false, meetingsThisMonth: 0 },
   }),
   adminAcademic({
     personId: "p-mert",
@@ -43,5 +45,6 @@ export const ADMIN_ACADEMICS: AdminAcademic[] = [
     departmentCode: "CENG",
     active: false,
     adviseeCount: 1,
+    officeHours: { hoursDefined: false, meetingsThisMonth: 2 },
   }),
 ];
