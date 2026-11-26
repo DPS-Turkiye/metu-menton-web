@@ -20,7 +20,7 @@ import type {
 } from "@/interfaces/student-office-hours";
 import { shortWeekday } from "@/lib/calendar";
 import { academicianName } from "@/lib/student-office-hours";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 
 /** The filter's own name stands for "any". */
@@ -159,7 +159,7 @@ function AdvisorStrip({
               {slots.map((slot) => (
                 <li key={slot.startsAt}>
                   <Chip>
-                    {`${shortWeekday(toTurkishWallClock(slot.startsAt), locale)} ${formatTurkishTime(slot.startsAt, locale)}`}
+                    {`${shortWeekday(slot.startsAt, locale)} ${formatTurkishTime(slot.startsAt, locale)}`}
                   </Chip>
                 </li>
               ))}
@@ -223,10 +223,7 @@ function AcademicianRow({
         )}
         {nearest
           ? t("nearest", {
-              day: formatWeekdayDayMonth(
-                toTurkishWallClock(nearest.startsAt),
-                locale,
-              ),
+              day: formatWeekdayDayMonth(nearest.startsAt, locale),
               time: formatTurkishTime(nearest.startsAt, locale),
             })
           : t("noSlots")}

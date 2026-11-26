@@ -2,6 +2,7 @@ import type { MentorAvailabilitySlot } from "@/interfaces/mentor";
 import {
   parseTurkishDateTime,
   startOfTurkishDay,
+  toCalendarDate,
   toTurkishWallClock,
   TURKEY_TIME_ZONE,
 } from "@/lib/turkey-time";
@@ -42,12 +43,10 @@ export function upcomingPreferenceDays(
 
 /** "12 Pzt" / "12 Mon": a moment's Turkey day, or a calendar day (a wall-clock Date) as it is. */
 export function slotDayLabel(startsAt: string | Date, locale = "tr") {
-  const date =
-    typeof startsAt === "string" ? toTurkishWallClock(startsAt) : startsAt;
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     weekday: "short",
-  }).format(date);
+  }).format(toCalendarDate(startsAt));
 }
 
 /** "14:15" in every language: the slot chips are too narrow for "02:15 PM". */

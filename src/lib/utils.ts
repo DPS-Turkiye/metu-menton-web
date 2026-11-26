@@ -1,4 +1,8 @@
-import { toTurkishWallClock, TURKEY_TIME_ZONE } from "@/lib/turkey-time";
+import {
+  toCalendarDate,
+  toTurkishWallClock,
+  TURKEY_TIME_ZONE,
+} from "@/lib/turkey-time";
 
 /** Which `common.greeting` fits the hour in Turkey. */
 export function dayPart(now = new Date()) {
@@ -93,7 +97,8 @@ export function formatLongDateRange(start: string, end: string, locale = "tr") {
 }
 
 /** "30 Ağu" */
-export function formatDayMonth(date: Date, locale = "tr") {
+export function formatDayMonth(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -101,7 +106,8 @@ export function formatDayMonth(date: Date, locale = "tr") {
 }
 
 /** "9 Kasım" */
-export function formatDayMonthLong(date: Date, locale = "tr") {
+export function formatDayMonthLong(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
@@ -109,7 +115,8 @@ export function formatDayMonthLong(date: Date, locale = "tr") {
 }
 
 /** "Sal 10 Kas": the weekday first, as the hocam pages write it. */
-export function formatWeekdayDayMonth(date: Date, locale = "tr") {
+export function formatWeekdayDayMonth(value: Date | string, locale = "tr") {
+  const date = toCalendarDate(value);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" });
   return `${weekday.format(date)} ${formatDayMonth(date, locale)}`;
 }

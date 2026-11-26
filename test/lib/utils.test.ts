@@ -5,11 +5,13 @@ import {
   dayPart,
   distinctBy,
   errorMessage,
+  formatDayMonthLong,
   formatFileSize,
   formatLongDate,
   formatLongDateRange,
   formatShortDate,
   formatTime,
+  formatWeekdayDayMonth,
   httpUrlOrNull,
   isAdminArea,
   isUuid,
@@ -203,6 +205,13 @@ describe.each(BROWSER_TIME_ZONES)(
           "11 Kas 2026",
         );
         expect(dayPart(new Date("2026-11-10T06:00:00Z"))).toBe("morning");
+        // A moment goes in as it is; the formatter reads its Turkey day.
+        expect(formatWeekdayDayMonth("2026-11-10T21:30:00Z", "tr")).toBe(
+          "Çar 11 Kas",
+        );
+        expect(formatDayMonthLong("2026-07-15T21:30:00Z", "tr")).toBe(
+          "16 Temmuz",
+        );
       });
     });
   },

@@ -42,6 +42,14 @@ export function fromTurkishWallClock(wall: Date) {
   );
 }
 
+/**
+ * A day to show: a moment (an ISO string) read on Turkey's calendar, or a calendar day (a wall-clock Date) as it is.
+ * The day formatters take either, so a screen hands them the moment and never converts it itself.
+ */
+export function toCalendarDate(value: Date | string) {
+  return typeof value === "string" ? toTurkishWallClock(value) : value;
+}
+
 /** Midnight of the Turkey day a moment falls on, as a wall-clock Date: "today" for a calendar. */
 export function startOfTurkishDay(at: Date | string) {
   const day = toTurkishWallClock(at);

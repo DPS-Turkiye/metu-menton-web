@@ -15,7 +15,9 @@ export const BROWSER_TIME_ZONES = [
 export function inTimeZone<T>(zone: string, check: () => T): T {
   const pinned = process.env.TZ;
   const restore = () => {
-    process.env.TZ = pinned;
+    // Assigning undefined would leave the text "undefined", which Node reads as a zone name.
+    if (pinned === undefined) delete process.env.TZ;
+    else process.env.TZ = pinned;
   };
   process.env.TZ = zone;
   let result: T;

@@ -13,7 +13,7 @@ import { currentTime } from "@/lib/appointments";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
 import { offeredTimes } from "@/lib/student-office-hours";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
 
 function useSubject({ category, topic }: Appointment) {
@@ -101,7 +101,7 @@ export function AppointmentRow({
       <Person appointment={appointment}>
         {[
           tKind(appointment.kind),
-          formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale),
+          formatWeekdayDayMonth(time.startsAt, locale),
           `${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`,
           subject,
         ].join(" · ")}
@@ -130,8 +130,7 @@ export function AppointmentReplyCard({
   const tKind = useTranslations("iaStudent.common.kind");
   const locale = useLocale();
   const subject = useSubject(appointment);
-  const day = (startsAt: string) =>
-    formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale);
+  const day = (startsAt: string) => formatWeekdayDayMonth(startsAt, locale);
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-status-warning-border bg-background-surface p-4 sm:p-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
