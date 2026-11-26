@@ -38,7 +38,7 @@ import {
   appointmentProfileHref,
   peerMentorHref,
 } from "@/lib/peer-profile-links";
-import { formatTurkishTime, toTurkishWallClock } from "@/lib/turkey-time";
+import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatDayMonthLong, formatWeekdayDayMonth } from "@/lib/utils";
 
 const OFFICE_HOURS_HREF = "/student/office-hours";
@@ -135,7 +135,7 @@ const LIST =
 /** "Sal 10 Kas · 14:00 – 14:30" */
 function whenLine(appointment: Appointment, locale: string) {
   const time = currentTime(appointment);
-  return `${formatWeekdayDayMonth(toTurkishWallClock(time.startsAt), locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
+  return `${formatWeekdayDayMonth(time.startsAt, locale)} · ${formatTurkishTime(time.startsAt, locale)} – ${formatTurkishTime(time.endsAt, locale)}`;
 }
 
 function counterpartName({ counterpart }: Appointment) {
@@ -223,7 +223,7 @@ function ReplyNeeded({ appointment }: { appointment: Appointment }) {
   const t = useTranslations("iaStudent.home.reply");
   const locale = useLocale();
   const short = (startsAt: string) =>
-    `${formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale)} ${formatTurkishTime(startsAt, locale)}`;
+    `${formatWeekdayDayMonth(startsAt, locale)} ${formatTurkishTime(startsAt, locale)}`;
   return (
     <section
       aria-labelledby="student-reply"
@@ -482,7 +482,7 @@ function AwaitingAppointment({ appointment }: { appointment: Appointment }) {
         </ProfilePictureLink>
       }
       name={counterpartName(appointment)}
-      detail={`${tKind(appointment.kind)} · ${formatWeekdayDayMonth(toTurkishWallClock(startsAt), locale)} ${formatTurkishTime(startsAt, locale)}`}
+      detail={`${tKind(appointment.kind)} · ${formatWeekdayDayMonth(startsAt, locale)} ${formatTurkishTime(startsAt, locale)}`}
       status={<AppointmentStatusBadge status={appointment.status} />}
     />
   );

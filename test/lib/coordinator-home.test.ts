@@ -12,6 +12,7 @@ import {
   meetingSlotLabel,
   type CoordinatorHomeTexts,
 } from "@/lib/coordinator-home";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 import { translatorIn } from "@test/translators";
 
 function texts(locale: "tr" | "en"): CoordinatorHomeTexts {
@@ -90,3 +91,32 @@ describe("coordinator home helpers", () => {
     ).toBe(true);
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "coordinator home in a browser in %s",
+  (zone) => {
+    it("calls a meeting just after midnight in Turkey today's, at its Turkey time", () => {
+      inTimeZone(zone, () => {
+        // 00:30 on the 25th in Istanbul is still the 24th in UTC and London.
+        const now = new Date("2026-09-24T22:00:00Z");
+        const meeting: CoordinatorNextMeeting = {
+          meetingId: "meeting-1",
+          title: "Finansal model",
+          scheduledAt: "2026-09-24T21:30:00Z",
+          durationMinutes: 30,
+          meetLink: null,
+          sequence: 1,
+          mentorId: "mentor-1",
+          mentorName: "Ahmet Can",
+          mentorTitle: null,
+          organizationId: "org-1",
+          organizationName: "Nova Robotics",
+          founderName: null,
+        };
+        expect(meetingSlotLabel(meeting, "tr", now)).toBe(
+          "Bugün · 00:30–01:00",
+        );
+      });
+    });
+  },
+);

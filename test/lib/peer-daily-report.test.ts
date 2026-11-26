@@ -26,6 +26,7 @@ import {
 import { PeerReportBadge, PeerReportView } from "@/types/peer-reports";
 import { peerDailyReportFixture } from "@test/fixtures/peer-reports";
 import { reportDay, weeklyReport } from "@test/fixtures/peer-weekly-report";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 const complete = {
   didToday: "İki görüşme.",
@@ -164,6 +165,23 @@ describe("parseReportSearch", () => {
     ).toBe("2026-11-14");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "the report week from the URL in a browser in %s",
+  (zone) => {
+    it("is the asked day's own week", () => {
+      inTimeZone(zone, () => {
+        // Monday 23 November: east of Turkey, its local midnight is still Sunday in Istanbul.
+        expect(
+          parseReportSearch({ day: "2026-11-23" }, "2026-11-25").week,
+        ).toBe("2026-11-23");
+        expect(
+          parseReportSearch({ week: "2026-11-23" }, "2026-11-25").week,
+        ).toBe("2026-11-23");
+      });
+    });
+  },
+);
 
 describe("Faaliyet ekle", () => {
   it("starts on the day, as resource preparation", () => {

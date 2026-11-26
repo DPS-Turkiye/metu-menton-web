@@ -5,11 +5,13 @@ import {
   dayPart,
   distinctBy,
   errorMessage,
+  formatDayMonthLong,
   formatFileSize,
   formatLongDate,
   formatLongDateRange,
   formatShortDate,
   formatTime,
+  formatWeekdayDayMonth,
   httpUrlOrNull,
   isAdminArea,
   isUuid,
@@ -17,6 +19,7 @@ import {
   splitFullName,
   typedUrlOrNull,
 } from "@/lib/utils";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("dayPart", () => {
   it("follows the time of day", () => {
@@ -25,6 +28,18 @@ describe("dayPart", () => {
     expect(dayPart(new Date(2026, 8, 14, 21))).toBe("evening");
     expect(dayPart(new Date(2026, 8, 14, 3))).toBe("evening");
   });
+
+  it.each(BROWSER_TIME_ZONES)(
+    "reads Turkey's hour in a browser in %s",
+    (zone) => {
+      inTimeZone(zone, () => {
+        // 06:00 UTC is 09:00 in Turkey, 15:00 in Tokyo; 15:30 UTC is 18:30 in Turkey.
+        expect(dayPart(new Date("2026-09-14T06:00:00Z"))).toBe("morning");
+        expect(dayPart(new Date("2026-09-14T10:00:00Z"))).toBe("afternoon");
+        expect(dayPart(new Date("2026-09-14T15:30:00Z"))).toBe("evening");
+      });
+    },
+  );
 });
 
 describe("formatLongDate", () => {
@@ -187,3 +202,29 @@ describe("formatLongDateRange", () => {
     expect(formatLongDateRange("20270-01-01", "2027-06-30")).toBe("");
   });
 });
+
+describe.each(BROWSER_TIME_ZONES)(
+  "date formatters in a browser in %s",
+  (zone) => {
+    it("show a moment's Turkey time and day", () => {
+      inTimeZone(zone, () => {
+        expect(formatTime("2026-11-10T07:00:00Z", "tr")).toBe("10:00");
+        // 21:30 UTC on the 10th is the 11th in Istanbul.
+        expect(formatLongDate("2026-11-10T21:30:00Z", "tr")).toBe(
+          "11 Kasım 2026",
+        );
+        expect(formatShortDate("2026-11-10T21:30:00Z", "tr")).toBe(
+          "11 Kas 2026",
+        );
+        expect(dayPart(new Date("2026-11-10T06:00:00Z"))).toBe("morning");
+        // A moment goes in as it is; the formatter reads its Turkey day.
+        expect(formatWeekdayDayMonth("2026-11-10T21:30:00Z", "tr")).toBe(
+          "Çar 11 Kas",
+        );
+        expect(formatDayMonthLong("2026-07-15T21:30:00Z", "tr")).toBe(
+          "16 Temmuz",
+        );
+      });
+    });
+  },
+);

@@ -4,6 +4,7 @@ import {
   formatTurkishTime,
   fromTurkishWallClock,
   startOfTurkishDay,
+  toCalendarDate,
   toTurkishDate,
   toTurkishWallClock,
 } from "@/lib/turkey-time";
@@ -35,6 +36,27 @@ describe.each(BROWSER_TIME_ZONES)("Turkey time in a browser in %s", (zone) => {
       expect(fromTurkishWallClock(wall).toISOString()).toBe(
         "2026-11-10T21:30:00.000Z",
       );
+    });
+  });
+
+  it("keeps Turkey time through London's summer time", () => {
+    inTimeZone(zone, () => {
+      // July: London is UTC+1, Istanbul UTC+3.
+      expect(formatTurkishTime("2026-07-15T07:00:00Z", "tr")).toBe("10:00");
+      expect(toTurkishDate("2026-07-15T21:30:00Z")).toBe("2026-07-16");
+      const wall = toTurkishWallClock("2026-07-15T21:30:00Z");
+      expect([wall.getDate(), wall.getHours()]).toEqual([16, 0]);
+      expect(fromTurkishWallClock(wall).toISOString()).toBe(
+        "2026-07-15T21:30:00.000Z",
+      );
+    });
+  });
+
+  it("reads a moment as its Turkey day and keeps a calendar day as it is", () => {
+    inTimeZone(zone, () => {
+      expect(toCalendarDate("2026-11-10T21:30:00Z").getDate()).toBe(11);
+      const day = new Date(2026, 10, 10);
+      expect(toCalendarDate(day)).toBe(day);
     });
   });
 

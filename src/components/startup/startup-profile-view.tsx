@@ -72,7 +72,7 @@ export function StartupProfileView() {
         : t("sessions", { held: row.heldSessions });
     const next = row.nextMeetingAt
       ? t("next", {
-          date: formatDayMonth(new Date(row.nextMeetingAt), locale),
+          date: formatDayMonth(row.nextMeetingAt, locale),
         })
       : null;
     return [row.supportArea, sessions, next].filter(Boolean).join(" · ");

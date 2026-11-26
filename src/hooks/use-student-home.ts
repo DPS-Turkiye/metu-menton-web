@@ -19,6 +19,7 @@ import {
   summarizeAppointments,
   waitingPreview,
 } from "@/lib/student-home";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { dayPart } from "@/lib/utils";
 
 export const STUDENT_HOME_QUERY_KEY = ["student-home"] as const;
@@ -68,7 +69,8 @@ export function useStudentHome() {
       ? nearDay(currentTime(appointments.next).startsAt, now)
       : null,
     reply: appointments.reply,
-    today: home.data ? now : null,
+    // The header names Turkey's day, like the "BUGÜN" beside the next session.
+    today: home.data ? toTurkishWallClock(now) : null,
     confirmedCount: appointments.confirmedCount,
     awaiting: waiting.awaiting,
     peerRequests: waiting.peerRequests,
