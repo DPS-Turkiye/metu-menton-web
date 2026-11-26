@@ -4220,7 +4220,7 @@
       "TRAINING": "Peer Mentor training",
       "ARCHIVE": "Archive",
       "CURRICULUM": "Curriculum & phases",
-      "PEER_CATEGORIES": "Peer categories"
+      "PEER_CATEGORIES": "Active mentoring categories"
     },
     "sectionsLabel": "Settings sections",
     "archivedNote": "This program is archived and read-only. Reopen it below to make changes.",
@@ -4267,7 +4267,7 @@
     "adminViewNote": "The program’s coordinators set up its settings; as an admin you only view them. You can assign coordinators here.",
     "coordinatorsByAdmin": "The admin assigns coordinators.",
     "type": "Program type",
-    "peerCategoriesNote": "Students and peer mentors only see the categories you turn on here. None is on to begin with."
+    "peerCategoriesNote": "Students can look for mentors only in active categories; mentors choose from these categories. None is active at the start."
   },
   "programTeams": {
     "filters": {
@@ -6976,14 +6976,15 @@
     }
   },
   "programPeerCategories": {
-    "title": "Peer categories",
     "noneActive": "No category is on: students cannot look for mentors and peer mentors cannot pick a category for their profile.",
     "activeCount": "{count, plural, one {# category on} other {# categories on}}",
     "save": "Save categories",
     "saving": "Saving…",
     "cancel": "Cancel",
     "saved": "Categories saved.",
-    "saveFailed": "Could not save the categories."
+    "saveFailed": "Could not save the categories.",
+    "loading": "Loading categories…",
+    "loadFailed": "Could not load the categories."
   },
   "adminAcademics": {
     "intro": "Academics come from the institution's records; nobody approves them by hand or edits them here.",
