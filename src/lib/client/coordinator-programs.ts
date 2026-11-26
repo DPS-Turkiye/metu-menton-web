@@ -66,6 +66,19 @@ export async function updateCoordinatorProgram(
   );
 }
 
+/** Saves a semester's features; a refusal carries the open work as `ClientApiError.blockers`. */
+export async function updateCoordinatorProgramFeatures(
+  programId: string,
+  features: ProgramFeature[],
+) {
+  return requireSuccess(
+    await httpClient.put<CoordinatorProgramDetail>(
+      `${programUrl(programId)}/features`,
+      { features },
+    ),
+  );
+}
+
 export async function replaceCoordinatorProgramPhases(
   programId: string,
   phases: ProgramPhaseInput[],

@@ -42,6 +42,7 @@ import {
   setCoordinatorProgramArchived,
   setProgramCoordinatorFeatures,
   updateCoordinatorProgram,
+  updateCoordinatorProgramFeatures,
   updateProgramTeam,
   withdrawProgramMentorInvite,
 } from "@/lib/client/coordinator-programs";
@@ -114,6 +115,13 @@ const calls: ClientCall[] = [
     call: () => getCoordinatorProgram(PROGRAM),
     method: "get",
     args: [P],
+  },
+  {
+    title: "updateCoordinatorProgramFeatures puts a semester's features",
+    call: () =>
+      updateCoordinatorProgramFeatures(PROGRAM, [ProgramFeature.OfficeHours]),
+    method: "put",
+    args: [`${P}/features`, { features: [ProgramFeature.OfficeHours] }],
   },
   {
     title: "setProgramCoordinatorFeatures puts one coordinator's features",

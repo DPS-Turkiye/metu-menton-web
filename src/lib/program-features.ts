@@ -1,3 +1,4 @@
+import { ProgramLifecycle } from "@/interfaces/coordinator-program";
 import {
   ProgramBlockerKind,
   ProgramFeature,
@@ -188,6 +189,27 @@ export function matchesFeatureFilter(
   filter: ProgramFeatureFilter,
 ) {
   return filter === ALL_PROGRAM_FEATURES || hasFeature(program, filter);
+}
+
+/** Why a semester's features cannot be changed now; the values are keys of `programFeatures`. */
+export enum FeatureLock {
+  Coordinator = "lockedCoordinator",
+  Completed = "lockedCompleted",
+}
+
+/**
+ * Who may change a semester's features when: the admin until it is completed, its coordinators only while it is a
+ * draft. Null when the caller may change them. The backend checks the same.
+ */
+export function featureLock(
+  lifecycle: ProgramLifecycle,
+  admin: boolean,
+): FeatureLock | null {
+  if (lifecycle === ProgramLifecycle.Completed) return FeatureLock.Completed;
+  if (!admin && lifecycle !== ProgramLifecycle.Draft) {
+    return FeatureLock.Coordinator;
+  }
+  return null;
 }
 
 /**

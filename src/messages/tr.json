@@ -4192,7 +4192,6 @@
     "autoMatchHint": "Uzmanlık, müsaitlik ve yüke göre öneri listesi oluşturulur"
   },
   "programSettings": {
-    "featuresNote": "Bu dönem programında açık olan özellikler. Her özellik kendi sayfalarını gösterir.",
     "trainingNote": "Öğrenciler videoyu izleyip 10 soruluk sınavdan en az 8 doğru yapınca Akran Mentoru rozetini kazanır. Programın koordinatörleri ve yöneticiler düzenler.",
     "eligibilityNote": "Bu programa kimlerin katılabileceğini belirler. Diğer programları etkilemez; açık olduğunda yönetici de kuralın dışına çıkamaz.",
     "eligibleDomain": "İzin verilen e-posta uzantısı",
@@ -6370,6 +6369,9 @@
     "iskurSupportLoadFailed": "Destek faaliyetleri yüklenemedi.",
     "iskurSupportInvalid": "Destek faaliyeti bilgileri geçersiz.",
     "iskurSupportSaveFailed": "Destek faaliyeti kaydedilemedi.",
+    "iskurTeamChangeLoadFailed": "Ekip değişikliği talepleri yüklenemedi.",
+    "iskurTeamChangeInvalid": "Ekip değişikliği talebi geçersiz.",
+    "iskurTeamChangeSaveFailed": "Ekip değişikliği talebi kaydedilemedi.",
     "iskurOnboardingLoadFailed": "Yerleştirme formu yüklenemedi.",
     "iskurOnboardingSaveFailed": "Yerleştirme formu kaydedilemedi.",
     "iskurOnboardingInvalid": "Yerleştirme formu bilgileri geçersiz.",
@@ -6392,6 +6394,7 @@
     "iskurInternsSaveFailed": "İŞKUR stajyer listesi kaydedilemedi.",
     "iskurInternsInvalid": "Eklenecek adresler geçersiz.",
     "programFeaturesLoadFailed": "Program özellikleri yüklenemedi.",
+    "programFeaturesSaveFailed": "Program özellikleri kaydedilemedi.",
     "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi."
   },
   "startupStart": {
@@ -6635,7 +6638,34 @@
       "OFFICE_HOURS": "Office Hours",
       "ISKUR": "İŞKUR"
     },
-    "none": "Özellik seçilmedi"
+    "none": "Özellik seçilmedi",
+    "blockerLine": "{feature}: {work}",
+    "blockers": {
+      "ACTIVE_MENTORSHIP": "{count} süren mentorluk",
+      "OPEN_REQUEST": "{count} yanıt bekleyen mentorluk talebi",
+      "ISKUR_PLACEMENT": "{count} İŞKUR yerleştirmesi",
+      "UPCOMING_OFFICE_HOURS_MEETING": "{count} yaklaşan Office Hours görüşmesi",
+      "UNSENT_REPORT": "{count} gönderilmemiş rapor"
+    },
+    "blockersHint": "Bu işler bitince ya da kapatılınca yeniden dene.",
+    "switchesTitle": "Özellikleri değiştir",
+    "refused": "Kapatılamadı; açık işler var:",
+    "saved": "Program özellikleri kaydedildi.",
+    "save": "Özellikleri kaydet",
+    "saving": "Kaydediliyor…",
+    "cancel": "Vazgeç",
+    "draftNote": "Program taslakken koordinatörler de özellikleri değiştirebilir. Program başladıktan sonra yalnızca yönetici değiştirir; açık işi olan bir özellik kapatılamaz.",
+    "lockedCoordinator": "Program başladı; özellikleri artık yönetici değiştirir.",
+    "lockedCompleted": "Program tamamlandı; özellikleri değiştirilemez.",
+    "hints": {
+      "PEER_MENTORING": "Öğrenciler, rozetli akran mentorlardan mentorluk alır.",
+      "OFFICE_HOURS": "Öğrenciler ve koordinatörler Office Hours sayfalarını görür.",
+      "ISKUR": "İŞKUR stajyerleri birimlere ve ekiplere yerleşir. Akran Mentörlüğü ile birlikte açılır."
+    },
+    "problems": {
+      "EMPTY": "En az bir özellik açık kalmalı.",
+      "ISKUR_NEEDS_PEER": "İŞKUR için Akran Mentörlüğü de açık olmalı."
+    }
   },
   "odtuProgramWizard": {
     "title": "Yeni Program Oluştur",
@@ -8547,5 +8577,49 @@
       "open": "Görevi aç",
       "upload": "Çıktı yükle"
     }
+  },
+  "iskurTeamChange": {
+    "title": "Ekip değişikliği",
+    "hint": "İlk 4 hafta deneme dönemidir. Ekip değiştirmek istersen 4. haftada belirt; kararı koordinatör verir.",
+    "start": "Ekip değişikliği iste",
+    "reasonLabel": "Neden ekip değiştirmek istiyorsun?",
+    "reasonHint": "Koordinatörün okur. Kısa tut; en fazla {max} karakter.",
+    "cancel": "Vazgeç",
+    "send": "Talebi gönder",
+    "sending": "Gönderiliyor…",
+    "sent": "Talebin koordinatörüne iletildi.",
+    "sendFailed": "Talebin gönderilemedi.",
+    "waiting": "Talebin koordinatörüne iletildi · {date}",
+    "waitingHint": "Koordinatörün kararını verdiğinde bildirim alırsın.",
+    "yourReason": "Gerekçen: {reason}",
+    "moved": "Koordinatörün talebini kabul etti; yeni ekibin {team}.",
+    "movedElsewhere": "Koordinatörün talebini kabul etti; seni başka bir ekibe taşıdı.",
+    "declinedTitle": "Koordinatörün ekibini değiştirmedi",
+    "declinedNote": "Koordinatörünün notu: {note}",
+    "cancelledTitle": "Talebin kapandı",
+    "coordinator": {
+      "title": "Ekip değişikliği talepleri",
+      "hint": "Deneme dönemindeki stajyerler ekip değiştirmek istediklerini buradan bildirir. Taşımak için yerleştirmeyi değiştir; talep kendiliğinden kapanır.",
+      "empty": "Yanıt bekleyen talep yok.",
+      "loadFailed": "Ekip değişikliği talepleri yüklenemedi.",
+      "from": "{team} ekibinden · {date}",
+      "move": "Taşı",
+      "moveNamed": "{name} kişisini taşı",
+      "decline": "Reddet",
+      "declineNamed": "{name} kişisinin talebini reddet",
+      "noteLabel": "Öğrenciye not",
+      "noteHint": "Öğrenci bu notu bildirimde ve Ana Sayfa’sında görür.",
+      "confirmDecline": "Reddet ve bildir",
+      "cancel": "Vazgeç",
+      "answered": "Yanıtlanan talepler ({count})",
+      "status": {
+        "MOVED": "Taşındı · {team}",
+        "MOVED_ELSEWHERE": "Taşındı",
+        "DECLINED": "Reddedildi · {note}",
+        "CANCELLED": "Yerleştirme kaldırıldı"
+      }
+    },
+    "declined": "Talep reddedildi; öğrenciye bildirildi.",
+    "declineFailed": "Talep reddedilemedi."
   }
 }

@@ -11,6 +11,7 @@ import { PUT as coordinatorFeaturesRoute } from "@/app/api/coordinator/programs/
 import { POST as addCoordinatorRoute } from "@/app/api/coordinator/programs/[id]/coordinators/route";
 import { POST as addEligibleEmailsRoute } from "@/app/api/coordinator/programs/[id]/eligible-emails/route";
 import { POST as createEventRoute } from "@/app/api/coordinator/programs/[id]/events/route";
+import { PUT as featuresRoute } from "@/app/api/coordinator/programs/[id]/features/route";
 import { POST as createMatchRoute } from "@/app/api/coordinator/programs/[id]/matching/route";
 import { POST as inviteMentorRoute } from "@/app/api/coordinator/programs/[id]/mentors/route";
 import { PUT as peerCategoriesRoute } from "@/app/api/coordinator/programs/[id]/peer-categories/route";
@@ -323,6 +324,27 @@ const cases: BodyCase[] = [
     backend: programs.setCoordinatorProgramArchived,
     expected: [ME, "program-1", true],
     invalid: { "a flag sent as text": { archived: "true" } },
+  },
+  {
+    route: "PUT /api/coordinator/programs/[id]/features",
+    method: "PUT",
+    send: (request) => featuresRoute(request, program),
+    valid: { features: [ProgramFeature.PeerMentoring, ProgramFeature.Iskur] },
+    backend: programs.updateCoordinatorProgramFeatures,
+    expected: [
+      ME,
+      "program-1",
+      [ProgramFeature.PeerMentoring, ProgramFeature.Iskur],
+    ],
+    invalid: {
+      "no list": {},
+      "an empty list": { features: [] },
+      "a feature that does not exist": { features: ["TEAMS"] },
+      "a feature sent as a list of letters": { features: "ISKUR" },
+      "more features than there are": {
+        features: ["ISKUR", "ISKUR", "ISKUR", "ISKUR"],
+      },
+    },
   },
   {
     route: "PUT /api/coordinator/programs/[id]/coordinators/[userId]/features",
