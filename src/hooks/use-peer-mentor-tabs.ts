@@ -34,7 +34,7 @@ import { PeerDeclineReason } from "@/types/iskur-student";
 
 export const PEER_DECLINE_REASONS = Object.values(PeerDeclineReason);
 
-/** Talepler (Figma 7.1): accepting a request, or declining it with a reason that goes to the student. */
+/** Mentorluk Talepleri (Figma 7.1): accepting a request, or declining it with a reason that goes to the student. */
 export function usePeerRequestActions() {
   const tReason = useTranslations("iaIskur.give.requests.reason");
   const decision = usePeerRequestDecision();
@@ -62,7 +62,7 @@ export function usePeerRequestActions() {
 
 export type PeerRequestActions = ReturnType<typeof usePeerRequestActions>;
 
-/** "Müsaitliğim" on Mentor profilim (7.7): the weekly hours by day, the closed days and the meeting length. */
+/** "Müsaitliğim" on Mentor Profilim (7.7): the weekly hours by day, the closed days and the meeting length. */
 export function usePeerMentorHours() {
   const locale = useLocale();
   const settings = useMentorAvailabilitySettings();
