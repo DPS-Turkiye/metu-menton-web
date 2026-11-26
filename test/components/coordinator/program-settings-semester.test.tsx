@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -159,7 +159,7 @@ describe("Program Ayarları of a semester", () => {
     await user.click(
       within(features).getByRole("switch", { name: /^Office Hours/ }),
     );
-    expect(within(features).getByRole("alert")).toHaveTextContent(
+    expect(within(features).getByRole("status")).toHaveTextContent(
       "En az bir özellik açık kalmalı.",
     );
     expect(
@@ -233,5 +233,27 @@ describe("Program Ayarları of a semester", () => {
     expect(
       within(features).getByRole("switch", { name: /^Akran Mentörlüğü/ }),
     ).toBeChecked();
+  });
+
+  it("starts the switches again from a refetch that brings other features", async () => {
+    vi.mocked(getCoordinatorProgram).mockResolvedValue(semester(ALL));
+    const { queryClient } = renderWithQueryClient(
+      <ProgramSettingsView programId="program-1" />,
+    );
+    await featuresRegion();
+
+    vi.mocked(getCoordinatorProgram).mockResolvedValue(
+      semester([ProgramFeature.OfficeHours]),
+    );
+    await queryClient.invalidateQueries();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("switch", { name: /^Akran Mentörlüğü/ }),
+      ).not.toBeChecked(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Özellikleri kaydet" }),
+    ).toBeDisabled();
   });
 });

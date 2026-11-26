@@ -299,6 +299,7 @@ const cases: BodyCase[] = [
     ],
     invalid: {
       "no list": {},
+      "an empty list": { features: [] },
       "a feature that does not exist": { features: ["TEAMS"] },
       "a feature sent as a list of letters": { features: "ISKUR" },
       "more features than there are": {

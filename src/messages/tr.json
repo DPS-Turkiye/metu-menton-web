@@ -6650,11 +6650,10 @@
     "draftNote": "Program taslakken koordinatörler de özellikleri değiştirebilir. Program başladıktan sonra yalnızca yönetici değiştirir; açık işi olan bir özellik kapatılamaz.",
     "lockedCoordinator": "Program başladı; özellikleri artık yönetici değiştirir.",
     "lockedCompleted": "Program tamamlandı; özellikleri değiştirilemez.",
-    "iskurNeedsPeer": "Akran Mentörlüğü ile birlikte açılır",
     "hints": {
       "PEER_MENTORING": "Öğrenciler, rozetli akran mentorlardan mentorluk alır.",
       "OFFICE_HOURS": "Öğrenciler ve koordinatörler Office Hours sayfalarını görür.",
-      "ISKUR": "İŞKUR stajyerleri birimlere ve ekiplere yerleşir."
+      "ISKUR": "İŞKUR stajyerleri birimlere ve ekiplere yerleşir. Akran Mentörlüğü ile birlikte açılır."
     },
     "problems": {
       "EMPTY": "En az bir özellik açık kalmalı.",

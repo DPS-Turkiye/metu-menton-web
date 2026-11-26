@@ -6648,11 +6648,10 @@
     "draftNote": "While the program is a draft, its coordinators can change the features too. Once it has started, only the admin changes them; a feature with open work cannot be switched off.",
     "lockedCoordinator": "The program has started; the admin changes its features now.",
     "lockedCompleted": "The program is completed; its features cannot change.",
-    "iskurNeedsPeer": "Switches on with peer mentoring",
     "hints": {
       "PEER_MENTORING": "Students get mentoring from peer mentors with a badge.",
       "OFFICE_HOURS": "Students and coordinators see the Office Hours pages.",
-      "ISKUR": "İŞKUR interns are placed in units and teams."
+      "ISKUR": "İŞKUR interns are placed in units and teams. Switches on with peer mentoring."
     },
     "problems": {
       "EMPTY": "At least one feature must stay on.",

@@ -12,7 +12,7 @@ import { requireCoordinatorOrAdminSession } from "@/lib/server/require-coordinat
 
 // Which set is allowed (at least one, İŞKUR with Akran Mentörlüğü, who may change it when) is the backend's rule.
 const featuresSchema = z.object({
-  features: z.array(z.enum(ProgramFeature)).max(3),
+  features: z.array(z.enum(ProgramFeature)).min(1).max(3),
 });
 
 export async function PUT(

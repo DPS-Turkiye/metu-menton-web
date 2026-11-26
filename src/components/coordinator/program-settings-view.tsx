@@ -24,7 +24,6 @@ import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
-import { ProgramFeature } from "@/interfaces/program";
 import { NO_COORDINATOR_CHOICES } from "@/lib/coordinator-picker";
 import {
   ProgramTab,
@@ -33,7 +32,7 @@ import {
   settingsSections,
   stepDays,
 } from "@/lib/coordinator-program-detail";
-import { PROGRAM_FEATURES } from "@/lib/program-features";
+import { PROGRAM_FEATURES, programFeaturesOf } from "@/lib/program-features";
 
 const FIELD =
   "mt-1.5 h-11 w-full rounded-2xl border border-[#e9ecef] px-4 text-[13.5px] text-[#22262b] outline-none focus:border-[#22262b] disabled:bg-[#f7f8f9]";
@@ -180,6 +179,8 @@ function SettingsBody({
         {sections.includes(SettingsSection.Features) ? (
           /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
           <FeaturesSection
+            // A refetch with other features (saved elsewhere) starts the switches again from what is saved.
+            key={programFeaturesOf(detail.program).join()}
             programId={programId}
             detail={detail}
             admin={navigation.admin}
@@ -444,21 +445,19 @@ function FeaturesSection({
       title={t(`sections.${SettingsSection.Features}`)}
       note={features.lock ?? tFeature("draftNote")}
     >
-      {PROGRAM_FEATURES.map((feature) => (
-        <Row key={feature}>
-          <Toggle
-            title={tFeature(`names.${feature}`)}
-            hint={
-              feature === ProgramFeature.Iskur
-                ? `${tFeature(`hints.${feature}`)} ${tFeature("iskurNeedsPeer")}.`
-                : tFeature(`hints.${feature}`)
-            }
-            checked={features.features.includes(feature)}
-            disabled={locked || features.saving}
-            onChange={(on) => features.setFeature(feature, on)}
-          />
-        </Row>
-      ))}
+      <div role="group" aria-label={tFeature("switchesTitle")}>
+        {PROGRAM_FEATURES.map((feature) => (
+          <Row key={feature}>
+            <Toggle
+              title={tFeature(`names.${feature}`)}
+              hint={tFeature(`hints.${feature}`)}
+              checked={features.features.includes(feature)}
+              disabled={locked || features.saving}
+              onChange={(on) => features.setFeature(feature, on)}
+            />
+          </Row>
+        ))}
+      </div>
       {features.blockers.length > 0 ? (
         <Row>
           <ProgramBlockers
@@ -467,10 +466,17 @@ function FeaturesSection({
           />
         </Row>
       ) : null}
-      {(features.problem ?? features.error) ? (
+      {features.problem ? (
+        <Row>
+          <p role="status" className="text-[13px] text-[#d9464b]">
+            {features.problem}
+          </p>
+        </Row>
+      ) : null}
+      {features.error ? (
         <Row>
           <p role="alert" className="text-[13px] text-[#d9464b]">
-            {features.problem ?? features.error}
+            {features.error}
           </p>
         </Row>
       ) : null}
