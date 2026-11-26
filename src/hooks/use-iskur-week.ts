@@ -93,7 +93,7 @@ function useWeekChanges(
 }
 
 /**
- * The İŞKUR home (6.1/6.1b): "Bugün yapman gerekenler" from this week, last week, the onboarding schedule and the
+ * The İŞKUR home (6.1/6.1b): "Yapılacaklar" from this week, last week, the onboarding schedule and the
  * received peer requests; this week's targets and what is logged; and a quick support-activity pick when no peer
  * meeting is planned. A person who is not placed gets neither block.
  */

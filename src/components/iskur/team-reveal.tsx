@@ -200,6 +200,12 @@ function Reveal({
               coordinator
               who={(name) => t("askPersonalWho", { name })}
             />
+            <Ask
+              question={t("askMentoring")}
+              person={null}
+              who={() => null}
+              nobody={t("askMentoringWho")}
+            />
           </Card>
           <Card className="flex flex-col gap-1">
             <h3 className="type-h4 text-text-primary">{t("channels")}</h3>
@@ -228,11 +234,14 @@ function Ask({
   person,
   who,
   coordinator = false,
+  nobody,
 }: {
   question: string;
   person: IskurPersonRef | null;
   who: (name: string) => ReactNode;
   coordinator?: boolean;
+  /** Shown instead of a name when the line names a role, not a person. */
+  nobody?: string;
 }) {
   const t = useTranslations("iskurOnboarding.reveal");
   return (
@@ -243,7 +252,7 @@ function Ask({
         <p className="type-caption text-text-muted">
           {person
             ? who(person.fullName)
-            : t(coordinator ? "noCoordinator" : "noLeader")}
+            : (nobody ?? t(coordinator ? "noCoordinator" : "noLeader"))}
         </p>
       </div>
     </div>

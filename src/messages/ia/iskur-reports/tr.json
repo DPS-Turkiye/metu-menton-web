@@ -340,7 +340,7 @@
     "reportTab": "Faaliyet Raporum",
     "dueTitle": "{name} ile görüşmenin raporu bekleniyor",
     "dueBody": "Bugün doldur; günlük raporuna otomatik eklenir.",
-    "dueAction": "Raporu yaz",
+    "dueAction": "Raporu doldur",
     "activeMentees": "Aktif menteelerim",
     "editCapacity": "Kapasite ve müsaitliği düzenle",
     "capacityFull": "Kapasiten dolu; yeni talep kabul etmek için Mentor Profilim'de kapasiteni artır.",

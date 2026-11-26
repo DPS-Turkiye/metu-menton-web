@@ -83,7 +83,7 @@ describe("StudentHomeView", () => {
     expect(within(card).getByText("Onaylandı")).toBeVisible();
     expect(within(card).getByText("Office Hours · A-204")).toBeVisible();
     expect(
-      within(card).getByRole("link", { name: "Ayrıntılar" }),
+      within(card).getByRole("link", { name: "Görüşmeyi Gör" }),
     ).toHaveAttribute("href", "/student/appointments");
   });
 

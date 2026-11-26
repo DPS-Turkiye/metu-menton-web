@@ -52,6 +52,18 @@ describe("IskurTeamReveal", () => {
     expect(
       screen.getByText("Birim koordinatörün · Selin Er"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("Günlük işin, görevlerin, saatlerin"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Liderin talep açar · Zeynep Kaya"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Mentörlük eşleşmesi veya görüşme"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Akran mentörlüğü koordinatörü"),
+    ).toBeInTheDocument();
     // Handbook p.04: the channels open with the provisional placement, not only once it is final.
     expect(screen.getByText("Kanalların açıldı.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Mesajlara git" })).toHaveAttribute(

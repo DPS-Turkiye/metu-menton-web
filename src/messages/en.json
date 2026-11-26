@@ -6047,7 +6047,7 @@
     "internsOnly": "Peer mentoring is open to İŞKUR interns.",
     "prismTodoTitle": "Complete the training on Prism",
     "prismTodoBody": "The Akran Mentoru training and test are on Prism. The Prism admin sends your result to your coordinator; once they approve it, you become an Akran mentor.",
-    "prismOpen": "Open in Prism",
+    "prismOpen": "Go to training",
     "prismMarkDone": "I completed the Prism training",
     "prismMarking": "Saving…",
     "prismMarkFailed": "Could not save; try again.",
@@ -8086,7 +8086,7 @@
       "unled": "No leader yet",
       "me": "{name} (you)",
       "ask": "Who do I ask?",
-      "askDaily": "My daily work, tasks and hours",
+      "askDaily": "Your daily work, tasks and hours",
       "askDailyWho": "Your team leader · {name}",
       "askOtherTeam": "I need help from another team",
       "askOtherTeamWho": "Your leader opens the request · {name}",
@@ -8094,6 +8094,8 @@
       "askAttendanceWho": "Your unit coordinator · {name}",
       "askPersonal": "A personal or urgent matter",
       "askPersonalWho": "Straight to your coordinator · {name}",
+      "askMentoring": "Mentoring match or meeting",
+      "askMentoringWho": "Peer mentoring coordinator",
       "noLeader": "Shows here once your leader is set",
       "noCoordinator": "Shows here once your unit coordinator is set",
       "channels": "Your channels",
@@ -8232,7 +8234,7 @@
       "taskWithOutput": "Team task · output to hand in · {day}",
       "reports": "{count, plural, one {# meeting report pending} other {# meeting reports pending}}",
       "reportsHint": "Peer mentoring · fill in under Activity reports",
-      "support": "Pick a mentoring support activity (optional)",
+      "support": "Pick a mentoring support activity",
       "supportHint": "You have no meeting planned this week. The activity you pick from the pool counts towards your peer mentoring hours.",
       "supportPick": "Support activity",
       "supportAdd": "Add 1 hour today",
@@ -8422,7 +8424,7 @@
       "body": "{count} channels were created for you. You can change notification settings in Messages."
     },
     "card": {
-      "title": "Your channels"
+      "title": "My team"
     },
     "how": {
       "title": "How do channels work?",
@@ -8496,7 +8498,7 @@
     }
   },
   "iskurToday": {
-    "title": "To do today",
+    "title": "To do",
     "empty": "Nothing waiting for you today.",
     "request": "New mentoring request: {name}",
     "requestHint": "{topic} · {date}",
@@ -8512,12 +8514,13 @@
     "submitToday": "Send your weekly summary to your leader today",
     "submitTodayHint": "In the İŞKUR program the weekly summary goes to your leader on Friday.",
     "actions": {
-      "writeReport": "Write report",
+      "writeReport": "Fill in the report",
       "reply": "Reply",
       "complete": "Complete",
       "fix": "Fix",
       "send": "Send",
-      "open": "Open"
+      "open": "Open task",
+      "upload": "Upload output"
     }
   }
 }
