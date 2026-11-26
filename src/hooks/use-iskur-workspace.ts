@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { iskurTeamChangesQueryKey } from "@/hooks/use-iskur-team-changes";
 import {
   IskurTeamRole,
   type IskurFinalizeInput,
@@ -70,6 +71,10 @@ export function useIskurWorkspace(
     mutationFn: (call: () => Promise<IskurWorkspace>) => call(),
     onSuccess: (data) => {
       queryClient.setQueryData(iskurWorkspaceQueryKey(programId), data);
+      // A move or an unplacing answers the intern's team change request on the backend.
+      void queryClient.invalidateQueries({
+        queryKey: iskurTeamChangesQueryKey(programId),
+      });
       setDialog(null);
       showToast({ message: t("saved"), tone: ToastTone.Success });
     },
@@ -92,6 +97,18 @@ export function useIskurWorkspace(
       : null;
   const checked = form ? placementInput(form) : null;
 
+  function openPlacement(person: IskurPerson) {
+    if (!workspace) return;
+    const placement = findPlacement(workspace, person.userId);
+    setForm(placementForm(workspace, placement, preferredDays(person.userId)));
+    setDialog({
+      kind: IskurDialogKind.Place,
+      person,
+      placed: placement != null,
+    });
+    change.reset();
+  }
+
   return {
     isLoading: query.isLoading,
     loadError: query.error,
@@ -100,18 +117,11 @@ export function useIskurWorkspace(
     saving: change.isPending,
     actionError: change.error,
 
-    openPlacement: (person: IskurPerson) => {
-      if (!workspace) return;
-      const placement = findPlacement(workspace, person.userId);
-      setForm(
-        placementForm(workspace, placement, preferredDays(person.userId)),
-      );
-      setDialog({
-        kind: IskurDialogKind.Place,
-        person,
-        placed: placement != null,
-      });
-      change.reset();
+    openPlacement,
+    /** The placement dialog for someone already placed, as a team change request asks. */
+    openPlacementOf: (userId: string) => {
+      const placement = workspace ? findPlacement(workspace, userId) : null;
+      if (placement) openPlacement(placement);
     },
     openUnit: (unit: IskurUnit | null) => {
       setName(unit?.name ?? "");
