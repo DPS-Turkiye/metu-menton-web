@@ -7526,7 +7526,7 @@
     "unitCoordinatorLabel": "Unit coordinator",
     "finalizeTitle": "{name} · finalize placement",
     "finalizeAllTitle": "Finalize all placements",
-    "finalizeBody": "{count, plural, =0 {There is no provisional placement to finalize.} one {# provisional placement becomes final. Final teams’ channels open; later team changes update access automatically.} other {# provisional placements become final. Final teams’ channels open; later team changes update access automatically.}}",
+    "finalizeBody": "{count, plural, =0 {There is no provisional placement to finalize.} one {# provisional placement becomes final. Channels are already open from the placement; later team changes update access automatically.} other {# provisional placements become final. Channels are already open from the placement; later team changes update access automatically.}}",
     "deleteUnitTitle": "Delete the unit {name}",
     "deleteTeamTitle": "Delete the team {name}",
     "deleteBody": "It is deleted only when nobody is placed in it.",
@@ -8097,7 +8097,6 @@
       "noLeader": "Shows here once your leader is set",
       "noCoordinator": "Shows here once your unit coordinator is set",
       "channels": "Your channels",
-      "channelsLater": "Channels open once your team is confirmed.",
       "channelsOpen": "Your channels are open.",
       "channelsAction": "Go to messages",
       "waitingTitle": "Waiting for placement",
@@ -8362,7 +8361,7 @@
     "title": "Messages",
     "loading": "Loading…",
     "loadFailed": "Messages could not be loaded.",
-    "noChannels": "Your channels open once your team placement is final.",
+    "noChannels": "Your channels open once your coordinator places you in a team.",
     "listLabel": "Channels",
     "group": {
       "ANNOUNCEMENTS": "Announcements",
@@ -8419,7 +8418,7 @@
       "openAll": "Open all messages →"
     },
     "opened": {
-      "title": "Your team placement is final: {team}",
+      "title": "Your channels are open: {team}",
       "body": "{count} channels were created for you. You can change notification settings in Messages."
     },
     "card": {
@@ -8427,7 +8426,7 @@
     },
     "how": {
       "title": "How do channels work?",
-      "open": "Your channels open once your team placement is final.",
+      "open": "Your channels open once your coordinator places you in a team; if your team changes, your access follows.",
       "announcements": "Only authorized coordinators post general announcements.",
       "time": "Messages do not count as work time."
     }

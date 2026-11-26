@@ -7528,7 +7528,7 @@
     "unitCoordinatorLabel": "Birim koordinatörü",
     "finalizeTitle": "{name} · atamayı kesinleştir",
     "finalizeAllTitle": "Tüm atamaları kesinleştir",
-    "finalizeBody": "{count, plural, =0 {Kesinleştirilecek geçici atama yok.} other {# geçici atama kesinleşecek. Kesinleşen ekiplerin kanalları açılır; sonradan ekip değişirse erişim kendiliğinden güncellenir.}}",
+    "finalizeBody": "{count, plural, =0 {Kesinleştirilecek geçici atama yok.} other {# geçici atama kesinleşecek. Kanallar yerleştirmeyle zaten açık; sonradan ekip değişirse erişim kendiliğinden güncellenir.}}",
     "deleteUnitTitle": "{name} birimini sil",
     "deleteTeamTitle": "{name} ekibini sil",
     "deleteBody": "Yalnızca içinde kimse yerleştirilmemişse silinir.",
@@ -8099,7 +8099,6 @@
       "noLeader": "Liderin belli olunca burada görünür",
       "noCoordinator": "Birim koordinatörü belli olunca burada görünür",
       "channels": "Kanalların",
-      "channelsLater": "Kanallar ekip kesinleşince açılır.",
       "channelsOpen": "Kanalların açıldı.",
       "channelsAction": "Mesajlara git",
       "waitingTitle": "Yerleştirme bekleniyor",
@@ -8364,7 +8363,7 @@
     "title": "Mesajlar",
     "loading": "Yükleniyor…",
     "loadFailed": "Mesajlar yüklenemedi.",
-    "noChannels": "Kanalların, ekip ataman kesinleşince açılır.",
+    "noChannels": "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır.",
     "listLabel": "Kanallar",
     "group": {
       "ANNOUNCEMENTS": "Duyurular",
@@ -8421,7 +8420,7 @@
       "openAll": "Tüm mesajları aç →"
     },
     "opened": {
-      "title": "Ekip atamanız kesinleşti: {team}",
+      "title": "Kanalların açıldı: {team}",
       "body": "{count} kanal otomatik oluşturuldu. Bildirim tercihlerini Mesajlar’dan değiştirebilirsin."
     },
     "card": {
@@ -8429,7 +8428,7 @@
     },
     "how": {
       "title": "Kanallar nasıl çalışır?",
-      "open": "Kanalların, ekip ataman kesinleşince açılır.",
+      "open": "Kanalların, koordinatör seni bir ekibe yerleştirdiğinde açılır; ekip değişirse erişimin de güncellenir.",
       "announcements": "Genel duyurularda yalnızca yetkili koordinatörler paylaşır.",
       "time": "Mesajlar çalışma süresine sayılmaz."
     }

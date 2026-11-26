@@ -183,7 +183,7 @@ export function toggleMuted(
 }
 
 /**
- * The team whose channels just opened (5.1 "Ekip atamanız kesinleşti"): its channel is there and the intern has not
+ * The team whose channels just opened ("Kanalların açıldı"): its channel is there and the intern has not
  * opened it yet.
  */
 export function newlyOpenedTeam(channels: readonly IskurChannel[]) {
