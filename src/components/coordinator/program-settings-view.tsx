@@ -479,7 +479,8 @@ function CoordinatorsSection({
                   </button>
                 ) : null}
               </div>
-              {team.featureOptions.length > 0 ? (
+              {team.featureOptions.length > 0 &&
+              team.featuresOf(coordinator) !== null ? (
                 /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
                 <div
                   role="group"
@@ -489,7 +490,9 @@ function CoordinatorsSection({
                   className="mt-2 flex flex-wrap gap-1.5"
                 >
                   {team.featureOptions.map((feature) => {
-                    const held = coordinator.features.includes(feature);
+                    const held = (team.featuresOf(coordinator) ?? []).includes(
+                      feature,
+                    );
                     return editable && team.choosesFeatures(coordinator) ? (
                       <button
                         key={feature}

@@ -214,6 +214,29 @@ describe("Program Ayarları of a semester", () => {
       ).toHaveAttribute("aria-pressed", "true");
     });
 
+    it("draws no switches when the backend does not say which features coordinators run", async () => {
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      const detail = withCoordinators();
+      vi.mocked(getCoordinatorProgram).mockResolvedValue({
+        ...detail,
+        coordinators: detail.coordinators.map(({ id, fullName, owner }) => ({
+          id,
+          fullName,
+          owner,
+        })),
+      });
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      expect(await screen.findByText("Burcu Şen")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("group", {
+          name: "Burcu Şen hangi özellikleri yürütür",
+        }),
+      ).not.toBeInTheDocument();
+    });
+
     it("shows a coordinator each colleague's features without switches", async () => {
       vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
       renderWithQueryClient(<ProgramSettingsView programId="program-1" />);

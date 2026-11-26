@@ -167,26 +167,26 @@ export function useProgramCoordinators(
   });
   const programFeatures =
     program?.type === ProgramType.Semester ? programFeaturesOf(program) : [];
+  const change = (coordinator: CoordinatorRef, feature: ProgramFeature) => {
+    const held = coordinator.features ?? [];
+    return coordinatorFeatureChange(held, feature, !held.includes(feature));
+  };
   return {
     coordinators,
     /** A semester's features, each of which a coordinator may run; none for other program types. */
     featureOptions: programFeatures,
+    /** The features a coordinator runs, or null when the backend does not say (no switches are drawn then). */
+    featuresOf: (coordinator: CoordinatorRef) => coordinator.features ?? null,
     /** The owner runs every feature of the program; only the others' features are chosen. */
     choosesFeatures: (coordinator: CoordinatorRef) => !coordinator.owner,
     /** Whether switching this feature is allowed: a coordinator keeps at least one. */
     canToggle: (coordinator: CoordinatorRef, feature: ProgramFeature) =>
-      coordinatorFeatureChange(
-        coordinator.features,
-        feature,
-        !coordinator.features.includes(feature),
-      ) !== null,
+      change(coordinator, feature) !== null,
     toggleFeature: (coordinator: CoordinatorRef, feature: ProgramFeature) => {
-      const next = coordinatorFeatureChange(
-        coordinator.features,
-        feature,
-        !coordinator.features.includes(feature),
-      );
-      if (next) features.mutate({ userId: coordinator.id, next });
+      const next = change(coordinator, feature);
+      if (next && coordinator.features) {
+        features.mutate({ userId: coordinator.id, next });
+      }
     },
     picking,
     openPicker: () => setPicking(true),

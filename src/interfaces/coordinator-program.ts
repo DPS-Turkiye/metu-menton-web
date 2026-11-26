@@ -96,8 +96,11 @@ export type CoordinatorRef = {
   fullName: string;
   /** The coordinator who created the program; the others were added to it. */
   owner: boolean;
-  /** The semester features this coordinator runs and sees; [] for other program types. */
-  features: ProgramFeature[];
+  /**
+   * The semester features this coordinator runs and sees; [] for other program types. Absent from a backend without
+   * coordinators per feature, which the screens then leave out.
+   */
+  features?: ProgramFeature[] | undefined;
 };
 
 export type ProgramRules = {
