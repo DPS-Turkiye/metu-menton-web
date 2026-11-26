@@ -922,7 +922,7 @@
       },
       "meetingReminders": {
         "label": "Meeting reminders",
-        "hint": "30 min before"
+        "hint": ""
       },
       "meetingChanges": {
         "label": "Meeting changes",

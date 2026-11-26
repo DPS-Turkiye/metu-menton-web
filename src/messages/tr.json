@@ -924,7 +924,7 @@
       },
       "meetingReminders": {
         "label": "Görüşme hatırlatmaları",
-        "hint": "30 dk önce"
+        "hint": ""
       },
       "meetingChanges": {
         "label": "Görüşme değişiklikleri",
