@@ -152,8 +152,13 @@ describe("featureList", () => {
     expect(
       featureList(["ISKUR", "PEER_MENTORING", "PEER_MENTORING", "TEAMS", 3]),
     ).toEqual([Peer, Iskur]);
-    expect(featureList("PEER_MENTORING")).toEqual([]);
-    expect(featureList(null)).toEqual([]);
+    expect(featureList([])).toEqual([]);
+  });
+
+  it("answers null for anything that is not a list, so a backend that does not say hides nothing", () => {
+    expect(featureList("PEER_MENTORING")).toBeNull();
+    expect(featureList(null)).toBeNull();
+    expect(featureList(undefined)).toBeNull();
   });
 });
 

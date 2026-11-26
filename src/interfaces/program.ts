@@ -145,7 +145,10 @@ export type ProgramEligibility = {
   message: string | null;
 };
 
-/** The signed-in person's semester features (`GET /api/me/program-features`); [] when they are in no semester. */
+/**
+ * The signed-in person's semester features (`GET /api/me/program-features`): [] when they are in no semester, null
+ * when the backend does not say (one older than semesters), so nothing is hidden.
+ */
 export type MyProgramFeatures = {
-  programFeatures: ProgramFeature[];
+  programFeatures: ProgramFeature[] | null;
 };

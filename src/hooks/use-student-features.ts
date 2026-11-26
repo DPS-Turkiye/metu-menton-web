@@ -15,8 +15,9 @@ export const MY_PROGRAM_FEATURES_QUERY_KEY = [
 ] as const;
 
 /**
- * What the student's semester runs, for the menu and the home page's shortcuts. Until it loads, or when it cannot be
- * read, nothing is hidden: the pages themselves still work, so a slow answer must not take a menu item away.
+ * What the student's semester runs, for the menu and the home page's shortcuts. Until it loads, when it cannot be read,
+ * or when the backend does not say (null), nothing is hidden: the pages themselves still work, so a slow or older
+ * backend must not take a menu item away.
  */
 export function useStudentFeatures() {
   const query = useQuery({
