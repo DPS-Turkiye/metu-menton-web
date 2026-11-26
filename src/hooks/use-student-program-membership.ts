@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ADMIN_OVERVIEW_QUERY_KEY } from "@/hooks/use-admin-overview";
+import { ADMIN_STUDENTS_QUERY_KEY } from "@/hooks/use-admin-students";
 import type { AdminStudentRow } from "@/interfaces/admin-membership";
 import { ToastTone } from "@/interfaces/toast";
 import {
@@ -22,7 +23,6 @@ import { currentIdToken } from "@/lib/firebase/auth";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
-const ADMIN_STUDENTS_QUERY_KEY = ["admin", "students"] as const;
 const MEMBERSHIP_QUERY_ROOT = ["admin", "student-membership"] as const;
 
 type Target = { row: AdminStudentRow; action: MembershipAction };
