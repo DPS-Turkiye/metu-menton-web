@@ -1,8 +1,9 @@
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IskurOnboardingView } from "@/components/iskur/onboarding-view";
+import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import { ClientApiError } from "@/lib/client/api";
 import {
   getIskurOnboarding,
@@ -201,13 +202,45 @@ describe("IskurOnboardingView", () => {
     await user.click(screen.getByRole("button", { name: /Belgeler/ }));
     expect(screen.getByRole("button", { name: "Devam et" })).toBeDisabled();
     await user.upload(
-      screen.getByLabelText("CV"),
+      screen.getByLabelText("CV seç"),
       new File(["%PDF"], "cv.pdf", { type: "application/pdf" }),
     );
-    expect(await screen.findByText("cv.pdf · 2 KB")).toBeInTheDocument();
+    expect(await screen.findByText("cv.pdf")).toBeInTheDocument();
+    expect(screen.getByText("2 KB · Yüklendi")).toBeInTheDocument();
+    // A file dropped on the CV that is already there replaces it, rather than the browser opening it.
+    const replacement = new File(["%PDF"], "cv-2.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.drop(screen.getByRole("region", { name: "CV" }), {
+      dataTransfer: { files: [replacement] },
+    });
+    await waitFor(() =>
+      expect(uploadIskurOnboardingDocument).toHaveBeenLastCalledWith(
+        IskurDocumentSlot.Cv,
+        replacement,
+      ),
+    );
+    expect(
+      screen.getByRole("heading", { name: "Dosya gereksinimleri" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Devam et" })).toBeEnabled();
     await user.click(screen.getByRole("button", { name: "Kaldır" }));
-    expect(await screen.findAllByText("Henüz yüklenmedi")).toHaveLength(2);
+    const zones = await screen.findAllByText("Dosyayı sürükle ya da");
+    expect(zones).toHaveLength(2);
+
+    // Figma 5.3c: a PDF dropped on the transcript's zone is uploaded as the transcript.
+    const transcriptZone = zones[1]?.closest("div");
+    if (!transcriptZone) throw new Error("Expected the transcript's zone.");
+    const transcript = new File(["%PDF"], "not.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.drop(transcriptZone, { dataTransfer: { files: [transcript] } });
+    await waitFor(() =>
+      expect(uploadIskurOnboardingDocument).toHaveBeenLastCalledWith(
+        IskurDocumentSlot.Transcript,
+        transcript,
+      ),
+    );
   });
 
   it("checks the leadership application (Figma 04) and sends the form from the preview", async () => {
@@ -250,7 +283,7 @@ describe("IskurOnboardingView", () => {
 
     await user.click(screen.getByRole("button", { name: "Devam et" }));
     expect(
-      await screen.findByRole("heading", { name: "Formunu gözden geçir" }),
+      await screen.findByRole("heading", { name: "Kontrol et ve gönder" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Başvuruyorum")).toBeInTheDocument();
     expect(screen.getByText("Fikir üreten · Uygulayan")).toBeInTheDocument();
@@ -298,9 +331,9 @@ describe("IskurOnboardingView", () => {
       screen.getByRole("button", { name: "Değişiklikleri gönder" }),
     ).toBeDisabled();
 
-    const [editDays] = screen.getAllByRole("button", { name: "Düzenle" });
-    if (!editDays) throw new Error("Expected an edit button.");
-    await user.click(editDays);
+    await user.click(
+      screen.getByRole("button", { name: "Görev süresi ve günler: düzenle" }),
+    );
     const [prior] = screen.getAllByRole("spinbutton");
     if (!prior) throw new Error("Expected the earlier days field.");
     await user.clear(prior);
@@ -346,9 +379,14 @@ describe("IskurOnboardingView", () => {
         name: "Gönderdiğim formu görüntüle",
       }),
     );
-    const editDocuments = screen.getAllByRole("button", { name: "Düzenle" })[4];
-    if (!editDocuments) throw new Error("Expected the documents' edit button.");
-    await user.click(editDocuments);
+    const card = screen.getByRole("region", { name: "Belgeler" });
+    expect(within(card).getByText("cv.pdf")).toBeInTheDocument();
+    expect(
+      within(card).getByText("Yüklenmedi (isteğe bağlı)"),
+    ).toBeInTheDocument();
+    await user.click(
+      within(card).getByRole("button", { name: "Belgeler: düzenle" }),
+    );
     expect(screen.getByText(/cv\.pdf/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Kaldır" })).toBeNull();
 
@@ -376,9 +414,9 @@ describe("IskurOnboardingView", () => {
         name: "Gönderdiğim formu görüntüle",
       }),
     );
-    const editRoles = screen.getAllByRole("button", { name: "Düzenle" })[3];
-    if (!editRoles) throw new Error("Expected the roles' edit button.");
-    await user.click(editRoles);
+    await user.click(
+      screen.getByRole("button", { name: "Birimler ve yetkinlikler: düzenle" }),
+    );
     const [firstRole] = screen.getAllByRole("button", { pressed: true });
     if (!firstRole) throw new Error("Expected a chosen option.");
     await user.click(firstRole);
