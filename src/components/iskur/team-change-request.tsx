@@ -107,7 +107,9 @@ function Latest({ request }: { request: IskurTeamChange }) {
     case IskurTeamChangeStatus.Moved:
       return (
         <p className="type-body-sm text-text-primary">
-          {t("moved", { team: request.currentTeamName ?? "" })}
+          {request.currentTeamName
+            ? t("moved", { team: request.currentTeamName })
+            : t("movedElsewhere")}
         </p>
       );
     case IskurTeamChangeStatus.Declined:

@@ -8538,6 +8538,7 @@
     "waitingHint": "You will get a notification when your coordinator decides.",
     "yourReason": "Your reason: {reason}",
     "moved": "Your coordinator accepted your request; your new team is {team}.",
+    "movedElsewhere": "Your coordinator accepted your request and moved you to another team.",
     "declinedTitle": "Your coordinator kept your team",
     "declinedNote": "Your coordinator's note: {note}",
     "cancelledTitle": "Your request was closed",
@@ -8558,6 +8559,7 @@
       "answered": "Answered requests ({count})",
       "status": {
         "MOVED": "Moved · {team}",
+        "MOVED_ELSEWHERE": "Moved",
         "DECLINED": "Declined · {note}",
         "CANCELLED": "Placement removed"
       }

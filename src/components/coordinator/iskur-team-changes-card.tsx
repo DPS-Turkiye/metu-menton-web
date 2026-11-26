@@ -94,16 +94,19 @@ function Waiting({
         <div className="min-w-0">
           <p className="type-label text-text-primary">{request.fullName}</p>
           <p className="type-caption text-text-muted">
-            {t("from", {
-              team: request.fromTeamName ?? "",
-              date: formatDateTime(request.createdAt, locale),
-            })}
+            {request.fromTeamName
+              ? t("from", {
+                  team: request.fromTeamName,
+                  date: formatDateTime(request.createdAt, locale),
+                })
+              : formatDateTime(request.createdAt, locale)}
           </p>
         </div>
         {declining ? null : (
           <div className="flex gap-2">
             <Button
               size={ButtonSize.Small}
+              disabled={state.busy}
               aria-label={t("moveNamed", { name: request.fullName })}
               onClick={() => onMove(request.userId)}
             >
@@ -112,6 +115,7 @@ function Waiting({
             <Button
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
+              disabled={state.busy}
               aria-label={t("declineNamed", { name: request.fullName })}
               onClick={() => state.startDecline(request.id)}
             >
@@ -164,7 +168,11 @@ function Outcome({ request }: { request: IskurTeamChange }) {
   const t = useTranslations("iskurTeamChange.coordinator.status");
   switch (request.status) {
     case IskurTeamChangeStatus.Moved:
-      return <>{t("MOVED", { team: request.currentTeamName ?? "" })}</>;
+      return request.currentTeamName ? (
+        <>{t("MOVED", { team: request.currentTeamName })}</>
+      ) : (
+        <>{t("MOVED_ELSEWHERE")}</>
+      );
     case IskurTeamChangeStatus.Declined:
       return <>{t("DECLINED", { note: request.decisionNote ?? "" })}</>;
     case IskurTeamChangeStatus.Cancelled:

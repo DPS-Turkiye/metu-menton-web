@@ -39,11 +39,16 @@ export function useIskurTeamChanges(programId: string) {
       setNote("");
       showToast({ message: t("declined"), tone: ToastTone.Success });
     },
-    onError: (failure: Error) =>
+    onError: (failure: Error) => {
       showToast({
         message: errorMessage(failure, t("declineFailed")),
         tone: ToastTone.Error,
-      }),
+      });
+      // It may have been answered meanwhile (a move in another tab): show what is true now.
+      void queryClient.invalidateQueries({
+        queryKey: iskurTeamChangesQueryKey(programId),
+      });
+    },
   });
   const { waiting, answered } = splitTeamChanges(query.data?.requests ?? []);
   const canDecline = isSendableText(note) && !decline.isPending;
@@ -59,6 +64,7 @@ export function useIskurTeamChanges(programId: string) {
     canDecline,
     busy: decline.isPending,
     startDecline: (id: string) => {
+      if (decline.isPending) return;
       setDecliningId(id);
       setNote("");
     },

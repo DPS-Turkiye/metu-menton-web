@@ -8540,6 +8540,7 @@
     "waitingHint": "Koordinatörün kararını verdiğinde bildirim alırsın.",
     "yourReason": "Gerekçen: {reason}",
     "moved": "Koordinatörün talebini kabul etti; yeni ekibin {team}.",
+    "movedElsewhere": "Koordinatörün talebini kabul etti; seni başka bir ekibe taşıdı.",
     "declinedTitle": "Koordinatörün ekibini değiştirmedi",
     "declinedNote": "Koordinatörünün notu: {note}",
     "cancelledTitle": "Talebin kapandı",
@@ -8560,6 +8561,7 @@
       "answered": "Yanıtlanan talepler ({count})",
       "status": {
         "MOVED": "Taşındı · {team}",
+        "MOVED_ELSEWHERE": "Taşındı",
         "DECLINED": "Reddedildi · {note}",
         "CANCELLED": "Yerleştirme kaldırıldı"
       }

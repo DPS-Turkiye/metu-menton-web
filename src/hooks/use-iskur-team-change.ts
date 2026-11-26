@@ -50,11 +50,14 @@ export function useIskurTeamChange() {
       setReason("");
       showToast({ message: t("sent"), tone: ToastTone.Success });
     },
-    onError: (failure: Error) =>
+    onError: (failure: Error) => {
       showToast({
         message: errorMessage(failure, t("sendFailed")),
         tone: ToastTone.Error,
-      }),
+      });
+      // A refusal (the team was finalized, a request already waits) changes what may be asked.
+      void queryClient.invalidateQueries({ queryKey: iskurTeamChangeQueryKey });
+    },
   });
   const mine = query.data ?? null;
   const latest = mine?.latest ?? null;
