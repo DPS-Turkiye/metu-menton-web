@@ -1,6 +1,7 @@
 import type { AxiosResponse } from "axios";
 import { describe, expect, it } from "vitest";
 
+import { ProgramBlockerKind, ProgramFeature } from "@/interfaces/program";
 import { ClientApiError, requireSuccess } from "@/lib/client/api";
 import { clientTextsIn } from "@test/client-texts";
 import { createAxiosResponse } from "@test/fixtures/health";
@@ -94,6 +95,30 @@ describe("requireSuccess", () => {
     expect(error).toHaveProperty("fieldErrors", {
       phone: "Telefon numarası geçersiz.",
     });
+  });
+
+  it("keeps the open work behind a refused program change, and none for other failures", () => {
+    const refused = errorFrom(() =>
+      requireSuccess(
+        response(409, {
+          code: "PROGRAM_WORK_OPEN",
+          message: "Açık işler var.",
+          blockers: [
+            { kind: "ACTIVE_MENTORSHIP", feature: "PEER_MENTORING", count: 2 },
+          ],
+        }),
+      ),
+    );
+    expect(refused).toHaveProperty("blockers", [
+      {
+        kind: ProgramBlockerKind.ActiveMentorship,
+        feature: ProgramFeature.PeerMentoring,
+        count: 2,
+      },
+    ]);
+    expect(
+      errorFrom(() => requireSuccess(response(409, { message: "Çakışma." }))),
+    ).toHaveProperty("blockers", []);
   });
 
   // A rejection from an edge proxy carries no JSON body, which is how testers

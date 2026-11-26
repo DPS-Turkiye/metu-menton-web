@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ProgramLifecycle } from "@/interfaces/coordinator-program";
 import {
   ProgramBlockerKind,
   ProgramFeature,
@@ -10,6 +11,8 @@ import {
   ALL_STUDENT_FEATURES,
   blockersOf,
   featureList,
+  FeatureLock,
+  featureLock,
   FeatureSetProblem,
   featureSetProblem,
   hasFeature,
@@ -191,5 +194,25 @@ describe("blockersOf", () => {
     expect(blockersOf("conflict")).toEqual([]);
     expect(blockersOf({ message: "x" })).toEqual([]);
     expect(blockersOf({ blockers: "x" })).toEqual([]);
+  });
+});
+
+describe("featureLock", () => {
+  it("lets the admin change features until the semester is completed", () => {
+    expect(featureLock(ProgramLifecycle.Draft, true)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Active, true)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Completed, true)).toBe(
+      FeatureLock.Completed,
+    );
+  });
+
+  it("lets coordinators change features only while it is a draft", () => {
+    expect(featureLock(ProgramLifecycle.Draft, false)).toBeNull();
+    expect(featureLock(ProgramLifecycle.Active, false)).toBe(
+      FeatureLock.Coordinator,
+    );
+    expect(featureLock(ProgramLifecycle.Completed, false)).toBe(
+      FeatureLock.Completed,
+    );
   });
 });
