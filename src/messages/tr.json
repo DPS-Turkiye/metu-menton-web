@@ -4154,6 +4154,18 @@
     "launched": "{name} başlatıldı.",
     "launchFailed": "Program başlatılamadı.",
     "launchNeedsCoordinator": "Başlatmadan önce bir koordinatör ata.",
+    "launchDialog": {
+      "title": "{name} başlatılsın mı?",
+      "loading": "Kimlerin geçeceği hesaplanıyor…",
+      "loadFailed": "Başlatma özeti yüklenemedi.",
+      "completes": "{previous} tamamlanır. Oradaki mentorluklar, talepler ve raporlar okunur olarak kalır.",
+      "moves": "Yeni döneme geçenler: {students} öğrenci, {peerMentors} akran mentoru.",
+      "noPrevious": "Şu an aktif bir dönem yok; kimse otomatik geçmez. Öğrenciler bu döneme katıldıkça eklenir.",
+      "keeps": "Rozetler ve mentor profilleri aynen kalır; kimsenin yeniden eğitim alması gerekmez.",
+      "officeHours": "Office Hours üniversite genelinde sürer; saatler, talepler ve görüşmeler aynen kalır.",
+      "confirm": "Programı başlat",
+      "cancel": "Vazgeç"
+    },
     "waitingSuffix": "· +{count} bekleyen",
     "participantTabs": {
       "TEAMS": "Takımlar",
@@ -6395,7 +6407,8 @@
     "iskurInternsInvalid": "Eklenecek adresler geçersiz.",
     "programFeaturesLoadFailed": "Program özellikleri yüklenemedi.",
     "programFeaturesSaveFailed": "Program özellikleri kaydedilemedi.",
-    "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi."
+    "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi.",
+    "launchPreviewLoadFailed": "Başlatma özeti yüklenemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
