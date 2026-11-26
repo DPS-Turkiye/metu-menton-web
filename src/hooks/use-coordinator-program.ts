@@ -12,6 +12,7 @@ import type {
   CoordinatorRef,
   ProgramEligibleEmail,
 } from "@/interfaces/coordinator-program";
+import { ProgramFeature } from "@/interfaces/program";
 import { ToastTone } from "@/interfaces/toast";
 import {
   addProgramEligibleEmails,
@@ -32,6 +33,7 @@ import {
   SettingsSection,
   type ProgramSettingsDraft,
 } from "@/lib/coordinator-program-detail";
+import { hasFeature } from "@/lib/program-features";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
@@ -250,6 +252,12 @@ export function useLaunchProgram(programId: string, onLaunched?: () => void) {
     mutationFn: () => launchCoordinatorProgram(programId),
     onSuccess: (detail) => {
       cache.put(detail);
+      // The semester it completed changed too. Here rather than in mutate's own callback: the launch button unmounts
+      // once the program is no longer a draft, and TanStack then skips that callback.
+      void queryClient.invalidateQueries({
+        queryKey: COORDINATOR_PROGRAM_QUERY_ROOT,
+      });
+      onLaunched?.();
       void queryClient.invalidateQueries({
         queryKey: ADMIN_OVERVIEW_QUERY_KEY,
       });
@@ -265,16 +273,7 @@ export function useLaunchProgram(programId: string, onLaunched?: () => void) {
       }),
   });
   return {
-    launch: () =>
-      mutation.mutate(undefined, {
-        onSuccess: () => {
-          // The semester it completed changed too.
-          void queryClient.invalidateQueries({
-            queryKey: COORDINATOR_PROGRAM_QUERY_ROOT,
-          });
-          onLaunched?.();
-        },
-      }),
+    launch: () => mutation.mutate(),
     launching: mutation.isPending,
   };
 }
@@ -283,7 +282,10 @@ export function useLaunchProgram(programId: string, onLaunched?: () => void) {
  * The ODTÜ admin's "Programı Başlat": a confirmation that says which semester the launch completes and who moves into
  * the new one, read from the backend when the dialog opens.
  */
-export function useSemesterLaunch(programId: string) {
+export function useSemesterLaunch(
+  programId: string,
+  program: CoordinatorProgramDetail["program"],
+) {
   const [confirming, setConfirming] = useState(false);
   const launch = useLaunchProgram(programId, () => setConfirming(false));
   const preview = useQuery({
@@ -291,7 +293,7 @@ export function useSemesterLaunch(programId: string) {
     queryFn: () => getLaunchPreview(programId),
     enabled: confirming,
     // Who moves can change while the dialog is closed; ask again each time it opens.
-    gcTime: 0,
+    staleTime: 0,
   });
   return {
     confirming,
@@ -300,11 +302,15 @@ export function useSemesterLaunch(programId: string) {
       if (!launch.launching) setConfirming(false);
     },
     preview: preview.data ?? null,
+    /** The launch waits for a fresh answer, so the admin confirms the numbers they see. */
+    canConfirm: preview.data !== undefined && !preview.isFetching,
+    /** Office Hours carries on university-wide, which the dialog says when the semester runs it. */
+    officeHours: hasFeature(program, ProgramFeature.OfficeHours),
     previewLoading: preview.isLoading,
     previewError: preview.error,
     launching: launch.launching,
     confirm: () => {
-      if (preview.data) launch.launch();
+      if (preview.data && !preview.isFetching) launch.launch();
     },
   };
 }

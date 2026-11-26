@@ -331,6 +331,66 @@ describe("program detail frame, ODTÜ edition", () => {
       expect(launchCoordinatorProgram).not.toHaveBeenCalled();
     });
 
+    it("asks again who moves each time the dialog opens", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      vi.mocked(getLaunchPreview).mockResolvedValue({
+        previous: { id: "old-1", name: "2026 Bahar" },
+        students: 13,
+        peerMentors: 2,
+      });
+      const user = userEvent.setup();
+      renderFrame(ProgramTab.Overview);
+      const open = await screen.findByRole("button", {
+        name: "Programı Başlat",
+      });
+
+      await user.click(open);
+      await screen.findByText(/13 öğrenci/);
+      await user.click(screen.getByRole("button", { name: "Vazgeç" }));
+
+      vi.mocked(getLaunchPreview).mockResolvedValue({
+        previous: { id: "old-1", name: "2026 Bahar" },
+        students: 14,
+        peerMentors: 2,
+      });
+      await user.click(open);
+      expect(await screen.findByText(/14 öğrenci/)).toBeInTheDocument();
+      expect(getLaunchPreview).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps the dialog open when the launch fails", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      vi.mocked(getLaunchPreview).mockResolvedValue({
+        previous: null,
+        students: 0,
+        peerMentors: 0,
+      });
+      vi.mocked(launchCoordinatorProgram).mockRejectedValue(
+        new Error("Program başlatılamadı."),
+      );
+      const user = userEvent.setup();
+      renderFrame(ProgramTab.Overview);
+
+      await user.click(
+        await screen.findByRole("button", { name: "Programı Başlat" }),
+      );
+      const dialog = await screen.findByRole("dialog");
+      await user.click(
+        await within(dialog).findByRole("button", { name: "Programı başlat" }),
+      );
+      expect(
+        await screen.findByText("Program başlatılamadı."),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(launchCoordinatorProgram).toHaveBeenCalledTimes(1);
+    });
+
     it("keeps the launch closed when who moves cannot be read", async () => {
       vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
       vi.mocked(getCoordinatorProgram).mockResolvedValue(

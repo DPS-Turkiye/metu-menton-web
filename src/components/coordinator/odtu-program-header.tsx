@@ -19,14 +19,12 @@ import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
-import { ProgramFeature } from "@/interfaces/program";
 import {
   isActiveTab,
   odtuProgramHeaderLine,
   odtuProgramTabs,
   type ProgramTab,
 } from "@/lib/coordinator-program-detail";
-import { hasFeature } from "@/lib/program-features";
 import { errorMessage } from "@/lib/utils";
 
 /**
@@ -116,7 +114,7 @@ function LaunchAction({
   hasCoordinator: boolean;
 }) {
   const t = useTranslations("coordinatorPrograms");
-  const launch = useSemesterLaunch(programId);
+  const launch = useSemesterLaunch(programId, program);
   const hintId = useId();
   return (
     <div className="flex flex-col items-end gap-1.5">
@@ -181,9 +179,7 @@ function LaunchDialog({
           ) : (
             <li>{t("noPrevious")}</li>
           )}
-          {hasFeature(program, ProgramFeature.OfficeHours) ? (
-            <li>{t("officeHours")}</li>
-          ) : null}
+          {launch.officeHours ? <li>{t("officeHours")}</li> : null}
         </ul>
       ) : null}
       <div className="flex justify-end gap-2">
@@ -196,7 +192,7 @@ function LaunchDialog({
         </Button>
         <Button
           onClick={launch.confirm}
-          disabled={preview === null || launch.launching}
+          disabled={!launch.canConfirm || launch.launching}
         >
           {t("confirm")}
         </Button>
