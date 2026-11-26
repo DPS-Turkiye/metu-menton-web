@@ -21,6 +21,7 @@ import {
   messageInput,
   needsAcknowledgement,
   newlyOpenedTeam,
+  notifyKindsFor,
   parseIskurChannelEvent,
   pickChannel,
   readOnlyNote,
@@ -37,6 +38,11 @@ const unit = iskurChannel({
   id: "unit",
   kind: IskurChannelKind.Unit,
   name: "Kreatif",
+});
+const leaders = iskurChannel({
+  id: "leaders",
+  kind: IskurChannelKind.Leaders,
+  name: "Liderler odası",
 });
 const direct = iskurChannel({
   id: "direct",
@@ -56,6 +62,31 @@ describe("İŞKUR channels", () => {
       IskurChannelKind.Announcements,
       IskurChannelKind.Team,
       IskurChannelKind.LeaderDirect,
+    ]);
+  });
+
+  it("puts a unit's Liderler odası after the unit channel and before the teams (handbook p.17)", () => {
+    const groups = groupChannels([iskurChannel(), leaders, unit]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      IskurChannelKind.Unit,
+      IskurChannelKind.Leaders,
+      IskurChannelKind.Team,
+    ]);
+    expect(channelSubtitle(leaders)).toBe(ChannelSubtitle.Leaders);
+    expect(channelMark(IskurChannelKind.Leaders)).toBe("#");
+  });
+
+  it("offers the Liderler odası switch only to someone who is in one", () => {
+    expect(notifyKindsFor([announcementsChannel(), unit, direct])).toEqual([
+      IskurChannelKind.Team,
+      IskurChannelKind.LeaderDirect,
+      IskurChannelKind.Unit,
+    ]);
+    expect(notifyKindsFor([unit, leaders])).toEqual([
+      IskurChannelKind.Team,
+      IskurChannelKind.LeaderDirect,
+      IskurChannelKind.Unit,
+      IskurChannelKind.Leaders,
     ]);
   });
 
