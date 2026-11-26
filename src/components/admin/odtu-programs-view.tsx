@@ -10,7 +10,7 @@ import { ChipSelect } from "@/components/ia/filter-chip";
 import { Footnote } from "@/components/ia/footnote";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { ProgramStatusPill } from "@/components/ia/program-status-pill";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
+import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import { RowActionsMenu } from "@/components/ia/row-actions-menu";
 import { SearchInput } from "@/components/ia/search-input";
 import { SegmentedControl } from "@/components/ia/segmented-tabs";
@@ -47,10 +47,10 @@ export function OdtuProgramsView() {
             className="w-60"
           />
           <ChipSelect
-            label={t("typeLabel")}
-            value={programs.type}
-            options={programs.typeOptions}
-            onChange={programs.setType}
+            label={t("featureLabel")}
+            value={programs.feature}
+            options={programs.featureOptions}
+            onChange={programs.setFeature}
           />
           <ChipSelect
             label={t("coordinatorLabel")}
@@ -110,7 +110,11 @@ function ProgramsBody({ programs }: { programs: Programs }) {
       caption={t("caption")}
       columns={[
         { key: "program", label: t("columns.program"), className: "w-[300px]" },
-        { key: "type", label: t("columns.type"), className: "w-[200px]" },
+        {
+          key: "features",
+          label: t("columns.features"),
+          className: "w-[200px]",
+        },
         { key: "status", label: t("columns.status"), className: "w-[120px]" },
         {
           key: "coordinator",
@@ -151,7 +155,7 @@ function ProgramRow({
         {program.name}
       </DataCell>
       <DataCell>
-        <ProgramTypeBadge type={program.type} />
+        <ProgramKindBadges program={program} />
       </DataCell>
       <DataCell>
         <ProgramStatusPill status={program.status}>

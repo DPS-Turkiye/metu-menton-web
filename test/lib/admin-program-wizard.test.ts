@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import type { AdminOverview, AdminUser } from "@/interfaces/admin-overview";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { UserAccountStatus, UserRole } from "@/interfaces/session";
 import {
   BUSY_COORDINATOR_PROGRAMS,
@@ -71,6 +75,53 @@ describe("admin program wizard", () => {
       }),
     ).toBeNull();
     expect(stepProblem(WizardStep.Summary, draft)).toBeNull();
+  });
+
+  it("starts a semester with every feature and asks it for at least one", () => {
+    const draft = emptyWizardDraft([ProgramType.Semester]);
+    expect(draft.type).toBe(ProgramType.Semester);
+    expect(draft.features).toEqual([
+      ProgramFeature.PeerMentoring,
+      ProgramFeature.OfficeHours,
+      ProgramFeature.Iskur,
+    ]);
+    expect(stepProblem(WizardStep.Type, draft)).toBeNull();
+    expect(stepProblem(WizardStep.Type, { ...draft, features: [] })).toBe(
+      WizardProblem.FeaturesRequired,
+    );
+    expect(
+      stepProblem(WizardStep.Type, {
+        ...draft,
+        features: [ProgramFeature.Iskur],
+      }),
+    ).toBe(WizardProblem.IskurNeedsPeer);
+    expect(
+      stepProblem(WizardStep.Type, {
+        ...emptyWizardDraft([ProgramType.StartupMentoring]),
+        features: [],
+      }),
+    ).toBeNull();
+  });
+
+  it("sends a semester's features and leaves them out for any other type", () => {
+    const draft = {
+      ...emptyWizardDraft([ProgramType.Semester]),
+      name: "2026 Güz",
+      features: [ProgramFeature.OfficeHours],
+    };
+    expect(createProgramInput(draft, ProgramType.Semester)).toEqual({
+      type: ProgramType.Semester,
+      features: [ProgramFeature.OfficeHours],
+      name: "2026 Güz",
+      description: null,
+      startDate: null,
+      endDate: null,
+      coordinatorIds: [],
+      newCoordinators: [],
+    });
+    expect(
+      createProgramInput(draft, ProgramType.StartupMentoring),
+    ).not.toHaveProperty("features");
   });
 
   it("sends the type, trimmed details, no empty dates and the coordinators", () => {

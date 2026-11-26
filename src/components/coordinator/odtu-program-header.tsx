@@ -7,7 +7,7 @@ import { useId } from "react";
 
 import { Button } from "@/components/ia/button";
 import { ProgramLifecyclePill } from "@/components/ia/program-status-pill";
-import { ProgramTypeBadge } from "@/components/ia/program-type-badge";
+import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import { UnderlineTabs } from "@/components/ia/underline-tabs";
 import { useLaunchProgram } from "@/hooks/use-coordinator-program";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
@@ -69,7 +69,7 @@ export function OdtuProgramHeader({
           </nav>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="type-h1 text-text-primary">{program.name}</h1>
-            <ProgramTypeBadge type={program.type} />
+            <ProgramKindBadges program={program} />
             <ProgramLifecyclePill lifecycle={program.lifecycle}>
               {t(`lifecycle.${program.lifecycle}`)}
             </ProgramLifecyclePill>

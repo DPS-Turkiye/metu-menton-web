@@ -3989,8 +3989,8 @@
       "ACTIVE": "Active {count}",
       "DRAFT": "Draft {count}"
     },
-    "typeLabel": "Program type",
-    "typeAll": "Program type: All",
+    "featureLabel": "Feature",
+    "featureAll": "Feature: All",
     "draftsTitle": "Program waiting to be set up",
     "draftsBody": "Set the terms for {names}. Save the settings before the admin starts the program.",
     "stats": {
@@ -4190,6 +4190,7 @@
     "autoMatchHint": "A suggestion list is built from expertise, availability and load"
   },
   "programSettings": {
+    "featuresNote": "The features this semester program runs. Each one shows its own pages.",
     "trainingNote": "Students earn the Peer Mentor badge by watching the video and getting at least 8 of the 10 quiz questions right. Edited by the program’s coordinators and admins.",
     "eligibilityNote": "Decides who can join this program. Other programs are not affected; while it is on, admins cannot bypass it either.",
     "eligibleDomain": "Allowed e-mail domain",
@@ -4220,7 +4221,8 @@
       "TRAINING": "Peer Mentor training",
       "ARCHIVE": "Archive",
       "CURRICULUM": "Curriculum & phases",
-      "PEER_CATEGORIES": "Active mentoring categories"
+      "PEER_CATEGORIES": "Active mentoring categories",
+      "FEATURES": "Program features"
     },
     "sectionsLabel": "Settings sections",
     "archivedNote": "This program is archived and read-only. Reopen it below to make changes.",
@@ -4823,15 +4825,15 @@
       "COMPLETED": "Completed {count}"
     },
     "searchLabel": "Search programs",
-    "typeLabel": "Program type",
-    "typeAll": "Program type: All",
+    "featureLabel": "Feature",
+    "featureAll": "Feature: All",
     "coordinatorLabel": "Coordinator",
     "coordinatorAll": "Coordinator: All",
     "newProgram": "Create new program",
     "caption": "Programs",
     "columns": {
       "program": "Program",
-      "type": "Program type",
+      "features": "Features",
       "status": "Status",
       "coordinator": "Coordinator",
       "date": "Dates",
@@ -6386,7 +6388,8 @@
     "prismDecisionFailed": "Could not apply the decisions.",
     "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
     "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
-    "iskurInternsInvalid": "The addresses to add are not valid."
+    "iskurInternsInvalid": "The addresses to add are not valid.",
+    "programFeaturesLoadFailed": "Program features could not be loaded."
   },
   "startupStart": {
     "title": "My startup",
@@ -6620,28 +6623,31 @@
     "ALL": "All types",
     "STARTUP_MENTORING": "Startup mentoring",
     "PEER_MENTORING": "Peer mentoring",
-    "OFFICE_HOURS": "Office hours"
+    "OFFICE_HOURS": "Office hours",
+    "SEMESTER": "Semester program"
+  },
+  "programFeatures": {
+    "names": {
+      "PEER_MENTORING": "Peer mentoring",
+      "OFFICE_HOURS": "Office Hours",
+      "ISKUR": "İŞKUR"
+    },
+    "none": "No features chosen"
   },
   "odtuProgramWizard": {
     "title": "Create new program",
     "back": "Programs",
     "stepsLabel": "Steps",
     "steps": {
-      "TYPE": "Program type",
+      "TYPE": "Program features",
       "INFO": "Program details",
       "COORDINATORS": "Coordinator",
       "SUMMARY": "Summary and save"
     },
-    "typeQuestion": "What kind of program are you creating?",
-    "typeNote": "The program type decides which structures the program has and cannot be changed later.",
+    "featuresQuestion": "What will this semester program run?",
+    "featuresNote": "Each feature adds its own pages to the program. İŞKUR works together with peer mentoring. While the program is a draft, its coordinators can change the features too.",
     "includes": "What the program has",
-    "types": {
-      "STARTUP_MENTORING": {
-        "description": "Matches startup teams with mentors. The current program structure stays as it is.",
-        "first": "Teams · Mentor pool",
-        "second": "Matches and approvals",
-        "third": "Curriculum and phases"
-      },
+    "features": {
       "PEER_MENTORING": {
         "description": "METU students get mentoring from badge-verified students.",
         "first": "Students · Peer mentors",
@@ -6653,11 +6659,18 @@
         "first": "Academicians · Students (automatic)",
         "second": "Appointments the academician approves",
         "third": "No invites or matching"
+      },
+      "ISKUR": {
+        "description": "İŞKUR interns are placed in units and teams; their weekly plan, tasks and reports run here.",
+        "first": "İŞKUR teams · Channels",
+        "second": "Weekly plan, tasks and reports",
+        "third": "Works together with peer mentoring"
       }
     },
-    "typeLabel": "Program type",
+    "needsPeer": "Switches on with peer mentoring",
+    "featuresLabel": "Features",
     "name": "Program name",
-    "namePlaceholder": "e.g. Career Peer Mentoring 2027",
+    "namePlaceholder": "e.g. 2026 Fall",
     "start": "Start",
     "end": "End",
     "description": "Short description",
@@ -6679,7 +6692,7 @@
     "noneChosen": "No coordinator selected yet.",
     "removeCoordinator": "Remove {name}",
     "summaryTitle": "Summary",
-    "summaryType": "Program type",
+    "summaryFeatures": "Features",
     "summaryName": "Program name",
     "summaryDates": "Dates",
     "noDates": "Not set",
@@ -6729,7 +6742,8 @@
     "typeNotes": {
       "STARTUP_MENTORING": "Today’s structure as is: Teams · Mentor pool · Matching · Approvals",
       "PEER_MENTORING": "Mentees: METU students · Mentors: students with a verified badge",
-      "OFFICE_HOURS": "Every METU academic included, no invitations · Students request appointments"
+      "OFFICE_HOURS": "Every METU academic included, no invitations · Students request appointments",
+      "SEMESTER": "Peer mentoring, Office Hours and İŞKUR switch on separately"
     },
     "name": "Program name",
     "namePlaceholder": "e.g. METU Peer Mentoring 2026",
@@ -6750,7 +6764,9 @@
       "TYPE_REQUIRED": "Choose a program type.",
       "NAME_REQUIRED": "Enter the program name.",
       "DATES_ORDER": "The end date cannot be before the start date.",
-      "COORDINATOR_REQUIRED": "Add at least one coordinator."
+      "COORDINATOR_REQUIRED": "Add at least one coordinator.",
+      "FEATURES_REQUIRED": "Choose at least one feature.",
+      "ISKUR_NEEDS_PEER": "İŞKUR needs peer mentoring to be on too."
     },
     "cancel": "Cancel",
     "back": "Back",

@@ -12,6 +12,7 @@ import { ProgramRosterSection } from "@/components/coordinator/program-roster-se
 import { ProgramTrainingEditor } from "@/components/coordinator/program-training-editor";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
 import { RuleStepper } from "@/components/coordinator/rule-stepper";
+import { ProgramKindBadges } from "@/components/ia/program-type-badge";
 import {
   useProgramArchive,
   useProgramCoordinators,
@@ -22,7 +23,6 @@ import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
-import { ProgramType } from "@/interfaces/program";
 import { NO_COORDINATOR_CHOICES } from "@/lib/coordinator-picker";
 import {
   ProgramTab,
@@ -65,6 +65,7 @@ function SettingsBody({
   // the admin views a program's settings; its coordinators change them
   const locked = archived || navigation.admin;
   const draft = settings.draft;
+  const sections = settingsSections(detail.program);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
@@ -73,26 +74,22 @@ function SettingsBody({
         className="lg:sticky lg:top-6 lg:self-start"
       >
         <ul className="space-y-1">
-          {settingsSections(detail.program.type, detail.program.lifecycle).map(
-            (section) => (
-              <li key={section}>
-                <a
-                  href={`#${section.toLowerCase()}`}
-                  onClick={() => settings.setSection(section)}
-                  aria-current={
-                    settings.section === section ? "true" : undefined
-                  }
-                  className={`block rounded-2xl px-4 py-2.5 text-[13.5px] ${
-                    settings.section === section
-                      ? "bg-[#f4f5f7] text-[#22262b]"
-                      : "text-[#676e78]"
-                  }`}
-                >
-                  {t(`sections.${section}`)}
-                </a>
-              </li>
-            ),
-          )}
+          {sections.map((section) => (
+            <li key={section}>
+              <a
+                href={`#${section.toLowerCase()}`}
+                onClick={() => settings.setSection(section)}
+                aria-current={settings.section === section ? "true" : undefined}
+                className={`block rounded-2xl px-4 py-2.5 text-[13.5px] ${
+                  settings.section === section
+                    ? "bg-[#f4f5f7] text-[#22262b]"
+                    : "text-[#676e78]"
+                }`}
+              >
+                {t(`sections.${section}`)}
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
 
@@ -177,6 +174,19 @@ function SettingsBody({
           </Row>
         </Section>
 
+        {sections.includes(SettingsSection.Features) ? (
+          /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
+          <Section
+            id={SettingsSection.Features}
+            title={t(`sections.${SettingsSection.Features}`)}
+            note={t("featuresNote")}
+          >
+            <Row>
+              <ProgramKindBadges program={detail.program} />
+            </Row>
+          </Section>
+        ) : null}
+
         <ProgramCurriculumSection
           programId={programId}
           detail={detail}
@@ -189,7 +199,7 @@ function SettingsBody({
           editable={navigation.admin ? !archived : false}
         />
 
-        {detail.program.type === ProgramType.PeerMentoring ? (
+        {sections.includes(SettingsSection.Training) ? (
           <Section
             id={SettingsSection.Training}
             title={t(`sections.${SettingsSection.Training}`)}
@@ -366,7 +376,7 @@ function SettingsBody({
           </Row>
         </Section>
 
-        {detail.program.type === ProgramType.PeerMentoring ? (
+        {sections.includes(SettingsSection.PeerCategories) ? (
           <ProgramPeerCategories
             programId={programId}
             readOnly={locked}

@@ -5,7 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OdtuProgramsView } from "@/components/admin/odtu-programs-view";
 import { useAdminOverview } from "@/hooks/use-admin-overview";
 import type { AdminOverview, AdminUser } from "@/interfaces/admin-overview";
-import { ProgramStatus, ProgramType } from "@/interfaces/program";
+import {
+  ProgramFeature,
+  ProgramStatus,
+  ProgramType,
+} from "@/interfaces/program";
 import { UserAccountStatus, UserRole } from "@/interfaces/session";
 import { adminProgram } from "@test/fixtures/admin-programs";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -190,17 +194,17 @@ describe("admin Programlar (ODTÜ)", () => {
     expect(screen.queryByText("ODTÜ Office Hours")).not.toBeInTheDocument();
   });
 
-  it("filters by search, type and coordinator, and offers only the ODTÜ program types", async () => {
+  it("filters by search, feature and coordinator", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<OdtuProgramsView />);
 
-    const type = screen.getByRole("combobox", { name: "Program türü" });
+    const type = screen.getByRole("combobox", { name: "Özellik" });
     expect(
       within(type)
         .getAllByRole("option")
         .map((option) => option.textContent),
-    ).toEqual(["Program türü: Tümü", "Akran Mentörlüğü", "Office Hours"]);
-    await user.selectOptions(type, ProgramType.OfficeHours);
+    ).toEqual(["Özellik: Tümü", "Akran Mentörlüğü", "Office Hours", "İŞKUR"]);
+    await user.selectOptions(type, ProgramFeature.OfficeHours);
     expect(screen.getByText("ODTÜ Office Hours")).toBeInTheDocument();
     expect(
       screen.queryByText("Akran Mentörlüğü 2026 Güz"),

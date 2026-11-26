@@ -4,10 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useCoordinatorPrograms } from "@/hooks/use-coordinator-programs";
-import { useEdition } from "@/hooks/use-edition";
 import type { CoordinatorProgram } from "@/interfaces/coordinator-program";
 import { ProgramStatus } from "@/interfaces/program";
-import { programTypesOf } from "@/lib/edition-screens";
 import {
   draftsToConfigure,
   filterOdtuPrograms,
@@ -17,8 +15,12 @@ import {
   type ProgramlarimSegment,
   type ProgramStat,
 } from "@/lib/odtu-coordinator-programs";
+import {
+  ALL_PROGRAM_FEATURES,
+  PROGRAM_FEATURES,
+  type ProgramFeatureFilter,
+} from "@/lib/program-features";
 import { ProgramStatusFilter, statusCounts } from "@/lib/program-status-filter";
-import { ALL_PROGRAM_TYPES, type ProgramTypeFilter } from "@/lib/program-types";
 
 /** One Programlarım card with its texts worked out. */
 export type ProgramCardData = {
@@ -32,27 +34,27 @@ export type ProgramCardData = {
 
 /**
  * The ODTÜ coordinator's Programlarım (Figma 152:7749): every program they coordinate as a card with the numbers its
- * type cares about, the Tümü / Aktif / Taslak segments, the edition's program types, and a reminder for drafts
+ * type cares about, the Tümü / Aktif / Taslak segments, a feature chip, and a reminder for drafts
  * whose terms still need setting.
  */
 export function useOdtuCoordinatorPrograms() {
   const t = useTranslations("odtuCoordinatorPrograms");
   const tPrograms = useTranslations("coordinatorPrograms");
-  const tType = useTranslations("programTypes");
+  const tFeature = useTranslations("programFeatures.names");
   const locale = useLocale();
-  const edition = useEdition();
   const query = useCoordinatorPrograms();
   const [segment, setSegment] = useState<ProgramlarimSegment>(
     ProgramStatusFilter.All,
   );
-  const [type, setType] = useState<ProgramTypeFilter>(ALL_PROGRAM_TYPES);
+  const [feature, setFeature] =
+    useState<ProgramFeatureFilter>(ALL_PROGRAM_FEATURES);
 
   const programs = useMemo(() => query.data ?? [], [query.data]);
   const counts = useMemo(() => statusCounts(programs), [programs]);
   const universityWide = tPrograms("universityWide");
   const cards = useMemo<ProgramCardData[]>(
     () =>
-      filterOdtuPrograms(programs, segment, type).map((program) => {
+      filterOdtuPrograms(programs, segment, feature).map((program) => {
         const draft = program.status === ProgramStatus.Draft;
         const base = `/coordinator/programs/${encodeURIComponent(program.id)}`;
         return {
@@ -63,15 +65,12 @@ export function useOdtuCoordinatorPrograms() {
           draft,
         };
       }),
-    [locale, programs, segment, t, type, universityWide],
+    [feature, locale, programs, segment, t, universityWide],
   );
 
-  const typeOptions: { value: ProgramTypeFilter; label: string }[] = [
-    { value: ALL_PROGRAM_TYPES, label: t("typeAll") },
-    ...programTypesOf(edition).map((value) => ({
-      value,
-      label: tType(value),
-    })),
+  const featureOptions: { value: ProgramFeatureFilter; label: string }[] = [
+    { value: ALL_PROGRAM_FEATURES, label: t("featureAll") },
+    ...PROGRAM_FEATURES.map((value) => ({ value, label: tFeature(value) })),
   ];
   const drafts = draftsToConfigure(programs).map((program) => program.name);
 
@@ -92,8 +91,8 @@ export function useOdtuCoordinatorPrograms() {
       active: id === segment,
     })),
     setSegment,
-    type,
-    typeOptions,
-    setType,
+    feature,
+    featureOptions,
+    setFeature,
   };
 }
