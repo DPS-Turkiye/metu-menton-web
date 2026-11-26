@@ -54,6 +54,11 @@ const listed: OfficeHoursListedAcademician = {
   faculty: "Mühendislik",
   contactEmail: null,
   meetingMinutes: 30,
+  about: null,
+  topics: [],
+  courses: [],
+  expertise: [],
+  responseDays: null,
 };
 
 function request(
@@ -92,7 +97,7 @@ beforeEach(() => {
 });
 
 describe("student Office Hours client", () => {
-  it("shows the listed academicians in the screens' shape, with nothing yet for what has no source or comes only with a meeting", async () => {
+  it("shows the listed academicians in the screens' shape, with no place until a request is a meeting", async () => {
     vi.mocked(getListedAcademicians).mockResolvedValue([listed]);
 
     expect(await getOfficeHoursAcademicians()).toEqual([
@@ -109,9 +114,34 @@ describe("student Office Hours client", () => {
         courses: [],
         place: null,
         durationMinutes: 30,
-        responseTime: null,
+        responseDays: null,
       },
     ]);
+  });
+
+  it("brings what the academician wrote for students as it is", async () => {
+    vi.mocked(getListedAcademician).mockResolvedValue({
+      ...listed,
+      about: "Yapay zeka üzerine çalışıyorum.",
+      topics: [
+        { title: "Araştırma projeleri", body: "Lisans araştırması" },
+        { title: "Staj", body: null },
+      ],
+      courses: [{ code: "CENG 465", name: "Yapay Zeka" }],
+      expertise: ["Yapay Zeka", "Veri Bilimi"],
+      responseDays: 2,
+    });
+
+    expect(await getOfficeHoursAcademician("oh-1")).toMatchObject({
+      about: "Yapay zeka üzerine çalışıyorum.",
+      topics: [
+        { title: "Araştırma projeleri", body: "Lisans araştırması" },
+        { title: "Staj", body: null },
+      ],
+      courses: [{ code: "CENG 465", name: "Yapay Zeka" }],
+      tags: ["Yapay Zeka", "Veri Bilimi"],
+      responseDays: 2,
+    });
   });
 
   it("answers no academician for one that is not listed, but passes other failures on", async () => {
