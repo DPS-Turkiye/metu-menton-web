@@ -2,6 +2,8 @@
 export enum IskurChannelKind {
   Announcements = "ANNOUNCEMENTS",
   Unit = "UNIT",
+  /** A unit's Liderler odası: its team leaders and the unit's coordinator (student handbook p.17). */
+  Leaders = "LEADERS",
   Team = "TEAM",
   LeaderDirect = "LEADER_DIRECT",
 }

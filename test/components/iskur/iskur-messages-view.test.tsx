@@ -188,6 +188,48 @@ describe("IskurMessagesView", () => {
     ]);
   });
 
+  it("shows a leader the Liderler odası named after its unit, and its notification switch", async () => {
+    vi.mocked(getIskurChannels).mockResolvedValue({
+      channels: [
+        announcementsChannel(),
+        iskurChannel({
+          id: "00000000-0000-4000-8000-0000000000c9",
+          kind: IskurChannelKind.Leaders,
+          name: "Liderler odası · Kreatif ve Dijital Üretim",
+          memberCount: 3,
+        }),
+        iskurChannel(),
+      ],
+      totalUnread: 0,
+    });
+    renderWithQueryClient(<IskurMessagesView linkedChannelId={null} />);
+
+    expect(
+      await screen.findByRole("switch", { name: "Liderler odası" }),
+    ).toHaveAttribute("aria-checked", "true");
+    await userEvent.setup().click(
+      screen.getByRole("button", {
+        name: /Liderler odası · Kreatif ve Dijital Üretim/,
+      }),
+    );
+    expect(
+      await screen.findByRole("heading", {
+        name: "Liderler odası · Kreatif ve Dijital Üretim",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Ekip liderleri ve birim koordinatörü · 3 kişi"),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves the Liderler odası switch out for someone who is not in one", async () => {
+    renderWithQueryClient(<IskurMessagesView linkedChannelId={null} />);
+    expect(
+      await screen.findByRole("switch", { name: "Birim kanalı" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "Liderler odası" })).toBeNull();
+  });
+
   it("lets a coordinator announce with a title and the important mark, and shows who read it", async () => {
     const user = userEvent.setup();
     const posting = announcementsChannel({
