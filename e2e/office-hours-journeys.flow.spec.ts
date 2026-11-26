@@ -9,7 +9,11 @@ import {
   type TimeRange,
 } from "./support/office-hours";
 import { currentUserId, Persona, signInAs } from "./support/personas";
-import { toTurkishDate, toTurkishTimeRange } from "./support/time";
+import {
+  toTurkishDate,
+  toTurkishTime,
+  toTurkishTimeRange,
+} from "./support/time";
 
 // The Office Hours journeys office-hours.flow.spec.ts leaves out (FR-OH-09, FR-OH-14). Each test sends its own
 // request through the backend and walks the rest through both sides' screens, so any one of them runs alone and
@@ -179,22 +183,14 @@ test("the student cancels a booked meeting and the time is free again", async ({
   ).toContainText("İptal Edildi");
 
   // Opened on the freed time itself, so the page shows its day whatever week it opens on (at the weekend it already
-  // opens on the coming week). It draws times in the browser's own zone for now, so the label is read the same way.
+  // opens on the coming week).
   await page.goto(
     `/student/office-hours/${academicianId}/book?slot=${encodeURIComponent(sent.startsAt)}`,
-  );
-  const time = await page.evaluate(
-    (startsAt) =>
-      new Date(startsAt).toLocaleTimeString("tr", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    sent.startsAt,
   );
   await expect(
     page
       .getByRole("group", { name: "Saatler" })
-      .getByRole("button", { name: time, exact: true }),
+      .getByRole("button", { name: toTurkishTime(sent.startsAt), exact: true }),
   ).toBeEnabled();
 
   await signInAs(page, Persona.AhmetOzturk);
