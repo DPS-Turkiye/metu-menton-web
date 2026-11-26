@@ -211,3 +211,18 @@ export function featureLock(
   }
   return null;
 }
+
+/**
+ * A coordinator's features with one switched on or off, in the listed order; null when it would leave them none,
+ * since a coordinator of the program holds at least one (removing them is a separate step).
+ */
+export function coordinatorFeatureChange(
+  current: readonly ProgramFeature[],
+  feature: ProgramFeature,
+  on: boolean,
+): ProgramFeature[] | null {
+  const next = PROGRAM_FEATURES.filter((item) =>
+    item === feature ? on : current.includes(item),
+  );
+  return next.length > 0 ? next : null;
+}

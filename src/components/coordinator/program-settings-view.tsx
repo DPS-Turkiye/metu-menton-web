@@ -519,13 +519,25 @@ function CoordinatorsSection({
   editable: boolean;
 }) {
   const t = useTranslations("programSettings");
-  const team = useProgramCoordinators(programId, detail.coordinators);
+  const team = useProgramCoordinators(
+    programId,
+    detail.coordinators,
+    detail.program,
+  );
+  const tFeature = useTranslations("programFeatures.names");
   return (
     <Section
       id={SettingsSection.Coordinators}
       title={t(`sections.${SettingsSection.Coordinators}`)}
       note={t("coordinatorsNote")}
     >
+      {team.featureOptions.length > 0 ? (
+        <Row>
+          <p className="text-[12.5px] text-[#858c96]">
+            {t("coordinatorFeaturesNote")}
+          </p>
+        </Row>
+      ) : null}
       <ul aria-label={t("coordinatorsList")}>
         {team.coordinators.map((coordinator) => (
           <li key={coordinator.id}>
@@ -553,6 +565,48 @@ function CoordinatorsSection({
                   </button>
                 ) : null}
               </div>
+              {team.featureOptions.length > 0 &&
+              team.featuresOf(coordinator) !== null ? (
+                /* TEST UI: placeholder until the design team's screen; replace when it arrives. */
+                <div
+                  role="group"
+                  aria-label={t("coordinatorFeaturesLabel", {
+                    name: coordinator.fullName,
+                  })}
+                  className="mt-2 flex flex-wrap gap-1.5"
+                >
+                  {team.featureOptions.map((feature) => {
+                    const held = (team.featuresOf(coordinator) ?? []).includes(
+                      feature,
+                    );
+                    return editable && team.choosesFeatures(coordinator) ? (
+                      <button
+                        key={feature}
+                        type="button"
+                        aria-pressed={held}
+                        disabled={
+                          team.busy || !team.canToggle(coordinator, feature)
+                        }
+                        onClick={() => team.toggleFeature(coordinator, feature)}
+                        className={`rounded-full border px-3 py-1 text-[12px] disabled:opacity-60 ${
+                          held
+                            ? "border-[#22262b] bg-[#22262b] text-white"
+                            : "border-[#e9ecef] text-[#676e78]"
+                        }`}
+                      >
+                        {tFeature(feature)}
+                      </button>
+                    ) : held ? (
+                      <span
+                        key={feature}
+                        className="rounded-full bg-[#f4f5f7] px-3 py-1 text-[12px] text-[#676e78]"
+                      >
+                        {tFeature(feature)}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              ) : null}
             </Row>
           </li>
         ))}

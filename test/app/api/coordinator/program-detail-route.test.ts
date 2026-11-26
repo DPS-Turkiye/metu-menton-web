@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUT as archive } from "@/app/api/coordinator/programs/[id]/archive/route";
+import { PUT as coordinatorFeatures } from "@/app/api/coordinator/programs/[id]/coordinators/[userId]/features/route";
 import { DELETE as removeCoordinator } from "@/app/api/coordinator/programs/[id]/coordinators/[userId]/route";
 import { POST as addCoordinator } from "@/app/api/coordinator/programs/[id]/coordinators/route";
 import { PUT as phases } from "@/app/api/coordinator/programs/[id]/phases/route";
@@ -20,6 +21,7 @@ vi.mock("@/lib/api/coordinator-programs", () => ({
   fetchProgramCoordinators: vi.fn(),
   addProgramCoordinator: vi.fn(),
   removeProgramCoordinator: vi.fn(),
+  setProgramCoordinatorFeatures: vi.fn(),
 }));
 vi.mock("@/lib/server/require-admin", () => ({
   requireAdminSession: vi.fn(),
@@ -174,8 +176,16 @@ describe("coordinator program detail routes", () => {
         })
       ).status,
     ).toBe(403);
+    expect(
+      (
+        await coordinatorFeatures(body({ features: ["OFFICE_HOURS"] }), {
+          params: Promise.resolve({ id: "program-1", userId: COORDINATOR_ID }),
+        })
+      ).status,
+    ).toBe(403);
     expect(api.addProgramCoordinator).not.toHaveBeenCalled();
     expect(api.removeProgramCoordinator).not.toHaveBeenCalled();
+    expect(api.setProgramCoordinatorFeatures).not.toHaveBeenCalled();
   });
 
   it("stops at the session check", async () => {

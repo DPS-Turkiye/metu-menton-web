@@ -17,6 +17,7 @@ import { ClientApiError } from "@/lib/client/api";
 import {
   getCoordinatorProgram,
   getProgramEligibleEmails,
+  setProgramCoordinatorFeatures,
   updateCoordinatorProgramFeatures,
 } from "@/lib/client/coordinator-programs";
 import { coordinatorProgramDetail } from "@test/fixtures/coordinator-programs";
@@ -34,6 +35,8 @@ vi.mock("@/lib/client/coordinator-programs", () => ({
   getCoordinatorProgram: vi.fn(),
   getProgramEligibleEmails: vi.fn(),
   updateCoordinatorProgramFeatures: vi.fn(),
+  setProgramCoordinatorFeatures: vi.fn(),
+  removeProgramCoordinator: vi.fn(),
 }));
 vi.mock("@/components/coordinator/program-training-editor", () => ({
   ProgramTrainingEditor: () => <p>Eğitim düzenleyici</p>,
@@ -255,5 +258,159 @@ describe("Program Ayarları of a semester", () => {
     expect(
       screen.getByRole("button", { name: "Özellikleri kaydet" }),
     ).toBeDisabled();
+  });
+
+  describe("coordinators per feature", () => {
+    function withCoordinators(): CoordinatorProgramDetail {
+      return {
+        ...semester([ProgramFeature.PeerMentoring, ProgramFeature.OfficeHours]),
+        coordinators: [
+          {
+            id: "c-1",
+            fullName: "Elif Demir",
+            owner: true,
+            features: [
+              ProgramFeature.PeerMentoring,
+              ProgramFeature.OfficeHours,
+            ],
+          },
+          {
+            id: "c-2",
+            fullName: "Burcu Şen",
+            owner: false,
+            features: [ProgramFeature.OfficeHours],
+          },
+        ],
+      };
+    }
+
+    it("lets the admin switch which features a coordinator runs, keeping at least one", async () => {
+      const user = userEvent.setup();
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      vi.mocked(setProgramCoordinatorFeatures).mockResolvedValue([]);
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      const officeHours = within(burcu).getByRole("button", {
+        name: "Office Hours",
+      });
+      expect(officeHours).toHaveAttribute("aria-pressed", "true");
+      expect(officeHours).toBeDisabled();
+      expect(
+        within(burcu).queryByRole("button", { name: "İŞKUR" }),
+      ).not.toBeInTheDocument();
+
+      const owner = screen.getByRole("group", {
+        name: "Elif Demir hangi özellikleri yürütür",
+      });
+      expect(within(owner).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(owner).getByText("Office Hours")).toBeInTheDocument();
+
+      await user.click(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      );
+      expect(setProgramCoordinatorFeatures).toHaveBeenCalledWith(
+        "program-1",
+        "c-2",
+        [ProgramFeature.PeerMentoring, ProgramFeature.OfficeHours],
+      );
+    });
+
+    it("keeps the switches closed until the saved features are read again", async () => {
+      const user = userEvent.setup();
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      let reread: (detail: CoordinatorProgramDetail) => void = () => undefined;
+      vi.mocked(setProgramCoordinatorFeatures).mockImplementation(async () => {
+        vi.mocked(getCoordinatorProgram).mockReturnValue(
+          new Promise((resolve) => {
+            reread = resolve;
+          }),
+        );
+        return [];
+      });
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      await user.click(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      );
+      expect(
+        within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
+      ).toBeDisabled();
+
+      const saved = withCoordinators();
+      reread({
+        ...saved,
+        coordinators: saved.coordinators.map((coordinator) =>
+          coordinator.id === "c-2"
+            ? {
+                ...coordinator,
+                features: [
+                  ProgramFeature.PeerMentoring,
+                  ProgramFeature.OfficeHours,
+                ],
+              }
+            : coordinator,
+        ),
+      });
+      const after = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      await waitFor(() =>
+        expect(
+          within(after).getByRole("button", { name: "Office Hours" }),
+        ).toBeEnabled(),
+      );
+      expect(
+        within(after).getByRole("button", { name: "Akran Mentörlüğü" }),
+      ).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("draws no switches when the backend does not say which features coordinators run", async () => {
+      vi.mocked(usePathname).mockReturnValue(
+        "/admin/programs/program-1/settings",
+      );
+      const detail = withCoordinators();
+      vi.mocked(getCoordinatorProgram).mockResolvedValue({
+        ...detail,
+        coordinators: detail.coordinators.map(({ id, fullName, owner }) => ({
+          id,
+          fullName,
+          owner,
+        })),
+      });
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      expect(await screen.findByText("Burcu Şen")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("group", {
+          name: "Burcu Şen hangi özellikleri yürütür",
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows a coordinator each colleague's features without switches", async () => {
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(withCoordinators());
+      renderWithQueryClient(<ProgramSettingsView programId="program-1" />);
+
+      const burcu = await screen.findByRole("group", {
+        name: "Burcu Şen hangi özellikleri yürütür",
+      });
+      expect(within(burcu).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(burcu).getByText("Office Hours")).toBeInTheDocument();
+      expect(
+        within(burcu).queryByText("Akran Mentörlüğü"),
+      ).not.toBeInTheDocument();
+    });
   });
 });

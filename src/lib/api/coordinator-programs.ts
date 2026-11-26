@@ -138,6 +138,19 @@ export function addProgramCoordinator(
   });
 }
 
+export function setProgramCoordinatorFeatures(
+  actorId: string,
+  programId: string,
+  userId: string,
+  features: ProgramFeature[],
+) {
+  return backendRequest<CoordinatorRef[]>({
+    method: "PUT",
+    url: `${programUrl(programId)}/coordinators/${encodeURIComponent(userId)}/features`,
+    data: { features, actorId },
+  });
+}
+
 export function removeProgramCoordinator(
   actorId: string,
   programId: string,
