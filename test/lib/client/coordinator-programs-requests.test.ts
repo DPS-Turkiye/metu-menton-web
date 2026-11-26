@@ -41,6 +41,7 @@ import {
   replaceCoordinatorProgramPhases,
   sendProgramTeamCode,
   setCoordinatorProgramArchived,
+  setProgramCoordinatorFeatures,
   updateCoordinatorProgram,
   updateCoordinatorProgramFeatures,
   updateProgramTeam,
@@ -122,6 +123,18 @@ const calls: ClientCall[] = [
       updateCoordinatorProgramFeatures(PROGRAM, [ProgramFeature.OfficeHours]),
     method: "put",
     args: [`${P}/features`, { features: [ProgramFeature.OfficeHours] }],
+  },
+  {
+    title: "setProgramCoordinatorFeatures puts one coordinator's features",
+    call: () =>
+      setProgramCoordinatorFeatures(PROGRAM, "user/1", [
+        ProgramFeature.OfficeHours,
+      ]),
+    method: "put",
+    args: [
+      `${P}/coordinators/user%2F1/features`,
+      { features: [ProgramFeature.OfficeHours] },
+    ],
   },
   {
     title: "getLaunchPreview asks who a draft's launch moves",

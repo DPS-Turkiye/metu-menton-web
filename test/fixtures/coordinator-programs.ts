@@ -93,8 +93,18 @@ export function coordinatorProgramDetail(
     teams: { mentored: 36, awaitingMatch: 5 },
     mentors: { withCapacity: 22, full: 4, idle: 2, pending: 5 },
     coordinators: [
-      { id: "coordinator-1", fullName: "Elif Demir", owner: true },
-      { id: "coordinator-2", fullName: "Burcu Şen", owner: false },
+      {
+        id: "coordinator-1",
+        fullName: "Elif Demir",
+        owner: true,
+        features: [],
+      },
+      {
+        id: "coordinator-2",
+        fullName: "Burcu Şen",
+        owner: false,
+        features: [],
+      },
     ],
     missingNoteMeetings: 4,
     pendingApprovalCount: 6,

@@ -10,6 +10,7 @@ import {
   ALL_PROGRAM_FEATURES,
   ALL_STUDENT_FEATURES,
   blockersOf,
+  coordinatorFeatureChange,
   featureList,
   FeatureLock,
   featureLock,
@@ -214,5 +215,14 @@ describe("featureLock", () => {
     expect(featureLock(ProgramLifecycle.Completed, false)).toBe(
       FeatureLock.Completed,
     );
+  });
+});
+
+describe("coordinatorFeatureChange", () => {
+  it("switches one feature in the listed order and never leaves none", () => {
+    expect(coordinatorFeatureChange([Oh], Peer, true)).toEqual([Peer, Oh]);
+    expect(coordinatorFeatureChange([Peer, Oh], Peer, false)).toEqual([Oh]);
+    expect(coordinatorFeatureChange([Iskur], Iskur, false)).toBeNull();
+    expect(coordinatorFeatureChange([Iskur], Iskur, true)).toEqual([Iskur]);
   });
 });

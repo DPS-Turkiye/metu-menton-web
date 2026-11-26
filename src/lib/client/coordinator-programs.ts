@@ -151,6 +151,19 @@ export async function inviteProgramCoordinator(
   );
 }
 
+export async function setProgramCoordinatorFeatures(
+  programId: string,
+  userId: string,
+  features: ProgramFeature[],
+) {
+  return requireSuccess(
+    await httpClient.put<CoordinatorRef[]>(
+      `${programUrl(programId)}/coordinators/${encodeURIComponent(userId)}/features`,
+      { features },
+    ),
+  );
+}
+
 export async function removeProgramCoordinator(
   programId: string,
   userId: string,

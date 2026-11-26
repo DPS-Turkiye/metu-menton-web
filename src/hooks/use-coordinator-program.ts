@@ -12,7 +12,7 @@ import type {
   CoordinatorRef,
   ProgramEligibleEmail,
 } from "@/interfaces/coordinator-program";
-import { ProgramFeature } from "@/interfaces/program";
+import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { ToastTone } from "@/interfaces/toast";
 import { ClientApiError } from "@/lib/client/api";
 import {
@@ -24,6 +24,7 @@ import {
   removeProgramCoordinator,
   removeProgramEligibleEmail,
   setCoordinatorProgramArchived,
+  setProgramCoordinatorFeatures,
   updateCoordinatorProgram,
   updateCoordinatorProgramFeatures,
 } from "@/lib/client/coordinator-programs";
@@ -36,6 +37,7 @@ import {
   type ProgramSettingsDraft,
 } from "@/lib/coordinator-program-detail";
 import {
+  coordinatorFeatureChange,
   featureLock,
   featureSetProblem,
   hasFeature,
@@ -182,6 +184,7 @@ export function useProgramFeatures(
 export function useProgramCoordinators(
   programId: string,
   coordinators: CoordinatorRef[],
+  program?: CoordinatorProgramDetail["program"],
 ) {
   const t = useTranslations("programSettings");
   const cache = useProgramCache(programId);
@@ -205,14 +208,56 @@ export function useProgramCoordinators(
         tone: ToastTone.Error,
       }),
   });
+  const features = useMutation({
+    mutationFn: ({
+      userId,
+      next,
+    }: {
+      userId: string;
+      next: ProgramFeature[];
+    }) => setProgramCoordinatorFeatures(programId, userId, next),
+    // Stay pending until the detail is read again: the next switch builds on the coordinator's saved features.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ADMIN_OVERVIEW_QUERY_KEY,
+      });
+      return cache.refresh();
+    },
+    onError: (failure: Error) =>
+      showToast({
+        message: errorMessage(failure, t("coordinatorFeaturesFailed")),
+        tone: ToastTone.Error,
+      }),
+  });
+  const programFeatures =
+    program?.type === ProgramType.Semester ? programFeaturesOf(program) : [];
+  const change = (coordinator: CoordinatorRef, feature: ProgramFeature) => {
+    const held = coordinator.features ?? [];
+    return coordinatorFeatureChange(held, feature, !held.includes(feature));
+  };
   return {
     coordinators,
+    /** A semester's features, each of which a coordinator may run; none for other program types. */
+    featureOptions: programFeatures,
+    /** The features a coordinator runs, or null when the backend does not say (no switches are drawn then). */
+    featuresOf: (coordinator: CoordinatorRef) => coordinator.features ?? null,
+    /** The owner runs every feature of the program; only the others' features are chosen. */
+    choosesFeatures: (coordinator: CoordinatorRef) => !coordinator.owner,
+    /** Whether switching this feature is allowed: a coordinator keeps at least one. */
+    canToggle: (coordinator: CoordinatorRef, feature: ProgramFeature) =>
+      change(coordinator, feature) !== null,
+    toggleFeature: (coordinator: CoordinatorRef, feature: ProgramFeature) => {
+      const next = change(coordinator, feature);
+      if (next && coordinator.features) {
+        features.mutate({ userId: coordinator.id, next });
+      }
+    },
     picking,
     openPicker: () => setPicking(true),
     closePicker: () => setPicking(false),
     pick: add.pick,
     remove: (userId: string) => remove.mutate(userId),
-    busy: add.adding || remove.isPending,
+    busy: add.adding || remove.isPending || features.isPending,
   };
 }
 
