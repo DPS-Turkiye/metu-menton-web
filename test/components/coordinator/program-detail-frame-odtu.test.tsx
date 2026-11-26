@@ -11,6 +11,7 @@ import { ProgramType } from "@/interfaces/program";
 import {
   getCoordinatorProgram,
   getCoordinatorPrograms,
+  launchCoordinatorProgram,
 } from "@/lib/client/coordinator-programs";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
 import {
@@ -192,5 +193,67 @@ describe("program detail frame, ODTÜ edition", () => {
     expect(
       screen.queryByRole("combobox", { name: "Program seç" }),
     ).not.toBeInTheDocument();
+  });
+
+  describe("a draft (Figma 152:7447)", () => {
+    function draft(
+      coordinators: { id: string; fullName: string; owner: boolean }[],
+    ) {
+      return coordinatorProgramDetail({
+        program: coordinatorProgram({
+          id: "oh-1",
+          name: "ODTÜ Office Hours",
+          type: ProgramType.OfficeHours,
+          lifecycle: ProgramLifecycle.Draft,
+        }),
+        coordinators,
+      });
+    }
+
+    it("gives the admin Programı Başlat in the header instead of the banner", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      vi.mocked(launchCoordinatorProgram).mockResolvedValue(officeHours());
+      const user = userEvent.setup();
+      renderFrame(ProgramTab.Overview);
+
+      const launch = await screen.findByRole("button", {
+        name: "Programı Başlat",
+      });
+      expect(launch.closest("header")).not.toBeNull();
+      expect(screen.queryByText(/Program henüz başlatılmadı/)).toBeNull();
+      await user.click(launch);
+      expect(launchCoordinatorProgram).toHaveBeenCalledWith("oh-1");
+    });
+
+    it("keeps the admin's launch closed, and says why, until a coordinator is assigned", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(draft([]));
+      renderFrame(ProgramTab.Overview);
+
+      const launch = await screen.findByRole("button", {
+        name: "Programı Başlat",
+      });
+      expect(launch).toBeDisabled();
+      expect(launch).toHaveAccessibleDescription(
+        "Başlatmadan önce bir koordinatör ata.",
+      );
+    });
+
+    it("keeps the banner for coordinators, with no launch", async () => {
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      renderFrame(ProgramTab.Overview);
+
+      expect(
+        await screen.findByText(/yönetici başlattığında/),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Programı Başlat" }),
+      ).toBeNull();
+    });
   });
 });
