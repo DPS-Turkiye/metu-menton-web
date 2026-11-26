@@ -143,6 +143,12 @@ describe("Program Ayarları of a semester", () => {
         within(burcu).queryByRole("button", { name: "İŞKUR" }),
       ).not.toBeInTheDocument();
 
+      const owner = screen.getByRole("group", {
+        name: "Elif Demir hangi özellikleri yürütür",
+      });
+      expect(within(owner).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(owner).getByText("Office Hours")).toBeInTheDocument();
+
       await user.click(
         within(burcu).getByRole("button", { name: "Akran Mentörlüğü" }),
       );

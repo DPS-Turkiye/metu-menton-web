@@ -490,7 +490,7 @@ function CoordinatorsSection({
                 >
                   {team.featureOptions.map((feature) => {
                     const held = coordinator.features.includes(feature);
-                    return editable ? (
+                    return editable && team.choosesFeatures(coordinator) ? (
                       <button
                         key={feature}
                         type="button"

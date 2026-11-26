@@ -171,6 +171,8 @@ export function useProgramCoordinators(
     coordinators,
     /** A semester's features, each of which a coordinator may run; none for other program types. */
     featureOptions: programFeatures,
+    /** The owner runs every feature of the program; only the others' features are chosen. */
+    choosesFeatures: (coordinator: CoordinatorRef) => !coordinator.owner,
     /** Whether switching this feature is allowed: a coordinator keeps at least one. */
     canToggle: (coordinator: CoordinatorRef, feature: ProgramFeature) =>
       coordinatorFeatureChange(
