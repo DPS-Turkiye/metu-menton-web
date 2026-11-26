@@ -8376,7 +8376,7 @@
     "subtitle": {
       "announcements": "Broadcast channel · {count} people · only authorised coordinators post",
       "unit": "Unit channel · {count} people",
-      "leaders": "{unit} · team leaders and the unit coordinator · {count} people",
+      "leaders": "Team leaders and the unit coordinator · {count} people",
       "team": "Thematic team channel · {count} people",
       "withLeader": "One to one with your team leader",
       "withMember": "One to one with your team"

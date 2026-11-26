@@ -188,14 +188,14 @@ describe("IskurMessagesView", () => {
     ]);
   });
 
-  it("shows a leader the Liderler odası with its unit, and its notification switch", async () => {
+  it("shows a leader the Liderler odası named after its unit, and its notification switch", async () => {
     vi.mocked(getIskurChannels).mockResolvedValue({
       channels: [
         announcementsChannel(),
         iskurChannel({
           id: "00000000-0000-4000-8000-0000000000c9",
           kind: IskurChannelKind.Leaders,
-          name: "Liderler odası",
+          name: "Liderler odası · Kreatif ve Dijital Üretim",
           memberCount: 3,
         }),
         iskurChannel(),
@@ -207,8 +207,18 @@ describe("IskurMessagesView", () => {
     expect(
       await screen.findByRole("switch", { name: "Liderler odası" }),
     ).toHaveAttribute("aria-checked", "true");
+    await userEvent.setup().click(
+      screen.getByRole("button", {
+        name: /Liderler odası · Kreatif ve Dijital Üretim/,
+      }),
+    );
     expect(
-      screen.getByRole("heading", { name: "Liderler odası" }),
+      await screen.findByRole("heading", {
+        name: "Liderler odası · Kreatif ve Dijital Üretim",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Ekip liderleri ve birim koordinatörü · 3 kişi"),
     ).toBeInTheDocument();
   });
 

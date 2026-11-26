@@ -8378,7 +8378,7 @@
     "subtitle": {
       "announcements": "Yayın kanalı · {count} kişi · yalnızca yetkili koordinatörler paylaşır",
       "unit": "Birim kanalı · {count} kişi",
-      "leaders": "{unit} · ekip liderleri ve birim koordinatörü · {count} kişi",
+      "leaders": "Ekip liderleri ve birim koordinatörü · {count} kişi",
       "team": "Tematik ekip kanalı · {count} kişi",
       "withLeader": "Ekip liderinle birebir",
       "withMember": "Ekibinden birebir"
