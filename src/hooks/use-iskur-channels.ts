@@ -31,6 +31,7 @@ import {
   ISKUR_TITLE_MAX,
   messageInput,
   newlyOpenedTeam,
+  notifyKindsFor,
   pickChannel,
   readOnlyNote,
   toggleMuted,
@@ -297,6 +298,7 @@ export function useIskurMessages(
     receipts: receipts.data ?? null,
     receiptsLoading: receipts.isLoading,
     muted,
+    notifyKinds: notifyKindsFor(channels),
     preferencesReady: Boolean(preferences.data),
     setNotify: (kind: MutableChannelKind, notify: boolean) => {
       if (preferencesProgram) {

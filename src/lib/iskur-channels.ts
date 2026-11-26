@@ -16,10 +16,11 @@ import { isEnumValue } from "@/lib/enum";
 export const ISKUR_MESSAGE_MAX = MAX_MESSAGE_LENGTH;
 export const ISKUR_TITLE_MAX = 160;
 
-/** The Mesajlar list order (6.1): Duyurular, Birim, Tematik ekip, Birebir. */
+/** The Mesajlar list order (6.1): Duyurular, Birim, Liderler odası, Tematik ekip, Birebir. */
 export const CHANNEL_KIND_ORDER: readonly IskurChannelKind[] = [
   IskurChannelKind.Announcements,
   IskurChannelKind.Unit,
+  IskurChannelKind.Leaders,
   IskurChannelKind.Team,
   IskurChannelKind.LeaderDirect,
 ];
@@ -34,7 +35,20 @@ export const MUTABLE_CHANNEL_KINDS: readonly MutableChannelKind[] = [
   IskurChannelKind.Team,
   IskurChannelKind.LeaderDirect,
   IskurChannelKind.Unit,
+  IskurChannelKind.Leaders,
 ];
+
+/** The switches a reader sees: Liderler odası only for someone who is in one. */
+export function notifyKindsFor(
+  channels: readonly IskurChannel[],
+): MutableChannelKind[] {
+  const inLeadersRoom = channels.some(
+    (channel) => channel.kind === IskurChannelKind.Leaders,
+  );
+  return MUTABLE_CHANNEL_KINDS.filter(
+    (kind) => kind !== IskurChannelKind.Leaders || inLeadersRoom,
+  );
+}
 
 export function isMutableKind(
   kind: IskurChannelKind,
@@ -77,6 +91,7 @@ export function channelMark(kind: IskurChannelKind) {
 export enum ChannelSubtitle {
   Announcements = "announcements",
   Unit = "unit",
+  Leaders = "leaders",
   Team = "team",
   WithLeader = "withLeader",
   WithMember = "withMember",
@@ -89,6 +104,8 @@ export function channelSubtitle(channel: IskurChannel): ChannelSubtitle {
       return ChannelSubtitle.Announcements;
     case IskurChannelKind.Unit:
       return ChannelSubtitle.Unit;
+    case IskurChannelKind.Leaders:
+      return ChannelSubtitle.Leaders;
     case IskurChannelKind.Team:
       return ChannelSubtitle.Team;
     case IskurChannelKind.LeaderDirect:
