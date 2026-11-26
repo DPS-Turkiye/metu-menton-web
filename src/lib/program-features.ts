@@ -115,9 +115,9 @@ export const ALL_STUDENT_FEATURES: StudentFeatureView = {
   iskur: true,
 };
 
-/** Feature codes read from untrusted JSON, in the listed order; unknown codes are dropped. */
-export function featureList(value: unknown): ProgramFeature[] {
-  if (!Array.isArray(value)) return [];
+/** Feature codes read from untrusted JSON, in the listed order; unknown codes are dropped, and a non-list is null. */
+export function featureList(value: unknown): ProgramFeature[] | null {
+  if (!Array.isArray(value)) return null;
   return PROGRAM_FEATURES.filter((feature) =>
     value.some((item) => item === feature),
   );

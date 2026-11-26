@@ -145,6 +145,20 @@ describe("StudentFrame", () => {
     ).toBeInTheDocument();
   });
 
+  it("hides nothing when the backend does not say which features the semester has", async () => {
+    pathname = "/student";
+    vi.mocked(getMyProgramFeatures).mockResolvedValue(null);
+    renderWithQueryClient(<StudentFrame>x</StudentFrame>);
+    await waitFor(() => expect(getMyProgramFeatures).toHaveBeenCalled());
+    const nav = desktopNav("Öğrenci menüsü");
+    expect(
+      within(nav).getByRole("link", { name: "Akran Mentörlüğü" }),
+    ).toBeInTheDocument();
+    expect(
+      within(nav).getByRole("link", { name: "Office Hours" }),
+    ).toBeInTheDocument();
+  });
+
   it("hides nothing while the features cannot be read", async () => {
     pathname = "/student";
     vi.mocked(getMyProgramFeatures).mockRejectedValue(new Error("down"));

@@ -64,9 +64,9 @@ describe("GET /api/me/program-features", () => {
     });
   });
 
-  it("answers no features when the backend leaves the field out or sends only codes it does not know", async () => {
+  it("answers null when the backend does not send the field, and no features for codes it does not know", async () => {
     vi.mocked(fetchUser).mockResolvedValue(backendResponse(account(undefined)));
-    expect(await (await GET()).json()).toEqual({ programFeatures: [] });
+    expect(await (await GET()).json()).toEqual({ programFeatures: null });
     vi.mocked(fetchUser).mockResolvedValue(
       backendResponse(account(["SOMETHING_NEW"])),
     );
