@@ -12,7 +12,7 @@ import { isEnumValue } from "@/lib/enum";
 import {
   fromIsoDay,
   reportWeekDays,
-  reportWeekStart,
+  reportWeekOfDay,
   shiftReportDay,
 } from "@/lib/peer-reports";
 import { weeklyDayCards } from "@/lib/peer-weekly-report";
@@ -207,7 +207,7 @@ export function parseReportSearch(
 }
 
 function mondayOf(day: string) {
-  return reportWeekStart(fromIsoDay(day));
+  return reportWeekOfDay(day);
 }
 
 /** A real "yyyy-mm-dd" calendar day (not "2026-02-30"). */

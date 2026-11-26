@@ -86,7 +86,7 @@ export function filterTeams(teams: ProgramTeam[], filter: TeamFilter) {
 export function codeSentLabel(team: ProgramTeam, t: TeamsT, locale: string) {
   if (!team.codeSentAt) return null;
   return t("codeSent", {
-    date: formatDayMonth(new Date(team.codeSentAt), locale),
+    date: formatDayMonth(team.codeSentAt, locale),
     email: team.leadEmail ?? "",
   }).trim();
 }

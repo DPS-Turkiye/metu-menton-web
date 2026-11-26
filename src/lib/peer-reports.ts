@@ -43,6 +43,14 @@ export function reportWeekStart(now: Date) {
   return isoDay(startOfWeek(toTurkishWallClock(now)));
 }
 
+/**
+ * The Monday of a calendar day's week ("2026-11-25" → "2026-11-23"). A day is already Turkey's, so it is not converted
+ * again: through `reportWeekStart`, a browser east of Turkey would read local midnight as the day before.
+ */
+export function reportWeekOfDay(day: string) {
+  return isoDay(startOfWeek(fromIsoDay(day)));
+}
+
 /** Another week's Monday, `weeks` before (negative) or after this one. */
 export function shiftReportWeek(weekStart: string, weeks: number) {
   return shiftReportDay(weekStart, weeks * 7);

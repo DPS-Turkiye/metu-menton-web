@@ -18,12 +18,11 @@ import {
   weekCardCounts,
 } from "@/lib/peer-daily-report";
 import {
-  fromIsoDay,
   meetingReportHref,
   peerReportBadge,
   reportDayOf,
   reportWeekHref,
-  reportWeekStart,
+  reportWeekOfDay,
 } from "@/lib/peer-reports";
 import { formatReportDeadline } from "@/lib/peer-weekly-report";
 
@@ -35,7 +34,7 @@ export function usePeerMenteesTab() {
   const locale = useLocale();
   const now = useMinuteClock();
   const today = reportDayOf(now.toISOString());
-  const weekStart = reportWeekStart(fromIsoDay(today));
+  const weekStart = reportWeekOfDay(today);
   const range = bannerWindow(today);
   const meetings = useQuery({
     queryKey: peerReportMeetingsQueryKey(range.from, range.to),

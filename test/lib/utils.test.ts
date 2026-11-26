@@ -28,6 +28,18 @@ describe("dayPart", () => {
     expect(dayPart(new Date(2026, 8, 14, 21))).toBe("evening");
     expect(dayPart(new Date(2026, 8, 14, 3))).toBe("evening");
   });
+
+  it.each(BROWSER_TIME_ZONES)(
+    "reads Turkey's hour in a browser in %s",
+    (zone) => {
+      inTimeZone(zone, () => {
+        // 06:00 UTC is 09:00 in Turkey, 15:00 in Tokyo; 15:30 UTC is 18:30 in Turkey.
+        expect(dayPart(new Date("2026-09-14T06:00:00Z"))).toBe("morning");
+        expect(dayPart(new Date("2026-09-14T10:00:00Z"))).toBe("afternoon");
+        expect(dayPart(new Date("2026-09-14T15:30:00Z"))).toBe("evening");
+      });
+    },
+  );
 });
 
 describe("formatLongDate", () => {

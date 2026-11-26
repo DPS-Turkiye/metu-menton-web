@@ -132,7 +132,7 @@ export function lastMeetingLabel(
   ) {
     return t("daysAgo", { days: row.daysSinceLastMeeting });
   }
-  return formatDayMonth(new Date(row.lastMeetingAt), locale);
+  return formatDayMonth(row.lastMeetingAt, locale);
 }
 
 /** "Yarın · 14:00", "24 Eyl · 11:00", or why nothing is booked. */

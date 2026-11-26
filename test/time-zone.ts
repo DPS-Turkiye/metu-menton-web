@@ -1,11 +1,13 @@
 /**
  * The browser zones a Turkey-time screen is checked in. The suite pins Istanbul (vitest.config.mts), which hides a
- * date read on the browser's own clock; UTC is CI's browser, London a student abroad.
+ * date read on the browser's own clock; UTC is CI's browser, London a student abroad, and Tokyo a zone east of Turkey,
+ * where local midnight is still the day before in Istanbul.
  */
 export const BROWSER_TIME_ZONES = [
   "Europe/Istanbul",
   "UTC",
   "Europe/London",
+  "Asia/Tokyo",
 ] as const;
 
 /**

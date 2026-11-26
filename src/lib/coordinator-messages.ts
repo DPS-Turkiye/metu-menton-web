@@ -8,6 +8,8 @@ import {
   CoordinatorMentorshipHealth,
   type CoordinatorMentorship,
 } from "@/interfaces/coordinator-mentorship";
+import { shortWeekday } from "@/lib/calendar";
+import { formatTurkishTime, toTurkishDate } from "@/lib/turkey-time";
 import { formatDayMonth, relativeDayLabel } from "@/lib/utils";
 
 export enum MessageFilter {
@@ -134,20 +136,11 @@ export function messagesSubtitle(
   return parts.join(" · ");
 }
 
-function clock(at: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(at);
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function daysAgo(value: Date, now: Date) {
+/** Whole Turkey days from `value` to `now`: what "Bugün" and "Dün" mean, wherever the browser is. */
+function daysAgo(value: string, now: Date) {
   return Math.round(
-    (startOfDay(now).getTime() - startOfDay(value).getTime()) / 86_400_000,
+    (Date.parse(toTurkishDate(now)) - Date.parse(toTurkishDate(value))) /
+      86_400_000,
   );
 }
 
@@ -158,16 +151,11 @@ export function conversationTime(
   locale = "tr",
 ) {
   if (!value) return "";
-  const at = new Date(value);
-  const days = daysAgo(at, now);
-  if (days <= 0) return clock(at, locale);
+  const days = daysAgo(value, now);
+  if (days <= 0) return formatTurkishTime(value, locale);
   if (days === 1) return relativeDayLabel(-1, locale);
-  if (days < 7) {
-    return new Intl.DateTimeFormat(locale, { weekday: "short" })
-      .format(at)
-      .replace(".", "");
-  }
-  return formatDayMonth(at, locale);
+  if (days < 7) return shortWeekday(value, locale).replace(".", "");
+  return formatDayMonth(value, locale);
 }
 
 /** The separator above a day's messages: "Bugün", "Dün" or "12 Eyl". */
@@ -176,14 +164,14 @@ export function messageDayLabel(
   now = new Date(),
   locale = "tr",
 ) {
-  const days = daysAgo(new Date(value), now);
+  const days = daysAgo(value, now);
   if (days <= 0) return relativeDayLabel(0, locale);
   if (days === 1) return relativeDayLabel(-1, locale);
-  return formatDayMonth(new Date(value), locale);
+  return formatDayMonth(value, locale);
 }
 
 export function messageTime(value: string, locale = "tr") {
-  return clock(new Date(value), locale);
+  return formatTurkishTime(value, locale);
 }
 
 export const MAX_MESSAGE_LENGTH = 4000;

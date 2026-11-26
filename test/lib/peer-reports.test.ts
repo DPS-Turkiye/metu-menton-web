@@ -11,6 +11,7 @@ import {
   reportDayOf,
   reportWeekDays,
   reportWeekHref,
+  reportWeekOfDay,
   reportWeekStart,
   shiftReportDay,
   shiftReportWeek,
@@ -163,6 +164,13 @@ describe.each(BROWSER_TIME_ZONES)(
         expect(reportWeekStart(new Date("2026-11-15T22:30:00Z"))).toBe(
           "2026-11-16",
         );
+      });
+    });
+
+    it("takes a calendar day's own week", () => {
+      inTimeZone(zone, () => {
+        expect(reportWeekOfDay("2026-11-23")).toBe("2026-11-23");
+        expect(reportWeekOfDay("2026-11-29")).toBe("2026-11-23");
       });
     });
   },
