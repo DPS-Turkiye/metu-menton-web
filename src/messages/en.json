@@ -4152,6 +4152,18 @@
     "launched": "{name} was launched.",
     "launchFailed": "The program could not be launched.",
     "launchNeedsCoordinator": "Assign a coordinator before launching.",
+    "launchDialog": {
+      "title": "Launch {name}?",
+      "loading": "Working out who moves…",
+      "loadFailed": "The launch summary could not be loaded.",
+      "completes": "{previous} will be completed. Its mentorships, requests and reports stay there, read-only.",
+      "moves": "Moving into the new semester: {students, plural, one {# student} other {# students}}, {peerMentors, plural, one {# peer mentor} other {# peer mentors}}.",
+      "noPrevious": "No semester is active now, so nobody moves automatically. Students are added as they join this one.",
+      "keeps": "Badges and mentor profiles carry over, so nobody needs to retrain.",
+      "officeHours": "Office Hours carries on university-wide; hours, requests and meetings stay as they are.",
+      "confirm": "Launch program",
+      "cancel": "Cancel"
+    },
     "waitingSuffix": "· +{count} waiting",
     "participantTabs": {
       "TEAMS": "Teams",
@@ -6386,7 +6398,8 @@
     "iskurInternsLoadFailed": "The İŞKUR intern list could not be loaded.",
     "iskurInternsSaveFailed": "The İŞKUR intern list could not be saved.",
     "iskurInternsInvalid": "The addresses to add are not valid.",
-    "programFeaturesLoadFailed": "Program features could not be loaded."
+    "programFeaturesLoadFailed": "Program features could not be loaded.",
+    "launchPreviewLoadFailed": "The launch summary could not be loaded."
   },
   "startupStart": {
     "title": "My startup",

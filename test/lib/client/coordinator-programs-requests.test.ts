@@ -20,6 +20,7 @@ import {
   decideProgramMentor,
   getCoordinatorProgram,
   getCoordinatorPrograms,
+  getLaunchPreview,
   getMatching,
   getMatchSuggestions,
   getMentorPool,
@@ -113,6 +114,12 @@ const calls: ClientCall[] = [
     call: () => getCoordinatorProgram(PROGRAM),
     method: "get",
     args: [P],
+  },
+  {
+    title: "getLaunchPreview asks who a draft's launch moves",
+    call: () => getLaunchPreview(PROGRAM),
+    method: "get",
+    args: [`${P}/launch-preview`],
   },
   {
     title: "updateCoordinatorProgram puts the new details",

@@ -16,6 +16,7 @@ import { ToastTone } from "@/interfaces/toast";
 import {
   addProgramEligibleEmails,
   getCoordinatorProgram,
+  getLaunchPreview,
   getProgramEligibleEmails,
   launchCoordinatorProgram,
   removeProgramCoordinator,
@@ -34,8 +35,10 @@ import {
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
 
+const COORDINATOR_PROGRAM_QUERY_ROOT = ["coordinator-program"] as const;
+
 export const coordinatorProgramQueryKey = (programId: string) =>
-  ["coordinator-program", programId] as const;
+  [...COORDINATOR_PROGRAM_QUERY_ROOT, programId] as const;
 
 export function useCoordinatorProgram(programId: string) {
   return useQuery({
@@ -238,7 +241,7 @@ export function useProgramArchive(programId: string, archived: boolean) {
 }
 
 /** "Programı Başlat": the admin turns a draft active; the admin's program list is refreshed too. */
-export function useLaunchProgram(programId: string) {
+export function useLaunchProgram(programId: string, onLaunched?: () => void) {
   const t = useTranslations("coordinatorPrograms");
   const cache = useProgramCache(programId);
   const queryClient = useQueryClient();
@@ -261,5 +264,47 @@ export function useLaunchProgram(programId: string) {
         tone: ToastTone.Error,
       }),
   });
-  return { launch: () => mutation.mutate(), launching: mutation.isPending };
+  return {
+    launch: () =>
+      mutation.mutate(undefined, {
+        onSuccess: () => {
+          // The semester it completed changed too.
+          void queryClient.invalidateQueries({
+            queryKey: COORDINATOR_PROGRAM_QUERY_ROOT,
+          });
+          onLaunched?.();
+        },
+      }),
+    launching: mutation.isPending,
+  };
+}
+
+/**
+ * The ODTÜ admin's "Programı Başlat": a confirmation that says which semester the launch completes and who moves into
+ * the new one, read from the backend when the dialog opens.
+ */
+export function useSemesterLaunch(programId: string) {
+  const [confirming, setConfirming] = useState(false);
+  const launch = useLaunchProgram(programId, () => setConfirming(false));
+  const preview = useQuery({
+    queryKey: [...coordinatorProgramQueryKey(programId), "launch-preview"],
+    queryFn: () => getLaunchPreview(programId),
+    enabled: confirming,
+    // Who moves can change while the dialog is closed; ask again each time it opens.
+    gcTime: 0,
+  });
+  return {
+    confirming,
+    ask: () => setConfirming(true),
+    close: () => {
+      if (!launch.launching) setConfirming(false);
+    },
+    preview: preview.data ?? null,
+    previewLoading: preview.isLoading,
+    previewError: preview.error,
+    launching: launch.launching,
+    confirm: () => {
+      if (preview.data) launch.launch();
+    },
+  };
 }

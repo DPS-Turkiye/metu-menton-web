@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,6 +11,7 @@ import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import {
   getCoordinatorProgram,
   getCoordinatorPrograms,
+  getLaunchPreview,
   launchCoordinatorProgram,
 } from "@/lib/client/coordinator-programs";
 import { ProgramTab } from "@/lib/coordinator-program-detail";
@@ -34,6 +35,7 @@ vi.mock("@/lib/client/coordinator-programs", () => ({
   getCoordinatorPrograms: vi.fn(),
   getProgramTeams: vi.fn(async () => []),
   launchCoordinatorProgram: vi.fn(),
+  getLaunchPreview: vi.fn(),
 }));
 
 function officeHours() {
@@ -266,8 +268,90 @@ describe("program detail frame, ODTÜ edition", () => {
       });
       expect(launch.closest("header")).not.toBeNull();
       expect(screen.queryByText(/Program henüz başlatılmadı/)).toBeNull();
+      vi.mocked(getLaunchPreview).mockResolvedValue({
+        previous: { id: "old-1", name: "2026 Bahar" },
+        students: 13,
+        peerMentors: 2,
+      });
       await user.click(launch);
+
+      const dialog = await screen.findByRole("dialog", {
+        name: "ODTÜ Office Hours başlatılsın mı?",
+      });
+      expect(
+        await within(dialog).findByText(
+          "2026 Bahar tamamlanır. Oradaki mentorluklar, talepler ve raporlar okunur olarak kalır.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          "Yeni döneme geçenler: 13 öğrenci, 2 akran mentoru.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(/Rozetler ve mentor profilleri aynen kalır/),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(/Office Hours üniversite genelinde sürer/),
+      ).toBeInTheDocument();
+      expect(launchCoordinatorProgram).not.toHaveBeenCalled();
+
+      await user.click(
+        within(dialog).getByRole("button", { name: "Programı başlat" }),
+      );
       expect(launchCoordinatorProgram).toHaveBeenCalledWith("oh-1");
+      await waitFor(() =>
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+    });
+
+    it("says nobody moves when no semester is active, and closes without launching", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      vi.mocked(getLaunchPreview).mockResolvedValue({
+        previous: null,
+        students: 0,
+        peerMentors: 0,
+      });
+      const user = userEvent.setup();
+      renderFrame(ProgramTab.Overview);
+
+      await user.click(
+        await screen.findByRole("button", { name: "Programı Başlat" }),
+      );
+      const dialog = await screen.findByRole("dialog");
+      expect(
+        await within(dialog).findByText(/Şu an aktif bir dönem yok/),
+      ).toBeInTheDocument();
+      expect(within(dialog).queryByText(/tamamlanır/)).not.toBeInTheDocument();
+      await user.click(within(dialog).getByRole("button", { name: "Vazgeç" }));
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(launchCoordinatorProgram).not.toHaveBeenCalled();
+    });
+
+    it("keeps the launch closed when who moves cannot be read", async () => {
+      vi.mocked(usePathname).mockReturnValue("/admin/programs/oh-1");
+      vi.mocked(getCoordinatorProgram).mockResolvedValue(
+        draft([{ id: "c-1", fullName: "Elif Demir", owner: true }]),
+      );
+      vi.mocked(getLaunchPreview).mockRejectedValue(
+        new Error("Başlatma özeti yüklenemedi."),
+      );
+      const user = userEvent.setup();
+      renderFrame(ProgramTab.Overview);
+
+      await user.click(
+        await screen.findByRole("button", { name: "Programı Başlat" }),
+      );
+      const dialog = await screen.findByRole("dialog");
+      expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+        "Başlatma özeti yüklenemedi.",
+      );
+      expect(
+        within(dialog).getByRole("button", { name: "Programı başlat" }),
+      ).toBeDisabled();
     });
 
     it("keeps the admin's launch closed, and says why, until a coordinator is assigned", async () => {

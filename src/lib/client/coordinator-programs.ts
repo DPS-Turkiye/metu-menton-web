@@ -5,6 +5,7 @@ import type {
   CoordinatorRef,
   CreateProgramEventInput,
   CreateProgramInput,
+  LaunchPreview,
   ProgramEligibleEmail,
   ProgramEvent,
   ProgramPhaseInput,
@@ -74,6 +75,14 @@ export async function replaceCoordinatorProgramPhases(
     await httpClient.put<CoordinatorProgramDetail>(
       `${programUrl(programId)}/phases`,
       { phases, syllabusDocumentId },
+    ),
+  );
+}
+
+export async function getLaunchPreview(programId: string) {
+  return requireSuccess(
+    await httpClient.get<LaunchPreview>(
+      `${programUrl(programId)}/launch-preview`,
     ),
   );
 }

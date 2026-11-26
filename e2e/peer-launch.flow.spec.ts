@@ -135,6 +135,10 @@ test.describe("Akran", () => {
     });
     programId = UUID.exec(page.url())?.[0] ?? "";
     await page.getByRole("button", { name: "Programı Başlat" }).click();
+    // A fresh stack has no active semester, so the dialog says nobody moves.
+    const launch = page.getByRole("dialog");
+    await expect(launch).toContainText("Şu an aktif bir dönem yok");
+    await launch.getByRole("button", { name: "Programı başlat" }).click();
     await expect(
       page.getByRole("button", { name: "Programı Başlat" }),
     ).toHaveCount(0, { timeout: 15_000 });

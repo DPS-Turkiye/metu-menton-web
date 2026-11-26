@@ -5,23 +5,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId } from "react";
 
-import { Button } from "@/components/ia/button";
+import { ModalDialog } from "@/components/common/modal-dialog";
+import { Button, ButtonVariant } from "@/components/ia/button";
+import { InlineAlert } from "@/components/ia/inline-alert";
 import { ProgramLifecyclePill } from "@/components/ia/program-status-pill";
 import { ProgramKindBadges } from "@/components/ia/program-type-badge";
+import { StatusTone } from "@/components/ia/status-badge";
 import { UnderlineTabs } from "@/components/ia/underline-tabs";
-import { useLaunchProgram } from "@/hooks/use-coordinator-program";
+import { useSemesterLaunch } from "@/hooks/use-coordinator-program";
 import { useProgramNavigation } from "@/hooks/use-program-navigation";
 import { useProgramSwitcher } from "@/hooks/use-program-switcher";
 import {
   ProgramLifecycle,
   type CoordinatorProgramDetail,
 } from "@/interfaces/coordinator-program";
+import { ProgramFeature } from "@/interfaces/program";
 import {
   isActiveTab,
   odtuProgramHeaderLine,
   odtuProgramTabs,
   type ProgramTab,
 } from "@/lib/coordinator-program-detail";
+import { hasFeature } from "@/lib/program-features";
+import { errorMessage } from "@/lib/utils";
 
 /**
  * The ODTÜ program header (Figma 06 — Koordinatör, "Program Detayı"): the breadcrumb, the name with its type and
@@ -82,6 +88,7 @@ export function OdtuProgramHeader({
           program.lifecycle === ProgramLifecycle.Draft ? (
             <LaunchAction
               programId={programId}
+              program={program}
               hasCoordinator={detail.coordinators.length > 0}
             />
           ) : null
@@ -101,18 +108,20 @@ export function OdtuProgramHeader({
 /** The admin's "Programı Başlat" in a draft's header (Figma 152:7447), closed until a coordinator is assigned. */
 function LaunchAction({
   programId,
+  program,
   hasCoordinator,
 }: {
   programId: string;
+  program: CoordinatorProgramDetail["program"];
   hasCoordinator: boolean;
 }) {
   const t = useTranslations("coordinatorPrograms");
-  const launch = useLaunchProgram(programId);
+  const launch = useSemesterLaunch(programId);
   const hintId = useId();
   return (
     <div className="flex flex-col items-end gap-1.5">
       <Button
-        onClick={launch.launch}
+        onClick={launch.ask}
         disabled={!hasCoordinator || launch.launching}
         aria-describedby={hasCoordinator ? undefined : hintId}
       >
@@ -123,7 +132,76 @@ function LaunchAction({
           {t("launchNeedsCoordinator")}
         </p>
       )}
+      {launch.confirming ? (
+        <LaunchDialog program={program} launch={launch} />
+      ) : null}
     </div>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+function LaunchDialog({
+  program,
+  launch,
+}: {
+  program: CoordinatorProgramDetail["program"];
+  launch: ReturnType<typeof useSemesterLaunch>;
+}) {
+  const t = useTranslations("coordinatorPrograms.launchDialog");
+  const titleId = useId();
+  const preview = launch.preview;
+  return (
+    <ModalDialog labelledBy={titleId} onClose={launch.close}>
+      <h2 id={titleId} className="type-h4 text-text-primary">
+        {t("title", { name: program.name })}
+      </h2>
+      {launch.previewLoading ? (
+        <p role="status" className="type-body-sm text-text-muted">
+          {t("loading")}
+        </p>
+      ) : null}
+      {launch.previewError ? (
+        <InlineAlert tone={StatusTone.Error}>
+          {errorMessage(launch.previewError, t("loadFailed"))}
+        </InlineAlert>
+      ) : null}
+      {preview ? (
+        <ul className="list-disc space-y-2 pl-5 type-body-sm text-text-secondary">
+          {preview.previous ? (
+            <>
+              <li>{t("completes", { previous: preview.previous.name })}</li>
+              <li>
+                {t("moves", {
+                  students: preview.students,
+                  peerMentors: preview.peerMentors,
+                })}
+              </li>
+              <li>{t("keeps")}</li>
+            </>
+          ) : (
+            <li>{t("noPrevious")}</li>
+          )}
+          {hasFeature(program, ProgramFeature.OfficeHours) ? (
+            <li>{t("officeHours")}</li>
+          ) : null}
+        </ul>
+      ) : null}
+      <div className="flex justify-end gap-2">
+        <Button
+          variant={ButtonVariant.Ghost}
+          onClick={launch.close}
+          disabled={launch.launching}
+        >
+          {t("cancel")}
+        </Button>
+        <Button
+          onClick={launch.confirm}
+          disabled={preview === null || launch.launching}
+        >
+          {t("confirm")}
+        </Button>
+      </div>
+    </ModalDialog>
   );
 }
 
