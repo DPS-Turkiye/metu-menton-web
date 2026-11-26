@@ -57,8 +57,8 @@ export enum SettingsSection {
 }
 
 /**
- * The sections Program Ayarları shows: the Akran Mentoru training and the categories only with Akran Mentörlüğü, the
- * features only for a semester, and a draft has no Arşiv.
+ * The sections Program Ayarları shows: Katılım (who may join), the Akran Mentoru training and the categories only with
+ * Akran Mentörlüğü (or for a startup program's Katılım), the features only for a semester, and a draft has no Arşiv.
  */
 export function settingsSections(
   program: Pick<
@@ -66,11 +66,13 @@ export function settingsSections(
     "type" | "features" | "myFeatures" | "lifecycle"
   >,
 ) {
+  const startup = program.type === ProgramType.StartupMentoring;
   const peer = openFeaturesOf(program).includes(ProgramFeature.PeerMentoring);
   return Object.values(SettingsSection).filter(
     (section) =>
       (section !== SettingsSection.Features ||
         program.type === ProgramType.Semester) &&
+      (section !== SettingsSection.Eligibility || startup || peer) &&
       (section !== SettingsSection.Training || peer) &&
       (section !== SettingsSection.PeerCategories || peer) &&
       (section !== SettingsSection.Archive ||
@@ -184,6 +186,13 @@ export function odtuProgramTabs(
 ) {
   const base = `/coordinator/programs/${encodeURIComponent(programId)}`;
   const tabs = programTabs(detail, programId);
+  // Raporlar are the peer reports; without Akran Mentörlüğü the backend closes them.
+  if (
+    detail.program.type !== ProgramType.StartupMentoring &&
+    !tabFeatures(detail).peer
+  ) {
+    return tabs;
+  }
   const reports = {
     id: ProgramTab.Reports,
     href: `${base}/report`,
@@ -291,12 +300,8 @@ export function misplacedTabHref(
     if (tab === ProgramTab.Appointments) return `${base}/matching`;
     return null;
   }
-  if (
-    tab === ProgramTab.Overview ||
-    tab === ProgramTab.Reports ||
-    tab === ProgramTab.Settings
-  )
-    return null;
+  if (tab === ProgramTab.Overview || tab === ProgramTab.Settings) return null;
+  if (tab === ProgramTab.Reports) return tabFeatures(detail).peer ? null : base;
   const participants = participantTabs(detail, programId);
   if (PARTICIPANT_PAGES.includes(tab)) {
     if (participants.some((item) => item.id === tab)) return null;

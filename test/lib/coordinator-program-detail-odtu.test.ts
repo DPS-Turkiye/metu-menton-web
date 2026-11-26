@@ -29,7 +29,7 @@ function detail(type: ProgramType) {
 }
 
 describe("ODTÜ program header", () => {
-  it("puts Raporlar as a tab right before Program Ayarları", () => {
+  it("puts Raporlar as a tab right before Program Ayarları, only with Akran Mentörlüğü", () => {
     expect(
       odtuProgramTabs(detail(ProgramType.OfficeHours), "p 1").map((tab) => [
         tab.id,
@@ -39,7 +39,6 @@ describe("ODTÜ program header", () => {
       [ProgramTab.Overview, "/coordinator/programs/p%201"],
       [ProgramTab.Participants, "/coordinator/programs/p%201/academics"],
       [ProgramTab.Appointments, "/coordinator/programs/p%201/appointments"],
-      [ProgramTab.Reports, "/coordinator/programs/p%201/report"],
       [ProgramTab.Settings, "/coordinator/programs/p%201/settings"],
     ]);
     expect(

@@ -426,8 +426,14 @@ describe("a semester's tabs by its features", () => {
     expect(participantTabs(detail, "p1")).toEqual([]);
     expect(misplacedTabHref(detail, "p1", ProgramTab.Students)).toBe(base);
     expect(misplacedTabHref(detail, "p1", ProgramTab.Matching)).toBe(base);
-    expect(misplacedTabHref(detail, "p1", ProgramTab.Reports)).toBeNull();
+    expect(misplacedTabHref(detail, "p1", ProgramTab.Reports)).toBe(base);
     expect(misplacedTabHref(detail, "p1", ProgramTab.Overview)).toBeNull();
+    expect(
+      misplacedTabHref(semester([Peer], [Peer]), "p1", ProgramTab.Reports),
+    ).toBeNull();
+    expect(settingsSections(detail.program)).not.toContain(
+      SettingsSection.Eligibility,
+    );
   });
 
   it("lists Program özellikleri and the peer sections in a semester's settings", () => {
