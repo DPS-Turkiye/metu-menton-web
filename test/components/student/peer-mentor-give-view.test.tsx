@@ -671,6 +671,7 @@ describe("PeerMentorGiveView", () => {
         ),
       );
       vi.mocked(getIskurWeek).mockResolvedValue(createIskurWeek());
+      vi.mocked(getStudentAppointments).mockResolvedValue([]);
       vi.mocked(getAvailabilitySettings).mockResolvedValue({
         rules: [
           {
@@ -799,6 +800,48 @@ describe("PeerMentorGiveView", () => {
             dayOfWeek: Weekday.Monday,
             startTime: "10:00",
             endTime: "13:00",
+            slotMinutes: 30,
+          },
+          {
+            dayOfWeek: Weekday.Wednesday,
+            startTime: "09:00",
+            endTime: "12:00",
+            slotMinutes: 30,
+          },
+        ]),
+      );
+    });
+
+    it("keeps a suggestion clear of a meeting already booked", async () => {
+      vi.mocked(getAvailabilitySettings).mockResolvedValue({
+        rules: [],
+        exceptions: [],
+        menteeCapacity: 3,
+        defaultMeetingDurationMinutes: 30,
+        meetingBufferMinutes: 0,
+      });
+      // Monday 7 Jan 2030, 10:00–11:00 in Turkey.
+      vi.mocked(getStudentAppointments).mockResolvedValue([
+        peerAppointment({
+          startsAt: "2030-01-07T07:00:00Z",
+          endsAt: "2030-01-07T08:00:00Z",
+        }),
+      ]);
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      expect(
+        await screen.findByText("Görev saatlerinden önerildi"),
+      ).toBeVisible();
+      await user.click(screen.getByRole("button", { name: "Kaydet" }));
+      await waitFor(() =>
+        expect(
+          vi.mocked(updateAvailabilitySettings).mock.calls[0]?.[0].rules,
+        ).toEqual([
+          {
+            dayOfWeek: Weekday.Monday,
+            startTime: "11:00",
+            endTime: "14:00",
             slotMinutes: 30,
           },
           {

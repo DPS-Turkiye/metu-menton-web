@@ -1,4 +1,8 @@
+import type { Appointment } from "@/interfaces/appointment";
 import { Weekday, WEEKDAY_ORDER } from "@/interfaces/mentor";
+import { currentTime, isUpcoming } from "@/lib/appointments";
+import { weekdayOf } from "@/lib/mentor-availability";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { minutesOfDay } from "@/lib/utils";
 
 /** One range of an İŞKUR intern's work days, "HH:mm" to "HH:mm" (their onboarding form). */
@@ -111,17 +115,63 @@ export type SuggestedOffer = Omit<OfferedRange, "key">;
 const SUGGESTION_STEP_MINUTES = 30;
 
 /**
+ * The weekday and Turkey clock hours of the person's meetings still to come, on either side: hours a suggestion
+ * must keep clear. A meeting that runs past midnight keeps only its first day.
+ */
+export function busyRanges(
+  appointments: readonly Pick<
+    Appointment,
+    "status" | "startsAt" | "endsAt" | "alternative"
+  >[],
+  now: Date,
+): DutyRange[] {
+  return appointments
+    .filter((appointment) => isUpcoming(appointment, now))
+    .map((appointment) => {
+      const time = currentTime(appointment);
+      const start = toTurkishWallClock(time.startsAt);
+      const end = toTurkishWallClock(time.endsAt);
+      const sameDay = start.toDateString() === end.toDateString();
+      return {
+        day: weekdayOf(start),
+        start: timeOf(start.getHours() * 60 + start.getMinutes()),
+        end: sameDay ? timeOf(end.getHours() * 60 + end.getMinutes()) : "24:00",
+      };
+    });
+}
+
+/** The parts of a day's work ranges that no busy range covers. */
+function freeOf(work: readonly Minutes[], busy: readonly Minutes[]) {
+  return work.flatMap((range) => {
+    let parts: Minutes[] = [range];
+    for (const taken of busy) {
+      parts = parts.flatMap((part) =>
+        taken.to <= part.from || taken.from >= part.to
+          ? [part]
+          : [
+              { from: part.from, to: taken.from },
+              { from: taken.to, to: part.to },
+            ].filter(({ from, to }) => to > from),
+      );
+    }
+    return parts;
+  });
+}
+
+/**
  * Mentoring hours proposed from an intern's work hours, adding up to their weekly mentoring target: the target is
  * shared evenly over the work days in half-hour steps (the earlier days take the leftover steps), each day's share
- * starts where its work starts, and a share a day cannot hold moves on to the days with room left.
+ * starts where its free work time starts, and a share a day cannot hold moves on to the days with room left. Hours
+ * of meetings already booked (`busy`) are never suggested.
  */
 export function suggestedOffers(
   duty: readonly DutyRange[],
   mentoringMinutes: number | null,
+  busy: readonly DutyRange[] = [],
 ): SuggestedOffer[] {
   const days = WEEKDAY_ORDER.map((day) => ({
     day,
-    work: dutyOf(duty, day),
+    work: freeOf(dutyOf(duty, day), dutyOf(busy, day)),
   })).filter(({ work }) => work.length > 0);
   if (mentoringMinutes === null || days.length === 0) return [];
   const steps = Math.floor(mentoringMinutes / SUGGESTION_STEP_MINUTES);

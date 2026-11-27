@@ -83,6 +83,9 @@ vi.mock("@/lib/client/iskur-onboarding", () => ({
   getIskurOnboarding: vi.fn(),
 }));
 vi.mock("@/lib/client/iskur-weeks", () => ({ getIskurWeek: vi.fn() }));
+vi.mock("@/lib/client/student-appointments", () => ({
+  getStudentAppointments: vi.fn(() => Promise.resolve([])),
+}));
 vi.mock("@/lib/client/mentor-profile", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/client/mentor-profile")>()),
   getAvailabilitySettings: vi.fn(),

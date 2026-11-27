@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { AppointmentStatus } from "@/interfaces/appointment";
 import { Weekday } from "@/interfaces/mentor";
 import {
+  busyRanges,
   chartPlace,
   chartSpan,
   dutyMinutes,
@@ -11,6 +13,7 @@ import {
   spanLabel,
   suggestedOffers,
 } from "@/lib/mentor-duty-hours";
+import { peerAppointment } from "@test/fixtures/student-appointments";
 
 const duty = [
   { day: Weekday.Monday, start: "10:00", end: "14:00" },
@@ -79,6 +82,44 @@ describe("mentor duty hours", () => {
     expect(chartPlace(chartSpan(duty, []), "14:00", "13:00").width).toBe(0);
   });
 
+  it("keeps the Turkey clock hours of meetings still to come, at the time on the table", () => {
+    const now = new Date("2030-01-01T00:00:00Z");
+    expect(
+      busyRanges(
+        [
+          // Monday 7 Jan 2030, 10:00–11:00 in Turkey.
+          peerAppointment({
+            startsAt: "2030-01-07T07:00:00Z",
+            endsAt: "2030-01-07T08:00:00Z",
+          }),
+          // Moved to Wednesday 13:30–14:15 by the other side's proposal.
+          peerAppointment({
+            status: AppointmentStatus.AlternativeProposed,
+            startsAt: "2030-01-08T07:00:00Z",
+            endsAt: "2030-01-08T08:00:00Z",
+            alternative: {
+              startsAt: "2030-01-09T10:30:00Z",
+              endsAt: "2030-01-09T11:15:00Z",
+            },
+          }),
+          peerAppointment({
+            status: AppointmentStatus.Cancelled,
+            startsAt: "2030-01-10T07:00:00Z",
+            endsAt: "2030-01-10T08:00:00Z",
+          }),
+          peerAppointment({
+            startsAt: "2029-12-31T07:00:00Z",
+            endsAt: "2029-12-31T08:00:00Z",
+          }),
+        ],
+        now,
+      ),
+    ).toEqual([
+      { day: Weekday.Monday, start: "10:00", end: "11:00" },
+      { day: Weekday.Wednesday, start: "13:30", end: "14:15" },
+    ]);
+  });
+
   describe("suggested mentoring hours", () => {
     const threeDays = [
       { day: Weekday.Wednesday, start: "09:00", end: "16:30" },
@@ -123,6 +164,26 @@ describe("mentor duty hours", () => {
       ]);
       expect(offers.every((range) => isInsideDuty(short, range))).toBe(true);
       expect(offeredMinutes(offers)).toBe(240);
+    });
+
+    it("never suggests the hours of a meeting already booked, and moves that share on", () => {
+      const offers = suggestedOffers(
+        [
+          { day: Weekday.Monday, start: "10:00", end: "14:00" },
+          { day: Weekday.Wednesday, start: "09:00", end: "11:00" },
+        ],
+        150,
+        [
+          { day: Weekday.Monday, start: "10:00", end: "10:45" },
+          { day: Weekday.Monday, start: "12:00", end: "12:30" },
+          { day: Weekday.Wednesday, start: "09:00", end: "11:00" },
+        ],
+      );
+      // Wednesday is fully booked, so Monday's free time (10:45–12:00, 12:30–14:00) takes the whole target.
+      expect(offers).toEqual([
+        offered(Weekday.Monday, "10:45", "11:45"),
+        offered(Weekday.Monday, "12:30", "14:00"),
+      ]);
     });
 
     it("suggests nothing without a target, with a zero target, or without work days", () => {
