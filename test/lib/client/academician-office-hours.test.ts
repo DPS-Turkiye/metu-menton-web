@@ -338,40 +338,33 @@ describe("academician Office Hours client", () => {
     expect(httpClient.post).not.toHaveBeenCalled();
   });
 
-  it("reads where and how students meet them", async () => {
-    vi.mocked(httpClient.get).mockResolvedValue(
-      createMentorResponse(officeHoursProfile()),
-    );
-
-    expect(await getOfficeHoursProfileSettings()).toEqual({
-      defaultPlace: "A-204",
-      onlineLink: "https://meet.example.com/abc",
-      contactEmail: null,
+  it("reads the whole profile as the backend sends it", async () => {
+    const profile = officeHoursProfile({
+      details: {
+        about: "Makine öğrenmesi",
+        topics: [{ title: "Staj", body: null }],
+        courses: [{ code: "CENG 140", name: "C Programlama" }],
+        expertise: ["ML"],
+        responseDays: 2,
+      },
     });
+    vi.mocked(httpClient.get).mockResolvedValue(createMentorResponse(profile));
+
+    expect(await getOfficeHoursProfileSettings()).toEqual(profile);
   });
 
-  it("keeps whether students see them as saved, since this screen does not set it", async () => {
-    vi.mocked(httpClient.get).mockResolvedValue(
-      createMentorResponse(officeHoursProfile({ listed: false })),
-    );
-    vi.mocked(httpClient.put).mockResolvedValue(
-      createMentorResponse(
-        officeHoursProfile({ listed: false, defaultPlace: "B-101" }),
-      ),
-    );
-
-    const saved = await saveOfficeHoursProfileSettings({
-      defaultPlace: "B-101",
-      onlineLink: null,
-      contactEmail: null,
-    });
-
-    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/profile`, {
-      defaultPlace: "B-101",
-      onlineLink: null,
-      contactEmail: null,
+  it("saves the whole profile in one call, without reading it first", async () => {
+    const profile = officeHoursProfile({
       listed: false,
+      defaultPlace: "B-101",
+      emails: { newRequest: false, cancellation: true },
     });
-    expect(saved.defaultPlace).toBe("B-101");
+    vi.mocked(httpClient.put).mockResolvedValue(createMentorResponse(profile));
+
+    const saved = await saveOfficeHoursProfileSettings(profile);
+
+    expect(httpClient.get).not.toHaveBeenCalled();
+    expect(httpClient.put).toHaveBeenCalledWith(`${BASE}/profile`, profile);
+    expect(saved).toEqual(profile);
   });
 });

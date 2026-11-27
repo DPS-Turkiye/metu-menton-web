@@ -328,5 +328,102 @@
     "historyAhead": "Upcoming",
     "historyPast": "Past",
     "historyCount": "{count, plural, one {# appointment} other {# appointments}}"
+  },
+  "profile": {
+    "title": "My profile",
+    "save": "Save",
+    "saving": "Saving…",
+    "discard": "Discard",
+    "unsaved": "You have unsaved changes.",
+    "saved": "Your profile is saved.",
+    "saveFailed": "Could not save. Try again.",
+    "fixErrors": "Fix the marked fields before saving.",
+    "visibility": {
+      "title": "Visible to students",
+      "toggle": "Show me in the office hours list",
+      "on": "On: Menton students see you in the list and can ask for a meeting.",
+      "off": "Off: Menton students don't see you in the list."
+    },
+    "meeting": {
+      "title": "Meeting details",
+      "hint": "Students see these when they ask for a meeting.",
+      "defaultPlace": "Default meeting place",
+      "defaultPlacePlaceholder": "E.g. A-204",
+      "onlineLink": "Online meeting link (optional)",
+      "onlineLinkPlaceholder": "https://…",
+      "contactEmail": "E-mail shown to students (optional)"
+    },
+    "about": {
+      "title": "About me",
+      "hint": "Students read these on your page.",
+      "label": "Short introduction",
+      "placeholder": "Tell students what you can help them with.",
+      "count": "{count}/{max}",
+      "responseDays": "How soon do you usually answer requests?",
+      "responseDaysNone": "Don't say",
+      "responseDaysOption": "Within {count, plural, one {# day} other {# days}}",
+      "tags": "Expertise tags",
+      "tagPlaceholder": "E.g. Machine learning",
+      "tagAdd": "Add",
+      "tagHint": "Up to {max} tags. Students find you by them in search too.",
+      "tagRemove": "Remove the tag {tag}",
+      "tagErrors": {
+        "tagEmpty": "Type the tag first.",
+        "tagDuplicate": "This tag is already there.",
+        "tagFull": "You can add up to {max} tags.",
+        "markup": "Plain text only."
+      },
+      "tagList": "Added tags"
+    },
+    "topics": {
+      "title": "Meeting topics",
+      "hint": "Up to {max} topics.",
+      "empty": "You haven't added a topic yet.",
+      "row": "Topic {number}",
+      "remove": "Remove topic {number}",
+      "topicTitle": "Topic title",
+      "topicBody": "Short description (optional)",
+      "add": "Add a topic"
+    },
+    "courses": {
+      "title": "Courses you teach",
+      "hint": "Up to {max} courses.",
+      "empty": "You haven't added a course yet.",
+      "row": "Course {number}",
+      "remove": "Remove course {number}",
+      "code": "Course code",
+      "codePlaceholder": "E.g. CENG 140",
+      "name": "Course name",
+      "add": "Add a course"
+    },
+    "emails": {
+      "title": "E-mail notifications",
+      "hint": "In-app notifications always arrive. Meeting reminders are always sent.",
+      "newRequest": "E-mail me when a new meeting request arrives",
+      "cancellation": "E-mail me when a student cancels a meeting"
+    },
+    "errors": {
+      "invalidLink": "The link must be a web address starting with https://.",
+      "invalidEmail": "Enter a valid e-mail address.",
+      "markup": "Plain text only; HTML tags can't be used.",
+      "topicTitleMissing": "Write the topic's title or remove the row.",
+      "courseIncomplete": "Write both the course code and name, or remove the row."
+    },
+    "institution": {
+      "title": "Institutional details",
+      "source": "From ODTÜ, read-only",
+      "fullName": "Full name",
+      "academicTitle": "Title",
+      "department": "Department",
+      "faculty": "Faculty",
+      "email": "E-mail",
+      "unknown": "Not given",
+      "loading": "Loading…",
+      "missingTitle": "No ODTÜ record",
+      "missingBody": "There is no ODTÜ record for this account.",
+      "loadError": "Could not load the institutional details.",
+      "retry": "Try again",
+      "note": "If something is wrong, tell your unit at ODTÜ; Menton cannot change these details."
+    }
   }
 }

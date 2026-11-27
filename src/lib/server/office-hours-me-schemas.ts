@@ -6,6 +6,8 @@ import {
 } from "@/interfaces/academician-office-hours";
 import { Weekday } from "@/interfaces/mentor";
 import { OfficeHoursRequestStatus } from "@/interfaces/office-hours";
+import { OFFICE_HOURS_PROFILE_LIMITS as PROFILE_LIMITS } from "@/interfaces/office-hours-me";
+import { isPlainText } from "@/lib/academician-profile";
 
 /** An ISO time with its offset, as the screens send it ("2026-11-24T14:00:00+03:00" or "…Z"). */
 const isoTimeSchema = z.iso.datetime({ offset: true });
@@ -14,6 +16,10 @@ const isoTimeSchema = z.iso.datetime({ offset: true });
 const clockTimeSchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/);
+
+/** Text the backend stores as plain text: anything tag-like is refused there too, so it is refused here first. */
+const plainText = (max: number) =>
+  z.string().max(max).refine(isPlainText, { message: "Plain text only" });
 
 /** Optional text up to the backend's column size; blank is sent as it is and cleared there. */
 const optionalText = (max: number) =>
@@ -77,6 +83,41 @@ export const officeHoursProfileSchema = z.object({
     .union([z.email().max(320), z.literal("")])
     .nullable()
     .default(null),
+  // Not sent means "leave as saved" on the backend, so an absent group must stay absent, never default.
+  details: z
+    .object({
+      about: plainText(PROFILE_LIMITS.about).nullable().default(null),
+      topics: z
+        .array(
+          z.object({
+            title: plainText(PROFILE_LIMITS.topicTitle).min(1),
+            body: plainText(PROFILE_LIMITS.topicBody).nullable().default(null),
+          }),
+        )
+        .max(PROFILE_LIMITS.topics),
+      courses: z
+        .array(
+          z.object({
+            code: plainText(PROFILE_LIMITS.courseCode).min(1),
+            name: plainText(PROFILE_LIMITS.courseName).min(1),
+          }),
+        )
+        .max(PROFILE_LIMITS.courses),
+      expertise: z
+        .array(plainText(PROFILE_LIMITS.tag).min(1))
+        .max(PROFILE_LIMITS.tags),
+      responseDays: z
+        .number()
+        .int()
+        .min(1)
+        .max(PROFILE_LIMITS.responseDays)
+        .nullable()
+        .default(null),
+    })
+    .optional(),
+  emails: z
+    .object({ newRequest: z.boolean(), cancellation: z.boolean() })
+    .optional(),
 });
 
 /** One of the academician's answers; the backend checks which fields each answer needs. */

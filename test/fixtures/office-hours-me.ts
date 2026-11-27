@@ -82,6 +82,14 @@ export function officeHoursProfile(
     defaultPlace: "A-204",
     onlineLink: "https://meet.example.com/abc",
     contactEmail: null,
+    details: {
+      about: null,
+      topics: [],
+      courses: [],
+      expertise: [],
+      responseDays: null,
+    },
+    emails: { newRequest: true, cancellation: true },
     ...overrides,
   };
 }

@@ -5,12 +5,14 @@ import {
   type AcademicianAppointment,
   type AcademicianAvailability,
   type OfficeHoursAnswer,
-  type OfficeHoursProfileSettings,
   type OfficeHoursRequest,
   type UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
 import { AppointmentStatus } from "@/interfaces/appointment";
-import type { OfficeHoursAvailabilityImpact } from "@/interfaces/office-hours-me";
+import type {
+  OfficeHoursAvailabilityImpact,
+  OfficeHoursProfile,
+} from "@/interfaces/office-hours-me";
 import {
   ACADEMICIAN_APPOINTMENTS_SAMPLE,
   ACADEMICIAN_AVAILABILITY_SAMPLE,
@@ -26,7 +28,7 @@ type SampleState = {
   requests: OfficeHoursRequest[];
   appointments: AcademicianAppointment[];
   availability: AcademicianAvailability;
-  profile: OfficeHoursProfileSettings;
+  profile: OfficeHoursProfile;
   /** What the next change to the hours would leave out (FR-OH-29); nothing by default. */
   impact: OfficeHoursAvailabilityImpact;
   /** The list changes once after the academician confirmed it, as if a request came in meanwhile. */
@@ -170,7 +172,7 @@ export function takeSampleChange() {
   return changed;
 }
 
-export function saveSampleProfile(settings: OfficeHoursProfileSettings) {
+export function saveSampleProfile(settings: OfficeHoursProfile) {
   state.profile = { ...settings };
   return structuredClone(state.profile);
 }

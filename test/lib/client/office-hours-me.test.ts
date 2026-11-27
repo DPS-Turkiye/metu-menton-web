@@ -22,6 +22,7 @@ import {
   itSendsEachClientCall,
   type ClientCall,
 } from "@test/fixtures/client-calls";
+import { officeHoursProfile } from "@test/fixtures/office-hours-me";
 
 vi.mock("@/lib/http-client", () => ({
   httpClient: {
@@ -49,12 +50,7 @@ const hours = {
   defaultMeetingDurationMinutes: 30,
   meetingBufferMinutes: 0,
 };
-const profile = {
-  listed: true,
-  defaultPlace: "A-204",
-  onlineLink: null,
-  contactEmail: null,
-};
+const profile = officeHoursProfile({ onlineLink: null });
 const ask = {
   academicianId: "academician-1",
   startsAt: "2026-11-24T14:00:00+03:00",

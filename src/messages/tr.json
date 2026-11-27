@@ -7039,36 +7039,7 @@
       "resetFailed": "Yeni link oluşturulamadı."
     }
   },
-  "academicianWorkspace": {
-    "institution": {
-      "title": "Kurumsal Bilgiler",
-      "readOnly": "ODTÜ'den, salt okunur",
-      "academicTitle": "Unvan",
-      "faculty": "Fakülte",
-      "department": "Bölüm",
-      "email": "E-posta",
-      "syncedAt": "Son güncelleme: {date}",
-      "help": "Bilgilerin yanlışsa ODTÜ'deki birimine bildir; Menton bu bilgileri değiştiremez.",
-      "empty": "Bu hesap için ODTÜ kaydı yok."
-    },
-    "profile": {
-      "title": "Profilim",
-      "subtitle": "Öğrencilerin seni nasıl bulacağı ve nerede görüşeceğiniz.",
-      "settingsTitle": "Ofis saati bilgileri",
-      "settingsHint": "Öğrenciler randevu talep ederken bunları görür.",
-      "defaultPlace": "Varsayılan görüşme yeri",
-      "defaultPlacePlaceholder": "Örn. A-204",
-      "onlineLink": "Çevrim içi görüşme bağlantısı (isteğe bağlı)",
-      "onlineLinkPlaceholder": "https://…",
-      "contactEmail": "Öğrencilere gösterilecek e-posta (isteğe bağlı)",
-      "save": "Kaydet",
-      "saving": "Kaydediliyor…",
-      "saved": "Profil bilgilerin kaydedildi.",
-      "saveFailed": "Kaydedilemedi.",
-      "invalidLink": "Bağlantı https:// ile başlayan bir web adresi olmalı.",
-      "invalidEmail": "Geçerli bir e-posta adresi yaz."
-    }
-  },
+  "academicianWorkspace": {},
   "programPeerCategories": {
     "noneActive": "Hiçbir kategori etkin değil: öğrenciler mentor arayamaz, akran mentorları profilinde kategori seçemez.",
     "activeCount": "{count, plural, one {# kategori etkin} other {# kategori etkin}}",

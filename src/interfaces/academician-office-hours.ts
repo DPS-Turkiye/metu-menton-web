@@ -109,11 +109,3 @@ export type UpdateAcademicianAvailabilityPayload =
   UpdateMentorAvailabilitySettingsPayload & {
     oneOffs: Omit<OfficeHoursOneOff, "id">[];
   };
-
-/** What the academician sets for students; title and department come from ODTÜ's record. */
-export type OfficeHoursProfileSettings = {
-  defaultPlace: string | null;
-  onlineLink: string | null;
-  /** Shown to students only when filled in. */
-  contactEmail: string | null;
-};
