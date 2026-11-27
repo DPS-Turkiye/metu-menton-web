@@ -2,6 +2,7 @@
 
 import { AlarmClock, Check, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
@@ -26,12 +27,31 @@ import { initials } from "@/lib/utils";
 import { PeerRequestAvailability } from "@/types/iskur-student";
 
 /** Mentorluk al › Keşfet (Figma 4.1): search and filters, the recommended mentors, then everyone. */
-export function PeerMentorDirectory() {
+export function PeerMentorDirectory({
+  focusSearch = false,
+  onSearchFocused,
+}: {
+  /** "Başka mentor bul" lands here: put the student in the search box. */
+  focusSearch?: boolean;
+  onSearchFocused?: () => void;
+}) {
   const t = useTranslations("iaIskur.take.discover");
   const tTopic = useTranslations("peerTopics");
   const tSubTopic = useTranslations("studentProfileCompletion.subtopics");
   const directory = usePeerMentorDirectory();
   const mentors = directory.mentors.data;
+  const search = useRef<HTMLInputElement>(null);
+  const focused = useRef(onSearchFocused);
+
+  useEffect(() => {
+    focused.current = onSearchFocused;
+  });
+
+  useEffect(() => {
+    if (!focusSearch) return;
+    search.current?.focus();
+    focused.current?.();
+  }, [focusSearch]);
 
   return (
     <div className="flex flex-col gap-7">
@@ -44,6 +64,7 @@ export function PeerMentorDirectory() {
             strokeWidth={1.5}
           />
           <input
+            ref={search}
             type="search"
             value={directory.query}
             onChange={(event) => directory.setQuery(event.target.value)}
@@ -90,39 +111,45 @@ export function PeerMentorDirectory() {
       {directory.noActiveCategories ? (
         <InlineAlert tone={StatusTone.Info}>{t("noCategories")}</InlineAlert>
       ) : (
-        <div
-          role="group"
-          aria-label={t("categoriesTitle")}
-          className="flex flex-wrap gap-2"
-        >
-          <ToggleChip
-            label={t("allCategories")}
-            pressed={directory.category === null}
-            onToggle={() => directory.setCategory(null)}
-          />
-          {directory.categories.map((category) => {
-            const count = directory.countOf(category);
-            return (
-              <ToggleChip
-                key={category}
-                pressed={directory.category === category}
-                onToggle={() => directory.toggleCategory(category)}
-                label={
-                  <span>
-                    {tTopic(category)}
-                    {count === undefined ? null : (
-                      <>
-                        <span aria-hidden>{` · ${String(count)}`}</span>
-                        <span className="sr-only">
-                          {t("mentorCountSuffix", { count })}
-                        </span>
-                      </>
-                    )}
-                  </span>
-                }
-              />
-            );
-          })}
+        <div className="flex flex-col gap-2">
+          {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+          <p id="peer-category-filter" className="type-caption text-text-muted">
+            {t("categoryChipsLabel")}
+          </p>
+          <div
+            role="group"
+            aria-labelledby="peer-category-filter"
+            className="flex flex-wrap gap-2"
+          >
+            <ToggleChip
+              label={t("allCategories")}
+              pressed={directory.category === null}
+              onToggle={() => directory.setCategory(null)}
+            />
+            {directory.categories.map((category) => {
+              const count = directory.countOf(category);
+              return (
+                <ToggleChip
+                  key={category}
+                  pressed={directory.category === category}
+                  onToggle={() => directory.toggleCategory(category)}
+                  label={
+                    <span>
+                      {tTopic(category)}
+                      {count === undefined ? null : (
+                        <>
+                          <span aria-hidden>{` · ${String(count)}`}</span>
+                          <span className="sr-only">
+                            {t("mentorCountSuffix", { count })}
+                          </span>
+                        </>
+                      )}
+                    </span>
+                  }
+                />
+              );
+            })}
+          </div>
         </div>
       )}
 

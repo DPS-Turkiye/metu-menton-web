@@ -273,6 +273,32 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toBeVisible();
   });
 
+  it("hides the categories no mentor offers and labels the chips as a category filter", async () => {
+    const { getPeerMentorCounts } = await import("@/lib/client/peer-mentoring");
+    vi.mocked(getPeerMentorCounts).mockResolvedValueOnce([
+      { category: PeerTopicCategory.CareerInternship, mentorCount: 2 },
+      { category: PeerTopicCategory.International, mentorCount: 0 },
+    ]);
+    renderWithQueryClient(<PeerMentoringView />);
+
+    const chips = screen.getByRole("group", {
+      name: "Kategoriye göre filtrele",
+    });
+    expect(
+      await within(chips).findByRole("button", {
+        name: "Kariyer ve Staj, 2 mentor",
+      }),
+    ).toBeVisible();
+    expect(
+      within(chips).queryByRole("button", { name: /^Uluslararası Fırsatlar/ }),
+    ).toBeNull();
+    expect(within(chips).getByRole("button", { name: "Tümü" })).toBeVisible();
+    // Free-text search stays beside the chips.
+    expect(
+      screen.getByRole("searchbox", { name: "Mentor veya konu ara" }),
+    ).toBeVisible();
+  });
+
   it("leaves the counts off the category chips when they can't be read", async () => {
     const { getPeerMentorCounts } = await import("@/lib/client/peer-mentoring");
     vi.mocked(getPeerMentorCounts).mockRejectedValueOnce(new Error("down"));
@@ -385,19 +411,63 @@ describe("PeerMentoringView › switch", () => {
     expect(screen.queryByRole("button", { name: "Mentorluk Ver" })).toBeNull();
   });
 
-  it("opens Mentorluklarım from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
+  it("opens Aldığım mentorluklar from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
     search = "tab=mine";
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentoringView />);
-    expect(screen.getByRole("tab", { name: /Mentorluklarım/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    expect(
+      screen.getByRole("tab", { name: /^Aldığım mentorluklar/ }),
+    ).toHaveAttribute("aria-selected", "true");
 
     await user.click(screen.getByRole("tab", { name: "Keşfet" }));
     expect(replace).toHaveBeenCalledWith("/student/peer-mentoring", {
       scroll: false,
     });
+  });
+
+  it("Başka mentor bul opens a fresh Keşfet, without the old filters, with the search box focused", async () => {
+    const { getPeerMentoringRequests } =
+      await import("@/lib/client/peer-mentoring");
+    const [elif] = peerMentoringRequestsFixture();
+    if (!elif) throw new Error("fixture request missing");
+    vi.mocked(getPeerMentoringRequests).mockResolvedValue([
+      { ...elif, status: MentorshipRequestStatus.Withdrawn },
+    ]);
+    const user = userEvent.setup();
+    const view = renderWithQueryClient(<PeerMentoringView />);
+    await mentorCard("Deniz Kaya");
+    const searchBox = () =>
+      screen.getByRole("searchbox", { name: "Mentor veya konu ara" });
+    await user.type(searchBox(), "psikoloji");
+    await user.click(
+      screen.getByRole("button", { name: /^Uluslararası Fırsatlar/ }),
+    );
+
+    search = "tab=mine";
+    view.rerender(<PeerMentoringView />);
+    const history = await screen.findByRole("region", { name: /Geçmiş/ });
+    await user.click(
+      within(history).getByRole("button", { name: "Başka mentor bul" }),
+    );
+    expect(replace).toHaveBeenLastCalledWith("/student/peer-mentoring", {
+      scroll: false,
+    });
+
+    search = "";
+    view.rerender(<PeerMentoringView />);
+    expect(screen.getByRole("tab", { name: "Keşfet" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await waitFor(() => expect(searchBox()).toHaveFocus());
+    expect(searchBox()).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Tümü" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    vi.mocked(getPeerMentoringRequests).mockImplementation(async () =>
+      structuredClone(peerMentoringRequestsFixture()),
+    );
   });
 
   it("answers a Mentorluk Ver link from such a student with Mentorluk Al", async () => {
