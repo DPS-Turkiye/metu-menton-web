@@ -6,6 +6,7 @@ import { useId } from "react";
 
 import { AdviseeChip } from "@/components/academician/advisee-chip";
 import { WorkspaceQueryState } from "@/components/academician/workspace-query-state";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { Button, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
@@ -56,12 +57,13 @@ export function StudentProfileView({
 function StudentHeader({ student }: { student: AcademicianStudent }) {
   return (
     <header className="flex flex-wrap items-center gap-5">
-      <span
-        aria-hidden
-        className="grid size-[72px] shrink-0 place-items-center rounded-full bg-background-selected type-h3 text-text-accent"
-      >
-        {initials(student.name)}
-      </span>
+      <PhotoAvatar
+        initials={initials(student.name)}
+        personId={student.userId}
+        decorative
+        colors="bg-background-selected text-text-accent"
+        className="size-[72px] type-h3"
+      />
       <div className="flex min-w-0 flex-1 basis-56 flex-col items-start gap-1.5">
         <h1 className="type-h2 text-text-primary">{student.name}</h1>
         {student.subtitle === "" ? null : (

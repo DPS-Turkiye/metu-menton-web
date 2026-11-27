@@ -416,7 +416,10 @@ function Queue({ review }: { review: Review }) {
       <ul className="mt-3 space-y-2">
         {others.map((row) => (
           <li key={row.userId} className="flex items-center gap-3">
-            <InitialsAvatar initials={initials(row.fullName)} />
+            <InitialsAvatar
+              personId={row.userId}
+              initials={initials(row.fullName)}
+            />
             {row.weekId ? (
               <Link
                 href={review.hrefOf(row.weekId)}

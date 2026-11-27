@@ -143,7 +143,11 @@ function Reveal({
             >
               {group.leader ? (
                 <div className="flex items-center gap-3">
-                  <InitialsAvatar name={group.leader.fullName} large />
+                  <InitialsAvatar
+                    personId={group.leader.userId}
+                    name={group.leader.fullName}
+                    large
+                  />
                   <div className="flex flex-col">
                     <p className="type-label text-text-primary">
                       {group.leader.me
@@ -161,7 +165,11 @@ function Reveal({
               <ul className="flex flex-wrap gap-4">
                 {group.members.map((member) => (
                   <li key={member.userId} className="flex items-center gap-2">
-                    <InitialsAvatar name={member.fullName} large />
+                    <InitialsAvatar
+                      personId={member.userId}
+                      name={member.fullName}
+                      large
+                    />
                     <span
                       className={`type-body-sm ${member.me ? "text-text-primary" : "text-text-secondary"}`}
                     >
@@ -248,7 +256,9 @@ function Ask({
   const t = useTranslations("iskurOnboarding.reveal");
   return (
     <div className="flex items-center gap-3 rounded-[12px] border border-border-subtle p-3">
-      {person ? <InitialsAvatar name={person.fullName} large /> : null}
+      {person ? (
+        <InitialsAvatar personId={person.userId} name={person.fullName} large />
+      ) : null}
       <div className="flex min-w-0 flex-col gap-0.5">
         <p className="type-label text-text-primary">{question}</p>
         <p className="type-caption text-text-muted">

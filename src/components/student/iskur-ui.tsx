@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
 
+import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import type { MentorshipRequestStatus } from "@/interfaces/mentorship-request";
 import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
@@ -87,10 +88,23 @@ const AVATAR_SIZES = {
 export function InitialsAvatar({
   initials,
   size = "md",
+  personId = null,
 }: {
   initials: string;
   size?: keyof typeof AVATAR_SIZES;
+  /** Shows the person's photo over the initials when there is one to show. */
+  personId?: string | null | undefined;
 }) {
+  if (personId) {
+    return (
+      <PersonPhotoAvatar
+        personId={personId}
+        initials={initials}
+        decorative
+        className={`rounded-full bg-background-selected text-text-accent ${AVATAR_SIZES[size]}`}
+      />
+    );
+  }
   return (
     <span
       aria-hidden

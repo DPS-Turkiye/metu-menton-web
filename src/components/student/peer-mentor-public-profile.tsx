@@ -54,7 +54,11 @@ export function PeerMentorPublicProfile({ mentorId }: { mentorId: string }) {
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
           <div className="flex min-w-0 flex-col gap-7">
             <header className="flex flex-wrap items-center gap-5">
-              <InitialsAvatar initials={initials(mentor.fullName)} size="lg" />
+              <InitialsAvatar
+                personId={mentor.mentorId}
+                initials={initials(mentor.fullName)}
+                size="lg"
+              />
               <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1.5">
                 <h1 className="type-h2 text-text-primary">{mentor.fullName}</h1>
                 <p className="type-body text-text-muted">
