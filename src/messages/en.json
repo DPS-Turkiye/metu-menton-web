@@ -6437,7 +6437,10 @@
     "coordinatorFeaturesSaveFailed": "The coordinator's features could not be saved.",
     "launchPreviewLoadFailed": "The launch summary could not be loaded.",
     "programMembershipLoadFailed": "The program details could not be loaded.",
-    "programMembershipSaveFailed": "The program change could not be saved."
+    "programMembershipSaveFailed": "The program change could not be saved.",
+    "iskurAssessmentLoadFailed": "Assessment statements could not be loaded.",
+    "iskurAssessmentInvalid": "The assessment statement is not valid.",
+    "iskurAssessmentSaveFailed": "The assessment statement could not be saved."
   },
   "startupStart": {
     "title": "My startup",
@@ -8719,6 +8722,39 @@
     },
     "declined": "Request declined; the student was told.",
     "declineFailed": "The request could not be declined."
+  },
+  "iskurAssessment": {
+    "title": "Assessment statement",
+    "hint": "Couldn't finish or pass the peer mentor assessment? Tell your coordinator why; they decide your weekly mentoring time. Becoming a mentor is optional.",
+    "start": "Explain to your coordinator",
+    "reasonLabel": "Why?",
+    "reasonPlaceholder": "Pick a reason",
+    "reasons": {
+      "NOT_STARTED": "I couldn't start yet (time)",
+      "FAILED": "I didn't pass the test",
+      "NO_ACCESS": "I couldn't reach Prism / technical problem",
+      "PERSONAL": "Personal reason",
+      "NO_MENTORING": "I don't want to be a mentor",
+      "OTHER": "Other"
+    },
+    "textLabel": "Tell us briefly",
+    "textHint": "Your coordinator reads this. No need for private details such as health; at most {max} characters.",
+    "cancel": "Cancel",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Your statement was sent to your coordinator.",
+    "sendFailed": "Your statement could not be sent.",
+    "waiting": "Sent to your coordinator · {date}",
+    "waitingHint": "You'll get a notification when your coordinator decides.",
+    "yourReason": "Your reason: {reason}",
+    "decidedTitle": "Your coordinator decided · {date}",
+    "mentoringNone": "Weekly mentoring time: none; all your hours go to team work.",
+    "mentoringHours": "Weekly mentoring time: {hours} h",
+    "mentoringDefaultHours": "Weekly mentoring time back to the default: {hours} h",
+    "mentoringKept": "Your weekly mentoring time stays the same.",
+    "retakeOpened": "You can take the test again on Prism.",
+    "note": "Your coordinator's note: {note}",
+    "cancelledTitle": "Your statement was closed; your team placement was removed."
   },
   "iskurTeamSupport": {
     "tab": "Support requests",

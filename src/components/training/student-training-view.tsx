@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useId, useRef } from "react";
 
+import { IskurAssessmentStatement } from "@/components/iskur/assessment-statement";
 import { TrainingVideo } from "@/components/training/training-video";
 import { useStudentTraining } from "@/hooks/use-student-training";
 import { AppointmentSide } from "@/interfaces/appointment";
@@ -79,6 +80,10 @@ export function StudentTrainingView() {
       ) : null}
 
       {prismStep ? <PrismSteps flow={flow} step={prismStep} /> : null}
+
+      {training.state !== TrainingState.BadgeActive ? (
+        <IskurAssessmentStatement />
+      ) : null}
 
       {training.state === TrainingState.Blocked ? (
         <p className="text-sm text-[#676e78]">{t("blocked")}</p>

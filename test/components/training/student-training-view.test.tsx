@@ -20,6 +20,9 @@ vi.mock("@/lib/client/training", () => ({
   postTrainingAttempt: vi.fn(),
   postVideoWatched: vi.fn(),
 }));
+vi.mock("@/components/iskur/assessment-statement", () => ({
+  IskurAssessmentStatement: () => <p>assessment statement</p>,
+}));
 vi.mock("@/components/training/training-video", () => ({
   TrainingVideo: ({ onWatched }: { onWatched: () => void }) => (
     <button type="button" onClick={onWatched}>
@@ -284,5 +287,20 @@ describe("StudentTrainingView", () => {
         name: "Onaylandın: artık Akran mentorusun",
       }),
     ).toBeInTheDocument();
+  });
+  it("offers the assessment statement to everyone still without the badge", async () => {
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({ state: TrainingState.PrismTodo }),
+    );
+    const { unmount } = renderWithQueryClient(<StudentTrainingView />);
+    expect(await screen.findByText("assessment statement")).toBeInTheDocument();
+    unmount();
+
+    vi.mocked(getStudentTraining).mockResolvedValue(
+      training({ state: TrainingState.BadgeActive }),
+    );
+    renderWithQueryClient(<StudentTrainingView />);
+    await screen.findByRole("link");
+    expect(screen.queryByText("assessment statement")).toBeNull();
   });
 });
