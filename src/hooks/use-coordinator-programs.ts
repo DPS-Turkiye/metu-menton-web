@@ -18,10 +18,11 @@ import {
 
 export const COORDINATOR_PROGRAMS_QUERY_KEY = ["coordinator-programs"] as const;
 
-export function useCoordinatorPrograms() {
+export function useCoordinatorPrograms({ enabled = true } = {}) {
   return useQuery({
     queryKey: COORDINATOR_PROGRAMS_QUERY_KEY,
     queryFn: () => getCoordinatorPrograms(),
+    enabled,
   });
 }
 

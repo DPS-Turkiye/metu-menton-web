@@ -247,6 +247,7 @@ export function personSummaryModel(summary: PersonSummary): PersonSummaryModel {
       key: `${program.id}-${program.relation}`,
       id: program.id,
       name: program.name,
+      relation: program.relation,
       note: programNote(program),
     })),
     activity: activity(summary),

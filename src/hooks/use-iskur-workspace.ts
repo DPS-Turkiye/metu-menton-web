@@ -32,6 +32,8 @@ import {
   findPlacement,
   placementForm,
   placementInput,
+  placementPrefill,
+  prefilledFields,
   provisionalCount,
   teamLeaders,
 } from "@/lib/iskur-workspace";
@@ -41,6 +43,8 @@ import {
   IskurDialogKind,
   type IskurDialog,
   type IskurPlacementForm,
+  type IskurPlacementPreference,
+  type IskurPlacementPrefill,
 } from "@/types/iskur-workspace";
 
 export const iskurWorkspaceQueryKey = (programId: string) =>
@@ -52,7 +56,8 @@ export const iskurWorkspaceQueryKey = (programId: string) =>
  */
 export function useIskurWorkspace(
   programId: string,
-  preferredDays: (userId: string) => number | null = () => null,
+  preferenceOf: (userId: string) => IskurPlacementPreference | null = () =>
+    null,
 ) {
   const t = useTranslations("iskurWorkspace");
   const { showToast } = useToast();
@@ -64,6 +69,7 @@ export function useIskurWorkspace(
   const workspace = query.data ?? null;
   const [dialog, setDialog] = useState<IskurDialog | null>(null);
   const [form, setForm] = useState<IskurPlacementForm | null>(null);
+  const [prefill, setPrefill] = useState<IskurPlacementPrefill | null>(null);
   const [name, setName] = useState("");
   const [coordinatorId, setCoordinatorId] = useState<string | null>(null);
 
@@ -100,7 +106,12 @@ export function useIskurWorkspace(
   function openPlacement(person: IskurPerson) {
     if (!workspace) return;
     const placement = findPlacement(workspace, person.userId);
-    setForm(placementForm(workspace, placement, preferredDays(person.userId)));
+    // A saved placement keeps its own values; only someone new starts from their form.
+    const fromForm = placement
+      ? null
+      : placementPrefill(workspace, preferenceOf(person.userId));
+    setPrefill(fromForm);
+    setForm(placementForm(workspace, placement, fromForm));
     setDialog({
       kind: IskurDialogKind.Place,
       person,
@@ -159,6 +170,9 @@ export function useIskurWorkspace(
 
     /** The placement dialog. */
     form,
+    prefilled: form
+      ? prefilledFields(form, prefill)
+      : { team: false, role: false, weeklyDays: false },
     formProblem: checked && !checked.ok ? checked.problem : null,
     leaderOptions:
       workspace && form

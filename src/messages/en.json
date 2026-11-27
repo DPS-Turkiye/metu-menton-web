@@ -7313,7 +7313,27 @@
     "availabilityWeekly": "Weekly",
     "availabilityDaysOff": "Upcoming days off",
     "availabilityExtraSlots": "Extra times",
-    "availabilityExtraSlot": "{day} · {time} ({minutes} min)"
+    "availabilityExtraSlot": "{day} · {time} ({minutes} min)",
+    "iskur": {
+      "loading": "Loading the İŞKUR list…",
+      "loadFailed": "The İŞKUR list could not be loaded.",
+      "intern": "İŞKUR intern",
+      "listed": "On the İŞKUR list",
+      "listedHint": "Counts as an İŞKUR intern once approved in the program.",
+      "add": "Add to the İŞKUR list",
+      "addNamed": "Add to the İŞKUR list: {program}",
+      "added": "The student was added to the İŞKUR list.",
+      "addFailed": "The student could not be added to the İŞKUR list.",
+      "remove": "Remove from list",
+      "removeNamed": "Remove from list: {program}",
+      "placedHint": "Placed in a team; take them out of the placement first to remove them.",
+      "confirmTitle": "Remove from the İŞKUR list?",
+      "confirmBody": "The student is removed from the {program} İŞKUR intern list and no longer sees the İŞKUR screens. Their placement form is kept and comes back if they are added again.",
+      "cancel": "Cancel",
+      "confirmRemove": "Remove from list",
+      "removed": "The student was removed from the İŞKUR list.",
+      "removeFailed": "The student could not be removed from the İŞKUR list."
+    }
   },
   "odtuLanding": {
     "metaTitle": "hocam by menton",
@@ -7601,6 +7621,8 @@
     "mentoringHours": "Weekly mentoring time (hours)",
     "mentoringDefault": "Default: {hours, number} h",
     "mentoringHint": "Leave it blank for the default share for the days (about 27 %). Enter 0 for someone who gives no mentoring; the rest goes to team work. In 30-minute steps.",
+    "fromApplication": "Filled in from the application",
+    "suggestedFromApplication": "Suggested from the application",
     "problems": {
       "NO_TEAM": "Choose a team first.",
       "MENTORING_NEEDS_DAYS": "Choose the number of work days before the mentoring time.",
