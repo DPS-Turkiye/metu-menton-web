@@ -415,3 +415,65 @@ describe("proxy per edition", () => {
     );
   });
 });
+
+describe("proxy while Office Hours is coming soon", () => {
+  async function sealed(user: typeof MENTEE) {
+    return `teknokent_session=${await sealData(
+      { user, issuedAt: Date.now() },
+      { password: PASSWORD },
+    )}`;
+  }
+  const ADMIN = { ...MENTEE, userId: "admin-1", role: UserRole.Admin };
+
+  beforeEach(() => {
+    vi.stubEnv("APP_EDITION", "ODTU");
+  });
+
+  it("refuses the Office Hours routes to a student, a coordinator and a stranger", async () => {
+    for (const cookie of [signedIn, coordinator, undefined]) {
+      for (const path of [
+        "/api/office-hours/me/requests",
+        "/api/office-hours/courses/course-1/office-hours",
+        "/api/coordinator/programs/p-1/office-hours/appointments",
+        "/api/coordinator/programs/p-1/academics",
+        "/api/office%2Dhours/me/requests",
+        "/api/coordinator/programs/a%2Fb/academics",
+      ]) {
+        const response = await request(path, cookie);
+        expect(response.status).toBe(403);
+        await expect(response.json()).resolves.toEqual({
+          status: 403,
+          code: "OFFICE_HOURS_COMING_SOON",
+        });
+      }
+    }
+  });
+
+  it("lets the admin through", async () => {
+    const response = await request(
+      "/api/coordinator/programs/p-1/office-hours/appointments",
+      await sealed(ADMIN),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("lets everyone through once OFFICE_HOURS_ENABLED is true", async () => {
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
+    const response = await request("/api/office-hours/me/requests", signedIn);
+    expect(response.status).toBe(200);
+  });
+
+  it("runs on exactly the Office Hours API routes", async () => {
+    const { config } = await import("@/proxy");
+    expect(config.matcher.slice(1)).toEqual([
+      "/api/office-hours/:path*",
+      "/api/coordinator/programs/:id/office-hours/:path*",
+      "/api/coordinator/programs/:id/academics/:path*",
+    ]);
+  });
+
+  it("leaves the other API routes alone", async () => {
+    const response = await request("/api/student/appointments", signedIn);
+    expect(response.status).toBe(200);
+  });
+});

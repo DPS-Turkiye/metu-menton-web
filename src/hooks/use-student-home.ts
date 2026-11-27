@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 import { useInstitutionRecord } from "@/hooks/use-institution-record";
+import { useOfficeHoursOpen } from "@/hooks/use-office-hours-open";
 import {
   PEER_MENTORS_QUERY_KEY,
   usePeerMentoringRequests,
@@ -30,9 +31,11 @@ const NO_FILTER = { category: null, query: "" } as const;
 /** Ana Sayfa: the next session, what waits on an answer, the advisor and two peer mentors to ask. */
 export function useStudentHome() {
   const tCommon = useTranslations("common");
+  const officeHours = useOfficeHoursOpen();
   const home = useQuery({
-    queryKey: STUDENT_HOME_QUERY_KEY,
-    queryFn: getStudentHome,
+    queryKey: [...STUDENT_HOME_QUERY_KEY, officeHours.open],
+    queryFn: () => getStudentHome(officeHours.open),
+    enabled: officeHours.settled,
   });
   const record = useInstitutionRecord();
   const requests = usePeerMentoringRequests();

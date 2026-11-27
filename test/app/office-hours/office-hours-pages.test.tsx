@@ -51,10 +51,18 @@ function course(
 describe("office-hours course page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
     vi.mocked(getOfficeHoursUser).mockResolvedValue({
       userId: "user-1",
       fullName: "Ali Kaya",
     });
+  });
+
+  it("asks the backend nothing while Office Hours is coming soon (the layout shows the message)", async () => {
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "");
+    await expect(OfficeHoursCoursePage(params)).resolves.toBeNull();
+    expect(getOfficeHoursUser).not.toHaveBeenCalled();
+    expect(fetchOfficeHoursCourse).not.toHaveBeenCalled();
   });
 
   it("shows an instructor their course and their office hours", async () => {

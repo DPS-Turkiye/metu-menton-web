@@ -3,6 +3,7 @@
 import { QueryNotice } from "@/components/admin/admin-ui";
 import { PeerParticipantsView } from "@/components/coordinator/peer-participants-view";
 import { ProgramOhStudentsView } from "@/components/coordinator/program-oh-students-view";
+import { OfficeHoursGate } from "@/components/office-hours/office-hours-gate";
 import { useCoordinatorProgram } from "@/hooks/use-coordinator-program";
 import {
   ProgramTab,
@@ -16,7 +17,9 @@ export function ProgramStudentsView({ programId }: { programId: string }) {
     return <QueryNotice isLoading={program.isLoading} error={program.error} />;
   }
   return studentsAreOfficeHours(program.data) ? (
-    <ProgramOhStudentsView programId={programId} />
+    <OfficeHoursGate>
+      <ProgramOhStudentsView programId={programId} />
+    </OfficeHoursGate>
   ) : (
     <PeerParticipantsView programId={programId} tab={ProgramTab.Students} />
   );

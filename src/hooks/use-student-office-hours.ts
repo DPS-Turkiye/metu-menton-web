@@ -11,7 +11,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useInstitutionRecord } from "@/hooks/use-institution-record";
-import { STUDENT_APPOINTMENTS_QUERY_KEY } from "@/hooks/use-student-appointments";
+import {
+  STUDENT_APPOINTMENTS_QUERY_KEY,
+  useStudentAppointmentsQuery,
+} from "@/hooks/use-student-appointments";
 import { STUDENT_HOME_QUERY_KEY } from "@/hooks/use-student-home";
 import { AppointmentKind, type Appointment } from "@/interfaces/appointment";
 import type {
@@ -21,7 +24,6 @@ import type {
 import { ToastTone } from "@/interfaces/toast";
 import { splitAppointments } from "@/lib/appointments";
 import { isSameCalendarDay, startOfWeek } from "@/lib/calendar";
-import { getStudentAppointments } from "@/lib/client/student-appointments";
 import {
   answerOfficeHoursAlternative,
   cancelStudentOfficeHoursAppointment,
@@ -227,10 +229,7 @@ export function useOfficeHoursProfile(id: string) {
   const lookahead = useQuery(
     slotsQuery(entry.academician, from, OFFICE_HOURS_LOOKAHEAD_DAYS),
   );
-  const appointments = useQuery({
-    queryKey: STUDENT_APPOINTMENTS_QUERY_KEY,
-    queryFn: getStudentAppointments,
-  });
+  const appointments = useStudentAppointmentsQuery();
   const free = freeSlots(lookahead.data ?? []);
   const weekEnd = startOfWeek(from);
   weekEnd.setDate(weekEnd.getDate() + 7);

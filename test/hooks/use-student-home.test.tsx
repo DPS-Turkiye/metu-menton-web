@@ -23,8 +23,13 @@ import {
   peerAppointment,
 } from "@test/fixtures/student-appointments";
 import { STUDENT_RECORD } from "@test/fixtures/student-home";
+import { setOfficeHoursOpen } from "@test/mocks/office-hours-open";
 import { createTestQueryClient, InLocale } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/lib/client/student-home", () => ({ getStudentHome: vi.fn() }));
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
@@ -56,6 +61,7 @@ const pending = peerAppointment({
 });
 
 beforeEach(() => {
+  setOfficeHoursOpen(true);
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(APPOINTMENTS_NOW);
   vi.mocked(getStudentHome)
@@ -74,6 +80,23 @@ beforeEach(() => {
 });
 
 describe("useStudentHome", () => {
+  it("asks for Ana Sayfa's appointments with Office Hours only while it is open", async () => {
+    const open = renderHook(() => useStudentHome(), { wrapper });
+    await waitFor(() => expect(open.result.current.ready).toBe(true));
+    expect(getStudentHome).toHaveBeenLastCalledWith(true);
+
+    setOfficeHoursOpen(false);
+    const closed = renderHook(() => useStudentHome(), { wrapper });
+    await waitFor(() => expect(closed.result.current.ready).toBe(true));
+    expect(getStudentHome).toHaveBeenLastCalledWith(false);
+  });
+
+  it("waits for the session before asking for anything", () => {
+    setOfficeHoursOpen(false, false);
+    renderHook(() => useStudentHome(), { wrapper });
+    expect(getStudentHome).not.toHaveBeenCalled();
+  });
+
   it("greets the student by first name and finds the advisor", async () => {
     const { result } = renderHook(() => useStudentHome(), { wrapper });
     expect(result.current.greeting).toBeNull();

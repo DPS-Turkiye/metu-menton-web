@@ -8710,5 +8710,10 @@
       "loadFailed": "Destek talepleri yüklenemedi.",
       "line": "{team} ekibinden destek talebi açıldı."
     }
+  },
+  "officeHoursComingSoon": {
+    "title": "Office Hours çok yakında",
+    "body": "Sana hak ettiğin en iyi deneyimi sunabilmek için gece gündüz çalışıyoruz.",
+    "short": "Çok yakında"
   }
 }

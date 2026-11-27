@@ -23,6 +23,7 @@ import {
   InitialsAvatar,
   SectionHeader,
 } from "@/components/student/ia/ui";
+import { useOfficeHoursOpen } from "@/hooks/use-office-hours-open";
 import { useStudentFeatures } from "@/hooks/use-student-features";
 import {
   useStudentHome,
@@ -276,13 +277,16 @@ function ReplyNeeded({ appointment }: { appointment: Appointment }) {
 
 function QuickActions({ home }: { home: StudentHomeModel }) {
   const t = useTranslations("iaStudent.home.quick");
+  const tSoon = useTranslations("officeHoursComingSoon");
   const features = useStudentFeatures();
+  const officeHours = useOfficeHoursOpen();
   const cards = [
     {
       key: "officeHours",
       href: STUDENT_OFFICE_HOURS_HREF,
       image: `${QUICK_IMAGE_DIR}/quick-office-hours.png`,
-      body: t("officeHours.body"),
+      // TEST UI: placeholder until the design team's screen; replace when it arrives.
+      body: officeHours.open ? t("officeHours.body") : tSoon("short"),
     },
     {
       key: "peerMentor",

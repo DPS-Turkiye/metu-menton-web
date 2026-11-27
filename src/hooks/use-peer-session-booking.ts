@@ -4,14 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
-import { STUDENT_APPOINTMENTS_QUERY_KEY } from "@/hooks/use-student-appointments";
+import {
+  STUDENT_APPOINTMENTS_QUERY_KEY,
+  useStudentAppointmentsQuery,
+} from "@/hooks/use-student-appointments";
 import { STUDENT_HOME_QUERY_KEY } from "@/hooks/use-student-home";
 import { ToastTone } from "@/interfaces/toast";
 import {
   getMentorAvailability,
   scheduleMeeting,
 } from "@/lib/client/mentor-requests";
-import { getStudentAppointments } from "@/lib/client/student-appointments";
 import { nextSessionsByRequest } from "@/lib/peer-mentoring";
 import { useToast } from "@/stores/toast-store";
 
@@ -20,10 +22,7 @@ export const peerSessionSlotsQueryKey = (requestId: string) =>
 
 /** Each of the student's peer requests' next meeting (still to come), by request id. */
 export function usePeerRequestSessions() {
-  const query = useQuery({
-    queryKey: STUDENT_APPOINTMENTS_QUERY_KEY,
-    queryFn: getStudentAppointments,
-  });
+  const query = useStudentAppointmentsQuery();
   const byRequest = useMemo(
     () => nextSessionsByRequest(query.data ?? [], new Date()),
     [query.data],

@@ -13,8 +13,13 @@ import {
 } from "@test/fixtures/peer-mentoring";
 import { peerAppointment } from "@test/fixtures/student-appointments";
 import { studentHomeModel } from "@test/fixtures/student-home";
+import { setOfficeHoursOpen } from "@test/mocks/office-hours-open";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/hooks/use-student-home", () => ({ useStudentHome: vi.fn() }));
 vi.mock("@/lib/client/program-features", () => ({
   getMyProgramFeatures: vi.fn(),
@@ -53,6 +58,7 @@ function homeReturns(overrides: Parameters<typeof studentHomeModel>[0] = {}) {
 
 describe("StudentHomeView", () => {
   beforeEach(() => {
+    setOfficeHoursOpen(true);
     homeReturns();
     vi.mocked(getMyProgramFeatures).mockResolvedValue([
       ProgramFeature.PeerMentoring,
@@ -146,6 +152,16 @@ describe("StudentHomeView", () => {
       "/student/profile",
     ]);
     expect(within(quick).getByText("2 yaklaşan · 1 talep")).toBeVisible();
+  });
+
+  it("says Office Hours is coming soon on its shortcut, which still leads to the page", () => {
+    setOfficeHoursOpen(false);
+    renderWithQueryClient(<StudentHomeView />);
+    const quick = screen.getByRole("navigation", { name: "Hızlı işlemler" });
+    const link = within(quick)
+      .getAllByRole("link")
+      .find((item) => item.getAttribute("href") === "/student/office-hours");
+    expect(link).toHaveTextContent("Çok yakında");
   });
 
   it("leaves out the Office Hours shortcut when the semester has it off", async () => {

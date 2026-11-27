@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useMinuteClock } from "@/hooks/use-minute-clock";
+import { useOfficeHoursOpen } from "@/hooks/use-office-hours-open";
 import type { Appointment } from "@/interfaces/appointment";
 import { monthGridCells } from "@/lib/calendar";
 import { getStudentAppointments } from "@/lib/client/student-appointments";
@@ -26,6 +27,19 @@ import {
 
 export const STUDENT_APPOINTMENTS_QUERY_KEY = ["student-appointments"] as const;
 
+/**
+ * The student's appointments query, shared by every screen that lists them. Office Hours requests are in it only
+ * while Office Hours is open to the student, and it waits for the session to say which.
+ */
+export function useStudentAppointmentsQuery() {
+  const officeHours = useOfficeHoursOpen();
+  return useQuery({
+    queryKey: [...STUDENT_APPOINTMENTS_QUERY_KEY, officeHours.open],
+    queryFn: () => getStudentAppointments(officeHours.open),
+    enabled: officeHours.settled,
+  });
+}
+
 export type StudentAppointmentsOptions = {
   /**
    * Narrows every view to the appointments it keeps. An extension point: the İŞKUR edition passes its
@@ -47,10 +61,7 @@ export function useStudentAppointments({
   filter,
   initialTab = AppointmentsTab.Upcoming,
 }: StudentAppointmentsOptions = {}) {
-  const query = useQuery({
-    queryKey: STUDENT_APPOINTMENTS_QUERY_KEY,
-    queryFn: getStudentAppointments,
-  });
+  const query = useStudentAppointmentsQuery();
   const [view, setView] = useState(AppointmentsView.List);
   const [tab, setTab] = useState(initialTab);
   const [anchor, setAnchor] = useState(today);

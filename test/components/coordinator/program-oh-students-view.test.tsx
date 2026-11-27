@@ -18,8 +18,13 @@ import {
   programStudents,
   studentRow,
 } from "@test/fixtures/program-office-hours-students";
+import { setOfficeHoursOpen } from "@test/mocks/office-hours-open";
 import { renderWithQueryClient } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("next/navigation", () => ({
   usePathname: () => "/coordinator/programs/oh-1/students",
   useRouter: () => ({ push: vi.fn() }),
@@ -54,6 +59,7 @@ function program(type: ProgramType) {
 
 describe("Katılımcılar › Öğrenciler", () => {
   beforeEach(() => {
+    setOfficeHoursOpen(true);
     vi.clearAllMocks();
     vi.mocked(getCoordinatorProgram).mockResolvedValue(
       program(ProgramType.OfficeHours),
@@ -77,6 +83,15 @@ describe("Katılımcılar › Öğrenciler", () => {
         }),
       ]),
     );
+  });
+
+  it("shows Office Hours coming soon instead, without asking for the students", async () => {
+    setOfficeHoursOpen(false);
+    renderWithQueryClient(<ProgramStudentsView programId="oh-1" />);
+    expect(
+      await screen.findByText("Office Hours çok yakında"),
+    ).toBeInTheDocument();
+    expect(getProgramOfficeHoursStudents).not.toHaveBeenCalled();
   });
 
   it("lists who asked an Office Hours program's academicians and how their requests stand", async () => {

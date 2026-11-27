@@ -20,8 +20,13 @@ import {
   peerAppointment,
   STUDENT_APPOINTMENTS,
 } from "@test/fixtures/student-appointments";
+import { setOfficeHoursOpen } from "@test/mocks/office-hours-open";
 import { createTestQueryClient } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/lib/client/student-appointments", () => ({
   getStudentAppointments: vi.fn(),
 }));
@@ -42,6 +47,7 @@ const request = peerAppointment({
 });
 
 beforeEach(() => {
+  setOfficeHoursOpen(true);
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(APPOINTMENTS_NOW);
   vi.mocked(getStudentAppointments)
@@ -60,6 +66,30 @@ async function loaded(options?: Parameters<typeof useStudentAppointments>[0]) {
 }
 
 describe("useStudentAppointments", () => {
+  it("asks for the Office Hours requests while Office Hours is open", async () => {
+    await loaded();
+    expect(getStudentAppointments).toHaveBeenCalledWith(true);
+  });
+
+  it("leaves the Office Hours requests out while Office Hours is coming soon", async () => {
+    setOfficeHoursOpen(false);
+    await loaded();
+    expect(getStudentAppointments).toHaveBeenCalledWith(false);
+    expect(getStudentAppointments).not.toHaveBeenCalledWith(true);
+  });
+
+  it("still lists the peer sessions when the session could not be read", async () => {
+    setOfficeHoursOpen(false, false, true);
+    await loaded();
+    expect(getStudentAppointments).toHaveBeenCalledWith(false);
+  });
+
+  it("waits for the session before asking for anything", () => {
+    setOfficeHoursOpen(false, false);
+    renderHook(() => useStudentAppointments(), { wrapper });
+    expect(getStudentAppointments).not.toHaveBeenCalled();
+  });
+
   it("opens the list on Yaklaşan with the three tabs filled", async () => {
     const { result } = await loaded();
     expect(result.current.view).toBe(AppointmentsView.List);

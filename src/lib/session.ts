@@ -11,6 +11,7 @@ import {
 } from "@/interfaces/session";
 import type { Workspace } from "@/interfaces/workspace";
 import { fetchUser } from "@/lib/api/accounts";
+import { officeHoursOpenFor } from "@/lib/office-hours-launch";
 import {
   hasPermission,
   permissionsOf,
@@ -21,6 +22,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/public-paths";
 import { appEdition } from "@/lib/server/edition";
+import { officeHoursEnabled } from "@/lib/server/office-hours-switch";
 import { SessionRequiredError } from "@/lib/server/session-error";
 import { sessionPassword } from "@/lib/server/session-password";
 import { isWorkspace, workspacesOf } from "@/lib/workspaces";
@@ -51,14 +53,19 @@ const DEFAULT_JOB_TITLE: Partial<Record<UserRole, string>> = {
 export function toSession(user: BackendUser): AppSession | null {
   const jobTitle = DEFAULT_JOB_TITLE[user.role];
   if (!jobTitle) return null;
+  const permissions = permissionsOf(user);
   const session: AppSession = {
     userId: user.id,
     email: user.email,
     fullName: user.fullName,
     jobTitle: user.jobTitle ?? jobTitle,
     role: user.role,
-    permissions: permissionsOf(user),
+    permissions,
     edition: appEdition(),
+    officeHoursOpen: officeHoursOpenFor(officeHoursEnabled(), {
+      role: user.role,
+      permissions,
+    }),
   };
   if (user.institutionKinds?.length) {
     session.institutionKinds = user.institutionKinds;
@@ -107,11 +114,18 @@ export async function switchSessionWorkspace(
 
 /**
  * The cookie's user, read under this deployment's edition rather than the one stamped at sign-in: a cookie from
- * before editions, or one minted while APP_EDITION said otherwise, must not open the wrong workspaces.
+ * before editions, or one minted while APP_EDITION said otherwise, must not open the wrong workspaces. The Office
+ * Hours switch is read fresh for the same reason, so flipping it reaches every signed-in person on their next read.
  */
 function sessionUserOf(session: SessionData): AppSession | null {
   const user = currentSessionUser(session);
-  return user ? { ...user, edition: appEdition() } : null;
+  return user
+    ? {
+        ...user,
+        edition: appEdition(),
+        officeHoursOpen: officeHoursOpenFor(officeHoursEnabled(), user),
+      }
+    : null;
 }
 
 export async function getSessionStore(persist = false) {

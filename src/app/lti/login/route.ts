@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { startLtiLogin, type LtiForm } from "@/lib/api/lti";
+import { OFFICE_HOURS_COMING_SOON_PATH } from "@/lib/lti";
 import {
   ltiFailureResponse,
   ltiRefusalResponse,
+  redirectTo,
 } from "@/lib/server/lti-response";
+import { officeHoursEnabled } from "@/lib/server/office-hours-switch";
 
 /** The backend's body is not checked, so a missing or empty link counts as a refusal too. */
 function redirectUrlOf(data: unknown) {
@@ -18,6 +21,9 @@ function redirectUrlOf(data: unknown) {
 
 // Moodle may start a launch with a GET or a form POST, so both read the same fields.
 async function initiate(request: NextRequest, form: LtiForm) {
+  if (!officeHoursEnabled()) {
+    return redirectTo(request, OFFICE_HOURS_COMING_SOON_PATH);
+  }
   try {
     const response = await startLtiLogin(form);
     const redirectUrl = redirectUrlOf(response.data);

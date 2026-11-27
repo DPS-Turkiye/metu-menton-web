@@ -24,10 +24,18 @@ vi.mock("next/navigation", () => ({
 describe("office-hours profile page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
     vi.mocked(getOfficeHoursUser).mockResolvedValue({
       userId: "user-1",
       fullName: "Ali Kaya",
     });
+  });
+
+  it("asks the backend nothing while Office Hours is coming soon (the layout shows the message)", async () => {
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "");
+    await expect(OfficeHoursProfilePage()).resolves.toBeNull();
+    expect(getOfficeHoursUser).not.toHaveBeenCalled();
+    expect(fetchOfficeHoursAvailability).not.toHaveBeenCalled();
   });
 
   it("opens an academic's own page", async () => {

@@ -46,7 +46,28 @@ const LOGIN = {
 };
 
 describe("LTI login initiation", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
+  });
+
+  it("sends the browser to Office Hours coming soon without asking the backend while it is closed", async () => {
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "");
+    for (const response of [
+      await loginGet(
+        new NextRequest(
+          `http://localhost:3000/lti/login?${new URLSearchParams(LOGIN)}`,
+        ),
+      ),
+      await loginPost(formPost("http://localhost:3000/lti/login", LOGIN)),
+    ]) {
+      expect(response.status).toBe(303);
+      expect(response.headers.get("location")).toBe(
+        "http://localhost:3000/office-hours/coming-soon",
+      );
+    }
+    expect(startLtiLogin).not.toHaveBeenCalled();
+  });
 
   it("sends the browser on to Moodle with the backend's state and nonce (GET)", async () => {
     vi.mocked(startLtiLogin).mockResolvedValue(
@@ -124,7 +145,23 @@ describe("LTI login initiation", () => {
 });
 
 describe("LTI launch", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
+  });
+
+  it("completes no launch and opens no session while Office Hours is coming soon", async () => {
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "false");
+    const response = await launch(
+      formPost("http://localhost:3000/lti/launch", { id_token: "token" }),
+    );
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/office-hours/coming-soon",
+    );
+    expect(completeLtiLaunch).not.toHaveBeenCalled();
+    expect(saveOfficeHoursUser).not.toHaveBeenCalled();
+  });
 
   it("signs the person in and opens the course they came from", async () => {
     vi.mocked(completeLtiLaunch).mockResolvedValue(

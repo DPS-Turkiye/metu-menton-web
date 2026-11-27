@@ -5,10 +5,16 @@ import AcademicianLayout from "@/app/academician/layout";
 import StudentLayout from "@/app/student/layout";
 import { ISKUR_ONBOARDING_HREF } from "@/lib/iskur-onboarding";
 import { iskurOnboardingRedirect } from "@/lib/server/iskur-onboarding-gate";
+import { setOfficeHoursOpen } from "@test/mocks/office-hours-open";
+import { InLocale } from "@test/test-utils";
 
 class NotFound extends Error {}
 class Redirected extends Error {}
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new NotFound();
@@ -34,6 +40,7 @@ vi.mock("@/components/academician/academician-frame", () => ({
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  setOfficeHoursOpen(true);
 });
 
 describe("ODTÜ workspace layouts", () => {
@@ -72,5 +79,19 @@ describe("ODTÜ workspace layouts", () => {
     expect(screen.getByTestId("academician-frame")).toHaveTextContent(
       "Randevu Talepleri",
     );
+  });
+
+  it("show the academicians Office Hours coming soon in their frame while it is closed", async () => {
+    vi.stubEnv("APP_EDITION", "ODTU");
+    setOfficeHoursOpen(false);
+    render(
+      <InLocale locale="tr">
+        {await AcademicianLayout({ children: <p>Randevu Talepleri</p> })}
+      </InLocale>,
+    );
+    expect(screen.getByTestId("academician-frame")).toHaveTextContent(
+      "Office Hours çok yakında",
+    );
+    expect(screen.queryByText("Randevu Talepleri")).toBeNull();
   });
 });

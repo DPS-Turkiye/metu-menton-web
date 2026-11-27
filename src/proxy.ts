@@ -14,6 +14,12 @@ import {
   PREFER_WEB_COOKIE,
   PREFER_WEB_PARAM,
 } from "@/lib/mobile";
+import {
+  isOfficeHoursApiPath,
+  OFFICE_HOURS_COMING_SOON,
+  officeHoursOpenFor,
+  parseOfficeHoursEnabled,
+} from "@/lib/office-hours-launch";
 import { OTG_FAILURE_PARAM, otgLoginFailure } from "@/lib/otg-login";
 import {
   currentSessionUser,
@@ -73,10 +79,28 @@ async function readSession(seal: string | undefined): Promise<SessionRead> {
   }
 }
 
+/**
+ * While Office Hours is coming soon, its proxy routes refuse everyone but the admin. The screens do not call them
+ * then; this keeps a stale tab or a hand-made request from reaching the backend.
+ */
+async function officeHoursApiClosed(request: NextRequest, pathname: string) {
+  if (!isOfficeHoursApiPath(pathname)) return false;
+  if (parseOfficeHoursEnabled(process.env.OFFICE_HOURS_ENABLED)) return false;
+  const { user } = await readSession(
+    request.cookies.get(SESSION_COOKIE)?.value,
+  );
+  return !(user && officeHoursOpenFor(false, user));
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   if (pathname.startsWith("/api/")) {
-    return NextResponse.next();
+    return (await officeHoursApiClosed(request, pathname))
+      ? NextResponse.json(
+          { status: 403, code: OFFICE_HOURS_COMING_SOON },
+          { status: 403 },
+        )
+      : NextResponse.next();
   }
 
   // Before the session checks, so the other edition's pages look missing to everyone, signed in or not.
@@ -143,6 +167,13 @@ export async function proxy(request: NextRequest) {
   return respond(NextResponse.next());
 }
 
+// API routes skip the proxy (it caps request bodies at proxyClientMaxBodySize), except the Office Hours routes it closes while the
+// feature is coming soon. Keep these in step with isOfficeHoursApiPath.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|.*\\..*).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\..*).*)",
+    "/api/office-hours/:path*",
+    "/api/coordinator/programs/:id/office-hours/:path*",
+    "/api/coordinator/programs/:id/academics/:path*",
+  ],
 };
