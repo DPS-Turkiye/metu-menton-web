@@ -407,12 +407,10 @@ function FileSharing({
         checked={shared}
         label={t("aria", { name })}
         onChange={() => step.toggleShared(item)}
-        disabled={step.sharingId != null}
       />
-      <span className="min-w-0 flex-1">
-        <span aria-hidden className="block type-label text-text-primary">
-          {t("label")}
-        </span>
+      {/* The switch's own name and state already say this to a screen reader. */}
+      <span aria-hidden className="min-w-0 flex-1">
+        <span className="block type-label text-text-primary">{t("label")}</span>
         <span className="block type-caption text-text-muted">
           {t(shared ? "on" : "off")}
         </span>

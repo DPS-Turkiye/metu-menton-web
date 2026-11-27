@@ -213,7 +213,10 @@ describe("evidenceFileProblem", () => {
 describe("sharedEvidence", () => {
   it("splits files from links and drops a link that is not a web address", () => {
     const shared = sharedEvidence([
-      peerFileFixture(),
+      peerFileFixture({
+        evidenceType: PeerEvidenceType.Cv,
+        visibility: PeerDocumentVisibility.Profile,
+      }),
       peerLinkFixture(),
       peerLinkFixture({ id: "bad", url: "javascript:alert(1)" }),
     ]);
@@ -227,6 +230,30 @@ describe("sharedEvidence", () => {
       },
     ]);
     expect(itemAt(shared.links, 0).url).toMatch(/^https:/);
+  });
+});
+
+describe("sharedEvidence for a viewer who gets everything", () => {
+  it("keeps only what students see: no hidden file or link, and never a transcript", () => {
+    const shared = sharedEvidence([
+      peerFileFixture({ id: "hidden-cv", evidenceType: PeerEvidenceType.Cv }),
+      peerFileFixture({
+        id: "transcript",
+        visibility: PeerDocumentVisibility.Profile,
+      }),
+      peerFileFixture({
+        id: "shown-cv",
+        evidenceType: PeerEvidenceType.Cv,
+        visibility: PeerDocumentVisibility.Profile,
+      }),
+      peerLinkFixture({
+        id: "hidden-link",
+        visibility: PeerDocumentVisibility.VerificationOnly,
+      }),
+    ]);
+
+    expect(shared.files.map((file) => file.id)).toEqual(["shown-cv"]);
+    expect(shared.links).toEqual([]);
   });
 });
 

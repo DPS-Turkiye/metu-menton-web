@@ -155,13 +155,20 @@ function hostOf(url: string) {
   }
 }
 
-/** The profile's "Paylaşılan belgeler" (files) and the portfolio links for "Bağlantılar". */
+/**
+ * The profile's "Paylaşılan belgeler" (files) and the portfolio links for "Bağlantılar": only what students see. The
+ * mentor, their coordinators and admins get every piece from the server, so the rest is left out here.
+ */
 export function sharedEvidence(documents: readonly PeerMentorDocument[]) {
+  const shown = documents.filter(
+    (document) =>
+      isShownToStudents(document) && canShareEvidence(document.evidenceType),
+  );
   return {
-    files: documents.filter((document) => document.url == null),
+    files: shown.filter((document) => document.url == null),
     // The backend only stores http(s) links; checked again here because the url becomes an href.
     // The host tells several portfolio links apart ("Portfolyo (github.com)").
-    links: documents.flatMap((document) => {
+    links: shown.flatMap((document) => {
       const url = httpUrlOrNull(document.url);
       return url ? [{ id: document.id, url, host: hostOf(url) }] : [];
     }),

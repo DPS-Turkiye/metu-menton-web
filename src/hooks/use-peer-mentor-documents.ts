@@ -127,6 +127,14 @@ export function usePeerMentorDocumentsStep({
     queryClient.invalidateQueries({
       queryKey: PEER_MENTOR_DOCUMENTS_QUERY_KEY,
     });
+  const setOwnVisibility = (
+    documentId: string,
+    value: PeerDocumentVisibility,
+  ) =>
+    queryClient.setQueryData<PeerMentorDocument[]>(
+      OWN_DOCUMENTS_QUERY_KEY,
+      (current) => current && withVisibility(current, documentId, value),
+    );
   const toastError = (fallback: string) => (error: unknown) => {
     showToast({
       message: errorMessage(error, fallback),
@@ -199,7 +207,8 @@ export function usePeerMentorDocumentsStep({
     onError: toastError(t("visibilityFailed")),
   });
 
-  // The switch moves at once and goes back if the server says no.
+  // The switch moves at once and, if the server says no, only that file goes back. Switches stay usable meanwhile
+  // (a disabled button would drop the keyboard focus); each change is its own request and the server keeps the last.
   const share = useMutation({
     mutationFn: ({
       document,
@@ -210,21 +219,11 @@ export function usePeerMentorDocumentsStep({
     }) => updatePeerMentorDocumentVisibility(document.id, value),
     onMutate: async ({ document, visibility: value }) => {
       await queryClient.cancelQueries({ queryKey: OWN_DOCUMENTS_QUERY_KEY });
-      const before = queryClient.getQueryData<PeerMentorDocument[]>(
-        OWN_DOCUMENTS_QUERY_KEY,
-      );
-      if (before) {
-        queryClient.setQueryData(
-          OWN_DOCUMENTS_QUERY_KEY,
-          withVisibility(before, document.id, value),
-        );
-      }
-      return { before };
+      setOwnVisibility(document.id, value);
+      return { previous: document.visibility };
     },
-    onError: (error, _input, context) => {
-      if (context?.before) {
-        queryClient.setQueryData(OWN_DOCUMENTS_QUERY_KEY, context.before);
-      }
+    onError: (error, { document }, context) => {
+      if (context) setOwnVisibility(document.id, context.previous);
       toastError(t("visibilityFailed"))(error);
     },
     onSettled: () => refresh(),
@@ -311,10 +310,8 @@ export function usePeerMentorDocumentsStep({
     canShare: (document: PeerMentorDocument) =>
       canShareEvidence(document.evidenceType),
     isShared: isShownToStudents,
-    /** The file whose switch is on its way to the server, so it is not flipped twice. */
-    sharingId: share.isPending ? share.variables.document.id : null,
     toggleShared: (document: PeerMentorDocument) => {
-      if (share.isPending || !canShareEvidence(document.evidenceType)) return;
+      if (!canShareEvidence(document.evidenceType)) return;
       share.mutate({
         document,
         visibility: isShownToStudents(document)

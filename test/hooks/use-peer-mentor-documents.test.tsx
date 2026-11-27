@@ -138,13 +138,16 @@ describe("a file's own switch", () => {
 
     act(() => result.current.toggleShared(cv));
 
-    await waitFor(() => expect(result.current.sharingId).toBe("cv-1"));
-    expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledWith(
-      "cv-1",
-      PeerDocumentVisibility.Profile,
+    await waitFor(() =>
+      expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledWith(
+        "cv-1",
+        PeerDocumentVisibility.Profile,
+      ),
     );
-    const shown = cvOf();
-    expect(shown && result.current.isShared(shown)).toBe(true);
+    await waitFor(() => {
+      const shown = cvOf();
+      expect(shown && result.current.isShared(shown)).toBe(true);
+    });
 
     act(() => reject(new Error("Kaydedilemedi")));
 
@@ -154,9 +157,10 @@ describe("a file's own switch", () => {
         tone: ToastTone.Error,
       }),
     );
-    await waitFor(() => expect(result.current.sharingId).toBeNull());
-    const after = cvOf();
-    expect(after && result.current.isShared(after)).toBe(false);
+    await waitFor(() => {
+      const after = cvOf();
+      expect(after && result.current.isShared(after)).toBe(false);
+    });
   });
 
   it("never asks to show a transcript", async () => {
@@ -183,7 +187,11 @@ describe("a file's own switch", () => {
 describe("usePeerMentorSharedDocuments", () => {
   it("gives the profile its files with where to open them, and the links", async () => {
     vi.mocked(getPeerMentorDocuments).mockResolvedValue([
-      peerFileFixture(),
+      peerFileFixture({
+        evidenceType: PeerEvidenceType.Cv,
+        visibility: PeerDocumentVisibility.Profile,
+      }),
+      peerFileFixture({ id: "hidden", evidenceType: PeerEvidenceType.Cv }),
       peerLinkFixture(),
     ]);
     const { result } = renderHook(
@@ -196,7 +204,7 @@ describe("usePeerMentorSharedDocuments", () => {
       {
         id: peerFileFixture().id,
         name: "Transkript_2026_Guz.pdf",
-        evidenceType: PeerEvidenceType.Transcript,
+        evidenceType: PeerEvidenceType.Cv,
         href: `/api/peer-mentoring/documents/${peerFileFixture().id}/content`,
       },
     ]);
