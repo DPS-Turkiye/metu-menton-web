@@ -51,6 +51,7 @@ export function FirstStepsDrawer({
         <header className="flex items-start gap-3 px-7 pt-7">
           <span className="flex -space-x-1.5">
             <Avatar
+              personId={steps.mentorId}
               initials={initials(steps.mentorName)}
               tone="blue"
               size="lg"

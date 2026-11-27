@@ -72,6 +72,7 @@ export function MentorshipDrawer({
             {detail ? (
               <span className="flex -space-x-1.5">
                 <Avatar
+                  personId={detail.mentorship.mentorId}
                   initials={initials(detail.mentorship.mentorName)}
                   tone="blue"
                   size="lg"

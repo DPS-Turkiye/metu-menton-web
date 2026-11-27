@@ -9,6 +9,7 @@ import { getCoordinatorPrograms } from "@/lib/client/coordinator-programs";
 import { getIskurInterns } from "@/lib/client/iskur-interns";
 import { getPersonSummary } from "@/lib/client/person-summary";
 import { coordinatorProgram } from "@test/fixtures/coordinator-programs";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { menteeSummary, mentorSummary } from "@test/fixtures/person-summary";
 import { appSession } from "@test/fixtures/session";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -223,5 +224,15 @@ describe("PersonSummaryView İŞKUR list", () => {
     expect(screen.queryByRole("button", { name: /İŞKUR/ })).toBeNull();
     expect(screen.queryByText("İŞKUR stajyeri")).toBeNull();
     expect(getIskurInterns).not.toHaveBeenCalled();
+  });
+
+  it("shows the person's photo over their initials", async () => {
+    vi.mocked(getPersonSummary).mockResolvedValue(mentorSummary());
+    renderWithQueryClient(<PersonSummaryView userId="mentor-1" />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Deniz Yıldız" }),
+    ).toBeInTheDocument();
+    expect(personPhotosIn()).toContain(photoPathOf("mentor-1"));
   });
 });

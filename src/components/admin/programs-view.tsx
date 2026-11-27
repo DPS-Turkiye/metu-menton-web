@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { AdminIcon, EmptyNote, QueryNotice } from "@/components/admin/admin-ui";
 import { AssignCoordinatorDialog } from "@/components/admin/assign-coordinator-dialog";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { ProgramTypeChip } from "@/components/coordinator/program-type-chip";
 import { useAdminOverview } from "@/hooks/use-admin-overview";
 import type { AdminOverview, AdminProgram } from "@/interfaces/admin-overview";
@@ -243,9 +244,13 @@ function ProgramRow({
       </span>
       <span className="flex min-w-0 items-center gap-2">
         {program.coordinatorName ? (
-          <span className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-white bg-[#fbe2d0] text-[10px] font-semibold text-[#a8480e]">
-            {initials(program.coordinatorName)}
-          </span>
+          <PhotoAvatar
+            initials={initials(program.coordinatorName)}
+            personId={program.coordinatorId}
+            decorative
+            colors="bg-[#fbe2d0] text-[#a8480e]"
+            className="size-7 border-2 border-white text-[10px]"
+          />
         ) : null}
         <span
           className={`truncate text-[13px] leading-[1.3] ${missingAccess || !program.coordinatorName ? "text-[#b7791f]" : "text-[#22262b]"}`}

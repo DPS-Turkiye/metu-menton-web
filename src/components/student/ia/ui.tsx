@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { AppointmentStatus } from "@/interfaces/appointment";
 import { wasHeld } from "@/lib/student-appointments";
@@ -29,10 +30,23 @@ const AVATAR_SIZES = {
 export function InitialsAvatar({
   name,
   size = "md",
+  personId = null,
 }: {
   name: string;
   size?: keyof typeof AVATAR_SIZES;
+  /** Shows the person's photo over the initials when there is one to show. */
+  personId?: string | null | undefined;
 }) {
+  if (personId) {
+    return (
+      <PersonPhotoAvatar
+        personId={personId}
+        initials={initials(name)}
+        decorative
+        className={`rounded-full bg-background-selected text-text-accent ${AVATAR_SIZES[size]}`}
+      />
+    );
+  }
   return (
     <span
       aria-hidden

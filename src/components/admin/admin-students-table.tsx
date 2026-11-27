@@ -111,7 +111,7 @@ function StudentsBody({
         <tr key={row.userId}>
           <DataCell rowHeader>
             <span className="flex items-center gap-1.5">
-              <InitialsAvatar name={row.fullName} />
+              <InitialsAvatar name={row.fullName} personId={row.userId} />
               <span className="min-w-0">
                 <span className="block">{row.fullName}</span>
                 <span className="block type-caption text-text-muted">

@@ -103,6 +103,19 @@ export function relatedMentorships(
   );
 }
 
+/** The person whose photo a thread shows: its mentor; a team thread names an organization, which has none. */
+export function counterpartPersonId(
+  conversation: Pick<
+    CoordinatorConversation,
+    "counterpartType" | "counterpartId"
+  >,
+) {
+  return conversation.counterpartType ===
+    CoordinatorConversationCounterpart.Mentor
+    ? conversation.counterpartId
+    : null;
+}
+
 /** "Mentor · Lumen, Kavun" or "Takım · Ayşe Demir". */
 export function counterpartSubtitle(
   conversation: CoordinatorConversation,

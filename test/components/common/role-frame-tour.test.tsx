@@ -8,6 +8,13 @@ import { Workspace } from "@/interfaces/workspace";
 import { odtuSession } from "@test/fixtures/product-tour";
 
 let current: AppSession = odtuSession();
+vi.mock("@/hooks/use-profile-photo", () => ({
+  useProfilePhoto: () => ({
+    photoUrl: null,
+    isUploading: false,
+    upload: vi.fn(),
+  }),
+}));
 vi.mock("next/navigation", () => ({
   usePathname: () => "/student",
   useRouter: () => ({ replace: vi.fn(), push: vi.fn(), refresh: vi.fn() }),

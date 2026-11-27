@@ -19,6 +19,7 @@ import { DeleteUserButton } from "@/components/admin/delete-user-section";
 import { MoveTeamProgram } from "@/components/admin/move-team-program";
 import { RemoveMentorFromProgram } from "@/components/admin/remove-mentor-from-program";
 import { RevokeSignInsButton } from "@/components/admin/revoke-sign-ins-button";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { TeamHistory } from "@/components/common/team-history";
 import { Button } from "@/components/ia/button";
 import { PageHeader } from "@/components/ia/page-header";
@@ -551,9 +552,13 @@ function TeamsTable({ data }: { data: AdminOverview }) {
               <span className="flex min-w-0 items-center gap-2">
                 {mentorship ? (
                   <>
-                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#eaf6ff] text-[10px] font-semibold text-[#1583d6]">
-                      {initials(mentorship.mentorName)}
-                    </span>
+                    <PhotoAvatar
+                      initials={initials(mentorship.mentorName)}
+                      personId={mentorship.mentorId}
+                      decorative
+                      colors="bg-[#eaf6ff] text-[#1583d6]"
+                      className="size-7 text-[10px]"
+                    />
                     <span className="truncate text-[13px] text-[#22262b]">
                       {mentorship.mentorName}
                     </span>
@@ -627,9 +632,13 @@ function CoordinatorDrawer({
       >
         <div className="flex items-start justify-between gap-3 px-6 pt-6">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#fbe2d0] text-[14px] font-semibold text-[#ffab3d]">
-              {initials(user.fullName)}
-            </span>
+            <PhotoAvatar
+              initials={initials(user.fullName)}
+              personId={user.id}
+              decorative
+              colors="bg-[#fbe2d0] text-[#ffab3d]"
+              className="size-12 text-[14px]"
+            />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-[18px] font-semibold text-[#22262b]">
@@ -778,9 +787,13 @@ function MentorDrawer({
       >
         <div className="flex items-start justify-between gap-3 px-6 pt-6">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#eaf6ff] text-[14px] font-semibold text-[#1583d6]">
-              {initials(user.fullName)}
-            </span>
+            <PhotoAvatar
+              initials={initials(user.fullName)}
+              personId={user.id}
+              decorative
+              colors="bg-[#eaf6ff] text-[#1583d6]"
+              className="size-12 text-[14px]"
+            />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-[18px] font-semibold text-[#22262b]">

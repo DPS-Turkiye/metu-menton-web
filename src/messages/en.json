@@ -6387,6 +6387,7 @@
     "sessionRefreshFailed": "Couldn't update your session.",
     "personSummaryLoadFailed": "Could not load the profile.",
     "personIdInvalid": "Choose a valid person.",
+    "photoLoadFailed": "The profile photo could not be loaded.",
     "aiFeaturesLoadFailed": "Could not load the AI settings.",
     "officeHoursAppointmentsLoadFailed": "Could not load the appointments.",
     "officeHoursAppointmentLoadFailed": "Could not load the appointment.",

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AdminStudentsTable } from "@/components/admin/admin-students-table";
 import { GateBadgeState } from "@/interfaces/badges";
 import { getAdminStudents } from "@/lib/client/badges";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/badges", () => ({ getAdminStudents: vi.fn() }));
@@ -127,5 +128,14 @@ describe("AdminStudentsTable", () => {
       expect(screen.queryByText("Zeynep Öğrenci")).not.toBeInTheDocument(),
     );
     expect(screen.getByText("Mehmet Eğitimde")).toBeInTheDocument();
+  });
+
+  it("shows each student's photo over their initials", async () => {
+    renderWithQueryClient(<AdminStudentsTable />);
+
+    expect(await screen.findByText("Zeynep Öğrenci")).toBeInTheDocument();
+    expect(personPhotosIn()).toEqual(
+      expect.arrayContaining([photoPathOf("u1"), photoPathOf("u2")]),
+    );
   });
 });

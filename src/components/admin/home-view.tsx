@@ -10,6 +10,7 @@ import {
   EmptyNote,
   QueryNotice,
 } from "@/components/admin/admin-ui";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { useAdminOverview } from "@/hooks/use-admin-overview";
 import { useAdminUserTabs } from "@/hooks/use-admin-users";
 import type { AdminOverview, AdminProgram } from "@/interfaces/admin-overview";
@@ -364,9 +365,13 @@ function ProgramRow({
       </span>
       <span className="flex items-center gap-2.5 text-[13px] leading-[1.3] text-[#22262b]">
         {program.coordinatorName ? (
-          <span className="grid size-[26px] shrink-0 place-items-center rounded-full bg-[#fbe2d0] text-[9px] font-semibold text-[#a8480e]">
-            {initials(program.coordinatorName)}
-          </span>
+          <PhotoAvatar
+            initials={initials(program.coordinatorName)}
+            personId={program.coordinatorId}
+            decorative
+            colors="bg-[#fbe2d0] text-[#a8480e]"
+            className="size-[26px] text-[9px]"
+          />
         ) : null}
         {program.coordinatorName ?? (
           <span className="font-medium text-[#b7791f]">

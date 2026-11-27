@@ -23,7 +23,7 @@ import {
   WizardStep,
   type CoordinatorLoad,
 } from "@/lib/admin-program-wizard";
-import { choiceKey } from "@/lib/coordinator-picker";
+import { choiceKey, CoordinatorChoiceKind } from "@/lib/coordinator-picker";
 import { PROGRAM_FEATURES } from "@/lib/program-features";
 import { formatLongDateRange } from "@/lib/utils";
 
@@ -429,7 +429,15 @@ function CoordinatorsStep({ wizard }: { wizard: Wizard }) {
                 key={choiceKey(choice)}
                 className="flex items-center gap-2.5 rounded-xl bg-background-subtle p-3"
               >
-                <InitialsAvatar name={choice.fullName} large />
+                <InitialsAvatar
+                  name={choice.fullName}
+                  personId={
+                    choice.kind === CoordinatorChoiceKind.Existing
+                      ? choice.id
+                      : null
+                  }
+                  large
+                />
                 <span className="min-w-0 flex-1 truncate type-label text-text-primary">
                   {choice.fullName}
                 </span>
@@ -479,7 +487,7 @@ function CoordinatorRow({
           : "border border-transparent hover:bg-background-subtle"
       }`}
     >
-      <InitialsAvatar name={load.fullName} large />
+      <InitialsAvatar name={load.fullName} personId={load.id} large />
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="type-label text-text-primary">{load.fullName}</span>
         <span
