@@ -40,6 +40,7 @@ import {
   appointmentProfileHref,
   peerMentorHref,
 } from "@/lib/peer-profile-links";
+import { appointmentPersonId } from "@/lib/student-appointments";
 import {
   STUDENT_OFFICE_HOURS_HREF,
   STUDENT_PEER_MENTORING_HREF,
@@ -197,7 +198,7 @@ function NextAppointment({
           name={counterpart.fullName}
         >
           <InitialsAvatar
-            personId={counterpart.userId}
+            personId={appointmentPersonId(appointment)}
             name={counterpart.fullName}
             size="lg"
           />
@@ -513,7 +514,7 @@ function AwaitingAppointment({ appointment }: { appointment: Appointment }) {
           name={counterpart.fullName}
         >
           <InitialsAvatar
-            personId={counterpart.userId}
+            personId={appointmentPersonId(appointment)}
             name={counterpart.fullName}
             size="sm"
           />

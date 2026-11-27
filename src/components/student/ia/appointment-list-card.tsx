@@ -12,6 +12,7 @@ import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
 import { currentTime } from "@/lib/appointments";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
+import { appointmentPersonId } from "@/lib/student-appointments";
 import { offeredTimes } from "@/lib/student-office-hours";
 import { formatTurkishTime } from "@/lib/turkey-time";
 import { formatWeekdayDayMonth } from "@/lib/utils";
@@ -36,7 +37,7 @@ function Person({
         name={counterpart.fullName}
       >
         <InitialsAvatar
-          personId={counterpart.userId}
+          personId={appointmentPersonId(appointment)}
           name={counterpart.fullName}
         />
       </ProfilePictureLink>

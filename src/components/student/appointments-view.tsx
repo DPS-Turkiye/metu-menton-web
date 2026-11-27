@@ -51,6 +51,7 @@ import { monthName } from "@/lib/calendar";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
 import {
+  appointmentPersonId,
   calendarTitle,
   selectedDayTitle,
   shortPersonName,
@@ -569,7 +570,7 @@ function AppointmentDetail({
           name={counterpart.fullName}
         >
           <InitialsAvatar
-            personId={counterpart.userId}
+            personId={appointmentPersonId(appointment)}
             name={counterpart.fullName}
             size="sm"
           />
