@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PeerMentorPublicProfile } from "@/components/student/peer-mentor-public-profile";
 import { BadgeCode, BadgeKind } from "@/interfaces/badges";
-import { PeerEvidenceType } from "@/interfaces/peer-mentor-documents";
+import {
+  PeerDocumentVisibility,
+  PeerEvidenceType,
+} from "@/interfaces/peer-mentor-documents";
 import { getPeerMentorDocuments } from "@/lib/client/peer-mentor-documents";
 import { getPeerMentor } from "@/lib/client/peer-mentoring";
 import {
@@ -281,6 +284,7 @@ describe("PeerMentorPublicProfile", () => {
       peerFileFixture({
         id: "8a0e2f4c-0000-4000-8000-000000000003",
         evidenceType: PeerEvidenceType.Cv,
+        visibility: PeerDocumentVisibility.Profile,
         originalFilename: "CV_DenizKaya.pdf",
       }),
       peerLinkFixture(),

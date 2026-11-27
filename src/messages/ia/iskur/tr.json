@@ -343,6 +343,13 @@
         "VERIFICATION_ONLY": "Yalnızca doğrulama için",
         "PROFILE": "Profilimde göster"
       },
+      "share": {
+        "label": "Diğer öğrencilere göster",
+        "aria": "{name}: diğer öğrencilere göster",
+        "on": "Profilinde görünür",
+        "off": "Yalnızca koordinatörler görür",
+        "transcript": "Transkript yalnızca koordinatörlere görünür"
+      },
       "types": {
         "TRANSCRIPT": "Transkript",
         "CV": "CV",
@@ -354,7 +361,7 @@
         "PROJECT_REPORT": "Proje raporu"
       },
       "safeTitle": "Belgelerin güvende",
-      "safeBody": "\"Yalnızca doğrulama için\" seçtiğin belgeleri sadece program koordinatörü doğrulama amacıyla görür. \"Profilimde göster\" seçtiklerin öğrencilere görünür.",
+      "safeBody": "Yüklediğin dosyaları program koordinatörün doğrulama için görür. \"Diğer öğrencilere göster\"i açtığın dosyalar profilinde öğrencilere de görünür; transkriptin her zaman yalnızca koordinatörlere görünür.",
       "notPdf": "Yalnızca PDF dosyası yükleyebilirsin.",
       "tooLarge": "Dosya en fazla {max} olabilir.",
       "linkInvalid": "Geçerli bir bağlantı gir (ör. github.com/adın).",

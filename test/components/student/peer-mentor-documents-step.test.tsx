@@ -198,29 +198,99 @@ describe("PeerMentorDocumentsStep", () => {
     expect(deletePeerMentorDocument).toHaveBeenCalledWith("doc-1");
   });
 
-  it("changes who sees every file on a card", async () => {
+  it("shows one file to other students with its own switch and leaves the others hidden", async () => {
     const user = userEvent.setup();
     stored = [
-      peerFileFixture({ id: "cv-1", evidenceType: PeerEvidenceType.Cv }),
+      peerFileFixture({
+        id: "ref-1",
+        evidenceType: PeerEvidenceType.ReferenceLetter,
+        originalFilename: "Referans.pdf",
+      }),
+      peerFileFixture({
+        id: "award-1",
+        evidenceType: PeerEvidenceType.Award,
+        originalFilename: "Odul.pdf",
+      }),
     ];
     renderStep();
-    const cv = await screen.findByRole("region", { name: "CV" });
-    await within(cv).findByText("Transkript_2026_Guz.pdf");
+    const other = await screen.findByRole("region", {
+      name: "Diğer materyaller",
+    });
+    const reference = await within(other).findByRole("switch", {
+      name: "Referans.pdf: diğer öğrencilere göster",
+    });
+    const award = within(other).getByRole("switch", {
+      name: "Odul.pdf: diğer öğrencilere göster",
+    });
+    expect(reference).toHaveAttribute("aria-checked", "false");
+    expect(
+      within(other).getAllByText("Yalnızca koordinatörler görür"),
+    ).toHaveLength(2);
+    expect(within(other).queryByRole("combobox")).toBeNull();
 
-    await user.selectOptions(
-      within(cv).getByRole("combobox", { name: "CV: kim görsün?" }),
-      "Profilimde göster",
-    );
+    await user.click(reference);
 
     await waitFor(() =>
-      expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledWith(
-        "cv-1",
-        PeerDocumentVisibility.Profile,
+      expect(
+        within(other).getByRole("switch", {
+          name: "Referans.pdf: diğer öğrencilere göster",
+        }),
+      ).toHaveAttribute("aria-checked", "true"),
+    );
+    expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledTimes(1);
+    expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledWith(
+      "ref-1",
+      PeerDocumentVisibility.Profile,
+    );
+    expect(within(other).getByText("Profilinde görünür")).toBeVisible();
+    expect(award).toHaveAttribute("aria-checked", "false");
+
+    await user.click(
+      within(other).getByRole("switch", {
+        name: "Referans.pdf: diğer öğrencilere göster",
+      }),
+    );
+    await waitFor(() =>
+      expect(updatePeerMentorDocumentVisibility).toHaveBeenLastCalledWith(
+        "ref-1",
+        PeerDocumentVisibility.VerificationOnly,
       ),
     );
+  });
+
+  it("gives a transcript no switch and says it stays with the coordinators", async () => {
+    stored = [peerFileFixture({ id: "tr-1" })];
+    renderStep();
+    const transcript = await screen.findByRole("region", {
+      name: "Öğrenci belgesi veya transkript",
+    });
+    await within(transcript).findByText("Transkript_2026_Guz.pdf");
+
+    expect(within(transcript).queryByRole("switch")).toBeNull();
     expect(
-      within(cv).getByRole("combobox", { name: "CV: kim görsün?" }),
-    ).toHaveValue(PeerDocumentVisibility.Profile);
+      within(transcript).getByText(
+        "Transkript yalnızca koordinatörlere görünür",
+      ),
+    ).toBeVisible();
+  });
+
+  it("uploads a CV hidden from students", async () => {
+    const user = userEvent.setup();
+    renderStep();
+    const cv = await screen.findByRole("region", { name: "CV" });
+
+    await user.upload(within(cv).getByLabelText("dosya seç"), pdf("CV.pdf"));
+
+    expect(
+      await within(cv).findByRole("switch", {
+        name: "CV.pdf: diğer öğrencilere göster",
+      }),
+    ).toHaveAttribute("aria-checked", "false");
+    expect(uploadPeerMentorDocument).toHaveBeenCalledWith(
+      expect.any(File),
+      PeerEvidenceType.Cv,
+      PeerDocumentVisibility.VerificationOnly,
+    );
   });
 
   it("adds a portfolio link on Enter, refuses one that is not a web address, and passes LinkedIn up", async () => {
