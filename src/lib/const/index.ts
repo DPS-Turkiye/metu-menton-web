@@ -8,6 +8,9 @@ import { parseEmailDomains } from "@/lib/email";
 import { MeetingStatus, type MeetingStatusMeta } from "@/types/assistant";
 import { MentorshipWorkspaceTab } from "@/types/mentorship";
 
+/** The name the installed app goes by under its icon: the web manifest and the iOS home screen. */
+export const INSTALLED_APP_NAME = "hocam";
+
 export const DEFAULT_APP_URL = "http://localhost:3000";
 export const DEFAULT_BACKEND_URL = "http://localhost:8080";
 export const BACKEND_HEALTH_PATH = "/api/health";
