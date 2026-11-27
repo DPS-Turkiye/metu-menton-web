@@ -8750,6 +8750,7 @@
     "waitingHint": "Koordinatörün karar verdiğinde bildirim alırsın.",
     "yourReason": "Seçtiğin neden: {reason}",
     "decidedTitle": "Koordinatörün karar verdi · {date}",
+    "decidedUndated": "Koordinatörün karar verdi",
     "mentoringNone": "Haftalık mentörlük süren: yok; tüm saatlerin ekip çalışmasında.",
     "mentoringHours": "Haftalık mentörlük süren: {hours} sa",
     "mentoringDefaultHours": "Haftalık mentörlük süren varsayılana döndü: {hours} sa",

@@ -133,9 +133,11 @@ function Latest({ statement }: { statement: Statement }) {
       return (
         <div className="flex flex-col gap-1">
           <p className="type-label text-text-primary">
-            {t("decidedTitle", {
-              date: formatDateTime(statement.decidedAt ?? "", locale),
-            })}
+            {statement.decidedAt
+              ? t("decidedTitle", {
+                  date: formatDateTime(statement.decidedAt, locale),
+                })
+              : t("decidedUndated")}
           </p>
           <p className="type-body-sm text-text-primary">
             {t(outcome.key, { hours: formatHours(outcome.minutes, locale) })}

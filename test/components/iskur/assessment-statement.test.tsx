@@ -108,6 +108,50 @@ describe("IskurAssessmentStatement", () => {
     ).toBeInTheDocument();
   });
 
+  it("names no date for a decision the backend sent without one", async () => {
+    vi.mocked(getMyIskurAssessmentStatement).mockResolvedValue({
+      programId: PROGRAM,
+      canSend: true,
+      latest: iskurAssessmentStatement({
+        status: IskurAssessmentStatus.Decided,
+        mentoringDecision: IskurMentoringDecision.Keep,
+        decidedAt: null,
+      }),
+    });
+    renderWithQueryClient(<IskurAssessmentStatement />);
+    expect(
+      await screen.findByText("Koordinatörün karar verdi"),
+    ).toBeInTheDocument();
+  });
+
+  it("closes the form once the backend no longer takes a statement", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getMyIskurAssessmentStatement).mockResolvedValue({
+      programId: PROGRAM,
+      canSend: true,
+      latest: null,
+    });
+    const { queryClient } = renderWithQueryClient(<IskurAssessmentStatement />);
+    await user.click(
+      await screen.findByRole("button", { name: "Koordinatörüne açıkla" }),
+    );
+    expect(screen.getByLabelText("Kısaca anlat")).toBeInTheDocument();
+
+    vi.mocked(getMyIskurAssessmentStatement).mockResolvedValue({
+      programId: PROGRAM,
+      canSend: false,
+      latest: iskurAssessmentStatement(),
+    });
+    await queryClient.invalidateQueries();
+
+    expect(
+      await screen.findByText(
+        "Koordinatörün karar verdiğinde bildirim alırsın.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Kısaca anlat")).toBeNull();
+  });
+
   it("shows nothing to someone who is not an İŞKUR intern", async () => {
     vi.mocked(getMyIskurAssessmentStatement).mockRejectedValue(
       new ClientApiError("Not an intern", 404),
