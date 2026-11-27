@@ -17,20 +17,35 @@ export function toggleInterestTopic<T extends Interests>(
   const topics = current.topics.includes(id)
     ? current.topics.filter((value) => value !== id)
     : [...current.topics, id];
-  const valid = categories
-    .filter((item) => topics.includes(item.id))
+  return withVisibleSubtopics({ ...current, topics }, categories);
+}
+
+/**
+ * Keeps only the sub-topics shown under the chosen categories; ids of an unchosen, inactive or retired category drop
+ * out, so a limit counts only what the person can see and untick.
+ */
+export function withVisibleSubtopics<T extends Interests>(
+  current: T,
+  categories: readonly ProfileCompletionCategory[],
+): T {
+  const visible = categories
+    .filter((item) => current.topics.includes(item.id))
     .flatMap((item) => item.subtopics.map((subtopic) => subtopic.id));
   return {
     ...current,
-    topics,
-    subtopics: current.subtopics.filter((value) => valid.includes(value)),
+    subtopics: current.subtopics.filter((value) => visible.includes(value)),
   };
 }
 
+/** Adds or removes a sub-topic; an addition past `max` leaves the choice as it was. */
 export function toggleInterestSubtopic<T extends Interests>(
   current: T,
   id: string,
+  max = Number.POSITIVE_INFINITY,
 ): T {
+  if (!current.subtopics.includes(id) && current.subtopics.length >= max) {
+    return current;
+  }
   return {
     ...current,
     subtopics: current.subtopics.includes(id)
@@ -57,10 +72,7 @@ export function chosenSubtopics(
     .filter((sub) => interests.subtopics.includes(sub.id));
 }
 
-/**
- * The catalogue narrowed to a program's active categories, in the catalogue's order. Sub-topics stay the
- * catalogue's sample ones until the board names real ones.
- */
+/** The catalogue narrowed to a program's active categories, in the catalogue's order. */
 export function activeCatalogue(
   catalogue: readonly ProfileCompletionCategory[],
   active: readonly PeerTopicCategory[],

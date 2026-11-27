@@ -224,16 +224,13 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toBeVisible();
   });
 
-  it("filters by a category chip and by text", async () => {
+  it("filters by the Kategori dropdown and by text", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentoringView />);
     await mentorCard("Deniz Kaya");
 
-    const international = screen.getByRole("button", {
-      name: /^Uluslararası Fırsatlar/,
-    });
-    await user.click(international);
-    expect(international).toHaveAttribute("aria-pressed", "true");
+    const categorySelect = screen.getByRole("combobox", { name: "Kategori" });
+    await user.selectOptions(categorySelect, "Uluslararası Fırsatlar");
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: "Deniz Kaya" })).toBeNull(),
     );
@@ -243,8 +240,8 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toBeNull();
     expect(screen.getByRole("heading", { name: "Elif Şahin" })).toBeVisible();
 
-    await user.click(screen.getByRole("button", { name: "Tümü" }));
-    expect(international).toHaveAttribute("aria-pressed", "false");
+    await user.selectOptions(categorySelect, "");
+    expect(categorySelect).toHaveValue("");
     await user.type(
       screen.getByPlaceholderText("Mentor veya konu ara"),
       "psikoloji",
@@ -262,27 +259,55 @@ describe("PeerMentoringView › Keşfet", () => {
     ).toBeVisible();
   });
 
-  it("shows how many of the program's mentors offer each category", async () => {
+  it("has no category chip row: search and the Kategori dropdown are the filters", async () => {
     renderWithQueryClient(<PeerMentoringView />);
+    await mentorCard("Deniz Kaya");
 
     expect(
-      await screen.findByRole("button", { name: "Kariyer ve Staj, 1 mentor" }),
+      screen.getByRole("searchbox", { name: "Mentor veya konu ara" }),
     ).toBeVisible();
+    expect(screen.getByRole("combobox", { name: "Kategori" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Tümü" })).toBeNull();
     expect(
-      screen.getByRole("button", { name: "Uluslararası Fırsatlar, 1 mentor" }),
-    ).toBeVisible();
+      screen.queryByRole("button", { name: /^Kariyer ve Staj/ }),
+    ).toBeNull();
   });
 
-  it("leaves the counts off the category chips when they can't be read", async () => {
+  it("leaves the categories no mentor offers out of the Kategori dropdown", async () => {
+    const { getPeerMentorCounts } = await import("@/lib/client/peer-mentoring");
+    vi.mocked(getPeerMentorCounts).mockResolvedValueOnce([
+      { category: PeerTopicCategory.CareerInternship, mentorCount: 2 },
+      { category: PeerTopicCategory.International, mentorCount: 0 },
+    ]);
+    renderWithQueryClient(<PeerMentoringView />);
+    const categorySelect = screen.getByRole("combobox", { name: "Kategori" });
+
+    expect(
+      await within(categorySelect).findByRole("option", {
+        name: "Kariyer ve Staj",
+      }),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        within(categorySelect).queryByRole("option", {
+          name: "Uluslararası Fırsatlar",
+        }),
+      ).toBeNull(),
+    );
+  });
+
+  it("offers every category in the dropdown when the counts can't be read", async () => {
     const { getPeerMentorCounts } = await import("@/lib/client/peer-mentoring");
     vi.mocked(getPeerMentorCounts).mockRejectedValueOnce(new Error("down"));
     renderWithQueryClient(<PeerMentoringView />);
     await mentorCard("Deniz Kaya");
 
+    const categorySelect = screen.getByRole("combobox", { name: "Kategori" });
     expect(
-      screen.getByRole("button", { name: "Kariyer ve Staj" }),
-    ).toBeVisible();
-    expect(screen.queryByText("1 mentor")).toBeNull();
+      within(categorySelect).getByRole("option", {
+        name: "Uluslararası Fırsatlar",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("filters by a sub-topic and by a free slot this week", async () => {
@@ -293,7 +318,7 @@ describe("PeerMentoringView › Keşfet", () => {
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Alt konu" }),
-      "Örnek: Değişim programları",
+      "Değişim Programları",
     );
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: "Deniz Kaya" })).toBeNull(),
@@ -327,7 +352,7 @@ describe("PeerMentoringView › Keşfet", () => {
     renderWithQueryClient(<PeerMentoringView />);
     await mentorCard("Deniz Kaya");
     const subTopic = screen.getByRole("combobox", { name: "Alt konu" });
-    await user.selectOptions(subTopic, "Örnek: CV hazırlama");
+    await user.selectOptions(subTopic, "CV Hazırlama");
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Kategori" }),
@@ -339,7 +364,14 @@ describe("PeerMentoringView › Keşfet", () => {
       within(subTopic)
         .getAllByRole("option")
         .map((option) => option.textContent),
-    ).toEqual(["Alt konu", "Örnek: Değişim programları"]);
+    ).toEqual([
+      "Alt konu",
+      "Değişim Programları",
+      "Yurt Dışında Staj",
+      "Yurt Dışında Yüksek Lisans",
+      "Dil Sınavları",
+      "Uluslararası Burslar",
+    ]);
   });
 });
 
@@ -365,12 +397,17 @@ describe("PeerMentoringView › program categories", () => {
       PeerTopicCategory.CareerInternship,
     ]);
     renderWithQueryClient(<PeerMentoringView />);
+    const categorySelect = screen.getByRole("combobox", { name: "Kategori" });
 
     expect(
-      await screen.findByRole("button", { name: /^Kariyer ve Staj/ }),
+      await within(categorySelect).findByRole("option", {
+        name: "Kariyer ve Staj",
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /^Uluslararası Fırsatlar/ }),
+      within(categorySelect).queryByRole("option", {
+        name: "Uluslararası Fırsatlar",
+      }),
     ).not.toBeInTheDocument();
   });
 });
@@ -385,19 +422,61 @@ describe("PeerMentoringView › switch", () => {
     expect(screen.queryByRole("button", { name: "Mentorluk Ver" })).toBeNull();
   });
 
-  it("opens Mentorluklarım from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
+  it("opens Aldığım mentorluklar from a ?tab=mine link, and Keşfet drops the parameter again", async () => {
     search = "tab=mine";
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentoringView />);
-    expect(screen.getByRole("tab", { name: /Mentorluklarım/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    expect(
+      screen.getByRole("tab", { name: /^Aldığım mentorluklar/ }),
+    ).toHaveAttribute("aria-selected", "true");
 
     await user.click(screen.getByRole("tab", { name: "Keşfet" }));
     expect(replace).toHaveBeenCalledWith("/student/peer-mentoring", {
       scroll: false,
     });
+  });
+
+  it("Başka mentor bul opens a fresh Keşfet, without the old filters, with the search box focused", async () => {
+    const { getPeerMentoringRequests } =
+      await import("@/lib/client/peer-mentoring");
+    const [elif] = peerMentoringRequestsFixture();
+    if (!elif) throw new Error("fixture request missing");
+    vi.mocked(getPeerMentoringRequests).mockResolvedValue([
+      { ...elif, status: MentorshipRequestStatus.Withdrawn },
+    ]);
+    const user = userEvent.setup();
+    const view = renderWithQueryClient(<PeerMentoringView />);
+    await mentorCard("Deniz Kaya");
+    const searchBox = () =>
+      screen.getByRole("searchbox", { name: "Mentor veya konu ara" });
+    await user.type(searchBox(), "psikoloji");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Kategori" }),
+      "Uluslararası Fırsatlar",
+    );
+
+    search = "tab=mine";
+    view.rerender(<PeerMentoringView />);
+    const history = await screen.findByRole("region", { name: /Geçmiş/ });
+    await user.click(
+      within(history).getByRole("button", { name: "Başka mentor bul" }),
+    );
+    expect(replace).toHaveBeenLastCalledWith("/student/peer-mentoring", {
+      scroll: false,
+    });
+
+    search = "";
+    view.rerender(<PeerMentoringView />);
+    expect(screen.getByRole("tab", { name: "Keşfet" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await waitFor(() => expect(searchBox()).toHaveFocus());
+    expect(searchBox()).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "Kategori" })).toHaveValue("");
+    vi.mocked(getPeerMentoringRequests).mockImplementation(async () =>
+      structuredClone(peerMentoringRequestsFixture()),
+    );
   });
 
   it("answers a Mentorluk Ver link from such a student with Mentorluk Al", async () => {

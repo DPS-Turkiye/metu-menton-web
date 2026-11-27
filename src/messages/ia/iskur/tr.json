@@ -248,6 +248,7 @@
     "noSubtopics": "Seçtiğin kategorilerde alt konu yok.",
     "subtopicCount": "{count} alt konu seçildi",
     "subtopicsNote": "Bir sonraki adımda bu konulardaki deneyimini paylaşabilirsin.",
+    "subtopicLimit": "En fazla {max} alt konu seçebilirsin.",
     "soon": "Yakında",
     "level": {
       "label": "Deneyim düzeyin",
@@ -435,15 +436,13 @@
     "tabs": {
       "label": "Mentorluk Al",
       "discover": "Keşfet",
-      "mine": "Mentorluklarım"
+      "mine": "Aldığım mentorluklar"
     },
     "discover": {
-      "categoriesTitle": "Mentorluk kategorileri",
       "noCategories": "Programında henüz etkin akran mentörlüğü kategorisi yok.",
       "recommendedTitle": "Sana önerilenler",
       "recommendedHint": "Seçtiğin konulara göre",
       "search": "Mentor veya konu ara",
-      "allCategories": "Tümü",
       "categoryFilter": "Kategori",
       "empty": "Şu an listelenen akran mentoru yok.",
       "noMatch": "Bu filtrelere uyan akran mentoru yok.",
@@ -462,7 +461,6 @@
       "paused": "Şu an yeni mentee almıyor",
       "allTitle": "Tüm mentorlar",
       "seeProfileAndRequest": "Profili gör ve talep gönder",
-      "mentorCountSuffix": ", {count} mentor",
       "trained": "Eğitim rozeti",
       "freeThisWeek": "Bu hafta boş saati var",
       "noFreeThisWeek": "Bu hafta boş saati yok",
@@ -518,7 +516,7 @@
         "declined": "Reddederse başka bir mentora talep gönderebilirsin."
       },
       "close": "Kapat",
-      "goToMine": "Mentorluklarım'a git"
+      "goToMine": "Aldığım mentorluklara git"
     },
     "withdraw": {
       "title": "Talebi geri çekmek istiyor musun?",

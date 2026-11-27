@@ -12,7 +12,7 @@ const URL = "/api/student/profile-completion";
 export async function getStudentProfileCompletion() {
   return requireSuccess(await httpClient.get<StudentProfileCompletion>(URL));
 }
-/** The categories active in the student's program, each with the catalogue's sample sub-topics. */
+/** The categories active in the student's program, each with the catalogue's sub-topics. */
 export async function getProfileCompletionCategories() {
   return activeCatalogue(
     PROFILE_COMPLETION_CATEGORIES,

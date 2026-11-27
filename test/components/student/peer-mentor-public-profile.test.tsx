@@ -137,7 +137,7 @@ describe("PeerMentorPublicProfile", () => {
     const topics = await screen.findByRole("region", {
       name: "Yardımcı olabileceği konular",
     });
-    expect(within(topics).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(topics).getByText("CV Hazırlama")).toBeVisible();
     // A sub-topic the catalogue doesn't know shows as written.
     expect(within(topics).getByText("Serbest konu")).toBeVisible();
 
@@ -251,11 +251,11 @@ describe("PeerMentorPublicProfile", () => {
     expect(
       within(sent).getByRole("region", { name: "Sonra ne olur?" }),
     ).toHaveTextContent("Deniz Kaya yanıt verdiğinde bildirim alırsın.");
-    // "Mentorluklarım'a git" leaves the profile for the Mentorluklarım tab.
+    // "Aldığım mentorluklara git" leaves the profile for the Aldığım mentorluklar tab.
     expect(
       within(
         screen.getByRole("dialog", { name: "Talebin iletildi" }),
-      ).getByRole("link", { name: "Mentorluklarım'a git" }),
+      ).getByRole("link", { name: "Aldığım mentorluklara git" }),
     ).toHaveAttribute("href", "/student/peer-mentoring?tab=mine");
   });
 
