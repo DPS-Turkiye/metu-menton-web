@@ -319,7 +319,7 @@ describe("PeerMentoringView › Keşfet", () => {
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Alt konu" }),
-      "Örnek: Değişim programları",
+      "Değişim Programları",
     );
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: "Deniz Kaya" })).toBeNull(),
@@ -353,7 +353,7 @@ describe("PeerMentoringView › Keşfet", () => {
     renderWithQueryClient(<PeerMentoringView />);
     await mentorCard("Deniz Kaya");
     const subTopic = screen.getByRole("combobox", { name: "Alt konu" });
-    await user.selectOptions(subTopic, "Örnek: CV hazırlama");
+    await user.selectOptions(subTopic, "CV Hazırlama");
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Kategori" }),
@@ -365,7 +365,14 @@ describe("PeerMentoringView › Keşfet", () => {
       within(subTopic)
         .getAllByRole("option")
         .map((option) => option.textContent),
-    ).toEqual(["Alt konu", "Örnek: Değişim programları"]);
+    ).toEqual([
+      "Alt konu",
+      "Değişim Programları",
+      "Yurt Dışında Staj",
+      "Yurt Dışında Yüksek Lisans",
+      "Dil Sınavları",
+      "Uluslararası Burslar",
+    ]);
   });
 });
 

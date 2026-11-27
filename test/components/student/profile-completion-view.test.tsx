@@ -113,23 +113,26 @@ describe("profile completion wizard", () => {
     expect(currentStep()).toHaveTextContent("Destek konuların");
     expect(screen.getByRole("img", { name: "Tamamlandı" })).toBeVisible();
     expect(screen.getAllByRole("checkbox")).toHaveLength(8);
+    for (const box of screen.getAllByRole("checkbox")) {
+      expect(
+        box.closest("label")?.querySelector("img")?.getAttribute("src"),
+      ).toMatch(/categories/);
+    }
     expect(
       screen.getByText("Bir konu seçtiğinde alt konuları burada görürsün."),
     ).toBeVisible();
 
     await user.click(screen.getByRole("checkbox", { name: "Kariyer ve Staj" }));
-    await user.click(
-      screen.getByRole("checkbox", { name: "Örnek: CV hazırlama" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "CV Hazırlama" }));
     expect(
-      screen.getByRole("checkbox", { name: "Örnek: CV hazırlama" }),
+      screen.getByRole("checkbox", { name: "CV Hazırlama" }),
     ).toBeChecked();
     await user.click(continueButton());
 
     expect(currentStep()).toHaveTextContent("Hedefin");
     const summary = screen.getByRole("region", { name: "Seçimlerin" });
     expect(within(summary).getByText("Kariyer ve Staj")).toBeVisible();
-    expect(within(summary).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(summary).getByText("CV Hazırlama")).toBeVisible();
     await user.type(
       screen.getByRole("textbox", { name: "Hedefin veya beklentin" }),
       "  Staj bulmak  ",
@@ -160,13 +163,13 @@ describe("profile completion wizard", () => {
       screen.getByRole("checkbox", { name: "Akademik Gelişim" }),
     );
     await user.click(
-      screen.getByRole("checkbox", { name: "Örnek: Ders çalışma" }),
+      screen.getByRole("checkbox", { name: "Çalışma Teknikleri" }),
     );
     await user.click(
       screen.getByRole("checkbox", { name: "Akademik Gelişim" }),
     );
     expect(
-      screen.queryByRole("checkbox", { name: "Örnek: Ders çalışma" }),
+      screen.queryByRole("checkbox", { name: "Çalışma Teknikleri" }),
     ).toBeNull();
     await user.click(continueButton());
     expect(screen.getByText("Henüz bir konu seçmedin.")).toBeVisible();

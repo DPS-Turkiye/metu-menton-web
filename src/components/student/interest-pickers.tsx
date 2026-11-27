@@ -3,9 +3,9 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
+import { CATEGORY_ART } from "@/components/student/iskur-ui";
 import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import type { ProfileCompletionCategory } from "@/interfaces/student-profile-completion";
-import { PEER_TOPIC_ICONS } from "@/lib/profile-completion";
 
 export const STUDENT_GOAL_MAX = 1000;
 
@@ -41,7 +41,7 @@ export function TopicPicker({
           return (
             <label
               key={item.id}
-              className={`flex cursor-pointer items-center gap-3 rounded-[16px] border bg-background-surface p-4 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-selected ${
+              className={`flex min-h-[100px] cursor-pointer items-center gap-3.5 rounded-[16px] border bg-background-surface p-[18px] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-selected ${
                 checked
                   ? "border-border-selected"
                   : "border-border-default hover:bg-background-subtle"
@@ -53,19 +53,13 @@ export function TopicPicker({
                 checked={checked}
                 onChange={() => onToggle(item.id)}
               />
-              <span
-                aria-hidden
-                className={`grid size-9 shrink-0 place-items-center rounded-[10px] ${
-                  checked ? "bg-background-selected" : "bg-background-subtle"
-                }`}
-              >
-                <Image
-                  src={PEER_TOPIC_ICONS[item.id]}
-                  alt=""
-                  width={18}
-                  height={18}
-                />
-              </span>
+              <Image
+                src={CATEGORY_ART[item.id].src}
+                alt=""
+                width={CATEGORY_ART[item.id].width}
+                height={CATEGORY_ART[item.id].height}
+                className="shrink-0"
+              />
               <span className="min-w-0 flex-1 type-label text-text-primary">
                 {topicLabel(item.id)}
               </span>

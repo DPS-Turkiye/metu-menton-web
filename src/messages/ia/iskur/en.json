@@ -248,6 +248,7 @@
     "noSubtopics": "The categories you picked have no sub-topics.",
     "subtopicCount": "{count} sub-topics selected",
     "subtopicsNote": "In the next step you can share your experience in these topics.",
+    "subtopicLimit": "You can pick up to {max} sub-topics.",
     "soon": "Coming soon",
     "level": {
       "label": "Your level",

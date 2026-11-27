@@ -87,7 +87,7 @@ describe("StudentProfileView", () => {
       name: "İlgi alanları ve hedefi",
     });
     expect(await within(interests).findByText("Kariyer ve Staj")).toBeVisible();
-    expect(within(interests).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(interests).getByText("CV Hazırlama")).toBeVisible();
     expect(within(interests).getByText("Yaz stajı bulmak")).toBeVisible();
     expect(fetchAdviseeProfile).toHaveBeenCalledWith("sample-student-deniz");
     expect(screen.queryByText(/E-posta/)).toBeNull();
