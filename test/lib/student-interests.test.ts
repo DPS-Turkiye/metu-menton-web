@@ -47,6 +47,14 @@ describe("student interests", () => {
     );
   });
 
+  it("adds no sub-topic past the limit, but still removes one", () => {
+    const full = { ...start, subtopics: ["fixture-cv", "fixture-clubs"] };
+    expect(toggleInterestSubtopic(full, "fixture-time", 2)).toBe(full);
+    expect(toggleInterestSubtopic(full, "fixture-cv", 2).subtopics).toEqual([
+      "fixture-clubs",
+    ]);
+  });
+
   it("lists chosen categories in catalogue order", () => {
     expect(
       chosenCategories(PROFILE_COMPLETION_CATEGORIES, [

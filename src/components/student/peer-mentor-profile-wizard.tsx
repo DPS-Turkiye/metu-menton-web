@@ -309,19 +309,23 @@ function SubtopicsStep({ wizard }: { wizard: Wizard }) {
             </legend>
             <div className="flex flex-wrap gap-2">
               {group.subtopics.map(({ checked, ...sub }) => {
+                const blocked = !checked && wizard.subtopicLimitReached;
                 return (
                   <label
                     key={sub.id}
-                    className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 type-label has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-selected ${
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 type-label has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-selected ${
                       checked
-                        ? "border-brand-odtu-primary bg-background-selected text-text-accent"
-                        : "border-border-default bg-background-surface text-text-primary hover:bg-background-subtle"
+                        ? "cursor-pointer border-brand-odtu-primary bg-background-selected text-text-accent"
+                        : blocked
+                          ? "cursor-not-allowed border-border-default bg-background-surface text-text-muted"
+                          : "cursor-pointer border-border-default bg-background-surface text-text-primary hover:bg-background-subtle"
                     }`}
                   >
                     <input
                       type="checkbox"
                       className="sr-only"
                       checked={checked}
+                      disabled={blocked}
                       onChange={() => wizard.toggleSubtopic(sub.id)}
                     />
                     {checked ? (
@@ -365,6 +369,9 @@ function SubtopicsStep({ wizard }: { wizard: Wizard }) {
           </fieldset>
         </Card>
       ))}
+      {wizard.subtopicLimitReached ? (
+        <Note>{t("subtopicLimit", { max: wizard.subtopicsMax })}</Note>
+      ) : null}
       <Note>{t("subtopicsNote")}</Note>
     </div>
   );

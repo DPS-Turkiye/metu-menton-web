@@ -1,5 +1,4 @@
 import type { InstitutionRecord, StudyLevel } from "@/interfaces/institution";
-import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import {
   ProfileCompletionStep,
   type ProfileCompletionCategory,
@@ -26,20 +25,6 @@ export function stepBefore(step: ProfileCompletionStep): ProfileCompletionStep {
     PROFILE_COMPLETION_STEPS[PROFILE_COMPLETION_STEPS.indexOf(step) - 1] ?? step
   );
 }
-
-const ICONS = "/ia/profile";
-
-/** The icon on each support-topic card (Figma "Profil Tamamlama — 2"). */
-export const PEER_TOPIC_ICONS: Record<PeerTopicCategory, string> = {
-  [PeerTopicCategory.AcademicDevelopment]: `${ICONS}/book.svg`,
-  [PeerTopicCategory.CareerInternship]: `${ICONS}/career.svg`,
-  [PeerTopicCategory.TechnicalDigital]: `${ICONS}/idea.svg`,
-  [PeerTopicCategory.ResearchAcademicCareer]: `${ICONS}/academic.svg`,
-  [PeerTopicCategory.Entrepreneurship]: `${ICONS}/star.svg`,
-  [PeerTopicCategory.CampusLife]: `${ICONS}/group.svg`,
-  [PeerTopicCategory.PersonalProfessional]: `${ICONS}/user.svg`,
-  [PeerTopicCategory.International]: `${ICONS}/external-link.svg`,
-};
 
 export function completionStepState(
   step: ProfileCompletionStep,

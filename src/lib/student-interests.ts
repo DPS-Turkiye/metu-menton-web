@@ -27,10 +27,15 @@ export function toggleInterestTopic<T extends Interests>(
   };
 }
 
+/** Adds or removes a sub-topic; an addition past `max` leaves the choice as it was. */
 export function toggleInterestSubtopic<T extends Interests>(
   current: T,
   id: string,
+  max = Number.POSITIVE_INFINITY,
 ): T {
+  if (!current.subtopics.includes(id) && current.subtopics.length >= max) {
+    return current;
+  }
   return {
     ...current,
     subtopics: current.subtopics.includes(id)
@@ -57,10 +62,7 @@ export function chosenSubtopics(
     .filter((sub) => interests.subtopics.includes(sub.id));
 }
 
-/**
- * The catalogue narrowed to a program's active categories, in the catalogue's order. Sub-topics stay the
- * catalogue's sample ones until the board names real ones.
- */
+/** The catalogue narrowed to a program's active categories, in the catalogue's order. */
 export function activeCatalogue(
   catalogue: readonly ProfileCompletionCategory[],
   active: readonly PeerTopicCategory[],

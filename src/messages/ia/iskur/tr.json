@@ -248,6 +248,7 @@
     "noSubtopics": "Seçtiğin kategorilerde alt konu yok.",
     "subtopicCount": "{count} alt konu seçildi",
     "subtopicsNote": "Bir sonraki adımda bu konulardaki deneyimini paylaşabilirsin.",
+    "subtopicLimit": "En fazla {max} alt konu seçebilirsin.",
     "soon": "Yakında",
     "level": {
       "label": "Deneyim düzeyin",
