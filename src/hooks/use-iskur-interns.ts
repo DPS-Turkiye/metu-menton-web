@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -24,6 +29,24 @@ export const iskurInternsQueryKey = (programId: string) =>
   ["iskur-interns", programId] as const;
 
 /**
+ * Stores the list a change answered with. The list decides who the placement pool and the onboarding forms count, so
+ * those are refreshed too.
+ */
+export function settleIskurInterns(
+  queryClient: QueryClient,
+  programId: string,
+  list: IskurInternList,
+) {
+  queryClient.setQueryData(iskurInternsQueryKey(programId), list);
+  void queryClient.invalidateQueries({
+    queryKey: iskurWorkspaceQueryKey(programId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: iskurApplicationsQueryKey(programId),
+  });
+}
+
+/**
  * The coordinator's İŞKUR intern list: the pasted addresses to add, and removing one. The list decides who the
  * placement pool and the onboarding forms count, so every change also refreshes those.
  */
@@ -39,13 +62,7 @@ export function useIskurInterns(programId: string) {
   const [rejected, setRejected] = useState<string[]>([]);
 
   const settle = (list: IskurInternList) => {
-    queryClient.setQueryData(iskurInternsQueryKey(programId), list);
-    void queryClient.invalidateQueries({
-      queryKey: iskurWorkspaceQueryKey(programId),
-    });
-    void queryClient.invalidateQueries({
-      queryKey: iskurApplicationsQueryKey(programId),
-    });
+    settleIskurInterns(queryClient, programId, list);
   };
 
   const add = useMutation({

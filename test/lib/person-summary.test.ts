@@ -146,6 +146,7 @@ describe("personSummaryModel", () => {
         key: "program-1-MENTEE",
         id: "program-1",
         name: "Yeşil Program",
+        relation: PersonProgramRelation.Mentee,
         note: "relations.MENTEE",
       },
     ]);

@@ -7315,7 +7315,27 @@
     "availabilityWeekly": "Haftalık",
     "availabilityDaysOff": "Yaklaşan izin günleri",
     "availabilityExtraSlots": "Ek zamanlar",
-    "availabilityExtraSlot": "{day} · {time} ({minutes} dk)"
+    "availabilityExtraSlot": "{day} · {time} ({minutes} dk)",
+    "iskur": {
+      "loading": "İŞKUR listesi yükleniyor…",
+      "loadFailed": "İŞKUR listesi yüklenemedi.",
+      "intern": "İŞKUR stajyeri",
+      "listed": "İŞKUR listesinde",
+      "listedHint": "Programa onaylandığında İŞKUR stajyeri sayılır.",
+      "add": "İŞKUR listesine ekle",
+      "addNamed": "İŞKUR listesine ekle: {program}",
+      "added": "Öğrenci İŞKUR listesine eklendi.",
+      "addFailed": "Öğrenci İŞKUR listesine eklenemedi.",
+      "remove": "Listeden çıkar",
+      "removeNamed": "Listeden çıkar: {program}",
+      "placedHint": "Ekibe yerleştirildi; listeden çıkarmak için önce yerleşimden çıkarın.",
+      "confirmTitle": "İŞKUR listesinden çıkarılsın mı?",
+      "confirmBody": "Öğrenci {program} İŞKUR stajyer listesinden çıkarılır ve İŞKUR ekranlarını artık görmez. Gönderdiği yerleşim formu silinmez; yeniden eklenirse geri gelir.",
+      "cancel": "Vazgeç",
+      "confirmRemove": "Listeden çıkar",
+      "removed": "Öğrenci İŞKUR listesinden çıkarıldı.",
+      "removeFailed": "Öğrenci İŞKUR listesinden çıkarılamadı."
+    }
   },
   "odtuLanding": {
     "metaTitle": "hocam by menton",
