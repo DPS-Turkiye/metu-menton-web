@@ -194,6 +194,7 @@ describe("toSession", () => {
       role: UserRole.Mentor,
       permissions: [UserRole.Mentor],
       edition: Edition.Teknokent,
+      officeHoursOpen: false,
     });
   });
 
@@ -215,6 +216,7 @@ describe("toSession", () => {
       role: UserRole.Admin,
       permissions: [UserRole.Admin],
       edition: Edition.Teknokent,
+      officeHoursOpen: true,
     });
   });
 
@@ -236,6 +238,7 @@ describe("toSession", () => {
       role: UserRole.Coordinator,
       permissions: [UserRole.Coordinator],
       edition: Edition.Teknokent,
+      officeHoursOpen: false,
     });
   });
 });
@@ -261,6 +264,35 @@ describe("getSessionUser", () => {
     await expect(getSessionUser()).resolves.toEqual({
       ...user,
       edition: Edition.Teknokent,
+      officeHoursOpen: false,
+    });
+  });
+
+  // Office Hours stays "coming soon" until the academicians can sign in; the switch is read on every session read.
+  it("opens Office Hours to everyone once OFFICE_HOURS_ENABLED is true, whatever the cookie says", async () => {
+    mockIronSession.issuedAt = Date.now();
+    mockIronSession.checkedAt = Date.now();
+    mockIronSession.user = { ...user, officeHoursOpen: true };
+    await expect(getSessionUser()).resolves.toMatchObject({
+      officeHoursOpen: false,
+    });
+    vi.stubEnv("OFFICE_HOURS_ENABLED", "true");
+    mockIronSession.user = { ...user, officeHoursOpen: false };
+    await expect(getSessionUser()).resolves.toMatchObject({
+      officeHoursOpen: true,
+    });
+  });
+
+  it("keeps Office Hours open to the admin while it is coming soon for everyone else", async () => {
+    mockIronSession.issuedAt = Date.now();
+    mockIronSession.checkedAt = Date.now();
+    mockIronSession.user = {
+      ...user,
+      role: UserRole.Coordinator,
+      permissions: [UserRole.Coordinator, UserRole.Admin],
+    };
+    await expect(getSessionUser()).resolves.toMatchObject({
+      officeHoursOpen: true,
     });
   });
 

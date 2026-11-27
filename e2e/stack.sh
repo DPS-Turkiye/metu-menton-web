@@ -111,6 +111,8 @@ ENV
   fi
   cat >"$STATE/web.env" <<ENV
 APP_EDITION=ODTU
+# The journeys walk through Office Hours, which is "coming soon" unless switched on.
+OFFICE_HOURS_ENABLED=true
 APP_URL=http://127.0.0.1:$WEB_PORT
 BACKEND_URL=http://127.0.0.1:$API_PORT
 NEXT_PUBLIC_BACKEND_URL=http://127.0.0.1:$API_PORT

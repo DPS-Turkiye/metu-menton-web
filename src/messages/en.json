@@ -8708,5 +8708,10 @@
       "loadFailed": "Support requests could not be loaded.",
       "line": "A support request to the {team} team was opened."
     }
+  },
+  "officeHoursComingSoon": {
+    "title": "Office Hours is coming soon",
+    "body": "We are working day and night to give you the best experience you deserve.",
+    "short": "Coming soon"
   }
 }

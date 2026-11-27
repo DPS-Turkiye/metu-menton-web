@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 it("reads the student's appointments from the app's own API", async () => {
-  expect(await getStudentAppointments()).toEqual(STUDENT_APPOINTMENTS);
+  expect(await getStudentAppointments(true)).toEqual(STUDENT_APPOINTMENTS);
   expect(httpClient.get).toHaveBeenCalledWith("/api/student/appointments");
 });
 
@@ -46,14 +46,19 @@ it("adds the Office Hours requests after the peer sessions", async () => {
     kind: AppointmentKind.OfficeHours,
   });
   vi.mocked(getStudentOfficeHoursAppointments).mockResolvedValue([officeHours]);
-  expect(await getStudentAppointments()).toEqual([
+  expect(await getStudentAppointments(true)).toEqual([
     ...STUDENT_APPOINTMENTS,
     officeHours,
   ]);
 });
 
+it("leaves the Office Hours requests out while Office Hours is coming soon", async () => {
+  expect(await getStudentAppointments(false)).toEqual(STUDENT_APPOINTMENTS);
+  expect(getStudentOfficeHoursAppointments).not.toHaveBeenCalled();
+});
+
 it("gives Ana Sayfa every appointment and the profile state", async () => {
-  const home = await getStudentHome();
+  const home = await getStudentHome(true);
 
   expect(home).toEqual({
     profileCompleted: false,
@@ -69,5 +74,10 @@ it("stops asking for the profile once it is finished or skipped", async () => {
     completed: false,
     skipped: true,
   });
-  expect((await getStudentHome()).profileCompleted).toBe(true);
+  expect((await getStudentHome(true)).profileCompleted).toBe(true);
+});
+
+it("asks Ana Sayfa's appointments without Office Hours while it is coming soon", async () => {
+  await getStudentHome(false);
+  expect(getStudentOfficeHoursAppointments).not.toHaveBeenCalled();
 });

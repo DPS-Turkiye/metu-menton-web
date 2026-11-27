@@ -1,4 +1,5 @@
 import { ProgramAcademicsView } from "@/components/coordinator/program-academics-view";
+import { OfficeHoursGate } from "@/components/office-hours/office-hours-gate";
 
 export default async function CoordinatorProgramAcademicsPage({
   params,
@@ -6,5 +7,9 @@ export default async function CoordinatorProgramAcademicsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <ProgramAcademicsView programId={id} />;
+  return (
+    <OfficeHoursGate>
+      <ProgramAcademicsView programId={id} />
+    </OfficeHoursGate>
+  );
 }

@@ -23,6 +23,10 @@ import {
 } from "@test/test-utils";
 
 const gate = { state: PeerMentorGateState.Hidden };
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/hooks/use-peer-mentor-give", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/hooks/use-peer-mentor-give")>()),
   usePeerMentorGate: () => ({

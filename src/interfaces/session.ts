@@ -44,6 +44,8 @@ export type AppSession = {
   personalOrganization?: boolean;
   /** This deployment's edition (APP_EDITION); the server sets it on every read of the session, never trusting the cookie. */
   edition?: Edition;
+  /** Whether Office Hours is open to this person (OFFICE_HOURS_ENABLED, or an admin); set on every read, like `edition`. */
+  officeHoursOpen?: boolean;
 };
 
 export type BackendUser = {

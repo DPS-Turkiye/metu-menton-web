@@ -11,6 +11,10 @@ import {
 } from "@test/fixtures/student-appointments";
 import { renderWithQueryClient } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/lib/client/student-appointments", () => ({
   getStudentAppointments: vi.fn(),
 }));

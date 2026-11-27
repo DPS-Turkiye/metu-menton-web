@@ -25,6 +25,10 @@ import {
 import { STUDENT_RECORD } from "@test/fixtures/student-home";
 import { createTestQueryClient, InLocale } from "@test/test-utils";
 
+vi.mock(
+  "@/hooks/use-office-hours-open",
+  () => import("@test/mocks/office-hours-open"),
+);
 vi.mock("@/lib/client/student-home", () => ({ getStudentHome: vi.fn() }));
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
