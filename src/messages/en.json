@@ -7482,7 +7482,7 @@
         },
         "afterRequest": {
           "title": "What happens after I send a mentoring request?",
-          "body": "Your request shows as waiting for approval. When the mentor accepts it, your mentorship starts and you can plan meetings. You follow your requests and active mentorship in My mentorships, and your meetings in My appointments."
+          "body": "Your request shows as waiting for approval. When the mentor accepts it, your mentorship starts and you can plan meetings. You follow your requests and active mentorship under Mentorships I receive, and your meetings in My appointments."
         },
         "becomeMentor": {
           "title": "Can I become a peer mentor too?",

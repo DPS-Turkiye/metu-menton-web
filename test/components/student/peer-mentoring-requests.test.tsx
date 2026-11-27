@@ -106,7 +106,7 @@ async function activeMentorship(name: string) {
   return within(active).getByRole("article", { name });
 }
 
-describe("Mentorluk Al › Mentorluklarım", () => {
+describe("Mentorluk Al › Aldığım mentorluklar", () => {
   it("shows accepted requests as active mentorships, with the next meeting or a way to plan one", async () => {
     renderMine();
 

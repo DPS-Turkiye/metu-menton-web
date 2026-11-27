@@ -429,15 +429,13 @@
     "tabs": {
       "label": "Get mentoring",
       "discover": "Discover",
-      "mine": "My mentorships"
+      "mine": "Mentorships I receive"
     },
     "discover": {
-      "categoriesTitle": "Mentoring categories",
       "noCategories": "Your program has no active peer-mentoring category yet.",
       "recommendedTitle": "Recommended for you",
       "recommendedHint": "By the topics you picked",
       "search": "Search mentors or topics",
-      "allCategories": "All",
       "categoryFilter": "Category",
       "empty": "No peer mentors are listed right now.",
       "noMatch": "No peer mentor matches these filters.",
@@ -456,7 +454,6 @@
       "paused": "Not taking new mentees right now",
       "allTitle": "All mentors",
       "seeProfileAndRequest": "View profile and send a request",
-      "mentorCountSuffix": ", {count, plural, one {# mentor} other {# mentors}}",
       "trained": "Training badge",
       "freeThisWeek": "Has a free hour this week",
       "noFreeThisWeek": "No free hour this week",
@@ -512,7 +509,7 @@
         "declined": "If they decline, you can send a request to another mentor."
       },
       "close": "Close",
-      "goToMine": "Go to My mentorships"
+      "goToMine": "Go to Mentorships I receive"
     },
     "withdraw": {
       "title": "Withdraw this request?",

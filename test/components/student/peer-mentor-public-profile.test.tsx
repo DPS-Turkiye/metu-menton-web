@@ -248,11 +248,11 @@ describe("PeerMentorPublicProfile", () => {
     expect(
       within(sent).getByRole("region", { name: "Sonra ne olur?" }),
     ).toHaveTextContent("Deniz Kaya yanıt verdiğinde bildirim alırsın.");
-    // "Mentorluklarım'a git" leaves the profile for the Mentorluklarım tab.
+    // "Aldığım mentorluklara git" leaves the profile for the Aldığım mentorluklar tab.
     expect(
       within(
         screen.getByRole("dialog", { name: "Talebin iletildi" }),
-      ).getByRole("link", { name: "Mentorluklarım'a git" }),
+      ).getByRole("link", { name: "Aldığım mentorluklara git" }),
     ).toHaveAttribute("href", "/student/peer-mentoring?tab=mine");
   });
 
