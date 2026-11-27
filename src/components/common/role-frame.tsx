@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { AdminIcon } from "@/components/admin/admin-ui";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { MentonWordmark } from "@/components/common/menton-wordmark";
 import { NotificationMenu } from "@/components/common/notification-menu";
 import { FeedbackButton } from "@/components/dashboard/feedback-button";
@@ -18,6 +19,7 @@ import {
   useSession,
 } from "@/components/providers/session-provider";
 import { useEdition } from "@/hooks/use-edition";
+import { useProfilePhoto } from "@/hooks/use-profile-photo";
 import { useRoleGate } from "@/hooks/use-role-gate";
 import { UserRole } from "@/interfaces/session";
 import { Workspace } from "@/interfaces/workspace";
@@ -150,6 +152,7 @@ function RoleShell({
     workspaceLabel ?? t(`roles.${session?.role ?? UserRole.Mentee}`);
   const name = session?.fullName ?? roleLabel;
   const mark = initials(name) || "AD";
+  const photo = useProfilePhoto();
 
   async function handleLogout() {
     await logout();
@@ -191,9 +194,13 @@ function RoleShell({
                 onClick={() => setAccountOpen((open) => !open)}
                 className="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-1 sm:pr-2"
               >
-                <span className="grid size-8 place-items-center rounded-full bg-background-selected type-label-sm text-text-accent">
-                  {mark}
-                </span>
+                <PhotoAvatar
+                  initials={mark}
+                  photoUrl={photo.photoUrl}
+                  decorative
+                  colors="bg-background-selected text-text-accent"
+                  className="size-8 type-label-sm"
+                />
                 {/* Between lg and xl the name gives its room to the nav, which shares the row. */}
                 {odtu ? null : (
                   <span className="hidden text-left leading-tight sm:block lg:hidden xl:block">
