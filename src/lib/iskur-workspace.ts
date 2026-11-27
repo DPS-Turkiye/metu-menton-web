@@ -184,6 +184,31 @@ export function prefilledFields(
   };
 }
 
+/** Typed mentoring hours as minutes for a week of {@link weeklyDays} days: half-hour steps that fit the week. */
+export function mentoringMinutesOf(
+  typed: string,
+  weeklyDays: number | null,
+): { ok: true; minutes: number } | { ok: false; problem: IskurFormProblem } {
+  if (!HOURS_PATTERN.test(typed)) {
+    return { ok: false, problem: IskurFormProblem.MentoringStep };
+  }
+  const hours = Number(typed.replace(",", "."));
+  const minutes = Math.round(hours * 60);
+  if (
+    Math.abs(hours * 60 - minutes) > 1e-9 ||
+    minutes % MENTORING_STEP_MINUTES !== 0
+  ) {
+    return { ok: false, problem: IskurFormProblem.MentoringStep };
+  }
+  if (weeklyDays == null) {
+    return { ok: false, problem: IskurFormProblem.MentoringNeedsDays };
+  }
+  if (minutes > weeklyDays * ISKUR_MINUTES_PER_DAY) {
+    return { ok: false, problem: IskurFormProblem.MentoringTooMuch };
+  }
+  return { ok: true, minutes };
+}
+
 /**
  * The request for the dialog's values, or why it cannot go yet. Blank mentoring hours keep the default share; typed
  * hours need the work days, come in half-hour steps and fit the week.
@@ -197,24 +222,9 @@ export function placementInput(
   const typed = form.mentoringHours.trim();
   let mentoringMinutes: number | null = null;
   if (typed) {
-    if (!HOURS_PATTERN.test(typed)) {
-      return { ok: false, problem: IskurFormProblem.MentoringStep };
-    }
-    const hours = Number(typed.replace(",", "."));
-    const minutes = Math.round(hours * 60);
-    if (
-      Math.abs(hours * 60 - minutes) > 1e-9 ||
-      minutes % MENTORING_STEP_MINUTES !== 0
-    ) {
-      return { ok: false, problem: IskurFormProblem.MentoringStep };
-    }
-    if (form.weeklyDays == null) {
-      return { ok: false, problem: IskurFormProblem.MentoringNeedsDays };
-    }
-    if (minutes > form.weeklyDays * ISKUR_MINUTES_PER_DAY) {
-      return { ok: false, problem: IskurFormProblem.MentoringTooMuch };
-    }
-    mentoringMinutes = minutes;
+    const parsed = mentoringMinutesOf(typed, form.weeklyDays);
+    if (!parsed.ok) return parsed;
+    mentoringMinutes = parsed.minutes;
   }
   return {
     ok: true,

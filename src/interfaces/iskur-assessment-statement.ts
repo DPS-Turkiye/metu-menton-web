@@ -63,3 +63,32 @@ export interface IskurAssessmentStatements {
   pendingCount: number;
   statements: IskurAssessmentStatement[];
 }
+
+/** The coordinator's decision as the backend takes it. */
+export interface IskurAssessmentDecisionInput {
+  mentoring: IskurMentoringDecision;
+  /** Read only with Set. */
+  mentoringMinutes: number | null;
+  openRetake: boolean;
+  note: string | null;
+}
+
+/** The decision form's mentoring choice; None is Set with 0 minutes, said the way coordinators think of it. */
+export enum IskurMentoringChoice {
+  Keep = "KEEP",
+  None = "NONE",
+  Hours = "HOURS",
+  Default = "DEFAULT",
+}
+
+export interface IskurAssessmentDecisionForm {
+  choice: IskurMentoringChoice;
+  hours: string;
+  retake: boolean;
+  note: string;
+}
+
+/** Why a decision cannot go yet, besides the placement dialog's hour problems. */
+export enum IskurDecisionProblem {
+  Empty = "EMPTY",
+}
