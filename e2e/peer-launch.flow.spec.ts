@@ -750,6 +750,8 @@ test.describe("İŞKUR", () => {
     await page.getByRole("button", { name: "Sonra hatırlat" }).click();
     await expect(page).toHaveURL(/\/student$/);
     await expect(page.getByText("Yerleştirme formunu doldur")).toBeVisible();
+    // Becoming a peer mentor is optional; until the badge the home says "Rozet bekleniyor".
+    await expect(page.getByText("Rozet bekleniyor").first()).toBeVisible();
     await expect(page.getByText(/^Bu Haftam/)).toHaveCount(0);
     await expect(page.getByText(/^Ekibin belli oldu/)).toHaveCount(0);
 

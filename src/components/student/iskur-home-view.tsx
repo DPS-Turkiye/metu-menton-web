@@ -177,7 +177,7 @@ function NextStep({
     >
       {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
       {badgePending ? (
-        <StatusBadge tone={StatusTone.Warning}>{t("badgePending")}</StatusBadge>
+        <StatusBadge tone={StatusTone.Info}>{t("badgePending")}</StatusBadge>
       ) : null}
       <h2 id="iskur-next-step" className="type-title-card text-text-primary">
         {t(`${mode}.title`)}

@@ -258,6 +258,19 @@ describe("IskurHomeView", () => {
     ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
   });
 
+  it("keeps the training text for a student who is not an İŞKUR intern", async () => {
+    gate.state = PeerMentorGateState.NoBadge;
+    renderWithQueryClient(<IskurHomeView />);
+
+    expect(
+      await screen.findByText(
+        "Programının eğitimini tamamla, rozetini al ve diğer öğrencilere mentorluk ver.",
+      ),
+    ).toBeInTheDocument();
+    await vi.waitFor(() => expect(getIskurTeamReveal).toHaveBeenCalled());
+    expect(screen.queryByText("Rozet bekleniyor")).toBeNull();
+  });
+
   it("leaves the shared home alone for everyone else", () => {
     gate.state = PeerMentorGateState.Hidden;
     renderWithQueryClient(<IskurHomeView />);

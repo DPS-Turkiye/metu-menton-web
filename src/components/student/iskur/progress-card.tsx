@@ -31,7 +31,7 @@ export function IskurProgressCard({
           {title}
           {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
           {note ? (
-            <StatusBadge tone={StatusTone.Warning}>{note}</StatusBadge>
+            <StatusBadge tone={StatusTone.Neutral}>{note}</StatusBadge>
           ) : null}
         </span>
         <StatusBadge tone={StatusTone.Info}>

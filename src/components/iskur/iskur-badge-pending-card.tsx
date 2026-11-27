@@ -22,7 +22,7 @@ export function IskurBadgePendingCard() {
       className="flex flex-col gap-3 sm:flex-row sm:items-center"
     >
       <div className="flex flex-1 flex-col items-start gap-1">
-        <StatusBadge tone={StatusTone.Warning}>{t("status")}</StatusBadge>
+        <StatusBadge tone={StatusTone.Info}>{t("status")}</StatusBadge>
         <h2 id="iskur-badge-pending" className="type-h4 text-text-primary">
           {t("title")}
         </h2>

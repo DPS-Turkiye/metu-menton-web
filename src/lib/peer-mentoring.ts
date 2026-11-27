@@ -124,6 +124,8 @@ export function iskurBadgePending(gate: {
   state: PeerMentorGateState;
   isLoading: boolean;
 }): boolean {
+  // Hidden too: callers ask only about interns (the team reveal answered), and an intern without the badge is pending
+  // even while the gate has no training to point at yet.
   return (
     !gate.isLoading &&
     (gate.state === PeerMentorGateState.NoBadge ||
