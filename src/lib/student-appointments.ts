@@ -1,4 +1,8 @@
-import { AppointmentStatus, type Appointment } from "@/interfaces/appointment";
+import {
+  AppointmentKind,
+  AppointmentStatus,
+  type Appointment,
+} from "@/interfaces/appointment";
 import { currentTime, isUpcoming, splitAppointments } from "@/lib/appointments";
 import {
   isOnCalendarDay,
@@ -96,6 +100,17 @@ export function appointmentRequestGroups(
 }
 
 /** In Geçmiş a confirmed session is one that was held ("Tamamlandı"); every other status says its own outcome. */
+/**
+ * The counterpart whose photo an appointment shows: a peer's account. An Office Hours academician comes with their
+ * directory id, not an account, so their card keeps the initials.
+ */
+export function appointmentPersonId({
+  kind,
+  counterpart,
+}: Pick<Appointment, "kind" | "counterpart">) {
+  return kind === AppointmentKind.PeerMentoring ? counterpart.userId : null;
+}
+
 export function wasHeld({ status }: Pick<Appointment, "status">) {
   return status === AppointmentStatus.Confirmed;
 }

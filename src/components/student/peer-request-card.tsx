@@ -39,7 +39,10 @@ export function PeerRequestCard({
           href={linked ? requestMenteeHref(request) : null}
           name={request.mentee.fullName}
         >
-          <InitialsAvatar initials={initials(request.mentee.fullName)} />
+          <InitialsAvatar
+            personId={request.mentee.userId}
+            initials={initials(request.mentee.fullName)}
+          />
         </ProfilePictureLink>
         <div className="flex min-w-0 flex-1 basis-[calc(100%-56px)] flex-col gap-1 sm:basis-0">
           <p className="truncate type-label-lg text-text-primary">

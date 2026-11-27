@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { AppointmentStatus } from "@/interfaces/appointment";
+import { AppointmentKind, AppointmentStatus } from "@/interfaces/appointment";
 import {
   APPOINTMENT_GRID_HOURS,
+  appointmentPersonId,
   appointmentRequestGroups,
   appointmentsInMonth,
   appointmentsOnDay,
@@ -334,5 +335,24 @@ describe.each(BROWSER_TIME_ZONES)("the calendar in a browser in %s", (zone) => {
         nowLineOffset(new Date("2026-11-13T09:18:00Z"), new Date(2026, 10, 13)),
       ).toBeCloseTo(3.3);
     });
+  });
+});
+
+describe("appointmentPersonId", () => {
+  it("is the peer's account on a peer-mentoring appointment", () => {
+    const appointment = peerAppointment();
+
+    expect(appointmentPersonId(appointment)).toBe(
+      appointment.counterpart.userId,
+    );
+  });
+
+  it("is nobody for Office Hours, whose academician id is not an account", () => {
+    expect(
+      appointmentPersonId({
+        ...peerAppointment(),
+        kind: AppointmentKind.OfficeHours,
+      }),
+    ).toBeNull();
   });
 });

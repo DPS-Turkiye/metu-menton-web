@@ -228,7 +228,10 @@ function RequestSummary({ request }: { request: PeerMentoringRequest }) {
         href={peerMentorHref(request.mentor.userId)}
         name={request.mentor.fullName}
       >
-        <InitialsAvatar initials={initials(request.mentor.fullName)} />
+        <InitialsAvatar
+          personId={request.mentor.userId}
+          initials={initials(request.mentor.fullName)}
+        />
       </ProfilePictureLink>
       <div className="min-w-0">
         <p className="truncate type-label-lg text-text-primary">
@@ -275,6 +278,7 @@ function ActiveMentorship({
           name={request.mentor.fullName}
         >
           <InitialsAvatar
+            personId={request.mentor.userId}
             initials={initials(request.mentor.fullName)}
             size="profile"
           />

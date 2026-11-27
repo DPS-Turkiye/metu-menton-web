@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { PersonLink } from "@/components/common/person-link";
+import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
 import { StartupNameLink } from "@/components/common/startup-name-link";
 import { AppShell } from "@/components/hoc/app-shell";
 import { useAppSession } from "@/components/providers/session-provider";
@@ -83,9 +84,12 @@ export function ProgramDetailView() {
                 })}
                 className="mt-3 flex items-center gap-3 rounded-xl px-1 py-1 hover:bg-[#f7f8f9]"
               >
-                <span className="grid size-9 place-items-center rounded-full bg-[#fdebdd] text-[11px] font-medium text-[#a8480e]">
-                  {initials(query.data.coordinatorName)}
-                </span>
+                <PersonPhotoAvatar
+                  personId={query.data.coordinatorId}
+                  initials={initials(query.data.coordinatorName)}
+                  decorative
+                  className="size-9 rounded-full bg-[#fdebdd] text-[11px] font-medium text-[#a8480e]"
+                />
                 <span className="text-sm font-medium text-[#22262b]">
                   {query.data.coordinatorName}
                 </span>
@@ -109,9 +113,12 @@ export function ProgramDetailView() {
                         })}
                         className="flex items-center gap-3 rounded-xl px-1 py-1.5 hover:bg-[#f7f8f9]"
                       >
-                        <span className="grid size-9 place-items-center rounded-full bg-[#fdebdd] text-[11px] font-medium text-[#a8480e]">
-                          {initials(mentor.fullName)}
-                        </span>
+                        <PersonPhotoAvatar
+                          personId={mentor.mentorId}
+                          initials={initials(mentor.fullName)}
+                          decorative
+                          className="size-9 rounded-full bg-[#fdebdd] text-[11px] font-medium text-[#a8480e]"
+                        />
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-medium text-[#22262b]">
                             {mentor.fullName}
@@ -175,9 +182,12 @@ export function ProgramDetailView() {
                                   linked={canOpenMember(startup.id)}
                                   className="flex items-center gap-2.5 rounded-lg px-1 py-1"
                                 >
-                                  <span className="grid size-8 place-items-center rounded-full bg-[#f2f4f6] text-[10px] font-medium text-[#676e78]">
-                                    {initials(member.fullName)}
-                                  </span>
+                                  <PersonPhotoAvatar
+                                    personId={member.id}
+                                    initials={initials(member.fullName)}
+                                    decorative
+                                    className="size-8 rounded-full bg-[#f2f4f6] text-[10px] font-medium text-[#676e78]"
+                                  />
                                   <span className="min-w-0">
                                     <span className="block truncate text-[13px] font-medium text-[#22262b]">
                                       {member.fullName}

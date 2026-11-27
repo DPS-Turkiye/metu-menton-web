@@ -312,7 +312,10 @@ function WorkloadRow({
         onClick={() => team.show(member.userId)}
         className="flex min-w-[200px] flex-1 items-center gap-4 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-border-selected"
       >
-        <InitialsAvatar initials={initials(member.fullName)} />
+        <InitialsAvatar
+          personId={member.userId}
+          initials={initials(member.fullName)}
+        />
         <span className="flex min-w-0 flex-col gap-1">
           <span className="type-label text-text-primary">
             {member.fullName}
@@ -514,7 +517,10 @@ function MemberTasks({ member }: { member: IskurTeamTasksMember }) {
     <article className="overflow-hidden rounded-card border border-border-default bg-background-surface">
       <header className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="flex items-center gap-3">
-          <InitialsAvatar initials={initials(member.fullName)} />
+          <InitialsAvatar
+            personId={member.userId}
+            initials={initials(member.fullName)}
+          />
           <div>
             <p className="type-label text-text-primary">{member.fullName}</p>
             <p className="type-caption text-text-muted">
@@ -864,7 +870,10 @@ function WeekQueue({ team }: { team: Team }) {
               key={row.userId}
               className="flex flex-wrap items-center gap-3 py-3"
             >
-              <InitialsAvatar initials={initials(row.fullName)} />
+              <InitialsAvatar
+                personId={row.userId}
+                initials={initials(row.fullName)}
+              />
               <span className="min-w-0 flex-1">
                 <span className="block type-body text-text-primary">
                   {row.fullName}
@@ -913,7 +922,10 @@ function Roster({ data }: { data: IskurTeamTasks }) {
       <ul className="mt-4 divide-y divide-border-subtle">
         {data.roster.map((person) => (
           <li key={person.userId} className="flex items-center gap-3 py-3">
-            <InitialsAvatar initials={initials(person.fullName)} />
+            <InitialsAvatar
+              personId={person.userId}
+              initials={initials(person.fullName)}
+            />
             <span className="flex-1 type-body text-text-primary">
               {person.fullName}
             </span>
