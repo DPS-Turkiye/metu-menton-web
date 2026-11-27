@@ -5945,7 +5945,8 @@
       "ACTIVE": "Badge verified",
       "EXPIRED": "Expired",
       "REVOKED": "Revoked",
-      "IN_TRAINING": "In training"
+      "IN_TRAINING": "In training",
+      "BADGE_PENDING": "Badge pending"
     },
     "capacityUnlimited": "{active} mentees",
     "capacityOpen": "{active} / {capacity} mentees",
@@ -7679,7 +7680,9 @@
     "deleteBody": "It is deleted only when nobody is placed in it.",
     "confirmFinalize": "Finalize",
     "confirmDelete": "Delete",
-    "supportPool": "Support activity pool"
+    "supportPool": "Support activity pool",
+    "badgePending": "Badge pending",
+    "badgePendingHint": "Hasn't finished the peer mentor training yet. They can be placed and work in their team; once the badge comes they can mentor too."
   },
   "iskurTeam": {
     "loading": "Loading your team…",

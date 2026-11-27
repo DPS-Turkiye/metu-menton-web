@@ -77,6 +77,7 @@ function row(overrides: Partial<GateBadgeRow>): GateBadgeRow {
     training: { videoWatched: false, attempts: 0, bestScore: null },
     profile: profile({ mentorProfile: false, categories: [], classYear: 2 }),
     prism: null,
+    iskurIntern: false,
     ...overrides,
   };
 }
@@ -341,6 +342,35 @@ describe("PeerParticipantsView", () => {
     );
     expect(screen.getByText("Ali Yeni")).toBeInTheDocument();
     expect(screen.queryByText("Can İzledi")).not.toBeInTheDocument();
+  });
+
+  it("says Rozet bekleniyor for an İŞKUR intern without the badge, and keeps training first", async () => {
+    vi.mocked(getProgramBadgeRoster).mockResolvedValue([
+      row({ iskurIntern: true }),
+      row({
+        userId: "u3",
+        fullName: "Can İzledi",
+        iskurIntern: true,
+        training: { videoWatched: true, attempts: 0, bestScore: null },
+      }),
+      row({ userId: "u5", fullName: "Ali Yeni" }),
+    ]);
+    renderWithQueryClient(
+      <PeerParticipantsView programId="p1" tab={ProgramTab.Students} />,
+    );
+
+    const zeynep = (await screen.findByText("Zeynep Öğrenci")).closest("tr")!;
+    expect(within(zeynep).getByText("Rozet bekleniyor")).toBeInTheDocument();
+    expect(
+      within(screen.getByText("Can İzledi").closest("tr")!).getByText(
+        "Eğitimde",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByText("Ali Yeni").closest("tr")!).getByText(
+        "Rozet Yok",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows the backend's refusal", async () => {

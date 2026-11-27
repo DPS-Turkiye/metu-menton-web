@@ -101,6 +101,8 @@ export type GateBadgeRow = {
   profile: GateBadgeProfile | null;
   /** The person's Prism training in the program, for staff only; null when nothing was recorded. */
   prism: GateBadgePrism | null;
+  /** On the program's İŞKUR intern list: without the badge they still work in İŞKUR ("Rozet bekleniyor"). */
+  iskurIntern: boolean;
 };
 
 /** A coordinator's decision on a Prism result: the Akran Mentoru badge, or "take the test again". */
@@ -162,6 +164,15 @@ export function inTraining(row: Pick<GateBadgeRow, "state" | "training">) {
   return (
     row.state === GateBadgeState.None &&
     (row.training.videoWatched || row.training.attempts > 0)
+  );
+}
+
+/** An İŞKUR intern who has not started the training: placed and working, the badge still to come. */
+export function badgePending(
+  row: Pick<GateBadgeRow, "state" | "training" | "iskurIntern">,
+) {
+  return (
+    row.state === GateBadgeState.None && row.iskurIntern && !inTraining(row)
   );
 }
 
