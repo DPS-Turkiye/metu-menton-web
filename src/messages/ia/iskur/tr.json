@@ -643,6 +643,13 @@
       "increase": "Üst sınırı artır",
       "suggested": "Önerilen en fazla 3",
       "limitHint": "Kapasite dolunca keşifte “Şu an yeni mentee almıyor” görünür ve yeni talep gelmez."
+    },
+    "hint": "Mentorluğa açık saat eklemek için bir görev gününün çizelgesine tıkla ya da “+ Ekle”ye bas.",
+    "edit": "Düzenle",
+    "barAdd": "Saat eklemek için tıkla",
+    "suggested": {
+      "title": "Görev saatlerinden önerildi",
+      "body": "Haftalık {target} mentorluk hedefin görev günlerine bölündü. Uygunsa böyle kaydet ya da saatleri değiştir."
     }
   }
 }

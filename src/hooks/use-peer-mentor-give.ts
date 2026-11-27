@@ -591,6 +591,11 @@ export function usePeerMentorWizard() {
       isSaving: false,
       numberFields: ["menteeCapacity", "defaultMeetingDurationMinutes"],
       check: dutyHours.check,
+      // Only over hours known to be unsaved (a new mentor has none; others once loaded), never over a draft step 6 kept.
+      ...((existing == null || savedAvailability.isSuccess) &&
+      availabilityDraft === null
+        ? { suggestion: dutyHours.suggestion }
+        : {}),
       quiet: true,
     },
     () => setStep(PeerMentorWizardStep.Preview),

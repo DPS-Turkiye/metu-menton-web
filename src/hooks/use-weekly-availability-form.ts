@@ -48,6 +48,11 @@ export type WeeklyAvailabilitySource = {
   check?: (draft: AvailabilityDraft) => string | null;
   /** A step that only keeps a draft (the peer-mentor wizard) says nothing on save; the owner confirms later. */
   quiet?: boolean;
+  /** Ranges to start from when the owner has saved none; saved ranges always win. */
+  suggestion?: readonly Pick<
+    AvailabilityRange,
+    "dayOfWeek" | "startTime" | "endTime"
+  >[];
 };
 
 function withSavedNumbers(
@@ -74,11 +79,22 @@ export function useWeeklyAvailabilityForm(
   const t = useTranslations("availabilityEditor");
   const tOptions = useTranslations("options");
   const { showToast } = useToast();
-  const { settings, numberFields = ALL_NUMBER_FIELDS } = source;
-  const loaded = useMemo(
-    () => (settings ? toAvailabilityDraft(settings) : null),
-    [settings],
-  );
+  const { settings, numberFields = ALL_NUMBER_FIELDS, suggestion } = source;
+  const suggested =
+    settings?.rules.length === 0 && (suggestion?.length ?? 0) > 0;
+  const loaded = useMemo(() => {
+    if (!settings) return null;
+    const saved = toAvailabilityDraft(settings);
+    if (!suggested || !suggestion) return saved;
+    return {
+      ...saved,
+      ranges: suggestion.map((range, index) => ({
+        ...range,
+        key: `suggested-${String(index)}`,
+        slotMinutes: null,
+      })),
+    };
+  }, [settings, suggested, suggestion]);
   const [edits, setEdits] = useState<AvailabilityDraft | null>(null);
   const [exception, setException] = useState<ExceptionInput>(
     EMPTY_EXCEPTION_INPUT,
@@ -272,6 +288,8 @@ export function useWeeklyAvailabilityForm(
     removeException,
     removeRange,
     save,
+    /** The ranges shown were proposed, not saved: the owner still has to save them. */
+    suggested,
     setExceptionField,
     setNumber,
     stepNumber,

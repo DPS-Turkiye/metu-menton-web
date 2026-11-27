@@ -157,4 +157,73 @@ describe("useWeeklyAvailabilityForm", () => {
     expect(result.current.error).not.toBeNull();
     expect(owner.save).not.toHaveBeenCalled();
   });
+
+  describe("a suggestion", () => {
+    const suggestion = [
+      { dayOfWeek: Weekday.Monday, startTime: "09:00", endTime: "10:30" },
+      { dayOfWeek: Weekday.Thursday, startTime: "13:00", endTime: "14:30" },
+    ];
+
+    it("fills an owner with no saved hours and is saved like their own", async () => {
+      const owner = source({
+        settings: { ...settings, rules: [] },
+        suggestion,
+      });
+      const { result } = renderHook(
+        () => useWeeklyAvailabilityForm(owner, vi.fn()),
+        { wrapper: Wrapper },
+      );
+
+      expect(result.current.suggested).toBe(true);
+      expect(result.current.draft?.ranges).toEqual([
+        { ...suggestion[0], key: "suggested-0", slotMinutes: null },
+        { ...suggestion[1], key: "suggested-1", slotMinutes: null },
+      ]);
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(owner.save).toHaveBeenCalledWith({
+        rules: [
+          { ...suggestion[0], slotMinutes: 30 },
+          { ...suggestion[1], slotMinutes: 30 },
+        ],
+        exceptions: [],
+        menteeCapacity: 3,
+        defaultMeetingDurationMinutes: 30,
+        meetingBufferMinutes: 0,
+      });
+    });
+
+    it("never replaces hours the owner already saved", () => {
+      const { result } = renderHook(
+        () => useWeeklyAvailabilityForm(source({ suggestion }), vi.fn()),
+        { wrapper: Wrapper },
+      );
+
+      expect(result.current.suggested).toBe(false);
+      expect(result.current.draft?.ranges).toEqual([
+        {
+          key: "rule-1",
+          dayOfWeek: Weekday.Wednesday,
+          startTime: "14:00",
+          endTime: "16:00",
+          slotMinutes: 30,
+        },
+      ]);
+    });
+
+    it("is not offered when there is nothing to suggest", () => {
+      const { result } = renderHook(
+        () =>
+          useWeeklyAvailabilityForm(
+            source({ settings: { ...settings, rules: [] }, suggestion: [] }),
+            vi.fn(),
+          ),
+        { wrapper: Wrapper },
+      );
+
+      expect(result.current.suggested).toBe(false);
+      expect(result.current.draft?.ranges).toEqual([]);
+    });
+  });
 });
