@@ -112,6 +112,17 @@ beforeEach(() => {
 });
 
 describe("PeerMentorProfileWizard", () => {
+  it("shows every category with its sticker", async () => {
+    renderWithQueryClient(<PeerMentorProfileWizard />);
+    await screen.findByRole("checkbox", { name: "Kariyer ve Staj" });
+
+    const boxes = screen.getAllByRole("checkbox");
+    expect(boxes.length).toBeGreaterThan(4);
+    for (const box of boxes) {
+      expect(box.closest("label")?.querySelector("img")).not.toBeNull();
+    }
+  });
+
   it("walks a new peer mentor through every step and publishes the profile and hours together", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentorProfileWizard />);

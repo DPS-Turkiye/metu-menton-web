@@ -260,15 +260,13 @@ function CategoriesStep({ wizard }: { wizard: Wizard }) {
                 checked={checked}
                 onChange={() => wizard.toggleTopic(id)}
               />
-              {art ? (
-                <Image
-                  src={art.src}
-                  alt=""
-                  width={art.width}
-                  height={art.height}
-                  className="shrink-0"
-                />
-              ) : null}
+              <Image
+                src={art.src}
+                alt=""
+                width={art.width}
+                height={art.height}
+                className="shrink-0"
+              />
               <span className="min-w-0 flex-1 type-label text-text-primary">
                 {topicLabel(id)}
               </span>
