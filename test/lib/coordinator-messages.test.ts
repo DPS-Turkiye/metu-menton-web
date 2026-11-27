@@ -4,6 +4,7 @@ import { CoordinatorConversationCounterpart } from "@/interfaces/coordinator-con
 import { CoordinatorMentorshipHealth } from "@/interfaces/coordinator-mentorship";
 import {
   conversationTime,
+  counterpartPersonId,
   counterpartSubtitle,
   filterConversations,
   isUnread,
@@ -47,6 +48,23 @@ const mentorships = [
     health: CoordinatorMentorshipHealth.Healthy,
   }),
 ];
+
+describe("counterpartPersonId", () => {
+  it("is the mentor of a mentor thread", () => {
+    expect(counterpartPersonId(coordinatorConversation())).toBe("mentor-1");
+  });
+
+  it("is nobody for a team thread, whose counterpart is an organization", () => {
+    expect(
+      counterpartPersonId(
+        coordinatorConversation({
+          counterpartType: CoordinatorConversationCounterpart.Team,
+          counterpartId: "org-1",
+        }),
+      ),
+    ).toBeNull();
+  });
+});
 
 describe("coordinator messages", () => {
   it("counts unread threads per side, treating the open one as read", () => {

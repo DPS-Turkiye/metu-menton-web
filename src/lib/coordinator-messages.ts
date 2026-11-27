@@ -104,6 +104,19 @@ export function relatedMentorships(
 }
 
 /** "Mentor · Lumen, Kavun" or "Takım · Ayşe Demir". */
+/** The person whose photo a thread shows: its mentor; a team thread names an organization, which has none. */
+export function counterpartPersonId(
+  conversation: Pick<
+    CoordinatorConversation,
+    "counterpartType" | "counterpartId"
+  >,
+) {
+  return conversation.counterpartType ===
+    CoordinatorConversationCounterpart.Mentor
+    ? conversation.counterpartId
+    : null;
+}
+
 export function counterpartSubtitle(
   conversation: CoordinatorConversation,
   related: CoordinatorMentorship[],

@@ -24,6 +24,7 @@ import {
   iskurInternEntry,
   iskurInternList,
 } from "@test/fixtures/iskur-interns";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { menteeSummary, mentorSummary } from "@test/fixtures/person-summary";
 import { appSession } from "@test/fixtures/session";
 import { renderWithQueryClient } from "@test/test-utils";
@@ -417,5 +418,15 @@ describe("PersonSummaryView İŞKUR list", () => {
     expect(screen.queryByText(/İŞKUR/)).toBeNull();
     expect(getCoordinatorPrograms).not.toHaveBeenCalled();
     expect(getIskurInterns).not.toHaveBeenCalled();
+  });
+
+  it("shows the person's photo over their initials", async () => {
+    vi.mocked(getPersonSummary).mockResolvedValue(mentorSummary());
+    renderWithQueryClient(<PersonSummaryView userId="mentor-1" />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Deniz Yıldız" }),
+    ).toBeInTheDocument();
+    expect(personPhotosIn()).toContain(photoPathOf("mentor-1"));
   });
 });
