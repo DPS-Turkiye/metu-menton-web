@@ -9,7 +9,9 @@ import {
   isSendableStatement,
   isWaiting,
   mentoringOutcome,
+  thisWeekAssessmentLine,
 } from "@/lib/iskur-assessment-statement";
+import { IskurAssessmentLine } from "@/types/iskur-assessment";
 import { iskurAssessmentStatement } from "@test/fixtures/iskur-assessment-statement";
 
 describe("İŞKUR assessment statement helpers", () => {
@@ -54,4 +56,32 @@ describe("İŞKUR assessment statement helpers", () => {
       ).toEqual({ key, minutes: shown });
     },
   );
+
+  it("tells Bu Haftam what to say under the mentoring target", () => {
+    const mine = { programId: "p1", canSend: true, latest: null };
+    expect(thisWeekAssessmentLine(mine, 360)).toBe(IskurAssessmentLine.Offer);
+    // No mentoring time to fill (often the coordinator's decision): nothing to explain.
+    expect(thisWeekAssessmentLine(mine, 0)).toBeNull();
+    expect(thisWeekAssessmentLine(mine, null)).toBeNull();
+    expect(
+      thisWeekAssessmentLine(
+        { ...mine, canSend: false, latest: iskurAssessmentStatement() },
+        0,
+      ),
+    ).toBe(IskurAssessmentLine.Waiting);
+    expect(
+      thisWeekAssessmentLine(
+        {
+          ...mine,
+          canSend: false,
+          latest: iskurAssessmentStatement({
+            status: IskurAssessmentStatus.Decided,
+          }),
+        },
+        360,
+      ),
+    ).toBeNull();
+    // Not an İŞKUR intern.
+    expect(thisWeekAssessmentLine(null, 360)).toBeNull();
+  });
 });

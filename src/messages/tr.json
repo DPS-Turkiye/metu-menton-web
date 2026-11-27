@@ -8764,7 +8764,13 @@
     "mentoringKept": "Haftalık mentörlük süren değişmedi.",
     "retakeOpened": "Testi Prism üzerinden yeniden alabilirsin.",
     "note": "Koordinatörünün notu: {note}",
-    "cancelledTitle": "Açıklaman kapandı; ekip yerleşimin kaldırıldı."
+    "cancelledTitle": "Açıklaman kapandı; ekip yerleşimin kaldırıldı.",
+    "thisWeek": {
+      "waiting": "Değerlendirme açıklaman koordinatöründe; kararı bekleniyor.",
+      "open": "Durumu gör",
+      "offer": "Değerlendirmeyi tamamlayamadın mı?",
+      "explain": "Koordinatörüne açıkla"
+    }
   },
   "iskurTeamSupport": {
     "tab": "Destek talepleri",

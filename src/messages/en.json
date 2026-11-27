@@ -8762,7 +8762,13 @@
     "mentoringKept": "Your weekly mentoring time stays the same.",
     "retakeOpened": "You can take the test again on Prism.",
     "note": "Your coordinator's note: {note}",
-    "cancelledTitle": "Your statement was closed; your team placement was removed."
+    "cancelledTitle": "Your statement was closed; your team placement was removed.",
+    "thisWeek": {
+      "waiting": "Your assessment statement is with your coordinator, waiting for a decision.",
+      "open": "See its status",
+      "offer": "Couldn't complete the assessment?",
+      "explain": "Explain to your coordinator"
+    }
   },
   "iskurTeamSupport": {
     "tab": "Support requests",
