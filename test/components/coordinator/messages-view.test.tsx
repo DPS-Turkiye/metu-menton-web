@@ -27,6 +27,7 @@ import {
 } from "@test/fixtures/coordinator-conversations";
 import { coordinatorMentorship } from "@test/fixtures/coordinator-mentorships";
 import { coordinatorProgram } from "@test/fixtures/coordinator-programs";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { programAnnouncement } from "@test/fixtures/program-announcements";
 import { InLocale, renderWithQueryClient } from "@test/test-utils";
 
@@ -275,5 +276,14 @@ describe("CoordinatorMessagesView", () => {
       "program-1",
       "Demo Day 12 Ekim'de yapılacak",
     );
+  });
+
+  it("shows a mentor's photo, and none for a team, which is not a person", async () => {
+    renderWithQueryClient(<CoordinatorMessagesView link={noLink} />);
+
+    const list = await screen.findByRole("list", { name: "Konuşmalar" });
+    expect(await within(list).findByText("Ayşe Demir")).toBeInTheDocument();
+    expect(personPhotosIn(list)).toContain(photoPathOf("mentor-1"));
+    expect(personPhotosIn(list)).not.toContain(photoPathOf("org-1"));
   });
 });

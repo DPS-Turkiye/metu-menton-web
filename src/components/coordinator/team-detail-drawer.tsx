@@ -92,7 +92,10 @@ export function TeamDetailDrawer({
               <Section title={t("lead")}>
                 {team.lead ? (
                   <div className="flex items-center gap-3 rounded-2xl bg-[#fff1ea] p-4">
-                    <Avatar initials={initials(team.lead.name)} />
+                    <Avatar
+                      initials={initials(team.lead.name)}
+                      personId={team.lead.id}
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="text-[14px] font-medium text-[#22262b]">
                         {team.lead.name}{" "}
@@ -157,7 +160,10 @@ export function TeamDetailDrawer({
                         key={member.id}
                         className="flex items-center gap-3 px-4 py-3"
                       >
-                        <Avatar initials={initials(member.name)} />
+                        <Avatar
+                          initials={initials(member.name)}
+                          personId={member.id}
+                        />
                         <div className="min-w-0 flex-1">
                           <p className="text-[13.5px] text-[#22262b]">
                             {member.name}

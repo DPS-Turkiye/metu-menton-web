@@ -231,7 +231,7 @@ function PersonLine({ person }: { person: IskurPerson }) {
   return (
     <div className="flex min-w-0 items-center gap-2">
       <StaffPictureLink userId={person.userId} name={person.fullName}>
-        <InitialsAvatar name={person.fullName} />
+        <InitialsAvatar name={person.fullName} personId={person.userId} />
       </StaffPictureLink>
       <div className="min-w-0">
         <p className="truncate type-label text-text-primary">
@@ -425,7 +425,7 @@ function PlacementRow({
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <StaffPictureLink userId={person.userId} name={person.fullName}>
-            <InitialsAvatar name={person.fullName} />
+            <InitialsAvatar name={person.fullName} personId={person.userId} />
           </StaffPictureLink>
           <span className="type-label text-text-primary">
             {person.fullName}

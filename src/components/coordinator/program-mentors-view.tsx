@@ -193,7 +193,12 @@ function PoolRow({
       <td className="px-6 py-4">
         <span className="flex items-center gap-3">
           <StaffPictureLink userId={profileId} name={name}>
-            <Avatar initials={initials(name) || "?"} tone="blue" size="lg" />
+            <Avatar
+              initials={initials(name) || "?"}
+              personId={profileId}
+              tone="blue"
+              size="lg"
+            />
           </StaffPictureLink>
           <span className="min-w-0">
             <span className="block truncate text-[#22262b]">
@@ -415,6 +420,7 @@ function ReviewDialog({
             <div className="flex-1 space-y-5 overflow-y-auto p-6">
               <header className="flex items-start gap-3">
                 <Avatar
+                  personId={data.mentorId}
                   initials={initials(data.fullName)}
                   tone="blue"
                   size="lg"

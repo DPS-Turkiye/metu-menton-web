@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AdminIcon, AdminOverlay } from "@/components/admin/admin-ui";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { ADMIN_OVERVIEW_QUERY_KEY } from "@/hooks/use-admin-overview";
 import { useDecidePendingAccount } from "@/hooks/use-pending-accounts";
 import type { AdminProgram, AdminUser } from "@/interfaces/admin-overview";
@@ -68,9 +69,13 @@ export function CoordinatorApplicationDialog({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start gap-3.5 px-7 pt-7 pb-5">
-          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#fbe2d0] text-[16px] font-semibold text-[#a8480e]">
-            {initials(user.fullName)}
-          </span>
+          <PhotoAvatar
+            initials={initials(user.fullName)}
+            personId={user.id}
+            decorative
+            colors="bg-[#fbe2d0] text-[#a8480e]"
+            className="size-12 text-[16px]"
+          />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-[20px] leading-[1.3] font-semibold text-[#22262b]">

@@ -37,6 +37,7 @@ import { mentorshipHref } from "@/lib/coordinator-calendar";
 import { HEALTH_TONES, nextMeetingLabel } from "@/lib/coordinator-mentorships";
 import {
   conversationTime,
+  counterpartPersonId,
   isUnread,
   MAX_MESSAGE_LENGTH,
   messageDayLabel,
@@ -147,6 +148,7 @@ export function CoordinatorMessagesView({ link }: { link: MessagesDeepLink }) {
             <>
               <header className="flex items-center gap-3 border-b border-[#eef0f2] px-6 py-4">
                 <Avatar
+                  personId={counterpartPersonId(messages.open)}
                   initials={initials(messages.open.counterpartName)}
                   tone={counterpartTone(messages.open)}
                   size="lg"
@@ -268,6 +270,7 @@ function ConversationRow({
         }`}
       >
         <Avatar
+          personId={counterpartPersonId(conversation)}
           initials={initials(conversation.counterpartName)}
           tone={mentor ? "blue" : "orange"}
           size="lg"
