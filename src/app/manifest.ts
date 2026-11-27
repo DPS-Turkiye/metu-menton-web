@@ -2,14 +2,15 @@ import type { MetadataRoute } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { Edition } from "@/interfaces/edition";
+import { INSTALLED_APP_NAME } from "@/lib/const";
 import { MOBILE_HOME } from "@/lib/mobile";
 import { appEdition } from "@/lib/server/edition";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const t = await getTranslations("metadata");
   return {
-    name: "Menton",
-    short_name: "Menton",
+    name: INSTALLED_APP_NAME,
+    short_name: INSTALLED_APP_NAME,
     description: t("manifestDescription"),
     lang: "tr",
     // The phone app is Teknokent's alone; the ODTÜ deployment closes /m.

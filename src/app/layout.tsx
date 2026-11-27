@@ -10,6 +10,7 @@ import { AccountTypeProvider } from "@/components/providers/account-type-provide
 import { QueryProvider } from "@/components/providers/query-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { ClientTexts } from "@/i18n/client-texts";
+import { INSTALLED_APP_NAME } from "@/lib/const";
 import { getAccountType } from "@/lib/server/account-type";
 
 import "./globals.css";
@@ -28,6 +29,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: t("defaultTitle"), template: t("titleTemplate") },
     description: t("description"),
+    applicationName: INSTALLED_APP_NAME,
+    // iOS names a home-screen shortcut from this, not from the manifest.
+    appleWebApp: { title: INSTALLED_APP_NAME },
   };
 }
 
