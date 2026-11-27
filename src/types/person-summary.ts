@@ -1,5 +1,6 @@
 import type { OptionGroup } from "@/hooks/use-option-label";
 import type { MentorLanguage, Weekday } from "@/interfaces/mentor";
+import type { PersonProgramRelation } from "@/interfaces/person-summary";
 
 /** How a profile-page fact turns into text: as typed, through an option list, as languages, or as a date. */
 export enum SummaryFactKind {
@@ -94,6 +95,7 @@ export type PersonSummaryModel = {
     key: string;
     id: string;
     name: string;
+    relation: PersonProgramRelation;
     note: SummaryProgramNote;
   }[];
   activity: SummaryFact[];

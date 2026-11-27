@@ -10,6 +10,7 @@ import {
   iskurInternsQueryKey,
   settleIskurInterns,
 } from "@/hooks/use-iskur-interns";
+import { PersonProgramRelation } from "@/interfaces/person-summary";
 import { UserRole } from "@/interfaces/session";
 import { ToastTone } from "@/interfaces/toast";
 import {
@@ -41,23 +42,32 @@ export type PersonIskurRow = {
 /**
  * The İŞKUR intern list as seen from one person's profile: per program where the coordinator may change it, whether
  * the person's address is listed, and adding or removing it. Coordinators only: admins and everyone else get no rows.
- * A program the person has two rows in (mentor and mentee) gets its status on the first row only.
+ * İŞKUR interns are students, so only the person's student (mentee) rows get a status; a mentor-only person, such
+ * as an academician, gets none.
  */
 export function usePersonIskurInterns({
   email,
   programs,
 }: {
   email: string;
-  programs: readonly { key: string; id: string; name: string }[];
+  programs: readonly {
+    key: string;
+    id: string;
+    name: string;
+    relation: PersonProgramRelation;
+  }[];
 }) {
   const t = useTranslations("personSummary.iskur");
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const coordinator = useAppSession()?.role === UserRole.Coordinator;
   const myPrograms = useCoordinatorPrograms({ enabled: coordinator });
+  const studentRows = programs.filter(
+    (program) => program.relation === PersonProgramRelation.Mentee,
+  );
   const programIds = coordinator
     ? iskurListProgramIds(
-        programs.map((program) => program.id),
+        studentRows.map((program) => program.id),
         myPrograms.data ?? [],
       )
     : [];
@@ -114,11 +124,9 @@ export function usePersonIskurInterns({
   });
 
   const names = new Map(programs.map((program) => [program.id, program.name]));
-  const firstRowKeys = new Map<string, string>();
-  for (const program of programs) {
-    if (!firstRowKeys.has(program.id))
-      firstRowKeys.set(program.id, program.key);
-  }
+  const studentRowKeys = new Map(
+    studentRows.map((program) => [program.id, program.key]),
+  );
   const entryIds = new Map<string, string>();
   const rows = new Map<string, PersonIskurRow>();
   programIds.forEach((programId, index) => {
@@ -141,7 +149,7 @@ export function usePersonIskurInterns({
 
   return {
     rowFor: ({ key, id }: { key: string; id: string }) =>
-      firstRowKeys.get(id) === key ? (rows.get(id) ?? null) : null,
+      studentRowKeys.get(id) === key ? (rows.get(id) ?? null) : null,
     busy,
     addTo: (programId: string) => {
       if (busy) return;

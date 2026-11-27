@@ -6,6 +6,7 @@ import { iskurInternsQueryKey } from "@/hooks/use-iskur-interns";
 import { iskurWorkspaceQueryKey } from "@/hooks/use-iskur-workspace";
 import { usePersonIskurInterns } from "@/hooks/use-person-iskur-interns";
 import { IskurInternAccountState } from "@/interfaces/iskur-interns";
+import { PersonProgramRelation } from "@/interfaces/person-summary";
 import { ProgramFeature, ProgramType } from "@/interfaces/program";
 import { UserRole, type AppSession } from "@/interfaces/session";
 import { ToastTone } from "@/interfaces/toast";
@@ -41,8 +42,18 @@ vi.mock("@/lib/client/iskur-interns", () => ({
 }));
 
 const EMAIL = "ogrenci@hocam-test.metu.edu.tr";
-const ROW = { key: "s1-MENTEE", id: "s1", name: "2026 Güz" };
-const PROGRAMS = [ROW, { ...ROW, key: "s1-MENTOR" }];
+const ROW = {
+  key: "s1-MENTEE",
+  id: "s1",
+  name: "2026 Güz",
+  relation: PersonProgramRelation.Mentee,
+};
+const MENTOR_ROW = {
+  ...ROW,
+  key: "s1-MENTOR",
+  relation: PersonProgramRelation.Mentor,
+};
+const PROGRAMS = [MENTOR_ROW, ROW];
 const semester = coordinatorProgram({
   id: "s1",
   name: "2026 Güz",
@@ -58,11 +69,11 @@ function toasts() {
     .toasts.map(({ message, tone }) => ({ message, tone }));
 }
 
-function renderPersonIskur() {
+function renderPersonIskur(programs = PROGRAMS) {
   const { queryClient, wrapper } = queryWrapper();
   const invalidate = vi.spyOn(queryClient, "invalidateQueries");
   const view = renderHook(
-    () => usePersonIskurInterns({ email: EMAIL, programs: PROGRAMS }),
+    () => usePersonIskurInterns({ email: EMAIL, programs }),
     { wrapper },
   );
   return { ...view, queryClient, invalidate };
@@ -250,12 +261,20 @@ describe("usePersonIskurInterns", () => {
     expect(result.current.rowFor(ROW)?.state).toBeNull();
   });
 
-  it("gives a program's status to the person's first row in it only", async () => {
+  it("gives the status to the person's student row, not their mentor row in the same program", async () => {
     const { result } = renderPersonIskur();
 
     await waitFor(() => expect(result.current.rowFor(ROW)).not.toBeNull());
-    expect(result.current.rowFor({ ...ROW, key: "s1-MENTOR" })).toBeNull();
+    expect(result.current.rowFor(MENTOR_ROW)).toBeNull();
     expect(getIskurInterns).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers nothing for a mentor-only person such as an academician", async () => {
+    const { result } = renderPersonIskur([MENTOR_ROW]);
+
+    await waitFor(() => expect(getCoordinatorPrograms).toHaveBeenCalled());
+    expect(result.current.rowFor(MENTOR_ROW)).toBeNull();
+    expect(getIskurInterns).not.toHaveBeenCalled();
   });
 
   it("keeps showing the last list when a refetch fails", async () => {

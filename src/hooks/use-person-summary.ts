@@ -126,6 +126,7 @@ export function usePersonSummary(userId: string) {
         key: program.key,
         id: program.id,
         name: program.name,
+        relation: program.relation,
         href: `${programsHref}/${encodeURIComponent(program.id)}`,
         note: t(program.note),
       })),

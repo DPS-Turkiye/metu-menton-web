@@ -394,6 +394,18 @@ describe("PersonSummaryView İŞKUR list", () => {
     expect(getIskurInterns).toHaveBeenCalledWith("program-2");
   });
 
+  it("offers nothing on a mentor-only person's page, such as an academician's", async () => {
+    vi.mocked(getPersonSummary).mockResolvedValue(
+      mentorSummary({ email: EMAIL }),
+    );
+    renderWithQueryClient(<PersonSummaryView userId="mentor-1" />);
+    await screen.findByRole("heading", { name: "Deniz Yıldız" });
+    await vi.waitFor(() => expect(getCoordinatorPrograms).toHaveBeenCalled());
+
+    expect(screen.queryByRole("button", { name: /İŞKUR/ })).toBeNull();
+    expect(getIskurInterns).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["an admin", UserRole.Admin],
     ["a student", UserRole.Mentee],
