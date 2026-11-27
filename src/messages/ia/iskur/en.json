@@ -342,6 +342,13 @@
         "VERIFICATION_ONLY": "For verification only",
         "PROFILE": "Show on my profile"
       },
+      "share": {
+        "label": "Show to other students",
+        "aria": "{name}: show to other students",
+        "on": "Visible on your profile",
+        "off": "Only coordinators see it",
+        "transcript": "A transcript is visible to coordinators only"
+      },
       "types": {
         "TRANSCRIPT": "Transcript",
         "CV": "CV",
@@ -353,7 +360,7 @@
         "PROJECT_REPORT": "Project report"
       },
       "safeTitle": "Your documents are safe",
-      "safeBody": "Documents you mark \"For verification only\" are seen only by the program coordinator, to verify them. Those you mark \"Show on my profile\" are visible to students.",
+      "safeBody": "Your program coordinator sees the files you upload, to verify them. Files you switch to \"Show to other students\" are also visible to students on your profile; your transcript is always visible to coordinators only.",
       "notPdf": "You can only upload PDF files.",
       "tooLarge": "The file can be at most {max}.",
       "linkInvalid": "Enter a valid link (e.g. github.com/yourname).",

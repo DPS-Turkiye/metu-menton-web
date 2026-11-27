@@ -6,14 +6,17 @@ import {
 } from "@/interfaces/peer-mentor-documents";
 import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import {
+  canShareEvidence,
   cardOf,
   evidenceCards,
   evidenceFileProblem,
+  isShownToStudents,
   PEER_EVIDENCE_MAX_BYTES,
   requiredEvidence,
   requiringCategory,
   sharedEvidence,
   uploadTypeOf,
+  withVisibility,
 } from "@/lib/peer-mentor-documents";
 import {
   EvidenceCard,
@@ -74,33 +77,55 @@ describe("evidenceCards", () => {
     expect(card(cards, EvidenceCard.Certificate).requiredFor).toBeNull();
   });
 
-  it("shows what a card's evidence is saved as, else the pick for its first upload, else the default", () => {
-    const shown = peerFileFixture({
-      visibility: PeerDocumentVisibility.Profile,
-    });
+  it("starts every file hidden, whatever the card holds or was picked", () => {
     const cards = evidenceCards(
-      [shown],
+      [
+        peerFileFixture({
+          evidenceType: PeerEvidenceType.Cv,
+          visibility: PeerDocumentVisibility.Profile,
+        }),
+      ],
       [],
-      {
-        // A pick that did not save never hides what the server has.
-        [EvidenceCard.Transcript]: PeerDocumentVisibility.VerificationOnly,
-        [EvidenceCard.Cv]: PeerDocumentVisibility.VerificationOnly,
-      },
+      { [EvidenceCard.Certificate]: PeerDocumentVisibility.Profile },
       false,
     );
 
-    expect(card(cards, EvidenceCard.Transcript).visibility).toBe(
-      PeerDocumentVisibility.Profile,
-    );
-    expect(card(cards, EvidenceCard.Cv).visibility).toBe(
-      PeerDocumentVisibility.VerificationOnly,
-    );
-    expect(card(cards, EvidenceCard.Portfolio).visibility).toBe(
-      PeerDocumentVisibility.Profile,
-    );
-    expect(card(cards, EvidenceCard.Other).visibility).toBe(
-      PeerDocumentVisibility.VerificationOnly,
-    );
+    for (const which of [
+      EvidenceCard.Transcript,
+      EvidenceCard.Cv,
+      EvidenceCard.Certificate,
+      EvidenceCard.Other,
+    ]) {
+      expect(card(cards, which).visibility).toBe(
+        PeerDocumentVisibility.VerificationOnly,
+      );
+    }
+  });
+
+  it("gives the portfolio card what its links are saved as, else the pick, else shown", () => {
+    const portfolio = (
+      documents: Parameters<typeof evidenceCards>[0],
+      chosen: Parameters<typeof evidenceCards>[2],
+    ) =>
+      card(evidenceCards(documents, [], chosen, false), EvidenceCard.Portfolio);
+
+    expect(portfolio([], {}).visibility).toBe(PeerDocumentVisibility.Profile);
+    expect(
+      portfolio([], {
+        [EvidenceCard.Portfolio]: PeerDocumentVisibility.VerificationOnly,
+      }).visibility,
+    ).toBe(PeerDocumentVisibility.VerificationOnly);
+    expect(
+      portfolio(
+        [
+          peerLinkFixture({
+            visibility: PeerDocumentVisibility.VerificationOnly,
+          }),
+        ],
+        // A pick that did not save never hides what the server has.
+        { [EvidenceCard.Portfolio]: PeerDocumentVisibility.Profile },
+      ).visibility,
+    ).toBe(PeerDocumentVisibility.VerificationOnly);
   });
 
   it("counts a LinkedIn link for the portfolio card", () => {
@@ -202,5 +227,31 @@ describe("sharedEvidence", () => {
       },
     ]);
     expect(itemAt(shared.links, 0).url).toMatch(/^https:/);
+  });
+});
+
+describe("sharing a file with students", () => {
+  it("lets every kind but a transcript be shown", () => {
+    expect(canShareEvidence(PeerEvidenceType.Transcript)).toBe(false);
+    for (const type of Object.values(PeerEvidenceType).filter(
+      (value) => value !== PeerEvidenceType.Transcript,
+    )) {
+      expect(canShareEvidence(type)).toBe(true);
+    }
+  });
+
+  it("reads and changes one file's visibility", () => {
+    const hidden = peerFileFixture({ id: "a" });
+    const other = peerFileFixture({ id: "b" });
+    expect(isShownToStudents(hidden)).toBe(false);
+
+    const changed = withVisibility(
+      [hidden, other],
+      "a",
+      PeerDocumentVisibility.Profile,
+    );
+
+    expect(changed.map(isShownToStudents)).toEqual([true, false]);
+    expect(hidden.visibility).toBe(PeerDocumentVisibility.VerificationOnly);
   });
 });

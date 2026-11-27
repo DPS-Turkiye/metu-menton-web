@@ -8,6 +8,7 @@ import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import {
   PeerDocumentVisibility,
   PeerEvidenceType,
+  type PeerMentorDocument,
 } from "@/interfaces/peer-mentor-documents";
 import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
@@ -23,12 +24,15 @@ import {
   uploadPeerMentorDocument,
 } from "@/lib/client/peer-mentor-documents";
 import {
+  canShareEvidence,
   evidenceCards,
   evidenceFileProblem,
+  isShownToStudents,
   PEER_EVIDENCE_MAX_BYTES,
   requiredEvidence,
   sharedEvidence,
   uploadTypeOf,
+  withVisibility,
 } from "@/lib/peer-mentor-documents";
 import {
   errorMessage,
@@ -82,7 +86,8 @@ export function usePeerRequiredDocuments(
 
 /**
  * The wizard's "Belgeler ve kanıtlar" step. Files and links are saved as soon as they are added (the profile's
- * publish does not carry them); a card's visibility menu changes every piece on it and what the next upload gets.
+ * publish does not carry them). Every file starts hidden from students and has its own "Diğer öğrencilere göster"
+ * switch; the portfolio card's menu changes every link on it and what the next link gets.
  */
 export function usePeerMentorDocumentsStep({
   topics,
@@ -194,6 +199,37 @@ export function usePeerMentorDocumentsStep({
     onError: toastError(t("visibilityFailed")),
   });
 
+  // The switch moves at once and goes back if the server says no.
+  const share = useMutation({
+    mutationFn: ({
+      document,
+      visibility: value,
+    }: {
+      document: PeerMentorDocument;
+      visibility: PeerDocumentVisibility;
+    }) => updatePeerMentorDocumentVisibility(document.id, value),
+    onMutate: async ({ document, visibility: value }) => {
+      await queryClient.cancelQueries({ queryKey: OWN_DOCUMENTS_QUERY_KEY });
+      const before = queryClient.getQueryData<PeerMentorDocument[]>(
+        OWN_DOCUMENTS_QUERY_KEY,
+      );
+      if (before) {
+        queryClient.setQueryData(
+          OWN_DOCUMENTS_QUERY_KEY,
+          withVisibility(before, document.id, value),
+        );
+      }
+      return { before };
+    },
+    onError: (error, _input, context) => {
+      if (context?.before) {
+        queryClient.setQueryData(OWN_DOCUMENTS_QUERY_KEY, context.before);
+      }
+      toastError(t("visibilityFailed"))(error);
+    },
+    onSettled: () => refresh(),
+  });
+
   const remove = useMutation({
     mutationFn: (documentId: string) => deletePeerMentorDocument(documentId),
     onSuccess: () => refresh(),
@@ -272,6 +308,20 @@ export function usePeerMentorDocumentsStep({
       visibility.mutate({ card, value });
     },
     remove: (documentId: string) => remove.mutate(documentId),
+    canShare: (document: PeerMentorDocument) =>
+      canShareEvidence(document.evidenceType),
+    isShared: isShownToStudents,
+    /** The file whose switch is on its way to the server, so it is not flipped twice. */
+    sharingId: share.isPending ? share.variables.document.id : null,
+    toggleShared: (document: PeerMentorDocument) => {
+      if (share.isPending || !canShareEvidence(document.evidenceType)) return;
+      share.mutate({
+        document,
+        visibility: isShownToStudents(document)
+          ? PeerDocumentVisibility.VerificationOnly
+          : PeerDocumentVisibility.Profile,
+      });
+    },
   };
 }
 

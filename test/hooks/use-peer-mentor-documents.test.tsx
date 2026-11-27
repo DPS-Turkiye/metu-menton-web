@@ -117,6 +117,69 @@ describe("usePeerMentorDocumentsStep", () => {
   });
 });
 
+describe("a file's own switch", () => {
+  it("shows the change at once and puts it back with a toast when it fails", async () => {
+    let reject: (error: unknown) => void = () => undefined;
+    vi.mocked(updatePeerMentorDocumentVisibility).mockReturnValue(
+      new Promise((_resolve, fail) => {
+        reject = fail;
+      }),
+    );
+    const { result } = renderHook(
+      () => usePeerMentorDocumentsStep({ topics: [], linkedinUrl: "" }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const cvOf = () =>
+      result.current.cards.find((view) => view.card === EvidenceCard.Cv)
+        ?.documents[0];
+    const cv = cvOf();
+    if (!cv) throw new Error("no CV");
+
+    act(() => result.current.toggleShared(cv));
+
+    await waitFor(() => expect(result.current.sharingId).toBe("cv-1"));
+    expect(updatePeerMentorDocumentVisibility).toHaveBeenCalledWith(
+      "cv-1",
+      PeerDocumentVisibility.Profile,
+    );
+    const shown = cvOf();
+    expect(shown && result.current.isShared(shown)).toBe(true);
+
+    act(() => reject(new Error("Kaydedilemedi")));
+
+    await waitFor(() =>
+      expect(showToast).toHaveBeenCalledWith({
+        message: "Kaydedilemedi",
+        tone: ToastTone.Error,
+      }),
+    );
+    await waitFor(() => expect(result.current.sharingId).toBeNull());
+    const after = cvOf();
+    expect(after && result.current.isShared(after)).toBe(false);
+  });
+
+  it("never asks to show a transcript", async () => {
+    vi.mocked(getOwnPeerMentorDocuments).mockResolvedValue([
+      peerFileFixture({ id: "tr-1" }),
+    ]);
+    const { result } = renderHook(
+      () => usePeerMentorDocumentsStep({ topics: [], linkedinUrl: "" }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const transcript = result.current.cards.find(
+      (view) => view.card === EvidenceCard.Transcript,
+    )?.documents[0];
+    if (!transcript) throw new Error("no transcript");
+
+    expect(result.current.canShare(transcript)).toBe(false);
+    act(() => result.current.toggleShared(transcript));
+
+    expect(updatePeerMentorDocumentVisibility).not.toHaveBeenCalled();
+  });
+});
+
 describe("usePeerMentorSharedDocuments", () => {
   it("gives the profile its files with where to open them, and the links", async () => {
     vi.mocked(getPeerMentorDocuments).mockResolvedValue([

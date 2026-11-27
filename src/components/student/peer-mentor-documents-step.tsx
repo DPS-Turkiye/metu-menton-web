@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import { useId, useRef, type ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
+import { ToggleSwitch } from "@/components/common/toggle-switch";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
@@ -58,7 +59,8 @@ const FOCUS_RING =
 
 /**
  * The wizard's "Belgeler ve kanıtlar" step (Figma 110:719): the required-documents banner, one card per kind of
- * evidence with its visibility menu, and the note on who sees what.
+ * evidence (each file with its own "show to students" switch, the portfolio card with its visibility menu), and the
+ * note on who sees what.
  */
 export function PeerMentorDocumentsStep({
   topics,
@@ -208,7 +210,9 @@ function EvidenceCardSection({
       </div>
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="min-w-0 flex-1 space-y-3">{children}</div>
-        <VisibilityMenu view={view} step={step} />
+        {view.card === EvidenceCard.Portfolio ? (
+          <VisibilityMenu view={view} step={step} />
+        ) : null}
       </div>
       {problem ? (
         <p role="alert" className="type-caption text-status-error-text">
@@ -344,36 +348,75 @@ function FileItem({ item, step }: { item: PeerMentorDocument; step: Step }) {
   const t = useTranslations("iaIskur.wizard.documents");
   const name = item.originalFilename || t(`types.${item.evidenceType}`);
   return (
-    <div className="flex w-full max-w-[360px] items-center gap-3 rounded-2xl border border-border-default bg-background-surface p-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background-selected">
-        <FileText aria-hidden className="size-5 text-text-accent" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <a
-          href={step.contentHref(item.id)}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={t("viewFile", { name })}
-          className={`block truncate type-label text-text-primary hover:underline ${FOCUS_RING}`}
+    <div className="w-full max-w-[360px] space-y-3 rounded-2xl border border-border-default bg-background-surface p-3">
+      <div className="flex items-center gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background-selected">
+          <FileText aria-hidden className="size-5 text-text-accent" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <a
+            href={step.contentHref(item.id)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("viewFile", { name })}
+            className={`block truncate type-label text-text-primary hover:underline ${FOCUS_RING}`}
+          >
+            {name}
+          </a>
+          <span className="block type-caption text-text-secondary">
+            {t("fileMeta", { size: formatFileSize(item.sizeBytes ?? 0) })}
+          </span>
+        </span>
+        <CircleCheck
+          aria-hidden
+          className="size-5 shrink-0 text-status-success-icon"
+        />
+        <button
+          type="button"
+          onClick={() => step.remove(item.id)}
+          aria-label={t("removeFile", { name })}
+          className={`grid size-7 shrink-0 place-items-center rounded-full text-text-muted hover:bg-background-subtle hover:text-text-primary ${FOCUS_RING}`}
         >
-          {name}
-        </a>
-        <span className="block type-caption text-text-secondary">
-          {t("fileMeta", { size: formatFileSize(item.sizeBytes ?? 0) })}
+          <X aria-hidden className="size-4" />
+        </button>
+      </div>
+      <FileSharing item={item} name={name} step={step} />
+    </div>
+  );
+}
+
+// TEST UI: placeholder until the design team's screen; replace when it arrives.
+/** The file's own "Diğer öğrencilere göster" switch; a transcript only says that it stays with the coordinators. */
+function FileSharing({
+  item,
+  name,
+  step,
+}: {
+  item: PeerMentorDocument;
+  name: string;
+  step: Step;
+}) {
+  const t = useTranslations("iaIskur.wizard.documents.share");
+  if (!step.canShare(item)) {
+    return <p className="type-caption text-text-muted">{t("transcript")}</p>;
+  }
+  const shared = step.isShared(item);
+  return (
+    <div className="flex items-center gap-3 border-t border-border-subtle pt-3">
+      <ToggleSwitch
+        checked={shared}
+        label={t("aria", { name })}
+        onChange={() => step.toggleShared(item)}
+        disabled={step.sharingId != null}
+      />
+      <span className="min-w-0 flex-1">
+        <span aria-hidden className="block type-label text-text-primary">
+          {t("label")}
+        </span>
+        <span className="block type-caption text-text-muted">
+          {t(shared ? "on" : "off")}
         </span>
       </span>
-      <CircleCheck
-        aria-hidden
-        className="size-5 shrink-0 text-status-success-icon"
-      />
-      <button
-        type="button"
-        onClick={() => step.remove(item.id)}
-        aria-label={t("removeFile", { name })}
-        className={`grid size-7 shrink-0 place-items-center rounded-full text-text-muted hover:bg-background-subtle hover:text-text-primary ${FOCUS_RING}`}
-      >
-        <X aria-hidden className="size-4" />
-      </button>
     </div>
   );
 }
