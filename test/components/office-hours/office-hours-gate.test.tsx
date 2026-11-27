@@ -84,4 +84,15 @@ describe("OfficeHoursGate", () => {
     expect(screen.queryByText("Akademisyenler")).toBeNull();
     expect(screen.queryByText("Office Hours çok yakında")).toBeNull();
   });
+
+  it("waits instead of saying coming soon when the session could not be read", () => {
+    sessionState.session = null;
+    renderWithQueryClient(
+      <OfficeHoursGate>
+        <Screen />
+      </OfficeHoursGate>,
+    );
+    expect(screen.queryByText("Akademisyenler")).toBeNull();
+    expect(screen.queryByText("Office Hours çok yakında")).toBeNull();
+  });
 });

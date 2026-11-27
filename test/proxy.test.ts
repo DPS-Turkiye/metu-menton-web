@@ -463,6 +463,15 @@ describe("proxy while Office Hours is coming soon", () => {
     expect(response.status).toBe(200);
   });
 
+  it("runs on exactly the Office Hours API routes", async () => {
+    const { config } = await import("@/proxy");
+    expect(config.matcher.slice(1)).toEqual([
+      "/api/office-hours/:path*",
+      "/api/coordinator/programs/:id/office-hours/:path*",
+      "/api/coordinator/programs/:id/academics/:path*",
+    ]);
+  });
+
   it("leaves the other API routes alone", async () => {
     const response = await request("/api/student/appointments", signedIn);
     expect(response.status).toBe(200);

@@ -174,6 +174,6 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|api/|.*\\..*).*)",
     "/api/office-hours/:path*",
     "/api/coordinator/programs/:id/office-hours/:path*",
-    "/api/coordinator/programs/:id/academics",
+    "/api/coordinator/programs/:id/academics/:path*",
   ],
 };
