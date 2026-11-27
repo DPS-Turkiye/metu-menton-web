@@ -99,6 +99,24 @@ describe("PersonPhotoAvatar", () => {
   });
 });
 
+describe("PersonPhotoAvatar for another person", () => {
+  it("starts over for the next person instead of keeping the last one's photo", async () => {
+    const other = "00000000-0000-4000-8000-000000000806";
+    const { container, rerender } = render(
+      <PersonPhotoAvatar personId={PERSON_ID} initials="AY" className="" />,
+    );
+    fireEvent.load(photo(container) ?? container);
+    await waitFor(() =>
+      expect(screen.getByText("AY")).toHaveClass("invisible"),
+    );
+
+    rerender(<PersonPhotoAvatar personId={other} initials="BK" className="" />);
+
+    expect(photoPath(container)).toBe(`/api/users/${other}/photo`);
+    expect(screen.getByText("BK")).not.toHaveClass("invisible");
+  });
+});
+
 describe("avatars with a person id", () => {
   const withPerson: [string, ReactElement][] = [
     [

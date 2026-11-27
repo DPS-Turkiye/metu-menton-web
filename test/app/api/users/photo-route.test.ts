@@ -44,7 +44,7 @@ describe("GET /api/users/[id]/photo", () => {
     expect(response.headers.get("content-security-policy")).toBe(
       "sandbox; default-src 'none'",
     );
-    expect(response.headers.get("cache-control")).toBe("private, max-age=600");
+    expect(response.headers.get("cache-control")).toBe("private, max-age=300");
     expect(response.headers.get("vary")).toBe("Cookie");
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(PNG);
   });
@@ -57,17 +57,34 @@ describe("GET /api/users/[id]/photo", () => {
     const response = await get();
 
     expect(response.status).toBe(204);
-    expect(response.headers.get("cache-control")).toBe("private, max-age=600");
+    expect(response.headers.get("cache-control")).toBe("private, max-age=60");
+    expect(response.headers.get("vary")).toBe("Cookie");
     expect(await response.text()).toBe("");
   });
 
-  it("never sends anything but a PNG, JPEG or WebP", async () => {
-    vi.mocked(fetchPersonPhoto).mockResolvedValue(photo("text/html"));
+  it.each(["text/html", "image/svg+xml", "image/gif", ""])(
+    "never sends %j as a photo",
+    async (type) => {
+      vi.mocked(fetchPersonPhoto).mockResolvedValue(photo(type));
+
+      const response = await get();
+
+      expect(response.status).toBe(502);
+      expect(response.headers.get("content-type")).toMatch(/json/);
+      expect(response.headers.get("cache-control")).toBeNull();
+    },
+  );
+
+  it("does not trust a content type that comes as a list", async () => {
+    vi.mocked(fetchPersonPhoto).mockResolvedValue({
+      data: PNG.buffer,
+      headers: { "content-type": ["image/png", "text/html"] },
+      status: 200,
+    });
 
     const response = await get();
 
     expect(response.status).toBe(502);
-    expect(response.headers.get("content-type")).toMatch(/json/);
   });
 
   it("reads a content type with parameters", async () => {
@@ -80,14 +97,30 @@ describe("GET /api/users/[id]/photo", () => {
     expect(response.headers.get("content-type")).toBe("image/jpeg");
   });
 
-  it("passes other backend failures on without caching them", async () => {
-    vi.mocked(fetchPersonPhoto).mockResolvedValue(backendRefusal(500));
+  it.each([401, 403, 500])(
+    "turns a backend %i into this app's own uncached 502",
+    async (status) => {
+      vi.mocked(fetchPersonPhoto).mockResolvedValue(backendRefusal(status));
+
+      const response = await get();
+
+      expect(response.status).toBe(502);
+      expect(await response.json()).toEqual({
+        code: "BACKEND_UNAVAILABLE",
+        message: "Profil fotoğrafı yüklenemedi.",
+      });
+      expect(response.headers.get("cache-control")).toBeNull();
+    },
+  );
+
+  it("answers 502 when the backend cannot be reached", async () => {
+    vi.mocked(fetchPersonPhoto).mockRejectedValue(new Error("ECONNREFUSED"));
 
     const response = await get();
 
-    expect(response.status).toBe(500);
-    expect(response.headers.get("cache-control")).not.toBe(
-      "private, max-age=600",
+    expect(response.status).toBe(502);
+    expect((await response.json()).message).toBe(
+      "Profil fotoğrafı yüklenemedi.",
     );
   });
 
