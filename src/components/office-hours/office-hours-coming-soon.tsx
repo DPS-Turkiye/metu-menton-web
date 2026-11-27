@@ -14,7 +14,6 @@ export function OfficeHoursComingSoon() {
   return (
     <EmptyState
       title={t("title")}
-      accent="blue"
       media={
         <Image
           src={LOGO_SRC}

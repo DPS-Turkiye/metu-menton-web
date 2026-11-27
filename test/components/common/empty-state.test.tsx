@@ -26,13 +26,19 @@ describe("EmptyState", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a picture under the title when given", () => {
-    render(
+  it("shows the sparkle icon when there is no picture", () => {
+    const { container } = render(<EmptyState title="Henüz randevun yok" />);
+    expect(container.querySelector("svg.lucide-sparkles")).not.toBeNull();
+  });
+
+  it("shows a picture under the title in the icon's place", () => {
+    const { container } = render(
       <EmptyState
         title="Office Hours çok yakında"
         media={<span role="img" aria-label="Bakım" />}
       />,
     );
+    expect(container.querySelector("svg.lucide-sparkles")).toBeNull();
     const heading = screen.getByRole("heading", {
       name: "Office Hours çok yakında",
     });
