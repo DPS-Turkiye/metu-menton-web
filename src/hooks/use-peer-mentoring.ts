@@ -224,9 +224,6 @@ export function usePeerMentorDirectory() {
   return {
     category,
     setCategory,
-    /** A category chip toggles its filter. */
-    toggleCategory: (next: PeerTopicCategory) =>
-      setCategory(category === next ? null : next),
     /** The program's active categories that some mentor offers (all of them until the counts load). */
     categories: filterableCategories(
       (catalogue.data ?? []).map((item) => item.id),
@@ -234,7 +231,6 @@ export function usePeerMentorDirectory() {
       category,
     ),
     noActiveCategories: catalogue.isSuccess && catalogue.data.length === 0,
-    countOf,
     subTopic,
     setSubTopic,
     subTopicOptions: subTopicOptions(catalogue.data ?? [], category),

@@ -110,48 +110,7 @@ export function PeerMentorDirectory({
       </div>
       {directory.noActiveCategories ? (
         <InlineAlert tone={StatusTone.Info}>{t("noCategories")}</InlineAlert>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
-          <p id="peer-category-filter" className="type-caption text-text-muted">
-            {t("categoryChipsLabel")}
-          </p>
-          <div
-            role="group"
-            aria-labelledby="peer-category-filter"
-            className="flex flex-wrap gap-2"
-          >
-            <ToggleChip
-              label={t("allCategories")}
-              pressed={directory.category === null}
-              onToggle={() => directory.setCategory(null)}
-            />
-            {directory.categories.map((category) => {
-              const count = directory.countOf(category);
-              return (
-                <ToggleChip
-                  key={category}
-                  pressed={directory.category === category}
-                  onToggle={() => directory.toggleCategory(category)}
-                  label={
-                    <span>
-                      {tTopic(category)}
-                      {count === undefined ? null : (
-                        <>
-                          <span aria-hidden>{` · ${String(count)}`}</span>
-                          <span className="sr-only">
-                            {t("mentorCountSuffix", { count })}
-                          </span>
-                        </>
-                      )}
-                    </span>
-                  }
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {directory.recommended.length > 0 ? (
         <section
