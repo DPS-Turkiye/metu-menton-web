@@ -83,7 +83,8 @@ export function useIskurAssessmentStatement() {
     canSend: mine?.canSend ?? false,
     latest,
     waiting: latest !== null && isWaiting(latest),
-    writing,
+    // The form stays open only while the backend still takes a statement (a refusal refetches `mine`).
+    writing: writing && (mine?.canSend ?? false),
     reason,
     selectReason: (value: string) =>
       setReason(isEnumValue(IskurAssessmentReason, value) ? value : ""),

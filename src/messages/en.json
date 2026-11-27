@@ -8748,6 +8748,7 @@
     "waitingHint": "You'll get a notification when your coordinator decides.",
     "yourReason": "Your reason: {reason}",
     "decidedTitle": "Your coordinator decided · {date}",
+    "decidedUndated": "Your coordinator decided",
     "mentoringNone": "Weekly mentoring time: none; all your hours go to team work.",
     "mentoringHours": "Weekly mentoring time: {hours} h",
     "mentoringDefaultHours": "Weekly mentoring time back to the default: {hours} h",
