@@ -2,7 +2,7 @@ import type { useOfficeHoursOpen as useRealOfficeHoursOpen } from "@/hooks/use-o
 
 type OfficeHoursOpen = ReturnType<typeof useRealOfficeHoursOpen>;
 
-let state: OfficeHoursOpen = { open: true, known: true };
+let state: OfficeHoursOpen = { open: true, known: true, settled: true };
 
 /**
  * Stands in for the session-backed hook, so a screen renders without a SessionProvider. Open unless a test says
@@ -13,6 +13,10 @@ export function useOfficeHoursOpen(): OfficeHoursOpen {
   return state;
 }
 
-export function setOfficeHoursOpen(open: boolean, known = true) {
-  state = { open, known };
+export function setOfficeHoursOpen(
+  open: boolean,
+  known = true,
+  settled = known,
+) {
+  state = { open, known, settled };
 }

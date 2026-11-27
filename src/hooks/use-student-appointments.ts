@@ -36,7 +36,7 @@ export function useStudentAppointmentsQuery() {
   return useQuery({
     queryKey: [...STUDENT_APPOINTMENTS_QUERY_KEY, officeHours.open],
     queryFn: () => getStudentAppointments(officeHours.open),
-    enabled: officeHours.known,
+    enabled: officeHours.settled,
   });
 }
 

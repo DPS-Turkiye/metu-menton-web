@@ -144,6 +144,20 @@ describe("student Office Hours client", () => {
     });
   });
 
+  it("lists no Office Hours requests once Office Hours is coming soon, but passes other refusals on", async () => {
+    vi.mocked(getMyOfficeHoursRequests).mockRejectedValueOnce(
+      new ClientApiError("", 403, "OFFICE_HOURS_COMING_SOON"),
+    );
+    expect(await getStudentOfficeHoursAppointments()).toEqual([]);
+
+    vi.mocked(getMyOfficeHoursRequests).mockRejectedValueOnce(
+      new ClientApiError("Yetkiniz yok.", 403, "FORBIDDEN"),
+    );
+    await expect(getStudentOfficeHoursAppointments()).rejects.toThrow(
+      "Yetkiniz yok.",
+    );
+  });
+
   it("answers no academician for one that is not listed, but passes other failures on", async () => {
     vi.mocked(getListedAcademician).mockRejectedValueOnce(
       new ClientApiError("Academician not found.", 404),

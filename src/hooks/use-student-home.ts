@@ -35,7 +35,7 @@ export function useStudentHome() {
   const home = useQuery({
     queryKey: [...STUDENT_HOME_QUERY_KEY, officeHours.open],
     queryFn: () => getStudentHome(officeHours.open),
-    enabled: officeHours.known,
+    enabled: officeHours.settled,
   });
   const record = useInstitutionRecord();
   const requests = usePeerMentoringRequests();

@@ -25,6 +25,7 @@ import {
   getMyOfficeHoursRequests,
   sendOfficeHoursRequest,
 } from "@/lib/client/office-hours-me";
+import { OFFICE_HOURS_COMING_SOON } from "@/lib/office-hours-launch";
 import { fromTurkishWallClock } from "@/lib/turkey-time";
 
 // Office Hours for an ODTÜ-signed-in student, through /api/office-hours/me: the academicians who chose to be listed,
@@ -126,6 +127,13 @@ function isNotFound(error: unknown) {
   return error instanceof ClientApiError && error.status === 404;
 }
 
+/** The web's Office Hours routes refuse with this while Office Hours is coming soon. */
+function isComingSoon(error: unknown) {
+  return (
+    error instanceof ClientApiError && error.code === OFFICE_HOURS_COMING_SOON
+  );
+}
+
 export async function getOfficeHoursAcademicians(): Promise<
   OfficeHoursAcademician[]
 > {
@@ -192,7 +200,8 @@ export async function getStudentOfficeHoursAppointments(): Promise<
   try {
     return (await getMyOfficeHoursRequests()).map(toAppointment);
   } catch (error) {
-    if (isNotFound(error)) return [];
+    // A tab opened before Office Hours was switched off still lists the peer sessions.
+    if (isNotFound(error) || isComingSoon(error)) return [];
     throw error;
   }
 }

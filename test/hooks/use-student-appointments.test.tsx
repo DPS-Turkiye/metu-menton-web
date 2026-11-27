@@ -78,6 +78,12 @@ describe("useStudentAppointments", () => {
     expect(getStudentAppointments).not.toHaveBeenCalledWith(true);
   });
 
+  it("still lists the peer sessions when the session could not be read", async () => {
+    setOfficeHoursOpen(false, false, true);
+    await loaded();
+    expect(getStudentAppointments).toHaveBeenCalledWith(false);
+  });
+
   it("waits for the session before asking for anything", () => {
     setOfficeHoursOpen(false, false);
     renderHook(() => useStudentAppointments(), { wrapper });
