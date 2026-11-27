@@ -57,10 +57,12 @@ describe("OfficeHoursGate", () => {
       screen.getByRole("heading", { name: "Office Hours çok yakında" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Sana hak ettiğin en iyi deneyimi sunabilmek için gece gündüz çalışıyoruz.",
-      ),
-    ).toBeInTheDocument();
+      screen.getByRole("img", { name: "Bakım ve geliştirme çalışması" }),
+    ).toHaveAttribute(
+      "src",
+      expect.stringContaining("office-hours-coming-soon.webp"),
+    );
+    expect(screen.queryByText(/gece gündüz/)).toBeNull();
     expect(screen.queryByText("Akademisyenler")).toBeNull();
   });
 

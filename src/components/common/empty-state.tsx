@@ -8,15 +8,18 @@ const ACCENTS = {
 
 export type EmptyStateAccent = keyof typeof ACCENTS;
 
-/** The dashed "nothing here yet" card: an icon, a title, and an optional line and action. */
+/** The dashed "nothing here yet" card: an icon, a title, and an optional picture, line and action. */
 export function EmptyState({
   title,
+  media,
   body,
   action,
   accent = "orange",
   className = "mt-5",
 }: {
   title: string;
+  /** A picture under the title, centred. */
+  media?: ReactNode;
   body?: string;
   action?: ReactNode;
   accent?: EmptyStateAccent;
@@ -28,6 +31,7 @@ export function EmptyState({
     >
       <Sparkles aria-hidden className={`mx-auto size-7 ${ACCENTS[accent]}`} />
       <h2 className="mt-4 text-base font-semibold">{title}</h2>
+      {media ? <div className="mt-4 flex justify-center">{media}</div> : null}
       {body ? <p className="mt-1 text-sm text-[#676e78]">{body}</p> : null}
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
     </div>
