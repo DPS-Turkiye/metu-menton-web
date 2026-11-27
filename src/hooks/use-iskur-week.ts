@@ -38,6 +38,7 @@ import {
   teamDraft,
 } from "@/lib/iskur-weeks";
 import { parseReportSearch } from "@/lib/peer-daily-report";
+import { iskurBadgePending } from "@/lib/peer-mentoring";
 import {
   reportDayHref,
   reportDayOf,
@@ -124,7 +125,7 @@ export function useIskurThisWeek() {
     enabled: previousStart != null,
     retry: false,
   });
-  const { received } = useIskurMentorRequests();
+  const { gate, received } = useIskurMentorRequests();
   const changes = useWeekChanges(null, () => setPicking(false));
   const chosen = activityId ?? week?.supportActivities[0]?.id ?? null;
   return {
@@ -135,6 +136,8 @@ export function useIskurThisWeek() {
       query.isPending ||
       (week != null && (form.isPending || previous.isPending)),
     failed: query.isError && !isNotPlaced(query.error),
+    /** The Akran Mentörlüğü target stands as the coordinator set it; until the badge it reads "Rozet bekleniyor". */
+    badgePending: iskurBadgePending(gate),
     todos: week
       ? todayTodos({
           week,

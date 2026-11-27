@@ -584,13 +584,15 @@
     "training": {
       "title": "Become a peer mentor",
       "body": "Complete your program's training, earn your badge and mentor other students.",
-      "action": "Go to Give mentoring"
+      "action": "Go to Give mentoring",
+      "iskurBody": "Optional: your İŞKUR work doesn't wait for the badge. Any time this term, finish the training and become a peer mentor."
     },
     "createProfile": {
       "title": "Your badge is verified",
       "body": "Create your mentor profile; once it's published, students can discover you.",
       "action": "Create your mentor profile"
-    }
+    },
+    "badgePending": "Badge pending"
   },
   "appointments": {
     "filterLabel": "Your role in meetings",
