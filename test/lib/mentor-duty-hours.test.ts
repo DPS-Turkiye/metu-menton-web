@@ -9,6 +9,7 @@ import {
   isInsideDuty,
   offeredMinutes,
   spanLabel,
+  suggestedOffers,
 } from "@/lib/mentor-duty-hours";
 
 const duty = [
@@ -76,5 +77,58 @@ describe("mentor duty hours", () => {
       width: 10,
     });
     expect(chartPlace(chartSpan(duty, []), "14:00", "13:00").width).toBe(0);
+  });
+
+  describe("suggested mentoring hours", () => {
+    const threeDays = [
+      { day: Weekday.Wednesday, start: "09:00", end: "16:30" },
+      { day: Weekday.Monday, start: "09:00", end: "16:30" },
+      { day: Weekday.Friday, start: "10:00", end: "17:30" },
+    ];
+    const offered = (day: Weekday, startTime: string, endTime: string) => ({
+      dayOfWeek: day,
+      startTime,
+      endTime,
+    });
+
+    it("shares the weekly target evenly over the work days, from where each day's work starts", () => {
+      expect(suggestedOffers(threeDays, 180)).toEqual([
+        offered(Weekday.Monday, "09:00", "10:00"),
+        offered(Weekday.Wednesday, "09:00", "10:00"),
+        offered(Weekday.Friday, "10:00", "11:00"),
+      ]);
+    });
+
+    it("gives the leftover half hours to the earlier days and adds up to the target", () => {
+      const offers = suggestedOffers(threeDays, 240);
+      expect(offers).toEqual([
+        offered(Weekday.Monday, "09:00", "10:30"),
+        offered(Weekday.Wednesday, "09:00", "10:30"),
+        offered(Weekday.Friday, "10:00", "11:00"),
+      ]);
+      expect(offeredMinutes(offers)).toBe(240);
+    });
+
+    it("moves a share a day cannot hold to the days with room, across a day's work ranges", () => {
+      const short = [
+        { day: Weekday.Monday, start: "10:00", end: "11:00" },
+        { day: Weekday.Tuesday, start: "09:00", end: "10:00" },
+        { day: Weekday.Tuesday, start: "13:00", end: "17:00" },
+      ];
+      const offers = suggestedOffers(short, 240);
+      expect(offers).toEqual([
+        offered(Weekday.Monday, "10:00", "11:00"),
+        offered(Weekday.Tuesday, "09:00", "10:00"),
+        offered(Weekday.Tuesday, "13:00", "15:00"),
+      ]);
+      expect(offers.every((range) => isInsideDuty(short, range))).toBe(true);
+      expect(offeredMinutes(offers)).toBe(240);
+    });
+
+    it("suggests nothing without a target, with a zero target, or without work days", () => {
+      expect(suggestedOffers(threeDays, null)).toEqual([]);
+      expect(suggestedOffers(threeDays, 0)).toEqual([]);
+      expect(suggestedOffers([], 180)).toEqual([]);
+    });
   });
 });

@@ -3,7 +3,7 @@
 import { Lock, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
@@ -42,6 +42,7 @@ export function PeerMentorHoursEditor({
   hours: MentorDutyHours;
 }) {
   const t = useTranslations("iaIskur.hours");
+  const duration = useReportDuration();
   const { draft } = editor;
   if (editor.loadError) {
     return (
@@ -75,6 +76,17 @@ export function PeerMentorHoursEditor({
             {t("span", spanLabel(span))}
           </span>
         </div>
+        {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+        {editor.suggested ? (
+          <InlineAlert tone={StatusTone.Info} title={t("suggested.title")}>
+            {hours.mentoringMinutes === null
+              ? null
+              : t("suggested.body", {
+                  target: duration(hours.mentoringMinutes),
+                })}
+          </InlineAlert>
+        ) : null}
+        <p className="type-body-sm text-text-secondary">{t("hint")}</p>
         <ul className="divide-y divide-border-default rounded-card border border-border-default bg-background-surface px-5 py-1">
           {editor.days
             .filter(({ day, ranges }) =>
@@ -130,6 +142,10 @@ function DayRow({
   const work = dutyMinutes(hours.duty, day);
   const outside = outsideDuty(hours.duty, ranges);
   const open = editing && ranges.length > 0;
+  const add = () => {
+    editor.addRange(day, firstOffer(hours.duty, day));
+    setEditing(true);
+  };
 
   return (
     <li className="flex flex-col gap-3 py-3">
@@ -138,9 +154,11 @@ function DayRow({
           <span aria-hidden>{tShort(day)}</span>
           <span className="sr-only">{label}</span>
         </span>
-        <div
-          aria-hidden
-          className="relative h-7 min-w-[200px] flex-[2] overflow-hidden rounded-lg bg-background-subtle"
+        {/* An empty work day's bar adds hours on a click too; keyboards and screen readers use "+ Ekle" beside it. */}
+        <BarFrame
+          addable={work > 0 && ranges.length === 0}
+          title={t("barAdd")}
+          onAdd={add}
         >
           {duty.map((range) => {
             const place = chartPlace(span, range.start, range.end);
@@ -180,7 +198,7 @@ function DayRow({
               </span>
             );
           })}
-        </div>
+        </BarFrame>
         <div className="min-w-[160px] flex-1 type-body-sm text-text-secondary">
           <p>
             {work === 0
@@ -206,7 +224,7 @@ function DayRow({
             </p>
           ))}
         </div>
-        <div className="flex w-[84px] justify-end">
+        <div className="flex w-[112px] justify-end">
           {ranges.length > 0 ? (
             <Button
               variant={ButtonVariant.Ghost}
@@ -216,6 +234,7 @@ function DayRow({
               onClick={() => setEditing((current) => !current)}
             >
               <Image alt="" src="/ia/icons/edit.svg" width={16} height={16} />
+              {t("edit")}
             </Button>
           ) : work > 0 ? (
             <Button
@@ -223,10 +242,7 @@ function DayRow({
               size={ButtonSize.Small}
               className="text-text-accent!"
               aria-label={t("addDay", { day: label })}
-              onClick={() => {
-                editor.addRange(day, firstOffer(hours.duty, day));
-                setEditing(true);
-              }}
+              onClick={add}
             >
               <Plus aria-hidden className="size-4" />
               {t("add")}
@@ -260,6 +276,48 @@ function DayRow({
         </div>
       ) : null}
     </li>
+  );
+}
+
+const BAR_CLASS =
+  "relative h-7 min-w-[200px] flex-[2] overflow-hidden rounded-lg bg-background-subtle";
+
+function BarFrame({
+  addable,
+  title,
+  onAdd,
+  children,
+}: {
+  addable: boolean;
+  title: string;
+  onAdd: () => void;
+  children: ReactNode;
+}) {
+  if (!addable) {
+    return (
+      <div aria-hidden className={BAR_CLASS}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      aria-hidden
+      tabIndex={-1}
+      title={title}
+      onClick={onAdd}
+      className={`${BAR_CLASS} group cursor-pointer text-left hover:ring-1 hover:ring-border-selected`}
+    >
+      {children}
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      <span className="absolute inset-0 grid place-items-center type-caption text-text-accent opacity-70 group-hover:opacity-100">
+        <span className="flex items-center gap-1">
+          <Plus className="size-3.5" />
+          {title}
+        </span>
+      </span>
+    </button>
   );
 }
 

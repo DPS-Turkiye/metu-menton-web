@@ -639,6 +639,13 @@
       "increase": "Raise the limit",
       "suggested": "Suggested: at most 3",
       "limitHint": "When it fills up, Discover says “Not taking new mentees right now” and no new request comes."
+    },
+    "hint": "To open hours for mentoring, click a work day's bar or press “+ Add”.",
+    "edit": "Edit",
+    "barAdd": "Click to add hours",
+    "suggested": {
+      "title": "Suggested from your work hours",
+      "body": "Your weekly mentoring target of {target} is spread over your work days. Save it as it is, or change the hours."
     }
   }
 }

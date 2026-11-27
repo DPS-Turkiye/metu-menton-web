@@ -591,6 +591,7 @@ export function usePeerMentorWizard() {
       isSaving: false,
       numberFields: ["menteeCapacity", "defaultMeetingDurationMinutes"],
       check: dutyHours.check,
+      suggestion: dutyHours.suggestion,
       quiet: true,
     },
     () => setStep(PeerMentorWizardStep.Preview),

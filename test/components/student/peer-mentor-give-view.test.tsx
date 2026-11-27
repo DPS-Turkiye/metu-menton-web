@@ -698,6 +698,10 @@ describe("PeerMentorGiveView", () => {
       expect(
         await screen.findByText("Görev 4 sa · mentorluk 2 sa"),
       ).toBeVisible();
+      // Saved hours win over the suggestion from the work hours.
+      expect(
+        screen.queryByText("Görev saatlerinden önerildi"),
+      ).not.toBeInTheDocument();
       expect(screen.getAllByText("Görev günü değil")).toHaveLength(3);
       const summary = screen.getByRole("region", { name: "Haftalık özet" });
       expect(within(summary).getByText("2 sa")).toBeVisible();
@@ -758,6 +762,87 @@ describe("PeerMentorGiveView", () => {
           vi.mocked(updateAvailabilitySettings).mock.calls[0]?.[0]
             .menteeCapacity,
         ).toBe(5),
+      );
+    });
+
+    it("suggests hours inside the work hours that add up to the weekly target, until saved", async () => {
+      vi.mocked(getAvailabilitySettings).mockResolvedValue({
+        rules: [],
+        exceptions: [],
+        menteeCapacity: 3,
+        defaultMeetingDurationMinutes: 30,
+        meetingBufferMinutes: 0,
+      });
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      expect(
+        await screen.findByText("Görev saatlerinden önerildi"),
+      ).toBeVisible();
+      expect(
+        screen.getByText(
+          "Haftalık 6 sa mentorluk hedefin görev günlerine bölündü. Uygunsa böyle kaydet ya da saatleri değiştir.",
+        ),
+      ).toBeVisible();
+      expect(screen.getAllByText("Görev 4 sa · mentorluk 3 sa")).toHaveLength(
+        2,
+      );
+      const summary = screen.getByRole("region", { name: "Haftalık özet" });
+      expect(within(summary).getByText("6 sa")).toBeVisible();
+
+      await user.click(screen.getByRole("button", { name: "Kaydet" }));
+      await waitFor(() =>
+        expect(
+          vi.mocked(updateAvailabilitySettings).mock.calls[0]?.[0].rules,
+        ).toEqual([
+          {
+            dayOfWeek: Weekday.Monday,
+            startTime: "10:00",
+            endTime: "13:00",
+            slotMinutes: 30,
+          },
+          {
+            dayOfWeek: Weekday.Wednesday,
+            startTime: "09:00",
+            endTime: "12:00",
+            slotMinutes: 30,
+          },
+        ]),
+      );
+    });
+
+    it("says how to add hours, and adds them from an empty work day's bar too", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      expect(
+        await screen.findByText(
+          "Mentorluğa açık saat eklemek için bir görev gününün çizelgesine tıkla ya da “+ Ekle”ye bas.",
+        ),
+      ).toBeVisible();
+      // Only Wednesday is a work day without hours, so only its bar adds.
+      await user.click(screen.getByTitle("Saat eklemek için tıkla"));
+      expect(screen.getAllByText("Görev 4 sa · mentorluk 2 sa")).toHaveLength(
+        2,
+      );
+      expect(screen.getByLabelText("Çarşamba 1. aralık başlangıç")).toHaveValue(
+        "09:00",
+      );
+      expect(screen.queryByTitle("Saat eklemek için tıkla")).toBeNull();
+    });
+
+    it("labels the edit button with a word, not only a pencil", async () => {
+      const user = userEvent.setup();
+      renderWithQueryClient(<PeerMentorGiveView />);
+
+      const edit = await screen.findByRole("button", {
+        name: "Pazartesi saatlerini düzenle",
+      });
+      expect(edit).toHaveTextContent("Düzenle");
+      await user.click(edit);
+      expect(edit).toHaveAttribute("aria-expanded", "true");
+      expect(screen.getByLabelText("Pazartesi 1. aralık bitiş")).toHaveValue(
+        "14:00",
       );
     });
 

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 
 import { useInstitutionRecord } from "@/hooks/use-institution-record";
 import { iskurOnboardingQueryKey } from "@/hooks/use-iskur-onboarding";
@@ -9,7 +10,11 @@ import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import { getIskurWeek } from "@/lib/client/iskur-weeks";
 import { iskurWeekQueryKey } from "@/lib/iskur-weeks";
 import type { AvailabilityDraft } from "@/lib/mentor-availability";
-import { isInsideDuty, type DutyRange } from "@/lib/mentor-duty-hours";
+import {
+  isInsideDuty,
+  suggestedOffers,
+  type DutyRange,
+} from "@/lib/mentor-duty-hours";
 
 const NO_DUTY: DutyRange[] = [];
 
@@ -36,11 +41,19 @@ export function useMentorDutyHours() {
     enabled: duty.length > 0,
     retry: false,
   });
+  const mentoringMinutes = week.data?.split?.mentoringMinutes ?? null;
+  const suggestion = useMemo(
+    () => suggestedOffers(duty, mentoringMinutes),
+    [duty, mentoringMinutes],
+  );
   return {
-    isLoading: institution.isLoading || onboarding.isLoading,
+    // The week is waited for too, so a suggestion built from its target does not replace hours already shown.
+    isLoading: institution.isLoading || onboarding.isLoading || week.isLoading,
     duty,
     /** The week's mentoring minutes; null while the intern's split is not known. */
-    mentoringMinutes: week.data?.split?.mentoringMinutes ?? null,
+    mentoringMinutes,
+    /** Mentoring hours proposed from the work hours, for someone who has saved none yet. */
+    suggestion,
     /** Why these hours cannot be saved: one lies outside the work hours. */
     check: (draft: AvailabilityDraft) => {
       if (duty.length === 0) return null;
