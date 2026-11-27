@@ -436,6 +436,8 @@ describe("proxy while Office Hours is coming soon", () => {
         "/api/office-hours/courses/course-1/office-hours",
         "/api/coordinator/programs/p-1/office-hours/appointments",
         "/api/coordinator/programs/p-1/academics",
+        "/api/office%2Dhours/me/requests",
+        "/api/coordinator/programs/a%2Fb/academics",
       ]) {
         const response = await request(path, cookie);
         expect(response.status).toBe(403);

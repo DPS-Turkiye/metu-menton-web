@@ -67,6 +67,8 @@ describe("isOfficeHoursApiPath", () => {
     "/api/coordinator/programs/p-1/office-hours/students",
     "/api/coordinator/programs/p-1/academics",
     "/api/office%2Dhours/me/requests",
+    "/api/coordinator/programs/a%2Fb/academics",
+    "/api/coordinator/programs/x%2Fy%2Fz/office-hours/students",
   ])("covers %s", (path) => {
     expect(isOfficeHoursApiPath(path)).toBe(true);
   });

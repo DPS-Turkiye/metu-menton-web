@@ -20,9 +20,11 @@ export function officeHoursOpenFor(
   return enabled || hasPermission(holder, UserRole.Admin);
 }
 
+// `.+` for the program id: decoding turns an escaped slash inside one id segment into a real one, and blocking a
+// path that does not exist costs nothing.
 const OFFICE_HOURS_API_PATHS = [
   /^\/api\/office-hours(?:\/|$)/,
-  /^\/api\/coordinator\/programs\/[^/]+\/(?:office-hours|academics)(?:\/|$)/,
+  /^\/api\/coordinator\/programs\/.+\/(?:office-hours|academics)(?:\/|$)/,
 ];
 
 /**

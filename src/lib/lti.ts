@@ -14,6 +14,9 @@ export function isLtiLaunchError(value: unknown): value is LtiLaunchError {
   return Object.values(LtiLaunchError).includes(value as LtiLaunchError);
 }
 
+/** Where an ODTÜClass launch lands while Office Hours is coming soon. */
+export const OFFICE_HOURS_COMING_SOON_PATH = "/office-hours/coming-soon";
+
 export function officeHoursCoursePath(courseId: string) {
   return `/office-hours/courses/${encodeURIComponent(courseId)}`;
 }

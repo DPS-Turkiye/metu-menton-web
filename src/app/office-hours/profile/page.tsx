@@ -7,6 +7,7 @@ import { LtiLaunchError } from "@/interfaces/office-hours";
 import { fetchOfficeHoursAvailability } from "@/lib/api/lti";
 import { ltiErrorPath } from "@/lib/lti";
 import { getOfficeHoursUser } from "@/lib/server/office-hours-session";
+import { officeHoursEnabled } from "@/lib/server/office-hours-switch";
 
 export async function generateMetadata() {
   const t = await getTranslations("officeHours");
@@ -14,6 +15,8 @@ export async function generateMetadata() {
 }
 
 export default async function OfficeHoursProfilePage() {
+  // Pages render beside their layout, so the layout's coming-soon message alone would not stop this backend call.
+  if (!officeHoursEnabled()) return null;
   const user = await getOfficeHoursUser();
   if (!user) redirect(ltiErrorPath(LtiLaunchError.Expired));
   // Students have no office hours of their own; the backend says who is an academic.

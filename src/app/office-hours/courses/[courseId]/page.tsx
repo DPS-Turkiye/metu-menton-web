@@ -8,6 +8,7 @@ import { LtiLaunchError, OfficeHoursRole } from "@/interfaces/office-hours";
 import { fetchOfficeHoursCourse } from "@/lib/api/lti";
 import { ltiErrorPath } from "@/lib/lti";
 import { getOfficeHoursUser } from "@/lib/server/office-hours-session";
+import { officeHoursEnabled } from "@/lib/server/office-hours-switch";
 
 const PROFILE_LINK = {
   href: "/office-hours/profile",
@@ -59,6 +60,8 @@ export default async function OfficeHoursCoursePage({
 }: {
   params: Promise<{ courseId: string }>;
 }) {
+  // Pages render beside their layout, so the layout's coming-soon message alone would not stop this backend call.
+  if (!officeHoursEnabled()) return null;
   const user = await getOfficeHoursUser();
   if (!user) redirect(ltiErrorPath(LtiLaunchError.Expired));
   const { courseId } = await params;
