@@ -6,6 +6,7 @@ import {
   type CoordinatorMentorship,
   type CoordinatorMentorshipDetail,
 } from "@/interfaces/coordinator-mentorship";
+import { formatTurkishTime, turkishDaysBetween } from "@/lib/turkey-time";
 import { formatDayMonth, formatLongDate, relativeDayLabel } from "@/lib/utils";
 
 export type MentorshipTexts = {
@@ -116,10 +117,6 @@ export function sortMentorships(
   );
 }
 
-function sameDay(a: Date, b: Date) {
-  return a.toDateString() === b.toDateString();
-}
-
 /** A mentorship off its cadence shows "18 gün önce"; one on track shows the date. */
 export function lastMeetingLabel(
   row: CoordinatorMentorship,
@@ -146,19 +143,15 @@ export function nextMeetingLabel(
       ? t("awaitingMatch")
       : t("notScheduled");
   }
-  const at = new Date(row.nextMeetingAt);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const day = sameDay(at, now)
-    ? relativeDayLabel(0, locale)
-    : sameDay(at, tomorrow)
-      ? relativeDayLabel(1, locale)
-      : formatDayMonth(at, locale);
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(at);
-  return `${day} · ${time}`;
+  const at = row.nextMeetingAt;
+  return `${meetingDayLabel(at, now, locale)} · ${formatTurkishTime(at, locale)}`;
+}
+
+/** "Bugün", "Yarın" or "24 Eyl", counted on Turkey's calendar so a coordinator abroad sees the same day. */
+function meetingDayLabel(at: string, now: Date, locale: string) {
+  const days = turkishDaysBetween(now, at);
+  if (days === 0 || days === 1) return relativeDayLabel(days, locale);
+  return formatDayMonth(at, locale);
 }
 
 /** "2 açık · 1 gecikmiş", "Not eksik" or "—". */
