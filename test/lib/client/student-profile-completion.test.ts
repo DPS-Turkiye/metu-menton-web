@@ -61,7 +61,7 @@ it("turns a refused save into an error instead of a saved profile", async () => 
   ).rejects.toThrow("Bu kategori programında etkin değil.");
 });
 
-it("offers only the program's active categories, each with its sample sub-topics", async () => {
+it("offers only the program's active categories, each with its sub-topics", async () => {
   vi.mocked(getPeerCategories).mockResolvedValue([
     PeerTopicCategory.International,
     PeerTopicCategory.CareerInternship,
@@ -72,7 +72,7 @@ it("offers only the program's active categories, each with its sample sub-topics
     PeerTopicCategory.CareerInternship,
     PeerTopicCategory.International,
   ]);
-  expect(categories[0]?.subtopics).toHaveLength(1);
+  expect(categories[0]?.subtopics.map((sub) => sub.id)).toContain("fixture-cv");
 
   vi.mocked(getPeerCategories).mockResolvedValue([]);
   expect(await getProfileCompletionCategories()).toEqual([]);

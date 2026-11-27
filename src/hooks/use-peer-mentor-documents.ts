@@ -8,6 +8,7 @@ import { IskurDocumentSlot } from "@/interfaces/iskur-onboarding";
 import {
   PeerDocumentVisibility,
   PeerEvidenceType,
+  type PeerMentorDocument,
 } from "@/interfaces/peer-mentor-documents";
 import type { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { ToastTone } from "@/interfaces/toast";
@@ -23,12 +24,15 @@ import {
   uploadPeerMentorDocument,
 } from "@/lib/client/peer-mentor-documents";
 import {
+  canShareEvidence,
   evidenceCards,
   evidenceFileProblem,
+  isShownToStudents,
   PEER_EVIDENCE_MAX_BYTES,
   requiredEvidence,
   sharedEvidence,
   uploadTypeOf,
+  withVisibility,
 } from "@/lib/peer-mentor-documents";
 import {
   errorMessage,
@@ -82,7 +86,8 @@ export function usePeerRequiredDocuments(
 
 /**
  * The wizard's "Belgeler ve kanıtlar" step. Files and links are saved as soon as they are added (the profile's
- * publish does not carry them); a card's visibility menu changes every piece on it and what the next upload gets.
+ * publish does not carry them). Every file starts hidden from students and has its own "Diğer öğrencilere göster"
+ * switch; the portfolio card's menu changes every link on it and what the next link gets.
  */
 export function usePeerMentorDocumentsStep({
   topics,
@@ -122,6 +127,14 @@ export function usePeerMentorDocumentsStep({
     queryClient.invalidateQueries({
       queryKey: PEER_MENTOR_DOCUMENTS_QUERY_KEY,
     });
+  const setOwnVisibility = (
+    documentId: string,
+    value: PeerDocumentVisibility,
+  ) =>
+    queryClient.setQueryData<PeerMentorDocument[]>(
+      OWN_DOCUMENTS_QUERY_KEY,
+      (current) => current && withVisibility(current, documentId, value),
+    );
   const toastError = (fallback: string) => (error: unknown) => {
     showToast({
       message: errorMessage(error, fallback),
@@ -192,6 +205,28 @@ export function usePeerMentorDocumentsStep({
     },
     onSettled: () => refresh(),
     onError: toastError(t("visibilityFailed")),
+  });
+
+  // The switch moves at once and, if the server says no, only that file goes back. Switches stay usable meanwhile
+  // (a disabled button would drop the keyboard focus); each change is its own request and the server keeps the last.
+  const share = useMutation({
+    mutationFn: ({
+      document,
+      visibility: value,
+    }: {
+      document: PeerMentorDocument;
+      visibility: PeerDocumentVisibility;
+    }) => updatePeerMentorDocumentVisibility(document.id, value),
+    onMutate: async ({ document, visibility: value }) => {
+      await queryClient.cancelQueries({ queryKey: OWN_DOCUMENTS_QUERY_KEY });
+      setOwnVisibility(document.id, value);
+      return { previous: document.visibility };
+    },
+    onError: (error, { document }, context) => {
+      if (context) setOwnVisibility(document.id, context.previous);
+      toastError(t("visibilityFailed"))(error);
+    },
+    onSettled: () => refresh(),
   });
 
   const remove = useMutation({
@@ -272,6 +307,18 @@ export function usePeerMentorDocumentsStep({
       visibility.mutate({ card, value });
     },
     remove: (documentId: string) => remove.mutate(documentId),
+    canShare: (document: PeerMentorDocument) =>
+      canShareEvidence(document.evidenceType),
+    isShared: isShownToStudents,
+    toggleShared: (document: PeerMentorDocument) => {
+      if (!canShareEvidence(document.evidenceType)) return;
+      share.mutate({
+        document,
+        visibility: isShownToStudents(document)
+          ? PeerDocumentVisibility.VerificationOnly
+          : PeerDocumentVisibility.Profile,
+      });
+    },
   };
 }
 

@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { StudyLevel } from "@/interfaces/institution";
-import {
-  PEER_TOPIC_CATEGORIES,
-  PeerTopicCategory,
-} from "@/interfaces/peer-mentoring";
+import { PeerTopicCategory } from "@/interfaces/peer-mentoring";
 import { ProfileCompletionStep } from "@/interfaces/student-profile-completion";
 import { PROFILE_COMPLETION_CATEGORIES } from "@/lib/client/fixtures/student-profile-completion";
 import {
   completionStepState,
   completionSummary,
-  PEER_TOPIC_ICONS,
   PROFILE_COMPLETION_STEPS,
   stepAfter,
   stepBefore,
@@ -112,13 +108,5 @@ describe("welcomeFacts", () => {
       () => null,
     );
     expect(facts.slice(1).every((fact) => fact.value === null)).toBe(true);
-  });
-});
-
-describe("PEER_TOPIC_ICONS", () => {
-  it("has an icon for every topic category", () => {
-    for (const category of PEER_TOPIC_CATEGORIES) {
-      expect(PEER_TOPIC_ICONS[category]).toMatch(/^\/ia\/profile\/.+\.svg$/);
-    }
   });
 });

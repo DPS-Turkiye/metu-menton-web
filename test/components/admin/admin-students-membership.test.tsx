@@ -44,6 +44,7 @@ function student(overrides: Partial<AdminStudentRow>): AdminStudentRow {
     training: { videoWatched: false, attempts: 0, bestScore: null },
     profile: null,
     prism: null,
+    iskurIntern: false,
     student: true,
     ...overrides,
   };

@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PeerMentorPublicProfile } from "@/components/student/peer-mentor-public-profile";
 import { BadgeCode, BadgeKind } from "@/interfaces/badges";
-import { PeerEvidenceType } from "@/interfaces/peer-mentor-documents";
+import {
+  PeerDocumentVisibility,
+  PeerEvidenceType,
+} from "@/interfaces/peer-mentor-documents";
 import { getPeerMentorDocuments } from "@/lib/client/peer-mentor-documents";
 import { getPeerMentor } from "@/lib/client/peer-mentoring";
 import {
@@ -135,7 +138,7 @@ describe("PeerMentorPublicProfile", () => {
     const topics = await screen.findByRole("region", {
       name: "Yardımcı olabileceği konular",
     });
-    expect(within(topics).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(topics).getByText("CV Hazırlama")).toBeVisible();
     // A sub-topic the catalogue doesn't know shows as written.
     expect(within(topics).getByText("Serbest konu")).toBeVisible();
 
@@ -249,11 +252,11 @@ describe("PeerMentorPublicProfile", () => {
     expect(
       within(sent).getByRole("region", { name: "Sonra ne olur?" }),
     ).toHaveTextContent("Deniz Kaya yanıt verdiğinde bildirim alırsın.");
-    // "Mentorluklarım'a git" leaves the profile for the Mentorluklarım tab.
+    // "Aldığım mentorluklara git" leaves the profile for the Aldığım mentorluklar tab.
     expect(
       within(
         screen.getByRole("dialog", { name: "Talebin iletildi" }),
-      ).getByRole("link", { name: "Mentorluklarım'a git" }),
+      ).getByRole("link", { name: "Aldığım mentorluklara git" }),
     ).toHaveAttribute("href", "/student/peer-mentoring?tab=mine");
   });
 
@@ -282,6 +285,7 @@ describe("PeerMentorPublicProfile", () => {
       peerFileFixture({
         id: "8a0e2f4c-0000-4000-8000-000000000003",
         evidenceType: PeerEvidenceType.Cv,
+        visibility: PeerDocumentVisibility.Profile,
         originalFilename: "CV_DenizKaya.pdf",
       }),
       peerLinkFixture(),

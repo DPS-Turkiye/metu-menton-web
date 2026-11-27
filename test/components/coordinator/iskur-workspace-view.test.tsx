@@ -27,7 +27,11 @@ import {
 import { iskurInternList } from "@test/fixtures/iskur-interns";
 import { applications, KREATIF } from "@test/fixtures/iskur-onboarding";
 import { iskurTeamChange } from "@test/fixtures/iskur-team-change";
-import { iskurPlacement, iskurWorkspace } from "@test/fixtures/iskur-workspace";
+import {
+  iskurPerson,
+  iskurPlacement,
+  iskurWorkspace,
+} from "@test/fixtures/iskur-workspace";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/components/coordinator/program-detail-frame", () => ({
@@ -157,8 +161,56 @@ describe("IskurWorkspaceView", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Yerleştirilmemiş (1)")).toBeInTheDocument();
     expect(
-      screen.getByText("Endüstri Mühendisliği · İŞKUR"),
+      screen.getByText("Endüstri Mühendisliği · İŞKUR · Rozet bekleniyor"),
     ).toBeInTheDocument();
+  });
+
+  it("shows who still waits for the Akran Mentoru badge, and still places them", async () => {
+    vi.mocked(getIskurWorkspace).mockResolvedValue(
+      iskurWorkspace({
+        pool: [
+          iskurPerson(),
+          iskurPerson({
+            userId: "u-mentor",
+            fullName: "Zeynep Kaya",
+            peerMentor: true,
+          }),
+        ],
+      }),
+    );
+    const user = userEvent.setup();
+    await renderView();
+
+    expect(
+      screen.getByText("Endüstri Mühendisliği · İŞKUR · Akran mentoru"),
+    ).toBeInTheDocument();
+    const media = screen.getByRole("region", {
+      name: /^Medya ve Kreatif Üretim/,
+    });
+    // Both placed people in the fixture have no badge yet.
+    expect(within(media).getAllByText("Rozet bekleniyor")).toHaveLength(2);
+
+    await user.click(
+      screen.getByRole("button", { name: "Deniz Arslan kişisini yerleştir" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getAllByText("Rozet bekleniyor")).toHaveLength(2);
+    expect(
+      within(dialog).getByText(
+        /Yerleştirilip ekibinde çalışabilir; rozet gelince mentorluk da verebilir\./,
+      ),
+    ).toBeInTheDocument();
+    // The weekly mentoring time stays the coordinator's to set, as before the badge.
+    expect(
+      within(dialog).getByLabelText("Haftalık mentorluk süresi (saat)"),
+    ).toBeEnabled();
+    await user.click(within(dialog).getByRole("button", { name: "Vazgeç" }));
+
+    await user.click(
+      screen.getByRole("button", { name: "Zeynep Kaya kişisini yerleştir" }),
+    );
+    const mentorDialog = await screen.findByRole("dialog");
+    expect(within(mentorDialog).queryByText("Rozet bekleniyor")).toBeNull();
   });
 
   it("places someone from the pool as a leader with their own mentoring time", async () => {

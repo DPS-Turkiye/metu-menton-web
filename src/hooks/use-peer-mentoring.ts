@@ -38,6 +38,7 @@ import {
 import {
   canWithdrawPeerRequest,
   CLOSED_PEER_REQUEST_STATUSES,
+  filterableCategories,
   hasPeerMentorBadge,
   offeredSubTopics,
   OPEN_PEER_REQUEST_STATUSES,
@@ -216,18 +217,20 @@ export function usePeerMentorDirectory() {
     }
   };
 
+  /** How many mentors offer the category; undefined until the counts load. */
+  const countOf = (item: PeerTopicCategory) =>
+    counts.data?.find((count) => count.category === item)?.mentorCount;
+
   return {
     category,
     setCategory,
-    /** A category chip toggles its filter. */
-    toggleCategory: (next: PeerTopicCategory) =>
-      setCategory(category === next ? null : next),
-    /** Only the program's active categories can be picked. */
-    categories: (catalogue.data ?? []).map((item) => item.id),
+    /** The program's active categories that some mentor offers (all of them until the counts load). */
+    categories: filterableCategories(
+      (catalogue.data ?? []).map((item) => item.id),
+      countOf,
+      category,
+    ),
     noActiveCategories: catalogue.isSuccess && catalogue.data.length === 0,
-    /** How many mentors offer the category; undefined until the counts load. */
-    countOf: (item: PeerTopicCategory) =>
-      counts.data?.find((count) => count.category === item)?.mentorCount,
     subTopic,
     setSubTopic,
     subTopicOptions: subTopicOptions(catalogue.data ?? [], category),
@@ -281,17 +284,34 @@ export function usePeerMentor(mentorId: string) {
   };
 }
 
-/** Which Mentorluk Al tab is open; Keşfet first. In the URL, so "Mentorluklarım'a git" can open the other one. */
+/**
+ * Which Mentorluk Al tab is open; Keşfet first. In the URL, so "Aldığım mentorluklara git" can open the other one.
+ * "Başka mentor bul" opens a fresh Keşfet (no filters left from an earlier search) with the search box focused.
+ */
 export function usePeerTakeTab() {
   const param = useQueryParam(PEER_TAKE_TAB_PARAM);
+  const [discoverRun, setDiscoverRun] = useState(0);
+  const [focusSearch, setFocusSearch] = useState(false);
+  const tab = peerTakeTab(param.value);
+  const setTab = (next: PeerTakeTab) =>
+    param.replace(next === PeerTakeTab.Mine ? next : null);
   return {
-    tab: peerTakeTab(param.value),
-    setTab: (next: PeerTakeTab) =>
-      param.replace(next === PeerTakeTab.Mine ? next : null),
+    tab,
+    setTab,
+    /** Keşfet's key: a new value remounts it, which clears its filters. */
+    discoverKey: String(discoverRun),
+    findAnother: () => {
+      setDiscoverRun((run) => run + 1);
+      setFocusSearch(true);
+      setTab(PeerTakeTab.Discover);
+    },
+    /** Focus waits for the panel to show: the tab follows the URL, which changes a moment later. */
+    focusSearch: focusSearch && tab === PeerTakeTab.Discover,
+    searchFocused: () => setFocusSearch(false),
   };
 }
 
-/** Mentorluklarım's tab count: every request the student sent; undefined until they load. */
+/** Aldığım mentorluklar's tab count: every request the student sent; undefined until they load. */
 export function usePeerMentorshipCount() {
   return usePeerMentoringRequests().data?.length;
 }
@@ -355,7 +375,7 @@ export function usePeerRequestWithdrawal() {
   };
 }
 
-/** Mentorluklarım: active mentorships (accepted requests) with their next session, and the other requests. */
+/** Aldığım mentorluklar: active mentorships (accepted requests) with their next session, and the other requests. */
 export function useMyPeerMentorships() {
   const requests = usePeerMentoringRequests();
   const sessions = usePeerRequestSessions();

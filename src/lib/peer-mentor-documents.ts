@@ -41,15 +41,6 @@ const REQUIRED_FOR: Partial<Record<EvidenceCard, PeerTopicCategory>> = {
   [EvidenceCard.Portfolio]: PeerTopicCategory.TechnicalDigital,
 };
 
-/** Each card's visibility before the mentor picks one, as the frame starts them. */
-const DEFAULT_VISIBILITY: Record<EvidenceCard, PeerDocumentVisibility> = {
-  [EvidenceCard.Transcript]: PeerDocumentVisibility.VerificationOnly,
-  [EvidenceCard.Cv]: PeerDocumentVisibility.Profile,
-  [EvidenceCard.Certificate]: PeerDocumentVisibility.VerificationOnly,
-  [EvidenceCard.Portfolio]: PeerDocumentVisibility.Profile,
-  [EvidenceCard.Other]: PeerDocumentVisibility.VerificationOnly,
-};
-
 export function cardOf(type: PeerEvidenceType): EvidenceCard {
   return (
     EVIDENCE_CARDS.find((card) => CARD_TYPES[card].includes(type)) ??
@@ -74,9 +65,9 @@ export function requiringCategory(
 }
 
 /**
- * The step's cards for the mentor's evidence and chosen categories. A card with evidence shows what its first piece
- * is saved as, so the menu never claims a visibility the server does not have; an empty card shows what the mentor
- * picked for its first upload, else the card's default. The portfolio card also counts a LinkedIn link, which the
+ * The step's cards for the mentor's evidence and chosen categories. A file starts hidden from students, whatever its
+ * card, and the mentor shows it with its own switch; so only the portfolio card keeps a visibility of its own: what its
+ * first link is saved as, else the mentor's pick, else shown. The portfolio card also counts a LinkedIn link, which the
  * profile itself keeps.
  */
 export function evidenceCards(
@@ -95,7 +86,11 @@ export function evidenceCards(
       requiredFor: category && topics.includes(category) ? category : null,
       documents: own,
       visibility:
-        own[0]?.visibility ?? chosen[card] ?? DEFAULT_VISIBILITY[card],
+        card === EvidenceCard.Portfolio
+          ? (own[0]?.visibility ??
+            chosen[card] ??
+            PeerDocumentVisibility.Profile)
+          : PeerDocumentVisibility.VerificationOnly,
       done: own.length > 0 || (card === EvidenceCard.Portfolio && hasLinkedin),
     };
   });
@@ -120,6 +115,26 @@ export function requiredEvidence(
   };
 }
 
+/** Whether the mentor may show this kind of evidence to students; a transcript is only for verification. */
+export function canShareEvidence(type: PeerEvidenceType) {
+  return type !== PeerEvidenceType.Transcript;
+}
+
+export function isShownToStudents(document: PeerMentorDocument) {
+  return document.visibility === PeerDocumentVisibility.Profile;
+}
+
+/** The list with one piece's visibility changed, for showing a switch's new state before the server answers. */
+export function withVisibility(
+  documents: readonly PeerMentorDocument[],
+  documentId: string,
+  visibility: PeerDocumentVisibility,
+): PeerMentorDocument[] {
+  return documents.map((document) =>
+    document.id === documentId ? { ...document, visibility } : document,
+  );
+}
+
 /** Why a picked file cannot be uploaded, checked before it leaves the browser; null when it can. */
 export function evidenceFileProblem(file: {
   name: string;
@@ -140,13 +155,20 @@ function hostOf(url: string) {
   }
 }
 
-/** The profile's "Paylaşılan belgeler" (files) and the portfolio links for "Bağlantılar". */
+/**
+ * The profile's "Paylaşılan belgeler" (files) and the portfolio links for "Bağlantılar": only what students see. The
+ * mentor, their coordinators and admins get every piece from the server, so the rest is left out here.
+ */
 export function sharedEvidence(documents: readonly PeerMentorDocument[]) {
+  const shown = documents.filter(
+    (document) =>
+      isShownToStudents(document) && canShareEvidence(document.evidenceType),
+  );
   return {
-    files: documents.filter((document) => document.url == null),
+    files: shown.filter((document) => document.url == null),
     // The backend only stores http(s) links; checked again here because the url becomes an href.
     // The host tells several portfolio links apart ("Portfolyo (github.com)").
-    links: documents.flatMap((document) => {
+    links: shown.flatMap((document) => {
       const url = httpUrlOrNull(document.url);
       return url ? [{ id: document.id, url, host: hostOf(url) }] : [];
     }),

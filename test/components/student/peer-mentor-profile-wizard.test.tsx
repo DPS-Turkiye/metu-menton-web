@@ -3,14 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PeerMentorProfileWizard } from "@/components/student/peer-mentor-profile-wizard";
+import { Weekday } from "@/interfaces/mentor";
 import {
   PeerExperienceKind,
   PeerTopicCategory,
   PeerTopicLevel,
 } from "@/interfaces/peer-mentoring";
 import { IdentityKind, UserRole, type AppSession } from "@/interfaces/session";
+import { ClientApiError } from "@/lib/client/api";
 import { PROFILE_COMPLETION_CATEGORIES } from "@/lib/client/fixtures/student-profile-completion";
 import { fetchInstitutionRecord } from "@/lib/client/institution";
+import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
+import { getIskurWeek } from "@/lib/client/iskur-weeks";
 import { updateAvailabilitySettings } from "@/lib/client/mentor-profile";
 import {
   deletePeerMentorDraft,
@@ -19,6 +23,8 @@ import {
   savePeerMentorDraft,
   savePeerMentorProfile,
 } from "@/lib/client/peer-mentoring";
+import { completeForm, onboarding } from "@test/fixtures/iskur-onboarding";
+import { createIskurWeek } from "@test/fixtures/iskur-weeks";
 import { renderWithQueryClient } from "@test/test-utils";
 
 const push = vi.fn();
@@ -73,6 +79,13 @@ vi.mock("@/lib/client/peer-mentor-documents", async (importOriginal) => ({
   >()),
   getOwnPeerMentorDocuments: vi.fn(async () => []),
 }));
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurOnboarding: vi.fn(),
+}));
+vi.mock("@/lib/client/iskur-weeks", () => ({ getIskurWeek: vi.fn() }));
+vi.mock("@/lib/client/student-appointments", () => ({
+  getStudentAppointments: vi.fn(() => Promise.resolve([])),
+}));
 vi.mock("@/lib/client/mentor-profile", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/client/mentor-profile")>()),
   getAvailabilitySettings: vi.fn(),
@@ -83,6 +96,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getPeerMentorProfile).mockResolvedValue(null);
   vi.mocked(getPeerMentorDraft).mockResolvedValue(null);
+  vi.mocked(getIskurOnboarding).mockRejectedValue(
+    new ClientApiError("Not found", 404),
+  );
   vi.mocked(savePeerMentorDraft).mockImplementation(async (draft) => ({
     draft,
     updatedAt: "2026-11-12T11:05:00Z",
@@ -123,6 +139,79 @@ describe("PeerMentorProfileWizard", () => {
     }
   });
 
+  it("stops new sub-topic picks at the backend's limit of 20 and says so", async () => {
+    const offered = PROFILE_COMPLETION_CATEGORIES.flatMap((item) =>
+      item.subtopics.map((sub) => sub.id),
+    );
+    vi.mocked(getPeerMentorProfile).mockResolvedValue({
+      categories: PROFILE_COMPLETION_CATEGORIES.map((item) => item.id),
+      subTopics: offered.slice(0, 20),
+      strongCourses: [],
+      projects: [],
+      erasmus: null,
+      helpWith: "Staj başvurusu konusunda yardımcı olurum.",
+      linkedinUrl: null,
+      department: "Endüstri Mühendisliği",
+      classYear: 4,
+      menteeCapacity: 3,
+      acceptingRequests: true,
+      levels: {},
+      experiences: [],
+    });
+    const user = userEvent.setup();
+    renderWithQueryClient(<PeerMentorProfileWizard />);
+    await screen.findByRole("checkbox", { name: "Kariyer ve Staj" });
+    await user.click(screen.getByRole("button", { name: "Devam Et" }));
+
+    const pickedLast = screen.getByRole("checkbox", { name: "Yaz Okulu" });
+    const unpicked = screen.getByRole("checkbox", {
+      name: "Uluslararası Burslar",
+    });
+    expect(pickedLast).toBeChecked();
+    expect(unpicked).toBeDisabled();
+    expect(unpicked).toHaveAccessibleDescription(
+      "En fazla 20 alt konu seçebilirsin.",
+    );
+    expect(
+      screen.getByText("En fazla 20 alt konu seçebilirsin."),
+    ).toBeVisible();
+
+    await user.click(pickedLast);
+    expect(unpicked).toBeEnabled();
+    expect(screen.queryByText("En fazla 20 alt konu seçebilirsin.")).toBeNull();
+  });
+
+  it("does not count saved sub-topics of a category the mentor no longer offers toward the limit", async () => {
+    const elsewhere = PROFILE_COMPLETION_CATEGORIES.filter(
+      (item) => item.id !== PeerTopicCategory.CareerInternship,
+    ).flatMap((item) => item.subtopics.map((sub) => sub.id));
+    vi.mocked(getPeerMentorProfile).mockResolvedValue({
+      categories: [PeerTopicCategory.CareerInternship],
+      subTopics: elsewhere.slice(0, 20),
+      strongCourses: [],
+      projects: [],
+      erasmus: null,
+      helpWith: "Staj başvurusu konusunda yardımcı olurum.",
+      linkedinUrl: null,
+      department: "Endüstri Mühendisliği",
+      classYear: 4,
+      menteeCapacity: 3,
+      acceptingRequests: true,
+      levels: {},
+      experiences: [],
+    });
+    const user = userEvent.setup();
+    renderWithQueryClient(<PeerMentorProfileWizard />);
+    await screen.findByRole("checkbox", { name: "Kariyer ve Staj" });
+    await user.click(screen.getByRole("button", { name: "Devam Et" }));
+
+    const chip = screen.getByRole("checkbox", { name: "CV Hazırlama" });
+    expect(chip).toBeEnabled();
+    await user.click(chip);
+    expect(chip).toBeChecked();
+    expect(screen.queryByText("En fazla 20 alt konu seçebilirsin.")).toBeNull();
+  });
+
   it("walks a new peer mentor through every step and publishes the profile and hours together", async () => {
     const user = userEvent.setup();
     renderWithQueryClient(<PeerMentorProfileWizard />);
@@ -151,9 +240,7 @@ describe("PeerMentorProfileWizard", () => {
 
     await user.click(screen.getByRole("checkbox", { name: "Kariyer ve Staj" }));
     await next();
-    await user.click(
-      screen.getByRole("checkbox", { name: "Örnek: CV hazırlama" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "CV Hazırlama" }));
     expect(screen.getByText("1 alt konu seçildi")).toBeVisible();
     const level = screen.getByRole("group", {
       name: "Deneyim düzeyin, Kariyer ve Staj",
@@ -377,9 +464,7 @@ describe("PeerMentorProfileWizard", () => {
       await screen.findByRole("checkbox", { name: "Kariyer ve Staj" }),
     );
     await user.click(screen.getByRole("button", { name: "Devam Et" }));
-    await user.click(
-      screen.getByRole("checkbox", { name: "Örnek: CV hazırlama" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "CV Hazırlama" }));
 
     await user.click(
       screen.getByRole("button", { name: "Taslak olarak kaydet" }),
@@ -525,6 +610,43 @@ describe("PeerMentorProfileWizard", () => {
     expect(screen.getByText("Önizle").closest("li")).not.toHaveAttribute(
       "aria-current",
     );
+  });
+
+  it("suggests an intern's first hours from their work hours and weekly target on the hours step", async () => {
+    vi.mocked(getIskurOnboarding).mockResolvedValue(
+      onboarding(
+        completeForm({
+          submittedAt: "2026-11-01T10:00:00Z",
+          schedule: [{ day: Weekday.Tuesday, start: "09:00", end: "16:30" }],
+        }),
+      ),
+    );
+    vi.mocked(getIskurWeek).mockResolvedValue(
+      createIskurWeek({
+        split: { totalMinutes: 450, mentoringMinutes: 120, teamMinutes: 330 },
+      }),
+    );
+    vi.mocked(getPeerMentorDraft).mockResolvedValue({
+      draft: {
+        step: "preview",
+        categories: [PeerTopicCategory.CareerInternship],
+        subTopics: null,
+        strongCourses: null,
+        projects: null,
+        erasmus: null,
+        helpWith: "Staj başvurusu ve CV konusunda yardımcı olurum.",
+        linkedinUrl: null,
+        levels: null,
+        experiences: null,
+      },
+      updatedAt: "2026-11-12T08:05:00Z",
+    });
+    renderWithQueryClient(<PeerMentorProfileWizard />);
+
+    expect(
+      await screen.findByText("Görev saatlerinden önerildi"),
+    ).toBeVisible();
+    expect(screen.getByText("Görev 7 sa 30 dk · mentorluk 2 sa")).toBeVisible();
   });
 
   it("asks for a start month on an older card before moving on, since the backend needs one to publish", async () => {

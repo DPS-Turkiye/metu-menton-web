@@ -3,7 +3,7 @@ import type messages from "@/messages/tr.json";
 
 /**
  * The student's saved interests and goal (`GET`/`PUT /api/student/profile-completion`). Topics are the program's
- * active categories; sub-topic ids are still the catalogue's samples until the board names real ones.
+ * active categories; sub-topic ids are the catalogue's (`PROFILE_COMPLETION_CATEGORIES`).
  */
 export type StudentProfileCompletion = {
   topics: PeerTopicCategory[];

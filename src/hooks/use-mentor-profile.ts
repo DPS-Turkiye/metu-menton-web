@@ -4,7 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useWeeklyAvailabilityForm } from "@/hooks/use-weekly-availability-form";
+import {
+  useWeeklyAvailabilityForm,
+  type WeeklyAvailabilitySource,
+} from "@/hooks/use-weekly-availability-form";
 import { clientText } from "@/i18n/client-texts";
 import {
   MAX_EDUCATIONS,
@@ -29,7 +32,6 @@ import {
   updateMentorProfile,
 } from "@/lib/client/mentor-profile";
 import { withKey, withKeys, withoutKeys, type Keyed } from "@/lib/keyed-list";
-import type { AvailabilityDraft } from "@/lib/mentor-availability";
 import {
   applyMentorCv,
   fillStudies,
@@ -571,7 +573,7 @@ export function useAvailabilitySlotForm() {
 /** The "Müsaitliği düzenle" modal: the weekly availability editor on the mentor's own settings. */
 export function useAvailabilitySettingsForm(
   onSaved: () => void,
-  check?: (draft: AvailabilityDraft) => string | null,
+  rules: Pick<WeeklyAvailabilitySource, "check" | "suggestion"> = {},
 ) {
   const settingsQuery = useMentorAvailabilitySettings();
   const updateSettings = useUpdateMentorAvailabilitySettings();
@@ -581,7 +583,7 @@ export function useAvailabilitySettingsForm(
       loadFailed: Boolean(settingsQuery.error),
       save: updateSettings.mutateAsync,
       isSaving: updateSettings.isPending,
-      ...(check ? { check } : {}),
+      ...rules,
     },
     onSaved,
   );

@@ -1,4 +1,8 @@
-import { Weekday } from "@/interfaces/mentor";
+import type { Appointment } from "@/interfaces/appointment";
+import { Weekday, WEEKDAY_ORDER } from "@/interfaces/mentor";
+import { currentTime, isUpcoming } from "@/lib/appointments";
+import { weekdayOf } from "@/lib/mentor-availability";
+import { toTurkishWallClock } from "@/lib/turkey-time";
 import { minutesOfDay } from "@/lib/utils";
 
 /** One range of an İŞKUR intern's work days, "HH:mm" to "HH:mm" (their onboarding form). */
@@ -102,6 +106,117 @@ export function firstOffer(duty: readonly DutyRange[], day: Weekday) {
     startTime: timeOf(first.from),
     endTime: timeOf(Math.min(first.to, first.from + NEW_RANGE_MINUTES)),
   };
+}
+
+/** A mentoring range proposed from the work hours, before the person saves it. */
+export type SuggestedOffer = Omit<OfferedRange, "key">;
+
+/** The İŞKUR split sets mentoring time in half-hour steps (IskurWeeklySplit.STEP_MINUTES). */
+const SUGGESTION_STEP_MINUTES = 30;
+
+/**
+ * The weekday and Turkey clock hours of the person's meetings still to come, on either side: hours a suggestion
+ * must keep clear. A meeting that runs past midnight keeps only its first day.
+ */
+export function busyRanges(
+  appointments: readonly Pick<
+    Appointment,
+    "status" | "startsAt" | "endsAt" | "alternative"
+  >[],
+  now: Date,
+): DutyRange[] {
+  return appointments
+    .filter((appointment) => isUpcoming(appointment, now))
+    .map((appointment) => {
+      const time = currentTime(appointment);
+      const start = toTurkishWallClock(time.startsAt);
+      const end = toTurkishWallClock(time.endsAt);
+      const sameDay = start.toDateString() === end.toDateString();
+      return {
+        day: weekdayOf(start),
+        start: timeOf(start.getHours() * 60 + start.getMinutes()),
+        end: sameDay ? timeOf(end.getHours() * 60 + end.getMinutes()) : "24:00",
+      };
+    });
+}
+
+/** The parts of a day's work ranges that no busy range covers. */
+function freeOf(work: readonly Minutes[], busy: readonly Minutes[]) {
+  return work.flatMap((range) => {
+    let parts: Minutes[] = [range];
+    for (const taken of busy) {
+      parts = parts.flatMap((part) =>
+        taken.to <= part.from || taken.from >= part.to
+          ? [part]
+          : [
+              { from: part.from, to: taken.from },
+              { from: taken.to, to: part.to },
+            ].filter(({ from, to }) => to > from),
+      );
+    }
+    return parts;
+  });
+}
+
+/**
+ * Mentoring hours proposed from an intern's work hours, adding up to their weekly mentoring target: the target is
+ * shared evenly over the work days in half-hour steps (the earlier days take the leftover steps), each day's share
+ * starts where its free work time starts, and a share a day cannot hold moves on to the days with room left. Hours
+ * of meetings already booked (`busy`) are never suggested.
+ */
+export function suggestedOffers(
+  duty: readonly DutyRange[],
+  mentoringMinutes: number | null,
+  busy: readonly DutyRange[] = [],
+): SuggestedOffer[] {
+  const days = WEEKDAY_ORDER.map((day) => ({
+    day,
+    work: freeOf(dutyOf(duty, day), dutyOf(busy, day)),
+  })).filter(({ work }) => work.length > 0);
+  if (mentoringMinutes === null || days.length === 0) return [];
+  const steps = Math.floor(mentoringMinutes / SUGGESTION_STEP_MINUTES);
+  const room = days.map(({ work }) =>
+    work.reduce(
+      (sum, { from, to }) =>
+        sum + Math.floor((to - from) / SUGGESTION_STEP_MINUTES),
+      0,
+    ),
+  );
+  const given = days.map(
+    (_, index) =>
+      Math.floor(steps / days.length) + (index < steps % days.length ? 1 : 0),
+  );
+  let over = 0;
+  given.forEach((share, index) => {
+    const fits = Math.min(share, room[index] ?? 0);
+    over += share - fits;
+    given[index] = fits;
+  });
+  given.forEach((share, index) => {
+    const extra = Math.min(over, (room[index] ?? 0) - share);
+    given[index] = share + extra;
+    over -= extra;
+  });
+  return days.flatMap(({ day, work }, index) => {
+    let left = (given[index] ?? 0) * SUGGESTION_STEP_MINUTES;
+    const offers: SuggestedOffer[] = [];
+    for (const { from, to } of work) {
+      const take = Math.min(
+        left,
+        Math.floor((to - from) / SUGGESTION_STEP_MINUTES) *
+          SUGGESTION_STEP_MINUTES,
+      );
+      if (take > 0) {
+        offers.push({
+          dayOfWeek: day,
+          startTime: timeOf(from),
+          endTime: timeOf(from + take),
+        });
+      }
+      left -= take;
+    }
+    return offers;
+  });
 }
 
 function timeOf(minutes: number) {

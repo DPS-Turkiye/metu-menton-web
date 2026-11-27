@@ -288,6 +288,7 @@ function mockAll(
     loadError: null,
     numberFields: AVAILABILITY_NUMBER_FIELDS.map((item) => item.field),
     numberFieldLabels: {},
+    suggested: false,
     ...overrides.availabilityForm,
   });
 }
