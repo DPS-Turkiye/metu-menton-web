@@ -244,7 +244,7 @@ function ProfileHeader({ view }: { view: SummaryView }) {
   return (
     <Panel>
       <div className="flex flex-wrap items-start gap-4 px-6 py-6">
-        <Avatar initials={view.initials} size="lg" />
+        <Avatar initials={view.initials} personId={view.userId} size="lg" />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[#22262b] [overflow-wrap:anywhere]">

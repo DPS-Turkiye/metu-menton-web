@@ -344,7 +344,7 @@ function PersonCell({ userId, name }: { userId: string; name: string }) {
   return (
     <span className="flex items-center gap-1.5">
       <StaffPictureLink userId={userId} name={name}>
-        <InitialsAvatar name={name} />
+        <InitialsAvatar name={name} personId={userId} />
       </StaffPictureLink>
       {name}
     </span>

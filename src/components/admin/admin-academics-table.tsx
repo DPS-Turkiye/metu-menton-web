@@ -220,7 +220,7 @@ function AcademicRow({
     <tr>
       <DataCell rowHeader>
         <span className="flex items-center gap-1.5">
-          <InitialsAvatar name={row.fullName} />
+          <InitialsAvatar name={row.fullName} personId={row.personId} />
           <span className="min-w-0">
             <span className="block">{name}</span>
             <span className="block type-caption text-text-muted">
@@ -308,6 +308,7 @@ function AcademicDrawer({
         <div className="flex items-start justify-between gap-3 px-6 pt-6">
           <div className="flex min-w-0 items-center gap-3">
             <Avatar
+              personId={academic.personId}
               initials={initials(academic.fullName)}
               tone="blue"
               size="lg"

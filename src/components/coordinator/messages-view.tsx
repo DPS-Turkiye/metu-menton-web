@@ -147,6 +147,7 @@ export function CoordinatorMessagesView({ link }: { link: MessagesDeepLink }) {
             <>
               <header className="flex items-center gap-3 border-b border-[#eef0f2] px-6 py-4">
                 <Avatar
+                  personId={messages.open.counterpartId}
                   initials={initials(messages.open.counterpartName)}
                   tone={counterpartTone(messages.open)}
                   size="lg"
@@ -268,6 +269,7 @@ function ConversationRow({
         }`}
       >
         <Avatar
+          personId={conversation.counterpartId}
           initials={initials(conversation.counterpartName)}
           tone={mentor ? "blue" : "orange"}
           size="lg"

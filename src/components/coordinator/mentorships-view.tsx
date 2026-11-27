@@ -200,7 +200,11 @@ function MentorshipRow({
     >
       <span className="flex min-w-0 items-center gap-3">
         <span className="flex -space-x-1.5">
-          <Avatar initials={initials(row.mentorName)} tone="blue" />
+          <Avatar
+            initials={initials(row.mentorName)}
+            personId={row.mentorId}
+            tone="blue"
+          />
           <Avatar initials={initials(row.organizationName)} />
         </span>
         <span className="min-w-0">

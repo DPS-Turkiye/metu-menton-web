@@ -350,7 +350,12 @@ function CandidateCard({
       className={`rounded-[24px] border bg-white p-5 ${rank === 1 ? "border-[#26a4ff]" : "border-[#e9ecef]"}`}
     >
       <div className="flex flex-wrap items-center gap-4">
-        <Avatar initials={initials(candidate.fullName)} tone="blue" size="lg" />
+        <Avatar
+          initials={initials(candidate.fullName)}
+          personId={candidate.mentorId}
+          tone="blue"
+          size="lg"
+        />
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center gap-2 text-[15px] font-semibold text-[#22262b]">
             {candidate.fullName}

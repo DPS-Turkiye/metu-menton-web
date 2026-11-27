@@ -618,7 +618,11 @@ function ItemCard({
       <div className="flex items-start gap-3">
         {meeting ? (
           <span className="flex -space-x-1.5">
-            <Avatar initials={initials(item.mentorName ?? "M")} tone="blue" />
+            <Avatar
+              initials={initials(item.mentorName ?? "M")}
+              personId={item.mentorId}
+              tone="blue"
+            />
             <Avatar initials={initials(item.organizationName ?? "T")} />
           </span>
         ) : null}
