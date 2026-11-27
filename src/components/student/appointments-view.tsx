@@ -51,6 +51,7 @@ import { monthName } from "@/lib/calendar";
 import { appointmentProfileHref } from "@/lib/peer-profile-links";
 import { titledName } from "@/lib/profile-completion";
 import {
+  appointmentPersonId,
   calendarTitle,
   selectedDayTitle,
   shortPersonName,
@@ -568,7 +569,11 @@ function AppointmentDetail({
           href={appointmentProfileHref(appointment)}
           name={counterpart.fullName}
         >
-          <InitialsAvatar name={counterpart.fullName} size="sm" />
+          <InitialsAvatar
+            personId={appointmentPersonId(appointment)}
+            name={counterpart.fullName}
+            size="sm"
+          />
         </ProfilePictureLink>
         <div className="min-w-0">
           <p className="type-label text-text-primary">

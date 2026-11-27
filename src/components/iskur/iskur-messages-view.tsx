@@ -3,6 +3,7 @@
 import { Check, ChevronUp } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { PhotoAvatar } from "@/components/common/avatar";
 import { ChatBubble, ChatComposer } from "@/components/common/chat-thread";
 import { ModalDialog } from "@/components/common/modal-dialog";
 import { ToggleSwitch } from "@/components/common/toggle-switch";
@@ -291,12 +292,13 @@ function Announcement({
       className={`flex flex-col gap-2.5 border-b border-border-subtle px-6 py-5 ${message.important ? "bg-status-warning-bg" : ""}`}
     >
       <div className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="grid size-8 place-items-center rounded-full bg-background-selected type-label-sm text-text-accent"
-        >
-          {initials(senderName)}
-        </span>
+        <PhotoAvatar
+          initials={initials(senderName)}
+          personId={message.sender?.userId}
+          decorative
+          colors="bg-background-selected text-text-accent"
+          className="size-8 type-label-sm"
+        />
         <span className="type-label text-text-primary">{senderName}</span>
         {message.sender?.coordinator ? (
           <span className="rounded-full bg-status-neutral-bg px-3 py-1.5 type-label-sm text-status-neutral-text">

@@ -137,7 +137,10 @@ export function RequestDrawer({
     >
       <div className="flex items-start justify-between gap-3 border-b border-border-subtle pb-5">
         <div className="flex items-center gap-3">
-          <StudentAvatar name={request.student.fullName} />
+          <StudentAvatar
+            personId={request.student.userId}
+            name={request.student.fullName}
+          />
           <div>
             <p className="flex flex-wrap items-center gap-2 type-label-lg text-text-primary">
               {request.student.fullName}

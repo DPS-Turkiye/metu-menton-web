@@ -37,7 +37,11 @@ export function PeerMenteeProfileView({ menteeId }: { menteeId: string }) {
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="flex min-w-0 flex-col gap-6">
             <header className="flex flex-wrap items-center gap-5">
-              <InitialsAvatar initials={initials(mentee.fullName)} size="lg" />
+              <InitialsAvatar
+                personId={mentee.userId}
+                initials={initials(mentee.fullName)}
+                size="lg"
+              />
               <div className="flex min-w-0 flex-1 basis-56 flex-col gap-1.5">
                 <h1 className="type-h2 text-text-primary">{mentee.fullName}</h1>
                 {mentee.department ? (

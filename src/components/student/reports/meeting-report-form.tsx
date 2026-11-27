@@ -627,7 +627,10 @@ function MenteeCard({ report }: { report: PeerMeetingReport }) {
           href={peerMenteeHref(report.mentee.id)}
           name={report.mentee.fullName}
         >
-          <InitialsAvatar initials={initials(report.mentee.fullName)} />
+          <InitialsAvatar
+            personId={report.mentee.id}
+            initials={initials(report.mentee.fullName)}
+          />
         </ProfilePictureLink>
         <div className="flex flex-col">
           <span className="type-label text-text-primary">
