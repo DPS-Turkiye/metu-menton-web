@@ -65,7 +65,7 @@ export const PEER_MENTORING_SIDE_PARAM = "as";
 /** Mentorluk Ver: where the wizard returns and the home's mentor blocks link to. */
 export const PEER_MENTOR_GIVE_HREF = `/student/peer-mentoring?${PEER_MENTORING_SIDE_PARAM}=${AppointmentSide.Mentor}`;
 
-/** `/student/peer-mentoring?tab=mine` opens Mentorluklarım, so "Mentorluklarım'a git" works from any page. */
+/** `/student/peer-mentoring?tab=mine` opens Aldığım mentorluklar, so "Aldığım mentorluklara git" works from any page. */
 export const PEER_TAKE_TAB_PARAM = "tab";
 
 export const PEER_MENTORSHIPS_HREF = `/student/peer-mentoring?${PEER_TAKE_TAB_PARAM}=${PeerTakeTab.Mine}`;
@@ -342,6 +342,20 @@ export function peerRequestAvailability(
 /** A peer mentor's profile page on the Mentorluk Al side. */
 export function peerMentorProfileHref(mentorId: string) {
   return `/student/peer-mentoring/mentors/${encodeURIComponent(mentorId)}`;
+}
+
+/**
+ * The categories Keşfet offers as filters: a category no mentor offers would only lead to an empty list, so it is
+ * left out once the counts are known. The chosen one stays, so the student can always see and clear it.
+ */
+export function filterableCategories(
+  categories: readonly PeerTopicCategory[],
+  countOf: (category: PeerTopicCategory) => number | undefined,
+  selected: PeerTopicCategory | null,
+): PeerTopicCategory[] {
+  return categories.filter(
+    (category) => category === selected || countOf(category) !== 0,
+  );
 }
 
 type CatalogueSubTopic = ProfileCompletionCategory["subtopics"][number];

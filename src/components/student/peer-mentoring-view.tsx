@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import {
+  TabLook,
   TabPanel,
   UnderlineTabs,
   ViewSwitch,
@@ -22,7 +23,7 @@ import { PeerTakeTab } from "@/types/iskur-student";
 
 const TAKE_TABS_ID = "peer-take";
 
-/** Akran Mentörlüğü: Mentorluk Al (Keşfet, Mentorluklarım), and Mentorluk Ver for peer mentors and future ones. */
+/** Akran Mentörlüğü: Mentorluk Al (Keşfet, Aldığım mentorluklar), and Mentorluk Ver for peer mentors and future ones. */
 export function PeerMentoringView() {
   const t = useTranslations("iaIskur.take");
   const { side: asked, setSide } = usePeerMentoringSide();
@@ -50,20 +51,30 @@ export function PeerMentoringView() {
           ]}
         />
       ) : null}
-      {side === AppointmentSide.Mentee ? <TakeSide /> : <PeerMentorGiveView />}
+      {side === AppointmentSide.Mentee ? (
+        <TakeSide nested={canGive} />
+      ) : (
+        <PeerMentorGiveView />
+      )}
     </div>
   );
 }
 
-function TakeSide() {
+/**
+ * Under the Al | Ver switch, Al's own tabs take Ver's smaller segment look (Figma 7.1), so they read as part of
+ * Mentorluk Al rather than a third choice beside it. Without the switch they are the page's only tabs (Figma 4.1).
+ */
+function TakeSide({ nested }: { nested: boolean }) {
   const t = useTranslations("iaIskur.take.tabs");
-  const { tab, setTab } = usePeerTakeTab();
+  const take = usePeerTakeTab();
+  const { tab, setTab } = take;
   const mineCount = usePeerMentorshipCount();
   return (
     <div className="space-y-7">
       <UnderlineTabs
         label={t("label")}
         idPrefix={TAKE_TABS_ID}
+        look={nested ? TabLook.Segment : TabLook.Underline}
         selected={tab}
         onSelect={setTab}
         tabs={[
@@ -80,16 +91,18 @@ function TakeSide() {
         id={PeerTakeTab.Discover}
         selected={tab === PeerTakeTab.Discover}
       >
-        <PeerMentorDirectory />
+        <PeerMentorDirectory
+          key={take.discoverKey}
+          focusSearch={take.focusSearch}
+          onSearchFocused={take.searchFocused}
+        />
       </TabPanel>
       <TabPanel
         idPrefix={TAKE_TABS_ID}
         id={PeerTakeTab.Mine}
         selected={tab === PeerTakeTab.Mine}
       >
-        <PeerMentoringRequests
-          onFindAnother={() => setTab(PeerTakeTab.Discover)}
-        />
+        <PeerMentoringRequests onFindAnother={take.findAnother} />
       </TabPanel>
     </div>
   );

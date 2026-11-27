@@ -7485,7 +7485,7 @@
         },
         "afterRequest": {
           "title": "Mentorluk talebi gönderince ne olur?",
-          "body": "Talebin \"Onay Bekliyor\" olarak görünür. Mentor talebini kabul ettiğinde mentorluğunuz başlar ve görüşme planlayabilirsiniz. Taleplerini ve aktif mentorluğunu Mentorluklarım'dan, görüşmelerini Randevularım'dan takip edersin."
+          "body": "Talebin \"Onay Bekliyor\" olarak görünür. Mentor talebini kabul ettiğinde mentorluğunuz başlar ve görüşme planlayabilirsiniz. Taleplerini ve aktif mentorluğunu Aldığım mentorluklar sekmesinden, görüşmelerini Randevularım'dan takip edersin."
         },
         "becomeMentor": {
           "title": "Ben de akran mentoru olabilir miyim?",
