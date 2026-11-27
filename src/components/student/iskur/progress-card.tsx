@@ -12,11 +12,14 @@ export function IskurProgressCard({
   caption,
   logged,
   target,
+  note,
 }: {
   title: string;
   caption: string;
   logged: number;
   target: number | null;
+  /** A status shown next to the title, such as "Rozet bekleniyor". */
+  note?: string | undefined;
 }) {
   const t = useTranslations("iskurWeek.progress");
   const duration = useReportDuration();
@@ -24,7 +27,13 @@ export function IskurProgressCard({
   return (
     <div className="rounded-card border border-border-default bg-background-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="type-label text-text-primary">{title}</span>
+        <span className="flex flex-wrap items-center gap-2 type-label text-text-primary">
+          {title}
+          {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+          {note ? (
+            <StatusBadge tone={StatusTone.Neutral}>{note}</StatusBadge>
+          ) : null}
+        </span>
         <StatusBadge tone={StatusTone.Info}>
           {target == null
             ? duration(logged)

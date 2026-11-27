@@ -151,16 +151,23 @@ function MentorSide({ home }: { home: Home }) {
     );
   }
   return (
-    <NextStep mode={IskurHomeMode.Training} href={PEER_MENTOR_GIVE_HREF} />
+    <NextStep
+      mode={IskurHomeMode.Training}
+      href={PEER_MENTOR_GIVE_HREF}
+      badgePending={home.iskurIntern}
+    />
   );
 }
 
 function NextStep({
   mode,
   href,
+  badgePending = false,
 }: {
   mode: IskurHomeMode.Training | IskurHomeMode.CreateProfile;
   href: string;
+  /** An İŞKUR intern without the badge: placed and working already, the badge optional and any time. */
+  badgePending?: boolean;
 }) {
   const t = useTranslations("iaIskur.home");
   return (
@@ -169,10 +176,16 @@ function NextStep({
       labelledBy="iskur-next-step"
       className="flex flex-col items-start gap-3"
     >
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      {badgePending ? (
+        <StatusBadge tone={StatusTone.Info}>{t("badgePending")}</StatusBadge>
+      ) : null}
       <h2 id="iskur-next-step" className="type-title-card text-text-primary">
         {t(`${mode}.title`)}
       </h2>
-      <p className="type-body-sm text-text-secondary">{t(`${mode}.body`)}</p>
+      <p className="type-body-sm text-text-secondary">
+        {badgePending ? t("training.iskurBody") : t(`${mode}.body`)}
+      </p>
       <Button href={href} size={ButtonSize.Small}>
         {t(`${mode}.action`)}
       </Button>

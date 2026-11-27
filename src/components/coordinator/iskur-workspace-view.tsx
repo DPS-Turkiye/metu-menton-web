@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useId, type ReactNode } from "react";
 
 import { ModalDialog } from "@/components/common/modal-dialog";
-import { IskurInternsCard } from "@/components/coordinator/iskur-interns-card";
 import { IskurPreferencesPanel } from "@/components/coordinator/iskur-preferences-panel";
 import { IskurTaskOutputsCard } from "@/components/coordinator/iskur-task-outputs-card";
 import { IskurTeamChangesCard } from "@/components/coordinator/iskur-team-changes-card";
@@ -100,7 +99,6 @@ function WorkspaceBody({
         programId={programId}
         onMove={state.openPlacementOf}
       />
-      <IskurInternsCard programId={programId} />
       <IskurUnitSkillsCard applications={applications} />
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <Pool state={state} pool={workspace.pool} />

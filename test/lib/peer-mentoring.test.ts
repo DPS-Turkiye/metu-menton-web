@@ -21,6 +21,7 @@ import {
   filterableCategories,
   formatYearMonth,
   hoursByDays,
+  iskurBadgePending,
   iskurHomeMode,
   latestGateAward,
   levelsFor,
@@ -735,5 +736,43 @@ describe("filterableCategories", () => {
 
   it("offers every category while the counts are unknown", () => {
     expect(filterableCategories(listed, () => undefined, null)).toEqual(listed);
+  });
+});
+
+describe("iskurBadgePending", () => {
+  it("is true without the badge once the gate has answered", () => {
+    expect(
+      iskurBadgePending({
+        state: PeerMentorGateState.NoBadge,
+        isLoading: false,
+      }),
+    ).toBe(true);
+    expect(
+      iskurBadgePending({
+        state: PeerMentorGateState.Hidden,
+        isLoading: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("is false with the badge, after a revoke, or while loading", () => {
+    expect(
+      iskurBadgePending({
+        state: PeerMentorGateState.Earned,
+        isLoading: false,
+      }),
+    ).toBe(false);
+    expect(
+      iskurBadgePending({
+        state: PeerMentorGateState.Revoked,
+        isLoading: false,
+      }),
+    ).toBe(false);
+    expect(
+      iskurBadgePending({
+        state: PeerMentorGateState.NoBadge,
+        isLoading: true,
+      }),
+    ).toBe(false);
   });
 });

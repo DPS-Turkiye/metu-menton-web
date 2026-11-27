@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useIskurTeamReveal } from "@/hooks/use-iskur-team-reveal";
 import { MENTOR_AVAILABILITY_SETTINGS_QUERY_KEY } from "@/hooks/use-mentor-profile";
 import {
   usePeerMentorGate,
@@ -15,10 +16,21 @@ import {
   type PeerMentoringRequest,
 } from "@/interfaces/peer-mentoring";
 import { getAvailabilitySettings } from "@/lib/client/mentor-profile";
-import { iskurHomeMode, peerMentorCapacity } from "@/lib/peer-mentoring";
+import {
+  iskurBadgePending,
+  iskurHomeMode,
+  peerMentorCapacity,
+} from "@/lib/peer-mentoring";
 import { IskurHomeMode } from "@/types/iskur-student";
 
 const HOME_WAITING_SHOWN = 3;
+
+/** An İŞKUR intern still without the Akran Mentoru badge: their profile says "Rozet bekleniyor". */
+export function useIskurBadgePending() {
+  const gate = usePeerMentorGate();
+  const { reveal } = useIskurTeamReveal();
+  return reveal !== null && iskurBadgePending(gate);
+}
 
 /** The requests a published peer mentor received; for anyone else nothing is fetched and the lists stay empty. */
 export function useIskurMentorRequests() {
@@ -50,6 +62,8 @@ export function useIskurHome() {
       : settings.data.menteeCapacity;
   const decision = usePeerRequestDecision();
   const loaded = received.query.data !== undefined;
+  // Shares the team reveal's query: an İŞKUR intern works before the badge, so the training card says it is optional.
+  const iskurIntern = useIskurTeamReveal().reveal !== null;
   return {
     // Nothing until the profile answers (or if it fails), so a published mentor never sees the "create your profile" card.
     mode:
@@ -57,6 +71,7 @@ export function useIskurHome() {
         ? IskurHomeMode.None
         : iskurHomeMode(gate.state, hasProfile),
     profile: profile.data ?? null,
+    iskurIntern,
     /** The first waiting requests; the rest are counted behind "Mentorluk Ver". */
     waiting: received.waiting.slice(0, HOME_WAITING_SHOWN),
     moreWaiting: Math.max(0, received.waiting.length - HOME_WAITING_SHOWN),
