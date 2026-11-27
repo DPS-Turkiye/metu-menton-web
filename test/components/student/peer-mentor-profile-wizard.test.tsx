@@ -153,12 +153,46 @@ describe("PeerMentorProfileWizard", () => {
     });
     expect(pickedLast).toBeChecked();
     expect(unpicked).toBeDisabled();
+    expect(unpicked).toHaveAccessibleDescription(
+      "En fazla 20 alt konu seçebilirsin.",
+    );
     expect(
       screen.getByText("En fazla 20 alt konu seçebilirsin."),
     ).toBeVisible();
 
     await user.click(pickedLast);
     expect(unpicked).toBeEnabled();
+    expect(screen.queryByText("En fazla 20 alt konu seçebilirsin.")).toBeNull();
+  });
+
+  it("does not count saved sub-topics of a category the mentor no longer offers toward the limit", async () => {
+    const elsewhere = PROFILE_COMPLETION_CATEGORIES.filter(
+      (item) => item.id !== PeerTopicCategory.CareerInternship,
+    ).flatMap((item) => item.subtopics.map((sub) => sub.id));
+    vi.mocked(getPeerMentorProfile).mockResolvedValue({
+      categories: [PeerTopicCategory.CareerInternship],
+      subTopics: elsewhere.slice(0, 20),
+      strongCourses: [],
+      projects: [],
+      erasmus: null,
+      helpWith: "Staj başvurusu konusunda yardımcı olurum.",
+      linkedinUrl: null,
+      department: "Endüstri Mühendisliği",
+      classYear: 4,
+      menteeCapacity: 3,
+      acceptingRequests: true,
+      levels: {},
+      experiences: [],
+    });
+    const user = userEvent.setup();
+    renderWithQueryClient(<PeerMentorProfileWizard />);
+    await screen.findByRole("checkbox", { name: "Kariyer ve Staj" });
+    await user.click(screen.getByRole("button", { name: "Devam Et" }));
+
+    const chip = screen.getByRole("checkbox", { name: "CV Hazırlama" });
+    expect(chip).toBeEnabled();
+    await user.click(chip);
+    expect(chip).toBeChecked();
     expect(screen.queryByText("En fazla 20 alt konu seçebilirsin.")).toBeNull();
   });
 

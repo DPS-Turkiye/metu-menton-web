@@ -8,6 +8,7 @@ import {
   chosenSubtopics,
   toggleInterestSubtopic,
   toggleInterestTopic,
+  withVisibleSubtopics,
 } from "@/lib/student-interests";
 
 const start = {
@@ -53,6 +54,19 @@ describe("student interests", () => {
     expect(toggleInterestSubtopic(full, "fixture-cv", 2).subtopics).toEqual([
       "fixture-clubs",
     ]);
+  });
+
+  it("keeps only the sub-topics shown under the chosen categories", () => {
+    const next = withVisibleSubtopics(
+      {
+        ...start,
+        subtopics: ["fixture-cv", "fixture-exchange", "retired-topic"],
+      },
+      PROFILE_COMPLETION_CATEGORIES,
+    );
+    expect(next.subtopics).toEqual(["fixture-cv"]);
+    expect(next.topics).toEqual(start.topics);
+    expect(next.goal).toBe("x");
   });
 
   it("lists chosen categories in catalogue order", () => {

@@ -87,6 +87,7 @@ import {
   chosenCategories,
   toggleInterestSubtopic,
   toggleInterestTopic,
+  withVisibleSubtopics,
 } from "@/lib/student-interests";
 import { errorMessage, initials, typedUrlOrNull } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
@@ -722,7 +723,9 @@ export function usePeerMentorWizard() {
       draft.subtopics,
     ),
     subtopicsMax: PEER_SUBTOPICS_MAX,
-    subtopicLimitReached: draft.subtopics.length >= PEER_SUBTOPICS_MAX,
+    subtopicLimitReached:
+      withVisibleSubtopics(draft, categories).subtopics.length >=
+      PEER_SUBTOPICS_MAX,
     previewSubtopics: chosenSubtopics(categories, draft.subtopics),
     availability,
     dutyHours,
@@ -741,7 +744,11 @@ export function usePeerMentorWizard() {
       change((current) => toggleInterestTopic(current, id, categories)),
     toggleSubtopic: (id: string) =>
       change((current) =>
-        toggleInterestSubtopic(current, id, PEER_SUBTOPICS_MAX),
+        toggleInterestSubtopic(
+          withVisibleSubtopics(current, categories),
+          id,
+          PEER_SUBTOPICS_MAX,
+        ),
       ),
     levelOf: (category: PeerTopicCategory) => draft.levels[category] ?? null,
     setLevel: (category: PeerTopicCategory, level: PeerTopicLevel) =>

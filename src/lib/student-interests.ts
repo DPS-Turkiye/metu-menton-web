@@ -17,13 +17,23 @@ export function toggleInterestTopic<T extends Interests>(
   const topics = current.topics.includes(id)
     ? current.topics.filter((value) => value !== id)
     : [...current.topics, id];
-  const valid = categories
-    .filter((item) => topics.includes(item.id))
+  return withVisibleSubtopics({ ...current, topics }, categories);
+}
+
+/**
+ * Keeps only the sub-topics shown under the chosen categories; ids of an unchosen, inactive or retired category drop
+ * out, so a limit counts only what the person can see and untick.
+ */
+export function withVisibleSubtopics<T extends Interests>(
+  current: T,
+  categories: readonly ProfileCompletionCategory[],
+): T {
+  const visible = categories
+    .filter((item) => current.topics.includes(item.id))
     .flatMap((item) => item.subtopics.map((subtopic) => subtopic.id));
   return {
     ...current,
-    topics,
-    subtopics: current.subtopics.filter((value) => valid.includes(value)),
+    subtopics: current.subtopics.filter((value) => visible.includes(value)),
   };
 }
 

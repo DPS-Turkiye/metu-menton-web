@@ -223,9 +223,9 @@ function BadgeNote() {
   );
 }
 
-function Note({ children }: { children: ReactNode }) {
+function Note({ children, id }: { children: ReactNode; id?: string }) {
   return (
-    <p className="flex items-center gap-2 type-caption text-text-muted">
+    <p id={id} className="flex items-center gap-2 type-caption text-text-muted">
       <Info aria-hidden className="size-4 shrink-0" />
       {children}
     </p>
@@ -287,6 +287,8 @@ function CategoriesStep({ wizard }: { wizard: Wizard }) {
   );
 }
 
+const SUBTOPIC_LIMIT_ID = "peer-subtopic-limit";
+
 function SubtopicsStep({ wizard }: { wizard: Wizard }) {
   const t = useTranslations("iaIskur.wizard");
   const topicLabel = useTranslations("peerTopics");
@@ -326,6 +328,7 @@ function SubtopicsStep({ wizard }: { wizard: Wizard }) {
                       className="sr-only"
                       checked={checked}
                       disabled={blocked}
+                      aria-describedby={blocked ? SUBTOPIC_LIMIT_ID : undefined}
                       onChange={() => wizard.toggleSubtopic(sub.id)}
                     />
                     {checked ? (
@@ -370,7 +373,9 @@ function SubtopicsStep({ wizard }: { wizard: Wizard }) {
         </Card>
       ))}
       {wizard.subtopicLimitReached ? (
-        <Note>{t("subtopicLimit", { max: wizard.subtopicsMax })}</Note>
+        <Note id={SUBTOPIC_LIMIT_ID}>
+          {t("subtopicLimit", { max: wizard.subtopicsMax })}
+        </Note>
       ) : null}
       <Note>{t("subtopicsNote")}</Note>
     </div>
