@@ -306,12 +306,14 @@ function BarFrame({
       aria-hidden
       tabIndex={-1}
       title={title}
+      // A hidden control must not keep focus; the row's own inputs open instead.
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onAdd}
       className={`${BAR_CLASS} group cursor-pointer text-left hover:ring-1 hover:ring-border-selected`}
     >
       {children}
       {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
-      <span className="absolute inset-0 grid place-items-center type-caption text-text-accent opacity-70 group-hover:opacity-100">
+      <span className="absolute inset-0 grid place-items-center type-caption text-text-accent">
         <span className="flex items-center gap-1">
           <Plus className="size-3.5" />
           {title}

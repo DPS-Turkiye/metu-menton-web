@@ -128,6 +128,7 @@ export function PeerMentorProfileWizard() {
               <DocumentsStep wizard={wizard} />
             ) : null}
             {step === PeerMentorWizardStep.Availability &&
+            !wizard.dutyHours.isLoading &&
             wizard.dutyHours.duty.length > 0 ? (
               <PeerMentorHoursEditor
                 editor={wizard.availability}
