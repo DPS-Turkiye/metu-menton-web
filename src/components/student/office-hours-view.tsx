@@ -134,7 +134,10 @@ function AdvisorStrip({
       className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-2xl bg-background-subtle px-5 py-4"
     >
       <div className="flex min-w-0 items-center gap-4">
-        <InitialsAvatar name={academician.fullName} />
+        <InitialsAvatar
+          personId={academician.accountId}
+          name={academician.fullName}
+        />
         <div className="min-w-0">
           <p className="type-overline text-text-accent">{t("label")}</p>
           <p className="type-label text-text-primary">
@@ -188,7 +191,10 @@ function AcademicianRow({
       data-tour={tourAnchor}
       className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-6"
     >
-      <InitialsAvatar name={academician.fullName} />
+      <InitialsAvatar
+        personId={academician.accountId}
+        name={academician.fullName}
+      />
       <div className="min-w-0 flex-1 basis-48">
         <h2 className="type-label-lg text-text-primary">
           <Link

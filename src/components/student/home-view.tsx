@@ -196,7 +196,11 @@ function NextAppointment({
           href={appointmentProfileHref(appointment)}
           name={counterpart.fullName}
         >
-          <InitialsAvatar name={counterpart.fullName} size="lg" />
+          <InitialsAvatar
+            personId={counterpart.userId}
+            name={counterpart.fullName}
+            size="lg"
+          />
         </ProfilePictureLink>
         <div className="flex min-w-0 flex-col gap-1">
           <p className="type-h4 break-words text-text-primary">
@@ -357,7 +361,11 @@ function MentorRow({ mentor }: { mentor: PeerMentorCard }) {
         href={peerMentorHref(mentor.mentorId)}
         name={mentor.fullName}
       >
-        <InitialsAvatar name={mentor.fullName} size="lg" />
+        <InitialsAvatar
+          personId={mentor.mentorId}
+          name={mentor.fullName}
+          size="lg"
+        />
       </ProfilePictureLink>
       <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1">
         <h3 className="type-label-lg text-text-primary">{mentor.fullName}</h3>
@@ -412,7 +420,7 @@ function AdvisorCard({
       <SectionHeader id="student-advisor" title={t("label")} />
       <div className="flex flex-col gap-3 rounded-2xl border border-border-default bg-background-surface p-5">
         <div className="flex items-center gap-4 sm:px-5 sm:py-4">
-          <InitialsAvatar name={advisor.fullName} />
+          <InitialsAvatar personId={advisor.userId} name={advisor.fullName} />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="type-label text-text-primary">{name}</p>
             <p className="type-body-sm text-text-muted">{t("source")}</p>
@@ -504,7 +512,11 @@ function AwaitingAppointment({ appointment }: { appointment: Appointment }) {
           href={appointmentProfileHref(appointment)}
           name={counterpart.fullName}
         >
-          <InitialsAvatar name={counterpart.fullName} size="sm" />
+          <InitialsAvatar
+            personId={counterpart.userId}
+            name={counterpart.fullName}
+            size="sm"
+          />
         </ProfilePictureLink>
       }
       name={counterpartName(appointment)}
@@ -524,7 +536,11 @@ function AwaitingPeerRequest({ request }: { request: PeerMentoringRequest }) {
           href={peerMentorHref(request.mentor.userId)}
           name={request.mentor.fullName}
         >
-          <InitialsAvatar name={request.mentor.fullName} size="sm" />
+          <InitialsAvatar
+            personId={request.mentor.userId}
+            name={request.mentor.fullName}
+            size="sm"
+          />
         </ProfilePictureLink>
       }
       name={request.mentor.fullName}

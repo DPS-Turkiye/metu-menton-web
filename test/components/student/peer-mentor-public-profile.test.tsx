@@ -17,6 +17,7 @@ import {
   peerMentoringRequestsFixture,
   resetPeerMentoringFixtures,
 } from "@test/fixtures/peer-mentoring";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/lib/client/peer-mentoring", () => ({
@@ -307,5 +308,16 @@ describe("PeerMentorPublicProfile", () => {
       within(links).getByRole("link", { name: /Portfolyo/ }),
     ).toHaveAttribute("href", "https://github.com/mertdemir");
     expect(getPeerMentorDocuments).toHaveBeenCalledWith("fixture-peer-1");
+  });
+
+  it("shows the mentor's photo over their initials", async () => {
+    renderWithQueryClient(
+      <PeerMentorPublicProfile mentorId="fixture-peer-1" />,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Deniz Kaya" }),
+    ).toBeVisible();
+    expect(personPhotosIn()).toContain(photoPathOf("fixture-peer-1"));
   });
 });

@@ -87,7 +87,11 @@ export function PeerMentorRequestDialog({
           </Button>
         </div>
         <div className="flex items-center gap-4 rounded-xl bg-background-subtle px-4 py-3">
-          <InitialsAvatar name={mentor.fullName} size="sm" />
+          <InitialsAvatar
+            personId={mentor.mentorId}
+            name={mentor.fullName}
+            size="sm"
+          />
           <div className="min-w-0">
             <p className="type-label text-text-primary">{mentor.fullName}</p>
             <p className="type-body-sm text-text-muted">

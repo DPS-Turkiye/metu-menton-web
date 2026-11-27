@@ -35,7 +35,10 @@ function Person({
         href={appointmentProfileHref(appointment)}
         name={counterpart.fullName}
       >
-        <InitialsAvatar name={counterpart.fullName} />
+        <InitialsAvatar
+          personId={counterpart.userId}
+          name={counterpart.fullName}
+        />
       </ProfilePictureLink>
       <div className="min-w-0 flex-1 basis-56">
         <h3 className="type-label-lg text-text-primary">

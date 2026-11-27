@@ -15,6 +15,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { QueryNotice } from "@/components/admin/admin-ui";
+import { PhotoAvatar } from "@/components/common/avatar";
 import { Button, ButtonSize } from "@/components/ia/button";
 import { BackButton } from "@/components/student/ia/back-button";
 import { Chip } from "@/components/student/ia/ui";
@@ -61,12 +62,13 @@ export function OfficeHoursProfileView({
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
         <div className="flex min-w-0 flex-col gap-6">
           <header className="flex items-center gap-5">
-            <span
-              aria-hidden
-              className="grid size-[72px] shrink-0 place-items-center rounded-full bg-background-selected type-h3 text-text-accent"
-            >
-              {initials(academician.fullName)}
-            </span>
+            <PhotoAvatar
+              initials={initials(academician.fullName)}
+              personId={academician.accountId}
+              decorative
+              colors="bg-background-selected text-text-accent"
+              className="size-[72px] type-h3"
+            />
             <div className="flex min-w-0 flex-col gap-1.5">
               <h1 className="type-h2 text-text-primary">
                 {academicianName(academician)}

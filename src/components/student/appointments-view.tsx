@@ -568,7 +568,11 @@ function AppointmentDetail({
           href={appointmentProfileHref(appointment)}
           name={counterpart.fullName}
         >
-          <InitialsAvatar name={counterpart.fullName} size="sm" />
+          <InitialsAvatar
+            personId={counterpart.userId}
+            name={counterpart.fullName}
+            size="sm"
+          />
         </ProfilePictureLink>
         <div className="min-w-0">
           <p className="type-label text-text-primary">
