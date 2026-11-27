@@ -5947,7 +5947,8 @@
       "ACTIVE": "Rozet Doğrulandı",
       "EXPIRED": "Süresi doldu",
       "REVOKED": "Geri alındı",
-      "IN_TRAINING": "Eğitimde"
+      "IN_TRAINING": "Eğitimde",
+      "BADGE_PENDING": "Rozet bekleniyor"
     },
     "capacityUnlimited": "{active} mentee",
     "capacityOpen": "{active} / {capacity} mentee",
@@ -7681,7 +7682,9 @@
     "deleteBody": "Yalnızca içinde kimse yerleştirilmemişse silinir.",
     "confirmFinalize": "Kesinleştir",
     "confirmDelete": "Sil",
-    "supportPool": "Destek faaliyeti havuzu"
+    "supportPool": "Destek faaliyeti havuzu",
+    "badgePending": "Rozet bekleniyor",
+    "badgePendingHint": "Akran mentoru eğitimini henüz tamamlamadı. Yerleştirilip ekibinde çalışabilir; rozet gelince mentorluk da verebilir."
   },
   "iskurTeam": {
     "loading": "Ekibin yükleniyor…",

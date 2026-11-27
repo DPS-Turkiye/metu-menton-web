@@ -32,6 +32,7 @@ export interface IskurPerson {
   email: string;
   department: string | null;
   iskurParticipant: boolean;
+  /** Holds the Akran Mentoru badge (or was a peer mentor before badges); false shows "Rozet bekleniyor". */
   peerMentor: boolean;
 }
 

@@ -29,6 +29,7 @@ describe("AdminStudentsTable", () => {
         training: { videoWatched: false, attempts: 0, bestScore: null },
         profile: null,
         prism: null,
+        iskurIntern: false,
         student: true,
       },
       {
@@ -46,6 +47,7 @@ describe("AdminStudentsTable", () => {
         training: { videoWatched: true, attempts: 1, bestScore: 5 },
         profile: null,
         prism: null,
+        iskurIntern: false,
         student: true,
       },
     ]);

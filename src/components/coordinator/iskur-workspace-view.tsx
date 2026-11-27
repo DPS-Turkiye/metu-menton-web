@@ -241,7 +241,8 @@ function PersonLine({ person }: { person: IskurPerson }) {
           {[
             person.department,
             person.iskurParticipant ? t("iskurFlag") : null,
-            person.peerMentor ? t("peerMentorFlag") : null,
+            // TEST UI: placeholder until the design team's screen; replace when it arrives.
+            person.peerMentor ? t("peerMentorFlag") : t("badgePending"),
           ]
             .filter(Boolean)
             .join(" · ")}
@@ -445,6 +446,8 @@ function PlacementRow({
           >
             {t(`status.${person.status}`)}
           </StatusBadge>
+          {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+          {person.peerMentor ? null : <BadgePendingTag />}
         </div>
         <p className="type-caption text-text-secondary">
           {person.split && person.weeklyDays != null
@@ -518,6 +521,12 @@ function PrefillHint({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
+/** "Rozet bekleniyor": an intern placed and working before the Akran Mentoru badge, which is optional and comes any time. */
+function BadgePendingTag() {
+  const t = useTranslations("iskurWorkspace");
+  return <StatusBadge tone={StatusTone.Info}>{t("badgePending")}</StatusBadge>;
+}
+
 function PlacementDialog({
   state,
   workspace,
@@ -549,6 +558,13 @@ function PlacementDialog({
       <h2 id={titleId} className="type-h4 text-text-primary">
         {t(placed ? "editTitle" : "placeTitle", { name: person.fullName })}
       </h2>
+      {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+      {person.peerMentor ? null : (
+        <p className="flex flex-wrap items-center gap-2 type-body-sm text-text-secondary">
+          <BadgePendingTag />
+          {t("badgePendingHint")}
+        </p>
+      )}
       {preferences}
       <label htmlFor={teamId} className="block type-label text-text-primary">
         {t("team")}
@@ -642,9 +658,13 @@ function PlacementDialog({
       {prefilled.weeklyDays ? (
         <PrefillHint id={daysHintId}>{t("fromApplication")}</PrefillHint>
       ) : null}
-      <label htmlFor={hoursId} className="block type-label text-text-primary">
-        {t("mentoringHours")}
-      </label>
+      <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor={hoursId} className="type-label text-text-primary">
+          {t("mentoringHours")}
+        </label>
+        {/* TEST UI: placeholder until the design team's screen; replace when it arrives. */}
+        {person.peerMentor ? null : <BadgePendingTag />}
+      </div>
       <input
         id={hoursId}
         inputMode="decimal"
