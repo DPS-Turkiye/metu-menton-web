@@ -409,10 +409,10 @@ function AvailabilityPanel() {
   const t = useTranslations("iaIskur.give.availability");
   const tHours = useTranslations("iaIskur.hours");
   const hours = useMentorDutyHours();
-  const availability = useAvailabilitySettingsForm(
-    () => undefined,
-    hours.check,
-  );
+  const availability = useAvailabilitySettingsForm(() => undefined, {
+    check: hours.check,
+    suggestion: hours.suggestion,
+  });
   const save = (
     <Button
       disabled={!availability.draft || availability.isSaving}

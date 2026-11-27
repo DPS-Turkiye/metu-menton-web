@@ -267,10 +267,10 @@ test.describe("Akran", () => {
     await peerMentoring(page, "Mentorluk Al");
     await sendRequestToMehmet(page);
 
-    // 4.3b: the confirmation leads to Mentorluklarım, where the unanswered request can be withdrawn (4.4).
+    // 4.3b: the confirmation leads to Aldığım mentorluklar, where the unanswered request can be withdrawn (4.4).
     const sent = page.getByRole("dialog", { name: "Talebin iletildi" });
     await expect(sent).toContainText("Onay Bekliyor");
-    await sent.getByRole("link", { name: "Mentorluklarım'a git" }).click();
+    await sent.getByRole("link", { name: "Aldığım mentorluklara git" }).click();
     await expect(page).toHaveURL(/[?&]tab=mine/);
     const request = page
       .getByRole("region", { name: "Bekleyen talep" })
@@ -286,14 +286,20 @@ test.describe("Akran", () => {
       .click();
     await expect(page.getByText("Talebini geri çektin.")).toBeVisible();
     // Withdrawn, it moves from "Bekleyen talep" to "Geçmiş".
-    await expect(
-      page
-        .getByRole("region", { name: "Geçmiş" })
-        .getByRole("listitem")
-        .filter({ hasText: Persona.MehmetKaya }),
-    ).toContainText("Geri çekildi");
+    const withdrawn = page
+      .getByRole("region", { name: "Geçmiş" })
+      .getByRole("listitem")
+      .filter({ hasText: Persona.MehmetKaya });
+    await expect(withdrawn).toContainText("Geri çekildi");
 
-    await page.getByRole("tab", { name: "Keşfet" }).click();
+    // "Başka mentor bul" goes back to Keşfet, ready for a new search.
+    await withdrawn.getByRole("button", { name: "Başka mentor bul" }).click();
+    await expect(page).not.toHaveURL(/[?&]tab=mine/);
+    await expect(page.getByRole("tab", { name: "Keşfet" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(page.getByRole("searchbox")).toBeFocused();
     await sendRequestToMehmet(page);
     await page
       .getByRole("dialog", { name: "Talebin iletildi" })
@@ -315,7 +321,7 @@ test.describe("Akran", () => {
   }) => {
     await signInAs(page, Persona.AyseYilmaz);
     await peerMentoring(page, "Mentorluk Al");
-    await page.getByRole("tab", { name: /^Mentorluklarım/ }).click();
+    await page.getByRole("tab", { name: /^Aldığım mentorluklar/ }).click();
     await page.getByRole("button", { name: "Görüşme planla" }).first().click();
 
     const dialog = page.getByRole("dialog");

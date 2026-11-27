@@ -19,7 +19,7 @@ export type EvidenceCardView = {
   /** The chosen category that makes this card required ("Zorunlu"); null when it is optional. */
   requiredFor: PeerTopicCategory | null;
   documents: PeerMentorDocument[];
-  /** What the card's visibility menu shows, and what a new upload on it gets. */
+  /** What a new upload on the card gets; on the portfolio card also what its visibility menu shows. */
   visibility: PeerDocumentVisibility;
   done: boolean;
 };

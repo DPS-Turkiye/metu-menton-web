@@ -18,6 +18,7 @@ import {
   EMPTY_EXPERIENCE_FORM,
   experienceCardProblem,
   experienceProblemField,
+  filterableCategories,
   formatYearMonth,
   hoursByDays,
   iskurHomeMode,
@@ -55,7 +56,7 @@ import {
 } from "@/types/iskur-student";
 
 describe("peerTakeTab", () => {
-  it("opens Mentorluklarım only for tab=mine, which is what PEER_MENTORSHIPS_HREF links to", () => {
+  it("opens Aldığım mentorluklar only for tab=mine, which is what PEER_MENTORSHIPS_HREF links to", () => {
     expect(peerTakeTab("mine")).toBe(PeerTakeTab.Mine);
     expect(peerTakeTab(null)).toBe(PeerTakeTab.Discover);
     expect(peerTakeTab("MINE")).toBe(PeerTakeTab.Discover);
@@ -698,5 +699,41 @@ describe("iskurHomeMode", () => {
     expect(iskurHomeMode(PeerMentorGateState.Earned, true)).toBe(
       IskurHomeMode.Mentor,
     );
+  });
+});
+
+describe("filterableCategories", () => {
+  const counts: Partial<Record<PeerTopicCategory, number>> = {
+    [PeerTopicCategory.CareerInternship]: 3,
+    [PeerTopicCategory.CampusLife]: 0,
+    [PeerTopicCategory.International]: 0,
+  };
+  const countOf = (category: PeerTopicCategory) => counts[category];
+  const listed = [
+    PeerTopicCategory.CareerInternship,
+    PeerTopicCategory.CampusLife,
+    PeerTopicCategory.International,
+    PeerTopicCategory.TechnicalDigital,
+  ];
+
+  it("leaves out the categories no mentor offers, in the catalogue's order", () => {
+    expect(filterableCategories(listed, countOf, null)).toEqual([
+      PeerTopicCategory.CareerInternship,
+      PeerTopicCategory.TechnicalDigital,
+    ]);
+  });
+
+  it("keeps the chosen category even with no mentors, so it can be cleared", () => {
+    expect(
+      filterableCategories(listed, countOf, PeerTopicCategory.CampusLife),
+    ).toEqual([
+      PeerTopicCategory.CareerInternship,
+      PeerTopicCategory.CampusLife,
+      PeerTopicCategory.TechnicalDigital,
+    ]);
+  });
+
+  it("offers every category while the counts are unknown", () => {
+    expect(filterableCategories(listed, () => undefined, null)).toEqual(listed);
   });
 });

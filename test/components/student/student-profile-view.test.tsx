@@ -243,7 +243,7 @@ describe("StudentProfileView › İlgi alanlarım", () => {
     const interests = region("İlgi alanların ve hedefin");
 
     expect(await within(interests).findByText("Kariyer ve Staj")).toBeVisible();
-    expect(within(interests).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(interests).getByText("CV Hazırlama")).toBeVisible();
     expect(within(interests).getByText("Yaz stajı bulmak")).toBeVisible();
   });
 
@@ -261,7 +261,7 @@ describe("StudentProfileView › İlgi alanlarım", () => {
     );
     expect(
       within(interests).queryByRole("checkbox", {
-        name: "Örnek: CV hazırlama",
+        name: "CV Hazırlama",
       }),
     ).toBeNull();
     await user.click(
@@ -271,7 +271,7 @@ describe("StudentProfileView › İlgi alanlarım", () => {
     );
     await user.click(
       within(interests).getByRole("checkbox", {
-        name: "Örnek: Değişim programları",
+        name: "Değişim Programları",
       }),
     );
     const goal = within(interests).getByRole("textbox");

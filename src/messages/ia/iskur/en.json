@@ -248,6 +248,7 @@
     "noSubtopics": "The categories you picked have no sub-topics.",
     "subtopicCount": "{count} sub-topics selected",
     "subtopicsNote": "In the next step you can share your experience in these topics.",
+    "subtopicLimit": "You can pick up to {max} sub-topics.",
     "soon": "Coming soon",
     "level": {
       "label": "Your level",
@@ -342,6 +343,13 @@
         "VERIFICATION_ONLY": "For verification only",
         "PROFILE": "Show on my profile"
       },
+      "share": {
+        "label": "Show to other students",
+        "aria": "{name}: show to other students",
+        "on": "Visible on your profile",
+        "off": "Only coordinators see it",
+        "transcript": "A transcript is visible to coordinators only"
+      },
       "types": {
         "TRANSCRIPT": "Transcript",
         "CV": "CV",
@@ -353,7 +361,7 @@
         "PROJECT_REPORT": "Project report"
       },
       "safeTitle": "Your documents are safe",
-      "safeBody": "Documents you mark \"For verification only\" are seen only by the program coordinator, to verify them. Those you mark \"Show on my profile\" are visible to students.",
+      "safeBody": "Your program coordinator sees the files you upload, to verify them. Files you switch to \"Show to other students\" are also visible to students on your profile; your transcript is always visible to coordinators only.",
       "notPdf": "You can only upload PDF files.",
       "tooLarge": "The file can be at most {max}.",
       "linkInvalid": "Enter a valid link (e.g. github.com/yourname).",
@@ -428,15 +436,13 @@
     "tabs": {
       "label": "Get mentoring",
       "discover": "Discover",
-      "mine": "My mentorships"
+      "mine": "Mentorships I receive"
     },
     "discover": {
-      "categoriesTitle": "Mentoring categories",
       "noCategories": "Your program has no active peer-mentoring category yet.",
       "recommendedTitle": "Recommended for you",
       "recommendedHint": "By the topics you picked",
       "search": "Search mentors or topics",
-      "allCategories": "All",
       "categoryFilter": "Category",
       "empty": "No peer mentors are listed right now.",
       "noMatch": "No peer mentor matches these filters.",
@@ -455,7 +461,6 @@
       "paused": "Not taking new mentees right now",
       "allTitle": "All mentors",
       "seeProfileAndRequest": "View profile and send a request",
-      "mentorCountSuffix": ", {count, plural, one {# mentor} other {# mentors}}",
       "trained": "Training badge",
       "freeThisWeek": "Has a free hour this week",
       "noFreeThisWeek": "No free hour this week",
@@ -511,7 +516,7 @@
         "declined": "If they decline, you can send a request to another mentor."
       },
       "close": "Close",
-      "goToMine": "Go to My mentorships"
+      "goToMine": "Go to Mentorships I receive"
     },
     "withdraw": {
       "title": "Withdraw this request?",
@@ -638,6 +643,13 @@
       "increase": "Raise the limit",
       "suggested": "Suggested: at most 3",
       "limitHint": "When it fills up, Discover says “Not taking new mentees right now” and no new request comes."
+    },
+    "hint": "To open hours for mentoring, click a work day's bar or press “+ Add”.",
+    "edit": "Edit",
+    "barAdd": "Click to add hours",
+    "suggested": {
+      "title": "Suggested from your work hours",
+      "body": "Your weekly mentoring target of {target} is spread over your work days. Save it as it is, or change the hours."
     }
   }
 }
