@@ -303,9 +303,10 @@ export function JourneySteps({
   );
 }
 
-/** The design's illustrations; categories without one show their name alone. */
-export const CATEGORY_ART: Partial<
-  Record<PeerTopicCategory, { src: string; width: number; height: number }>
+/** Each peer category's sticker, at the size the cards show it: 63 px on the long side, the file's aspect ratio. */
+export const CATEGORY_ART: Record<
+  PeerTopicCategory,
+  { src: string; width: number; height: number }
 > = {
   [PeerTopicCategory.CareerInternship]: {
     src: "/ia/iskur/categories/career.png",
@@ -326,6 +327,26 @@ export const CATEGORY_ART: Partial<
     src: "/ia/iskur/categories/campus.png",
     width: 63,
     height: 61,
+  },
+  [PeerTopicCategory.ResearchAcademicCareer]: {
+    src: "/ia/iskur/categories/research.png",
+    width: 59,
+    height: 63,
+  },
+  [PeerTopicCategory.International]: {
+    src: "/ia/iskur/categories/international.png",
+    width: 63,
+    height: 60,
+  },
+  [PeerTopicCategory.PersonalProfessional]: {
+    src: "/ia/iskur/categories/personal.png",
+    width: 61,
+    height: 63,
+  },
+  [PeerTopicCategory.Entrepreneurship]: {
+    src: "/ia/iskur/categories/entrepreneurship.png",
+    width: 63,
+    height: 62,
   },
 };
 
