@@ -37,13 +37,14 @@ export function PersonPhotoAvatar({
     >
       <span className={photo.shown ? "invisible" : undefined}>{initials}</span>
       {photo.src ? (
-        // Same-origin and per viewer: the optimizer could not fetch it with the viewer's session.
+        // Same-origin and per viewer: the optimizer could not fetch it with the viewer's session. Keyed by the
+        // address, so a load still pending for the last person cannot mark the next one's photo as shown.
         <Image
+          key={photo.src}
           src={photo.src}
           alt=""
           fill
           unoptimized
-          sizes="64px"
           draggable={false}
           onLoad={photo.onLoad}
           onError={photo.onError}
