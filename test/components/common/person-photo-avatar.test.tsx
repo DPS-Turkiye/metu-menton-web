@@ -8,6 +8,7 @@ import { Avatar, PhotoAvatar } from "@/components/common/avatar";
 import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
 import { InitialsAvatar } from "@/components/ia/initials-avatar";
 import { InitialsAvatar as StudentInitialsAvatar } from "@/components/student/ia/ui";
+import { InitialsAvatar as IskurInitialsAvatar } from "@/components/student/iskur-ui";
 
 const PERSON_ID = "00000000-0000-4000-8000-000000000805";
 const PHOTO = `/api/users/${PERSON_ID}/photo`;
@@ -149,6 +150,10 @@ describe("avatars with a person id", () => {
       "StudentAvatar",
       <StudentAvatar key="academic" name="Ayşe Yılmaz" personId={PERSON_ID} />,
     ],
+    [
+      "İŞKUR InitialsAvatar",
+      <IskurInitialsAvatar key="iskur" initials="AY" personId={PERSON_ID} />,
+    ],
   ];
 
   it.each(withPerson)(
@@ -171,6 +176,7 @@ describe("avatars with a person id", () => {
       <StudentInitialsAvatar key="student" name="Ayşe Yılmaz" />,
     ],
     ["StudentAvatar", <StudentAvatar key="academic" name="Ayşe Yılmaz" />],
+    ["İŞKUR InitialsAvatar", <IskurInitialsAvatar key="iskur" initials="AY" />],
   ];
 
   it.each(withoutPerson)("%s stays initials without one", (_, avatar) => {

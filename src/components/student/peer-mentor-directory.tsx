@@ -252,6 +252,7 @@ function MentorHeading({
         name={mentor.fullName}
       >
         <InitialsAvatar
+          personId={mentor.mentorId}
           initials={initials(mentor.fullName)}
           size={large ? "profile" : "md"}
         />

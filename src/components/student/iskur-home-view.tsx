@@ -84,6 +84,7 @@ function Giving({ home }: { home: Home }) {
                   name={request.mentee.fullName}
                 >
                   <InitialsAvatar
+                    personId={request.mentee.userId}
                     initials={initials(request.mentee.fullName)}
                   />
                 </ProfilePictureLink>

@@ -40,7 +40,10 @@ export function AppointmentDrawer({
     >
       <div className="flex items-start justify-between gap-3 border-b border-border-subtle pb-5">
         <div className="flex items-center gap-3">
-          <StudentAvatar name={appointment.counterpart.fullName} />
+          <StudentAvatar
+            personId={appointment.counterpart.userId}
+            name={appointment.counterpart.fullName}
+          />
           <div>
             <p className="type-label-lg text-text-primary">
               {appointment.counterpart.fullName}

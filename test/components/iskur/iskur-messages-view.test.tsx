@@ -21,6 +21,7 @@ import {
   iskurMessage,
   PROGRAM_ID,
 } from "@test/fixtures/iskur-channels";
+import { personPhotosIn, photoPathOf } from "@test/fixtures/person-photo";
 import { renderWithQueryClient } from "@test/test-utils";
 
 // The live topics have their own tests; here the screen runs on its polling alone.
@@ -341,5 +342,16 @@ describe("IskurMessagesView", () => {
     expect(
       screen.queryByRole("button", { name: "Daha eski mesajlar" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows the sender's photo beside an announcement", async () => {
+    renderWithQueryClient(<IskurMessagesView linkedChannelId={null} />);
+
+    expect(
+      await screen.findByText(
+        "Perşembe 19 Kasım: İş sağlığı ve güvenliği eğitimi",
+      ),
+    ).toBeInTheDocument();
+    expect(personPhotosIn()).toContain(photoPathOf("s"));
   });
 });

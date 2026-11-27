@@ -158,7 +158,10 @@ function MenteeRow({
         href={requestMenteeHref(request)}
         name={mentee.fullName}
       >
-        <InitialsAvatar initials={initials(mentee.fullName)} />
+        <InitialsAvatar
+          personId={mentee.userId}
+          initials={initials(mentee.fullName)}
+        />
       </ProfilePictureLink>
       <div className="min-w-0 flex-1 basis-56">
         <h3 className="type-label-lg text-text-primary">{mentee.fullName}</h3>

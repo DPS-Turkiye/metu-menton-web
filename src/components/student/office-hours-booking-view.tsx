@@ -93,7 +93,11 @@ function SlotStep({
         <BackButton href={officeHoursProfileHref(academician.id)}>
           {t("back")}
         </BackButton>
-        <InitialsAvatar name={academician.fullName} size="sm" />
+        <InitialsAvatar
+          personId={academician.accountId}
+          name={academician.fullName}
+          size="sm"
+        />
         <div className="min-w-0">
           <p className="type-label-lg text-text-primary">{name}</p>
           <p className="type-body-sm text-text-muted">
@@ -376,7 +380,10 @@ function RequestForm({
         <p className="type-body-lg text-text-secondary">{t("intro")}</p>
       </header>
       <div className="flex items-center gap-4 rounded-xl bg-background-subtle px-5 py-4">
-        <InitialsAvatar name={academician.fullName} />
+        <InitialsAvatar
+          personId={academician.accountId}
+          name={academician.fullName}
+        />
         <div className="min-w-0 flex-1">
           <p className="type-label-lg text-text-primary">
             {academicianName(academician)}

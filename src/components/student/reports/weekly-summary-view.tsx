@@ -342,7 +342,10 @@ function OutcomeRow({ outcome }: { outcome: WeeklyOutcome }) {
         href={peerMenteeHref(outcome.menteeId)}
         name={outcome.fullName}
       >
-        <InitialsAvatar initials={initials(outcome.fullName)} />
+        <InitialsAvatar
+          personId={outcome.menteeId}
+          initials={initials(outcome.fullName)}
+        />
       </ProfilePictureLink>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
