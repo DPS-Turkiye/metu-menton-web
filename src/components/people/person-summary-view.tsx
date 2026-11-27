@@ -7,19 +7,11 @@ import Link from "next/link";
 import { useId, type ReactNode } from "react";
 
 import { Avatar, Panel, StatusChip } from "@/components/admin/admin-ui";
-import { ModalDialog } from "@/components/common/modal-dialog";
 import { TeamHistory } from "@/components/common/team-history";
-import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
-import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
-import {
-  usePersonIskurInterns,
-  type PersonIskurInternsState,
-} from "@/hooks/use-person-iskur-interns";
 import {
   usePersonSummary,
   type SummaryFactText,
 } from "@/hooks/use-person-summary";
-import { PersonIskurState } from "@/lib/iskur-interns";
 import type { KeyedText } from "@/types/person-summary";
 
 type SummaryView = NonNullable<ReturnType<typeof usePersonSummary>["view"]>;
@@ -70,13 +62,8 @@ export function PersonSummaryView({ userId }: { userId: string }) {
 
 function ProfileBody({ view }: { view: SummaryView }) {
   const t = useTranslations("personSummary");
-  const iskur = usePersonIskurInterns({
-    email: view.email,
-    programs: view.programs,
-  });
   return (
     <>
-      <RemoveFromIskurDialog iskur={iskur} />
       <ProfileHeader view={view} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-6">
@@ -116,7 +103,6 @@ function ProfileBody({ view }: { view: SummaryView }) {
                       {program.name}
                     </Link>
                     <p className="text-[12px] text-[#858c96]">{program.note}</p>
-                    <ProgramIskur program={program} iskur={iskur} />
                   </li>
                 ))}
               </ul>
@@ -137,108 +123,6 @@ function ProfileBody({ view }: { view: SummaryView }) {
 }
 
 // TEST UI: placeholder until the design team's screen; replace when it arrives.
-function ProgramIskur({
-  program,
-  iskur,
-}: {
-  program: SummaryView["programs"][number];
-  iskur: PersonIskurInternsState;
-}) {
-  const t = useTranslations("personSummary.iskur");
-  const row = iskur.rowFor(program);
-  if (!row) return null;
-  if (row.loadFailed) {
-    return (
-      <p role="alert" className="mt-2 text-[12px] text-[#d9464b]">
-        {t("loadFailed")}
-      </p>
-    );
-  }
-  if (row.state === null) {
-    return (
-      <p role="status" className="mt-2 text-[12px] text-[#858c96]">
-        {t("loading")}
-      </p>
-    );
-  }
-  if (row.state === PersonIskurState.NotListed) {
-    return (
-      <div className="mt-2">
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Secondary}
-          aria-label={t("addNamed", { program: row.programName })}
-          disabled={iskur.busy}
-          onClick={() => iskur.addTo(row.programId)}
-        >
-          {t("add")}
-        </Button>
-      </div>
-    );
-  }
-  const intern = row.state === PersonIskurState.Intern;
-  return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
-      <StatusBadge tone={intern ? StatusTone.Success : StatusTone.Warning}>
-        {t(intern ? "intern" : "listed")}
-      </StatusBadge>
-      {row.canRemove ? (
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Ghost}
-          aria-label={t("removeNamed", { program: row.programName })}
-          disabled={iskur.busy}
-          onClick={() => iskur.startRemove(row.programId)}
-        >
-          {t("remove")}
-        </Button>
-      ) : null}
-      {intern ? null : (
-        <p className="w-full text-[12px] text-[#858c96]">{t("listedHint")}</p>
-      )}
-      {row.placed ? (
-        <p className="w-full text-[12px] text-[#858c96]">{t("placedHint")}</p>
-      ) : null}
-    </div>
-  );
-}
-
-// TEST UI: placeholder until the design team's screen; replace when it arrives.
-function RemoveFromIskurDialog({ iskur }: { iskur: PersonIskurInternsState }) {
-  const t = useTranslations("personSummary.iskur");
-  const titleId = useId();
-  const row = iskur.confirming;
-  if (!row) return null;
-  return (
-    <ModalDialog labelledBy={titleId} onClose={iskur.cancelRemove}>
-      <h2 id={titleId} className="type-h4 text-text-primary">
-        {t("confirmTitle")}
-      </h2>
-      <p className="type-body-sm text-text-secondary">
-        {t("confirmBody", { program: row.programName })}
-      </p>
-      <div className="flex justify-end gap-2">
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Ghost}
-          disabled={iskur.removing}
-          onClick={iskur.cancelRemove}
-        >
-          {t("cancel")}
-        </Button>
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Destructive}
-          disabled={iskur.removing}
-          onClick={iskur.confirmRemove}
-        >
-          {t("confirmRemove")}
-        </Button>
-      </div>
-    </ModalDialog>
-  );
-}
-
 function ProfileHeader({ view }: { view: SummaryView }) {
   const t = useTranslations("personSummary");
   return (

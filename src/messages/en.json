@@ -8300,6 +8300,12 @@
       "title": "My İŞKUR form",
       "body": "You can edit your form until your coordinator places you in a team.",
       "action": "View my form"
+    },
+    "badgeCard": {
+      "status": "Badge pending",
+      "title": "Peer mentor badge",
+      "body": "Your İŞKUR work doesn't wait for the badge. If you like, finish the training any time this term and become a peer mentor.",
+      "action": "Go to Give mentoring"
     }
   },
   "iskurWeek": {
@@ -8394,7 +8400,8 @@
       "supportChoose": "Pick an activity",
       "supportEmpty": "The coordinator has not set up the support activity pool yet.",
       "cancel": "Cancel",
-      "loadFailed": "This week could not be loaded."
+      "loadFailed": "This week could not be loaded.",
+      "badgePending": "Badge pending"
     },
     "line": {
       "remove": "Remove {title}",

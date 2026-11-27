@@ -132,6 +132,30 @@ describe("IskurThisWeekCard", () => {
     await waitFor(() => expect(addIskurSupportEntry).toHaveBeenCalledTimes(1));
   });
 
+  it("keeps the coordinator's mentoring target and says Rozet bekleniyor until the badge", async () => {
+    gate.state = PeerMentorGateState.NoBadge;
+    vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
+      weekStart === null
+        ? Promise.resolve(createIskurWeek())
+        : Promise.reject(new ClientApiError("x", 404)),
+    );
+    const first = renderWithQueryClient(<IskurThisWeekCard />);
+
+    const week = await screen.findByRole("region", { name: /Bu Haftam/ });
+    expect(within(week).getByText("Rozet bekleniyor")).toBeInTheDocument();
+    expect(within(week).getByText("2 sa 40 dk / 6 sa")).toBeInTheDocument();
+    first.unmount();
+
+    gate.state = PeerMentorGateState.Earned;
+    vi.mocked(getPeerMentorProfile).mockResolvedValue(
+      peerMentorProfileFixture(),
+    );
+    vi.mocked(getReceivedPeerRequests).mockResolvedValue([]);
+    renderWithQueryClient(<IskurThisWeekCard />);
+    const earned = await screen.findByRole("region", { name: /Bu Haftam/ });
+    expect(within(earned).queryByText("Rozet bekleniyor")).toBeNull();
+  });
+
   it("asks to fix a week the leader sent back, with the leader's note", async () => {
     vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
       Promise.resolve(

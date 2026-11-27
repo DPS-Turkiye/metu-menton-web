@@ -58,6 +58,9 @@ vi.mock("@/hooks/use-profile-photo", () => ({
 vi.mock("@/components/iskur/iskur-form-card", () => ({
   IskurFormCard: () => <p>İŞKUR formu kartı</p>,
 }));
+vi.mock("@/components/iskur/iskur-badge-pending-card", () => ({
+  IskurBadgePendingCard: () => <p>Rozet bekleniyor kartı</p>,
+}));
 vi.mock("@/lib/client/institution", () => ({
   fetchInstitutionRecord: vi.fn(),
   fetchInstitutionAdvisees: vi.fn(),

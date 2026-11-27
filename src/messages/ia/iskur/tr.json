@@ -584,13 +584,15 @@
     "training": {
       "title": "Akran mentoru ol",
       "body": "Programının eğitimini tamamla, rozetini al ve diğer öğrencilere mentorluk ver.",
-      "action": "Mentorluk Ver'e git"
+      "action": "Mentorluk Ver'e git",
+      "iskurBody": "İsteğe bağlı: İŞKUR'daki çalışman rozeti beklemez. Dönem içinde istediğin zaman eğitimi tamamlayıp akran mentoru olabilirsin."
     },
     "createProfile": {
       "title": "Rozetin doğrulandı",
       "body": "Mentor profilini oluştur; yayınladığında öğrenciler seni keşfedebilir.",
       "action": "Mentor profilini oluştur"
-    }
+    },
+    "badgePending": "Rozet bekleniyor"
   },
   "appointments": {
     "filterLabel": "Görüşmelerde rolün",

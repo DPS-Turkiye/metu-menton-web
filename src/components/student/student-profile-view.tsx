@@ -8,6 +8,7 @@ import { PhotoAvatar } from "@/components/common/avatar";
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { InlineAlert } from "@/components/ia/inline-alert";
 import { StatusTone } from "@/components/ia/status-badge";
+import { IskurBadgePendingCard } from "@/components/iskur/iskur-badge-pending-card";
 import { IskurFormCard } from "@/components/iskur/iskur-form-card";
 import { ProductTourReplayButton } from "@/components/product-tour/product-tour-replay-button";
 import { Chip } from "@/components/student/ia/ui";
@@ -42,6 +43,7 @@ export function StudentProfileView() {
           <InterestsCard />
           <PhotoCard name={institution.record?.fullName ?? null} />
           <IskurFormCard />
+          <IskurBadgePendingCard />
           <MyBadgesSection />
         </div>
         <aside className="flex flex-col gap-6">
