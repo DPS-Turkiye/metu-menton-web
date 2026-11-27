@@ -44,6 +44,24 @@ describe("TopicPicker", () => {
     expect(onToggle).toHaveBeenCalledWith(PeerTopicCategory.International);
   });
 
+  it("shows each category's sticker on its card", () => {
+    render(
+      <InLocale locale="tr">
+        <TopicPicker
+          categories={PROFILE_COMPLETION_CATEGORIES}
+          selected={[]}
+          onToggle={vi.fn()}
+        />
+      </InLocale>,
+    );
+
+    for (const box of screen.getAllByRole("checkbox")) {
+      expect(
+        box.closest("label")?.querySelector("img")?.getAttribute("src"),
+      ).toMatch(/categories/);
+    }
+  });
+
   it("says so when the program has no active category", () => {
     render(
       <InLocale locale="tr">
@@ -74,7 +92,7 @@ describe("SubtopicPicker", () => {
 
     const section = screen.getByRole("region", { name: "Alt konular" });
     const chip = within(section).getByRole("checkbox", {
-      name: "Örnek: CV hazırlama",
+      name: "CV Hazırlama",
     });
     expect(chip).toBeChecked();
     await userEvent.click(chip);

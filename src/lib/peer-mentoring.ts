@@ -202,6 +202,9 @@ export const PEER_HELP_WITH_MAX = 2000;
 export const PEER_PROFILE_TEXT_MAX = 2000;
 export const PEER_ERASMUS_MAX = 500;
 
+/** The backend's limit on how many sub-topics a peer mentor offers (the catalogue has more). */
+export const PEER_SUBTOPICS_MAX = 20;
+
 export type WeeklyHours = { dayOfWeek: Weekday; start: string; end: string };
 
 /** Days that share the same hours, together ("Salı, Perşembe"), in week order of their first day. */

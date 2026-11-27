@@ -134,7 +134,7 @@ describe("PeerMentorPublicProfile", () => {
     const topics = await screen.findByRole("region", {
       name: "Yardımcı olabileceği konular",
     });
-    expect(within(topics).getByText("Örnek: CV hazırlama")).toBeVisible();
+    expect(within(topics).getByText("CV Hazırlama")).toBeVisible();
     // A sub-topic the catalogue doesn't know shows as written.
     expect(within(topics).getByText("Serbest konu")).toBeVisible();
 
