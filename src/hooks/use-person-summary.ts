@@ -124,6 +124,7 @@ export function usePersonSummary(userId: string) {
         : null,
       programs: model.programs.map((program) => ({
         key: program.key,
+        id: program.id,
         name: program.name,
         href: `${programsHref}/${encodeURIComponent(program.id)}`,
         note: t(program.note),
