@@ -6439,7 +6439,10 @@
     "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi.",
     "launchPreviewLoadFailed": "Başlatma özeti yüklenemedi.",
     "programMembershipLoadFailed": "Program bilgisi yüklenemedi.",
-    "programMembershipSaveFailed": "Program değişikliği kaydedilemedi."
+    "programMembershipSaveFailed": "Program değişikliği kaydedilemedi.",
+    "iskurAssessmentLoadFailed": "Değerlendirme açıklamaları yüklenemedi.",
+    "iskurAssessmentInvalid": "Değerlendirme açıklaması geçersiz.",
+    "iskurAssessmentSaveFailed": "Değerlendirme açıklaması kaydedilemedi."
   },
   "startupStart": {
     "title": "Startup'ım",
@@ -8728,6 +8731,40 @@
     },
     "declined": "Talep reddedildi; öğrenciye bildirildi.",
     "declineFailed": "Talep reddedilemedi."
+  },
+  "iskurAssessment": {
+    "title": "Değerlendirme açıklaması",
+    "hint": "Akran mentör değerlendirmesini tamamlayamadın ya da geçemedin mi? Nedenini koordinatörüne yaz; haftalık mentörlük süreni o belirler. Mentor olmak zorunlu değil.",
+    "start": "Koordinatörüne açıkla",
+    "reasonLabel": "Neden?",
+    "reasonPlaceholder": "Bir neden seç",
+    "reasons": {
+      "NOT_STARTED": "Henüz başlayamadım (zaman)",
+      "FAILED": "Testi geçemedim",
+      "NO_ACCESS": "Prism’e erişemedim / teknik sorun",
+      "PERSONAL": "Kişisel sebep",
+      "NO_MENTORING": "Mentor olmak istemiyorum",
+      "OTHER": "Diğer"
+    },
+    "textLabel": "Kısaca anlat",
+    "textHint": "Koordinatörün okur. Sağlık gibi özel ayrıntı yazman gerekmez; en fazla {max} karakter.",
+    "cancel": "Vazgeç",
+    "send": "Gönder",
+    "sending": "Gönderiliyor…",
+    "sent": "Açıklaman koordinatörüne iletildi.",
+    "sendFailed": "Açıklaman gönderilemedi.",
+    "waiting": "Açıklaman koordinatörüne iletildi · {date}",
+    "waitingHint": "Koordinatörün karar verdiğinde bildirim alırsın.",
+    "yourReason": "Seçtiğin neden: {reason}",
+    "decidedTitle": "Koordinatörün karar verdi · {date}",
+    "decidedUndated": "Koordinatörün karar verdi",
+    "mentoringNone": "Haftalık mentörlük süren: yok; tüm saatlerin ekip çalışmasında.",
+    "mentoringHours": "Haftalık mentörlük süren: {hours} sa",
+    "mentoringDefaultHours": "Haftalık mentörlük süren varsayılana döndü: {hours} sa",
+    "mentoringKept": "Haftalık mentörlük süren değişmedi.",
+    "retakeOpened": "Testi Prism üzerinden yeniden alabilirsin.",
+    "note": "Koordinatörünün notu: {note}",
+    "cancelledTitle": "Açıklaman kapandı; ekip yerleşimin kaldırıldı."
   },
   "iskurTeamSupport": {
     "tab": "Destek talepleri",
