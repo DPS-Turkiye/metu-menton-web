@@ -5,6 +5,7 @@ import {
   type IskurPlacement,
   type IskurPlacementInput,
   type IskurTeam,
+  type IskurUnit,
   type IskurWorkspace,
 } from "@/interfaces/iskur-workspace";
 import {
@@ -12,10 +13,13 @@ import {
   IskurFormProblem,
   type IskurDialog,
   type IskurPlacementForm,
+  type IskurPlacementPreference,
+  type IskurPlacementPrefill,
 } from "@/types/iskur-workspace";
 
 /** The org chart's team: two leaders and seven members. */
 export const ISKUR_TEAM_SIZE = 9;
+export const ISKUR_TEAM_LEADERS = 2;
 export const ISKUR_WEEKLY_DAYS = [1, 2, 3] as const;
 /** The dialog's role choices, member first. */
 export const ISKUR_ROLES = [
@@ -89,13 +93,58 @@ export function provisionalCount(
 }
 
 /**
- * The dialog's starting values: the person's placement, or the first team for someone new, with the work days they
- * chose on their onboarding form when they sent one.
+ * The team to suggest from a sent form: the chosen unit with the highest skill score (ties in screen order), then its
+ * first team with room (for a would-be leader, one with fewer than two leaders first), else its first team. Null
+ * when no chosen unit has a team.
+ */
+export function suggestedTeamId(
+  workspace: IskurWorkspace,
+  preference: IskurPlacementPreference,
+): string | null {
+  const scores = preference.unitScores;
+  let best: IskurUnit | null = null;
+  for (const unit of workspace.units) {
+    const score = scores[unit.id];
+    if (score == null || unit.teams.length === 0) continue;
+    if (!best || score > (scores[best.id] ?? 0)) best = unit;
+  }
+  if (!best) return null;
+  const hasRoom = (team: IskurTeam) => team.people.length < ISKUR_TEAM_SIZE;
+  const needsLeader = (team: IskurTeam) =>
+    team.people.filter((person) => person.role === IskurTeamRole.Leader)
+      .length < ISKUR_TEAM_LEADERS;
+  const team =
+    (preference.wantsLeadership
+      ? best.teams.find((item) => needsLeader(item) && hasRoom(item))
+      : undefined) ??
+    best.teams.find(hasRoom) ??
+    best.teams[0];
+  return team?.id ?? null;
+}
+
+/** What a new placement takes from the intern's sent form; null without one. */
+export function placementPrefill(
+  workspace: IskurWorkspace,
+  preference: IskurPlacementPreference | null,
+): IskurPlacementPrefill | null {
+  if (!preference) return null;
+  return {
+    teamId: suggestedTeamId(workspace, preference),
+    role: preference.wantsLeadership
+      ? IskurTeamRole.Leader
+      : IskurTeamRole.Member,
+    weeklyDays: preference.weeklyDays,
+  };
+}
+
+/**
+ * The dialog's starting values: the person's placement, or for someone new what their sent form suggests, falling
+ * back to the first team, Üye and unknown days.
  */
 export function placementForm(
   workspace: IskurWorkspace,
   placement: IskurPlacement | null,
-  preferredDays: number | null = null,
+  prefill: IskurPlacementPrefill | null = null,
 ): IskurPlacementForm {
   if (placement) {
     const split = placement.split;
@@ -111,11 +160,27 @@ export function placementForm(
     };
   }
   return {
-    teamId: workspace.units.flatMap((unit) => unit.teams)[0]?.id ?? "",
-    role: IskurTeamRole.Member,
+    teamId:
+      prefill?.teamId ??
+      workspace.units.flatMap((unit) => unit.teams)[0]?.id ??
+      "",
+    role: prefill?.role ?? IskurTeamRole.Member,
     leaderId: null,
-    weeklyDays: preferredDays,
+    weeklyDays: prefill?.weeklyDays ?? null,
     mentoringHours: "",
+  };
+}
+
+/** Which dialog fields still hold what the form gave them, for the "Başvurudan" hints. */
+export function prefilledFields(
+  form: IskurPlacementForm,
+  prefill: IskurPlacementPrefill | null,
+) {
+  return {
+    team: prefill?.teamId != null && form.teamId === prefill.teamId,
+    role: form.role === prefill?.role,
+    weeklyDays:
+      prefill?.weeklyDays != null && form.weeklyDays === prefill.weeklyDays,
   };
 }
 

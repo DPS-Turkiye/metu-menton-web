@@ -1,5 +1,8 @@
 import {
+  IskurSkillLevel,
   IskurTeamRolePreference,
+  type IskurApplication,
+  type IskurApplications,
   type IskurOnboardingForm,
   type IskurOnboardingInput,
   type IskurOnboardingUnit,
@@ -17,6 +20,7 @@ import {
   type IskurLeadershipEligibility,
   type IskurRangeRow,
 } from "@/types/iskur-onboarding";
+import type { IskurPlacementPreference } from "@/types/iskur-workspace";
 
 export const ISKUR_ONBOARDING_HREF = "/iskur/onboarding";
 /** Set by "Sonra hatırlat"; lasts until the browser closes, so the form is asked for again next time. */
@@ -195,6 +199,36 @@ export function askedSkillIds(
   return askedSkillGroups(units, selectedUnitIds).flatMap((group) =>
     group.skills.map((skill) => skill.id),
   );
+}
+
+const SKILL_LEVEL_SCORE: Record<IskurSkillLevel, number> = {
+  [IskurSkillLevel.None]: 0,
+  [IskurSkillLevel.Beginner]: 1,
+  [IskurSkillLevel.Good]: 2,
+  [IskurSkillLevel.Expert]: 3,
+};
+
+/** A sent form's answers for the placement dialog: days, the leadership wish and a skill score per chosen unit. */
+export function placementPreference(
+  application: IskurApplication,
+  units: IskurApplications["units"],
+): IskurPlacementPreference {
+  const levels = new Map(
+    application.skills.map((answer) => [answer.skillId, answer.level]),
+  );
+  const unitScores: Record<string, number> = {};
+  for (const unitId of application.unitIds) {
+    const skills = units.find((unit) => unit.id === unitId)?.skills ?? [];
+    unitScores[unitId] = skills.reduce((sum, skill) => {
+      const level = levels.get(skill.id);
+      return sum + (level ? SKILL_LEVEL_SCORE[level] : 0);
+    }, 0);
+  }
+  return {
+    weeklyDays: application.weeklyDays,
+    wantsLeadership: application.leadership.wants,
+    unitScores,
+  };
 }
 
 export function leadershipEligibility(input: {

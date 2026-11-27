@@ -27,7 +27,7 @@ import {
 import { iskurInternList } from "@test/fixtures/iskur-interns";
 import { applications, KREATIF } from "@test/fixtures/iskur-onboarding";
 import { iskurTeamChange } from "@test/fixtures/iskur-team-change";
-import { iskurWorkspace } from "@test/fixtures/iskur-workspace";
+import { iskurPlacement, iskurWorkspace } from "@test/fixtures/iskur-workspace";
 import { renderWithQueryClient } from "@test/test-utils";
 
 vi.mock("@/components/coordinator/program-detail-frame", () => ({
@@ -463,6 +463,115 @@ describe("IskurWorkspaceView", () => {
     expect(
       within(dialog).getByText("Bu kişi yerleştirme formunu henüz göndermedi."),
     ).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Ekip")).toHaveDisplayValue(
+      "Medya ve Kreatif Üretim",
+    );
+    expect(within(dialog).getByLabelText("Üye")).toBeChecked();
+    expect(
+      within(dialog).getByLabelText("Haftalık görev günü"),
+    ).toHaveDisplayValue("Henüz bilinmiyor");
+    expect(
+      within(dialog).queryByText(/Başvurudan|Başvuruya göre/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("starts a new placement from the intern's form: leader wish, days and a team in their unit", async () => {
+    const sent = denizSent();
+    const [form] = sent.applications;
+    if (!form) throw new Error("fixture has no application");
+    vi.mocked(getIskurApplications).mockResolvedValue({
+      ...sent,
+      applications: [{ ...form, unitIds: ["unit1"] }],
+    });
+    // Medya already has its two leaders, so a would-be leader is suggested Dijital.
+    const [unit] = workspace.units;
+    const [medya, dijital] = unit?.teams ?? [];
+    if (!unit || !medya || !dijital) throw new Error("fixture has no teams");
+    vi.mocked(getIskurWorkspace).mockResolvedValue({
+      ...workspace,
+      units: [
+        {
+          ...unit,
+          teams: [
+            {
+              ...medya,
+              people: [
+                ...medya.people,
+                iskurPlacement({ userId: "u-leader2", fullName: "Ece Kurt" }),
+              ],
+            },
+            dijital,
+          ],
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    await renderView();
+    await screen.findByText("Yerleştirme formları: 1 gönderildi · 2 taslak");
+
+    await user.click(
+      screen.getByRole("button", { name: "Deniz Arslan kişisini yerleştir" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const team = within(dialog).getByLabelText("Ekip");
+    expect(team).toHaveDisplayValue("Dijital Dönüşüm ve Teknoloji");
+    expect(team).toHaveAccessibleDescription("Başvuruya göre önerildi");
+    expect(within(dialog).getByLabelText("Ekip lideri")).toBeChecked();
+    expect(
+      within(dialog).getByRole("group", { name: "Ekipteki rolü" }),
+    ).toHaveAccessibleDescription("Başvurudan dolduruldu");
+    expect(
+      within(dialog).getByLabelText("Haftalık görev günü"),
+    ).toHaveAccessibleDescription("Başvurudan dolduruldu");
+
+    await user.click(within(dialog).getByLabelText("Üye"));
+    await user.selectOptions(team, "Medya ve Kreatif Üretim");
+    expect(
+      within(dialog).queryByText("Başvuruya göre önerildi"),
+    ).not.toBeInTheDocument();
+    expect(within(dialog).getAllByText("Başvurudan dolduruldu")).toHaveLength(
+      1,
+    );
+    await user.click(within(dialog).getByRole("button", { name: "Kaydet" }));
+    expect(placeIskurIntern).toHaveBeenCalledWith("p1", "u-pool", {
+      teamId: "t1",
+      role: IskurTeamRole.Member,
+      leaderId: null,
+      weeklyDays: 3,
+      mentoringMinutes: null,
+    });
+  });
+
+  it("keeps a saved placement's values over the intern's form", async () => {
+    const sent = denizSent();
+    const [form] = sent.applications;
+    if (!form) throw new Error("fixture has no application");
+    vi.mocked(getIskurApplications).mockResolvedValue({
+      ...sent,
+      applications: [
+        {
+          ...form,
+          userId: "u-member",
+          fullName: "Burak Tan",
+          unitIds: ["unit1"],
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    await renderView();
+    await screen.findByText("Yerleştirme formları: 1 gönderildi · 2 taslak");
+
+    await user.click(
+      screen.getByRole("button", { name: "Burak Tan yerleşimini düzenle" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByLabelText("Üye")).toBeChecked();
+    expect(
+      within(dialog).getByLabelText("Haftalık görev günü"),
+    ).toHaveDisplayValue("2 gün");
+    expect(
+      within(dialog).queryByText(/Başvurudan|Başvuruya göre/),
+    ).not.toBeInTheDocument();
   });
 
   it("moves an intern who asked to change team with the placement dialog (handbook p.18)", async () => {

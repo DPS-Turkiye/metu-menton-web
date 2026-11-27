@@ -7603,6 +7603,8 @@
     "mentoringHours": "Haftalık mentorluk süresi (saat)",
     "mentoringDefault": "Varsayılan: {hours, number} sa",
     "mentoringHint": "Boş bırakırsan gün sayısına göre varsayılan (%27 civarı) uygulanır. Mentorluk vermeyen için 0 yaz; kalan süre ekip çalışmasına gider. 30 dakikalık adımlarla.",
+    "fromApplication": "Başvurudan dolduruldu",
+    "suggestedFromApplication": "Başvuruya göre önerildi",
     "problems": {
       "NO_TEAM": "Önce bir ekip seç.",
       "MENTORING_NEEDS_DAYS": "Mentorluk süresi için önce görev günü sayısını seç.",
