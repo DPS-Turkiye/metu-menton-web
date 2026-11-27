@@ -7,6 +7,9 @@ import { GateBadgeState, inTraining, StudentFilter } from "@/interfaces/badges";
 import { matchesSearch } from "@/lib/admin-mentorships";
 import { getAdminStudents } from "@/lib/client/badges";
 
+/** Every admin student list query starts with this key, so a change can refresh them all. */
+export const ADMIN_STUDENTS_QUERY_KEY = ["admin", "students"] as const;
+
 const STATE_OF: Record<StudentFilter, GateBadgeState | null> = {
   [StudentFilter.All]: null,
   [StudentFilter.None]: GateBadgeState.None,
@@ -24,7 +27,7 @@ export function useAdminStudents() {
   const [search, setSearch] = useState("");
   const state = STATE_OF[filter];
   const query = useQuery({
-    queryKey: ["admin", "students", state ?? "ALL"],
+    queryKey: [...ADMIN_STUDENTS_QUERY_KEY, state ?? "ALL"],
     queryFn: () => getAdminStudents(state),
   });
   const inFilter =
@@ -39,7 +42,10 @@ export function useAdminStudents() {
     setSearch,
     rows: needle
       ? inFilter.filter((row) =>
-          matchesSearch([row.fullName, row.email, row.programName], needle),
+          matchesSearch(
+            [row.fullName, row.email, row.programName ?? ""],
+            needle,
+          ),
         )
       : inFilter,
     isLoading: query.isLoading,

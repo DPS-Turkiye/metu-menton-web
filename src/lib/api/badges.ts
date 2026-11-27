@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { AdminStudentRow } from "@/interfaces/admin-membership";
 import type {
   AchievementProgress,
   BadgeAward,
@@ -79,7 +80,7 @@ export function fetchAdminStudents(
   actorId: string,
   state: GateBadgeState | null,
 ) {
-  return backendRequest<GateBadgeRow[]>({
+  return backendRequest<AdminStudentRow[]>({
     method: HttpMethod.Get,
     url: "/api/admin/students",
     params: state ? { actorId, state } : { actorId },

@@ -28,6 +28,7 @@ describe("AdminStudentsTable", () => {
         training: { videoWatched: false, attempts: 0, bestScore: null },
         profile: null,
         prism: null,
+        student: true,
       },
       {
         userId: "u2",
@@ -44,6 +45,7 @@ describe("AdminStudentsTable", () => {
         training: { videoWatched: true, attempts: 1, bestScore: 5 },
         profile: null,
         prism: null,
+        student: true,
       },
     ]);
   });

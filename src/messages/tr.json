@@ -6006,11 +6006,35 @@
     "badge": "Rozet",
     "since": "Rozet tarihi",
     "filterAll": "Rozet durumu: Tümü",
-    "intro": "Akran mentörlüğü programlarındaki öğrenciler. ODTÜ öğrencilerinin hesapları kurum verisinden gelir; elle onaylanmaz.",
+    "intro": "Onaylı öğrenciler ve bulundukları dönem. ODTÜ öğrencilerinin hesapları kurum verisinden gelir; elle onaylanmaz.",
     "searchLabel": "Öğrenci ara",
     "searchPlaceholder": "Ad, e-posta veya program ara",
-    "footnote": "Rozet verme ve geri alma programın Katılımcılar sayfasından yapılır; satırdaki program adı oraya götürür.",
-    "caption": "Öğrenciler"
+    "footnote": "Rozet verme ve geri alma dönemin Katılımcılar sayfasından yapılır; satırdaki program adı oraya götürür. Bir öğrenciyi döneme eklemek ya da çıkarmak için satırın menüsünü kullan.",
+    "caption": "Öğrenciler",
+    "membership": {
+      "rowActions": "{name} için işlemler",
+      "ADD": "Programa ekle",
+      "REMOVE": "Programdan çıkar",
+      "noProgram": "Dönemde değil",
+      "addTitle": "{name} programa eklensin",
+      "removeTitle": "{name} programdan çıkarılsın mı?",
+      "loading": "Dönem bilgisi yükleniyor…",
+      "loadFailed": "Dönem bilgisi yüklenemedi.",
+      "saveFailed": "Program değişikliği kaydedilemedi.",
+      "notInSemester": "Şu an hiçbir dönemde değil.",
+      "moveNote": "Şu an {current} döneminde; seçtiğin döneme taşınır. Yeni dönemde Akran Mentörlüğü varsa akran mentoru kaydı da taşınır, yoksa sona erer. Geçmiş mentorlukları ve raporları {current} döneminde okunur olarak kalır.",
+      "removeNote": "{current} döneminden çıkar. Akran mentoru kaydı sona erer; geçmiş mentorlukları ve raporları silinmez.",
+      "target": "Dönem",
+      "targetOption": "{name} ({status})",
+      "noTargets": "Eklenebilecek taslak ya da aktif dönem yok.",
+      "blocked": "Açık işler bitmeden {current} döneminden ayrılamaz:",
+      "blockedNoName": "Açık işler bitmeden döneminden ayrılamaz:",
+      "cancel": "Vazgeç",
+      "added": "{name}, {program} dönemine eklendi.",
+      "removed": "{name} programdan çıkarıldı.",
+      "signInAgain": "Bu işlem için yeniden giriş yapman gerekiyor."
+    },
+    "actions": "İşlemler"
   },
   "trainingEditor": {
     "loading": "Eğitim yükleniyor…",
@@ -6411,7 +6435,9 @@
     "programFeaturesLoadFailed": "Program özellikleri yüklenemedi.",
     "programFeaturesSaveFailed": "Program özellikleri kaydedilemedi.",
     "coordinatorFeaturesSaveFailed": "Koordinatörün özellikleri kaydedilemedi.",
-    "launchPreviewLoadFailed": "Başlatma özeti yüklenemedi."
+    "launchPreviewLoadFailed": "Başlatma özeti yüklenemedi.",
+    "programMembershipLoadFailed": "Program bilgisi yüklenemedi.",
+    "programMembershipSaveFailed": "Program değişikliği kaydedilemedi."
   },
   "startupStart": {
     "title": "Startup'ım",

@@ -16,7 +16,11 @@ const BADGE_TONES: Record<GateBadgeState, StatusTone> = {
 };
 
 /** The "Rozet" column's tag (Figma 152:7525, 152:7963): "Rozet Doğrulandı", "Rozet Yok", "Eğitimde"… */
-export function GateBadgeTag({ row }: { row: GateBadgeRow }) {
+export function GateBadgeTag({
+  row,
+}: {
+  row: Pick<GateBadgeRow, "state" | "training">;
+}) {
   const t = useTranslations("peerParticipants");
   if (inTraining(row)) {
     return <Tag tone={StatusTone.Warning}>{t("badgeStates.IN_TRAINING")}</Tag>;
