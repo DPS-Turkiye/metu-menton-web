@@ -8756,7 +8756,50 @@
     "mentoringKept": "Haftalık mentörlük süren değişmedi.",
     "retakeOpened": "Testi Prism üzerinden yeniden alabilirsin.",
     "note": "Koordinatörünün notu: {note}",
-    "cancelledTitle": "Açıklaman kapandı; ekip yerleşimin kaldırıldı."
+    "cancelledTitle": "Açıklaman kapandı; ekip yerleşimin kaldırıldı.",
+    "coordinator": {
+      "title": "Değerlendirme açıklamaları ({count})",
+      "hint": "Rozeti olmayan stajyerler değerlendirmeyi neden tamamlayamadıklarını buradan yazar. Haftalık mentörlük süresine karar ver; ekip çalışması kalan süreyi alır.",
+      "empty": "Karar bekleyen açıklama yok.",
+      "loadFailed": "Değerlendirme açıklamaları yüklenemedi.",
+      "badgeNow": "Rozet aldı",
+      "daysUnknown": "Görev günü bilinmiyor",
+      "week": "{days} gün · mentörlük {hours} sa",
+      "defaultTag": "(varsayılan)",
+      "decide": "Karar ver",
+      "decideNamed": "{name} için karar ver",
+      "training": {
+        "PRISM_TODO": "Prism’i henüz tamamlamadı",
+        "PRISM_PENDING": "Prism’i tamamladığını söyledi, karar bekliyor",
+        "PRISM_RETAKE": "Testi yeniden alması istendi",
+        "NOT_AVAILABLE": "Prism henüz açılmadı",
+        "BADGE_ACTIVE": "Rozet aldı",
+        "BLOCKED": "Rozeti geri alındı",
+        "INTERNS_ONLY": "Akran mentörlüğüne açık değil",
+        "VIDEO": "Eğitim videosunda",
+        "QUIZ": "Testte"
+      },
+      "mentoringLabel": "Haftalık mentörlük süresi",
+      "choice": {
+        "KEEP": "Değiştirme",
+        "NONE": "0 sa: tüm süre ekip çalışmasına",
+        "HOURS": "Başka bir süre",
+        "DEFAULT": "Varsayılana dön"
+      },
+      "choiceDefaultHours": "Varsayılana dön ({hours} sa)",
+      "hoursLabel": "Saat (0,5 saatlik adımlarla)",
+      "preview": "Yeni hafta: mentörlük {mentoring} sa · ekip çalışması {team} sa",
+      "retake": "Testi yeniden açabilir",
+      "noteLabel": "Stajyere not (isteğe bağlı)",
+      "emptyDecision": "Süreyi değiştir, testi yeniden aç ya da bir not yaz.",
+      "confirm": "Kararı kaydet ve bildir",
+      "cancel": "Vazgeç",
+      "closed": "Karar verilenler ({count})",
+      "cancelled": "Yerleştirme kaldırıldı",
+      "retakeOpened": "test yeniden açıldı",
+      "decided": "Karar kaydedildi; stajyere bildirildi.",
+      "decideFailed": "Karar kaydedilemedi."
+    }
   },
   "iskurTeamSupport": {
     "tab": "Destek talepleri",

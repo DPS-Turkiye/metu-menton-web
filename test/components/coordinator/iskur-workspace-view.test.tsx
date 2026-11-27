@@ -63,6 +63,15 @@ vi.mock("@/lib/client/iskur-team-change", () => ({
   declineIskurTeamChange: vi.fn(),
 }));
 
+vi.mock("@/lib/client/iskur-assessment-statement", () => ({
+  getIskurAssessmentStatements: vi.fn().mockResolvedValue({
+    programId: "p1",
+    pendingCount: 0,
+    statements: [],
+  }),
+  decideIskurAssessmentStatement: vi.fn(),
+}));
+
 vi.mock("@/lib/client/iskur-interns", () => ({
   getIskurInterns: vi.fn(),
   addIskurInterns: vi.fn(),

@@ -27,6 +27,7 @@ import {
   updateIskurTeam,
   updateIskurUnit,
 } from "@/lib/client/iskur-workspace";
+import { iskurAssessmentStatementsQueryKey } from "@/lib/iskur-assessment-statement";
 import {
   defaultMentoringMinutes,
   findPlacement,
@@ -80,6 +81,10 @@ export function useIskurWorkspace(
       // A move or an unplacing answers the intern's team change request on the backend.
       void queryClient.invalidateQueries({
         queryKey: iskurTeamChangesQueryKey(programId),
+      });
+      // An unplacing cancels the intern's waiting assessment statement.
+      void queryClient.invalidateQueries({
+        queryKey: iskurAssessmentStatementsQueryKey(programId),
       });
       setDialog(null);
       showToast({ message: t("saved"), tone: ToastTone.Success });
