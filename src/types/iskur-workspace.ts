@@ -39,6 +39,21 @@ export interface IskurPlacementForm {
   mentoringHours: string;
 }
 
+/** What an intern's sent onboarding form says about their placement. */
+export interface IskurPlacementPreference {
+  weeklyDays: number | null;
+  wantsLeadership: boolean;
+  /** Each chosen unit's self-rated skill score; the form keeps no order between units. */
+  unitScores: Record<string, number>;
+}
+
+/** The dialog values a new placement takes from the form, null where the form says nothing. */
+export interface IskurPlacementPrefill {
+  teamId: string | null;
+  role: IskurTeamRole;
+  weeklyDays: number | null;
+}
+
 /** Why the placement dialog cannot be saved yet. */
 export enum IskurFormProblem {
   NoTeam = "NO_TEAM",

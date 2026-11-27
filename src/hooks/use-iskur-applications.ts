@@ -13,6 +13,7 @@ import {
 import {
   ISKUR_SKILL_NAME_MAX,
   ISKUR_UNIT_SKILLS_MAX,
+  placementPreference,
   skillNamesFromText,
   skillNamesText,
 } from "@/lib/iskur-onboarding";
@@ -24,7 +25,7 @@ export const iskurApplicationsQueryKey = (programId: string) =>
 
 /**
  * The coordinator's side of İŞKUR onboarding on the placement screen: the interns' submitted forms (the "Tercihler"
- * panel, and the days that pre-fill a new placement) and the editor for each unit's skills.
+ * panel, and the answers that pre-fill a new placement) and the editor for each unit's skills.
  */
 export function useIskurApplications(programId: string) {
   const t = useTranslations("iskurOnboarding.coordinator");
@@ -71,7 +72,12 @@ export function useIskurApplications(programId: string) {
     submittedCount: data?.applications.length ?? 0,
     drafts: data?.drafts ?? 0,
     applicationOf,
-    weeklyDaysOf: (userId: string) => applicationOf(userId)?.weeklyDays ?? null,
+    placementPreferenceOf: (userId: string) => {
+      const application = applicationOf(userId);
+      return application && data
+        ? placementPreference(application, data.units)
+        : null;
+    },
     unitName: (unitId: string) =>
       data?.units.find((unit) => unit.id === unitId)?.name ?? null,
     skillName: (skillId: string) =>

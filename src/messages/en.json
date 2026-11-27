@@ -7601,6 +7601,8 @@
     "mentoringHours": "Weekly mentoring time (hours)",
     "mentoringDefault": "Default: {hours, number} h",
     "mentoringHint": "Leave it blank for the default share for the days (about 27 %). Enter 0 for someone who gives no mentoring; the rest goes to team work. In 30-minute steps.",
+    "fromApplication": "Filled in from the application",
+    "suggestedFromApplication": "Suggested from the application",
     "problems": {
       "NO_TEAM": "Choose a team first.",
       "MENTORING_NEEDS_DAYS": "Choose the number of work days before the mentoring time.",

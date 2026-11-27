@@ -51,7 +51,10 @@ import { IskurDialogKind } from "@/types/iskur-workspace";
 /** Katılımcılar › İŞKUR Ekipleri: units, thematic teams, leaders with their sub-groups, and who is not placed yet. */
 export function IskurWorkspaceView({ programId }: { programId: string }) {
   const applications = useIskurApplications(programId);
-  const state = useIskurWorkspace(programId, applications.weeklyDaysOf);
+  const state = useIskurWorkspace(
+    programId,
+    applications.placementPreferenceOf,
+  );
   return (
     <ProgramDetailFrame programId={programId} tab={ProgramTab.IskurTeams}>
       {() => (
@@ -506,6 +509,15 @@ function Dialogs({
   }
 }
 
+/** Under a dialog field that still holds what the intern's sent form gave it. */
+function PrefillHint({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p id={id} className="type-caption text-text-secondary">
+      {children}
+    </p>
+  );
+}
+
 function PlacementDialog({
   state,
   workspace,
@@ -526,7 +538,11 @@ function PlacementDialog({
   const daysId = useId();
   const hoursId = useId();
   const roleName = useId();
+  const teamHintId = useId();
+  const roleHintId = useId();
+  const daysHintId = useId();
   const form = state.form;
+  const prefilled = state.prefilled;
   if (!form) return null;
   return (
     <ModalDialog labelledBy={titleId} onClose={state.close}>
@@ -539,6 +555,7 @@ function PlacementDialog({
       </label>
       <select
         id={teamId}
+        aria-describedby={prefilled.team ? teamHintId : undefined}
         value={form.teamId}
         onChange={(event) => state.setTeam(event.target.value)}
         className="h-11 w-full rounded-input border border-border-control px-3 type-body-sm"
@@ -553,7 +570,15 @@ function PlacementDialog({
           </optgroup>
         ))}
       </select>
-      <fieldset className="space-y-2">
+      {prefilled.team ? (
+        <PrefillHint id={teamHintId}>
+          {t("suggestedFromApplication")}
+        </PrefillHint>
+      ) : null}
+      <fieldset
+        className="space-y-2"
+        aria-describedby={prefilled.role ? roleHintId : undefined}
+      >
         <legend className="type-label text-text-primary">{t("role")}</legend>
         <div className="flex gap-4">
           {ISKUR_ROLES.map((role) => (
@@ -568,6 +593,9 @@ function PlacementDialog({
             </label>
           ))}
         </div>
+        {prefilled.role ? (
+          <PrefillHint id={roleHintId}>{t("fromApplication")}</PrefillHint>
+        ) : null}
       </fieldset>
       {form.role === IskurTeamRole.Member ? (
         <>
@@ -597,6 +625,7 @@ function PlacementDialog({
       </label>
       <select
         id={daysId}
+        aria-describedby={prefilled.weeklyDays ? daysHintId : undefined}
         value={form.weeklyDays ?? ""}
         onChange={(event) =>
           state.setDays(event.target.value ? Number(event.target.value) : null)
@@ -610,6 +639,9 @@ function PlacementDialog({
           </option>
         ))}
       </select>
+      {prefilled.weeklyDays ? (
+        <PrefillHint id={daysHintId}>{t("fromApplication")}</PrefillHint>
+      ) : null}
       <label htmlFor={hoursId} className="block type-label text-text-primary">
         {t("mentoringHours")}
       </label>

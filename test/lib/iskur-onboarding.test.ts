@@ -17,6 +17,7 @@ import {
   neededIskurDays,
   nextStepsAfterSubmit,
   onboardingInput,
+  placementPreference,
   rangeMinutes,
   remainingIskurDays,
   revealGroups,
@@ -31,6 +32,7 @@ import {
 import { withKeys } from "@/lib/keyed-list";
 import { IskurNextStep, IskurOnboardingStep } from "@/types/iskur-onboarding";
 import {
+  applications,
   completeForm,
   emptyForm,
   ETKI,
@@ -464,6 +466,36 @@ describe("İŞKUR documents and the team", () => {
     expect(revealGroups([...people, orphan]).at(-1)).toEqual({
       leader: null,
       members: [orphan],
+    });
+  });
+
+  it("scores each chosen unit by the intern's own skill levels for the placement dialog", () => {
+    const sent = applications();
+    const [application] = sent.applications;
+    if (!application) throw new Error("fixture has no application");
+    expect(placementPreference(application, sent.units)).toEqual({
+      weeklyDays: 3,
+      wantsLeadership: true,
+      unitScores: { [KREATIF]: 3 },
+    });
+    expect(
+      placementPreference(
+        {
+          ...application,
+          weeklyDays: null,
+          unitIds: [ETKI, KREATIF, "gone"],
+          skills: [
+            { skillId: GORSEL, level: IskurSkillLevel.Expert },
+            { skillId: VIDEO, level: IskurSkillLevel.None },
+          ],
+          leadership: { ...application.leadership, wants: false },
+        },
+        sent.units,
+      ),
+    ).toEqual({
+      weeklyDays: null,
+      wantsLeadership: false,
+      unitScores: { [ETKI]: 0, [KREATIF]: 3, gone: 0 },
     });
   });
 });

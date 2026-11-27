@@ -37,8 +37,12 @@ describe("useIskurApplications", () => {
     const { result } = await renderLoaded();
     expect(result.current.submittedCount).toBe(1);
     expect(result.current.drafts).toBe(2);
-    expect(result.current.weeklyDaysOf(MERT)).toBe(3);
-    expect(result.current.weeklyDaysOf("someone-else")).toBeNull();
+    expect(result.current.placementPreferenceOf(MERT)).toEqual({
+      weeklyDays: 3,
+      wantsLeadership: true,
+      unitScores: { [KREATIF]: 3 },
+    });
+    expect(result.current.placementPreferenceOf("someone-else")).toBeNull();
     expect(result.current.unitName(KREATIF)).toBe("Kreatif ve Dijital Üretim");
     expect(result.current.skillName(GORSEL)).toBe("Görsel tasarım");
     expect(result.current.skillName("x")).toBeNull();
