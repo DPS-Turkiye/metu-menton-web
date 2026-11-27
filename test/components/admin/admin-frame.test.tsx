@@ -8,6 +8,13 @@ const harness = vi.hoisted(() => ({ pathname: "/admin" }));
 const mockSession = vi.fn<() => AppSession | null>();
 const replace = vi.fn();
 
+vi.mock("@/hooks/use-profile-photo", () => ({
+  useProfilePhoto: () => ({
+    photoUrl: null,
+    isUploading: false,
+    upload: vi.fn(),
+  }),
+}));
 vi.mock("next/navigation", () => ({
   usePathname: () => harness.pathname,
   useRouter: () => ({ replace }),

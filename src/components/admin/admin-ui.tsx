@@ -3,6 +3,8 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, type ReactNode } from "react";
 
+import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
+
 type AdminIconProps = {
   src: string;
   className?: string;
@@ -72,10 +74,13 @@ export function Avatar({
   initials,
   tone = "orange",
   size = "md",
+  personId = null,
 }: {
   initials: string;
   tone?: AvatarTone;
   size?: "sm" | "md" | "lg";
+  /** Shows the person's photo over the initials when there is one to show. */
+  personId?: string | null | undefined;
 }) {
   const box =
     size === "lg"
@@ -87,6 +92,16 @@ export function Avatar({
     tone === "blue"
       ? "bg-[#eaf6ff] text-[#1583d6]"
       : "bg-[#fbe2d0] text-[#a8480e]";
+  if (personId) {
+    return (
+      <PersonPhotoAvatar
+        personId={personId}
+        initials={initials}
+        decorative
+        className={`rounded-full font-semibold ${box} ${palette}`}
+      />
+    );
+  }
   return (
     <span
       className={`grid shrink-0 place-items-center rounded-full font-semibold ${box} ${palette}`}

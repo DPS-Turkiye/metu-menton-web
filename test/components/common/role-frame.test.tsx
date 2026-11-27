@@ -44,8 +44,17 @@ vi.mock("@/hooks/use-role-gate", async (importOriginal) => {
 vi.mock("@/components/common/notification-menu", () => ({
   NotificationMenu: () => null,
 }));
+const ownPhoto = vi.hoisted(() => ({ url: null as string | null }));
+vi.mock("@/hooks/use-profile-photo", () => ({
+  useProfilePhoto: () => ({
+    photoUrl: ownPhoto.url,
+    isUploading: false,
+    upload: vi.fn(),
+  }),
+}));
 
 beforeEach(() => {
+  ownPhoto.url = null;
   gate.forceAllowed = false;
   pathname = "/admin";
   current = admin;
@@ -308,5 +317,41 @@ describe("RoleFrame nav per edition", () => {
       "href",
       "/office-hours",
     );
+  });
+});
+
+describe("RoleFrame account photo", () => {
+  it("shows your own photo in the account button instead of the initials", () => {
+    ownPhoto.url = "https://files.example/me.png";
+    const { container } = render(
+      <RoleFrame
+        allowedRoles={[UserRole.Admin]}
+        homeHref="/admin"
+        menuLabel="adminMenu"
+        nav={[]}
+      >
+        <p>Staff workspace</p>
+      </RoleFrame>,
+    );
+
+    expect(
+      container.querySelector('[style*="files.example/me.png"]'),
+    ).not.toBeNull();
+    expect(screen.queryByText("A")).not.toBeInTheDocument();
+  });
+
+  it("keeps the initials without a photo", () => {
+    render(
+      <RoleFrame
+        allowedRoles={[UserRole.Admin]}
+        homeHref="/admin"
+        menuLabel="adminMenu"
+        nav={[]}
+      >
+        <p>Staff workspace</p>
+      </RoleFrame>,
+    );
+
+    expect(screen.getByText("A")).toBeInTheDocument();
   });
 });

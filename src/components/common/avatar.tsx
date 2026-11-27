@@ -1,16 +1,23 @@
 import { useTranslations } from "next-intl";
 
-/** A person's photo when they have one, otherwise their initials; `className` sets size and text. */
+import { PersonPhotoAvatar } from "@/components/common/person-photo-avatar";
+
+/**
+ * A person's photo when they have one, otherwise their initials; `className` sets size and text. `photoUrl` is a
+ * photo known to exist (your own); `personId` asks for someone's, keeping the initials when there is none to show.
+ */
 export function PhotoAvatar({
   initials,
-  photoUrl,
+  photoUrl = null,
+  personId = null,
   className,
   label,
   decorative = false,
   colors = "bg-[#fbe2d0] text-[#c95c18]",
 }: {
   initials: string;
-  photoUrl: string | null;
+  photoUrl?: string | null;
+  personId?: string | null | undefined;
   className: string;
   label?: string;
   /** Beside a visible or labelled name, the photo adds nothing to announce. */
@@ -30,6 +37,17 @@ export function PhotoAvatar({
       />
     );
   }
+  if (personId) {
+    return (
+      <PersonPhotoAvatar
+        personId={personId}
+        initials={initials}
+        label={label}
+        decorative={decorative}
+        className={`rounded-full font-semibold ${colors} ${className}`}
+      />
+    );
+  }
   return (
     <span
       aria-hidden
@@ -44,10 +62,13 @@ export function Avatar({
   initials,
   tone = "gray",
   size = "md",
+  personId = null,
 }: {
   initials: string;
   tone?: "gray" | "purple" | "teal" | "orange" | "blue";
   size?: "sm" | "md" | "lg";
+  /** Shows the person's photo over the initials when there is one to show. */
+  personId?: string | null | undefined;
 }) {
   const tones = {
     gray: "bg-[#eeeeee] text-[#555]",
@@ -61,6 +82,16 @@ export function Avatar({
     md: "size-10 text-sm",
     lg: "size-12 text-base",
   };
+  if (personId) {
+    return (
+      <PersonPhotoAvatar
+        personId={personId}
+        initials={initials}
+        decorative
+        className={`rounded-full font-semibold ${tones[tone]} ${sizes[size]}`}
+      />
+    );
+  }
   return (
     <span
       className={`flex shrink-0 items-center justify-center rounded-full font-semibold ${tones[tone]} ${sizes[size]}`}
