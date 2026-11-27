@@ -25,4 +25,21 @@ describe("EmptyState", () => {
       screen.getByRole("button", { name: "Mentor bul" }),
     ).toBeInTheDocument();
   });
+
+  it("shows a picture under the title when given", () => {
+    render(
+      <EmptyState
+        title="Office Hours çok yakında"
+        media={<span role="img" aria-label="Bakım" />}
+      />,
+    );
+    const heading = screen.getByRole("heading", {
+      name: "Office Hours çok yakında",
+    });
+    const picture = screen.getByRole("img", { name: "Bakım" });
+    expect(
+      heading.compareDocumentPosition(picture) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
 });
