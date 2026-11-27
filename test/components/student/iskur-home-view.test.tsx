@@ -11,15 +11,21 @@ import {
   type PeerMentoringRequest,
   type PeerMentorProfile,
 } from "@/interfaces/peer-mentoring";
+import { ClientApiError } from "@/lib/client/api";
+import { getIskurTeamReveal } from "@/lib/client/iskur-onboarding";
 import { getAvailabilitySettings } from "@/lib/client/mentor-profile";
 import { decideMentorRequest } from "@/lib/client/mentor-requests";
 import {
   getPeerMentorProfile,
   getReceivedPeerRequests,
 } from "@/lib/client/peer-mentoring";
+import { reveal } from "@test/fixtures/iskur-onboarding";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 // The shared home is ODTÜ öğrenci's screen; here it only shows where the İŞKUR blocks land.
+vi.mock("@/lib/client/iskur-onboarding", () => ({
+  getIskurTeamReveal: vi.fn(),
+}));
 vi.mock("@/lib/client/iskur-weeks", () => ({
   getIskurLeaderQueue: vi.fn().mockResolvedValue({
     weekStart: "2026-11-16",
@@ -102,6 +108,9 @@ function received(
 beforeEach(() => {
   vi.clearAllMocks();
   gate.state = PeerMentorGateState.Earned;
+  vi.mocked(getIskurTeamReveal).mockRejectedValue(
+    new ClientApiError("yok", 404),
+  );
   vi.mocked(getPeerMentorProfile).mockResolvedValue(PROFILE);
   vi.mocked(getAvailabilitySettings).mockResolvedValue({
     rules: [],
@@ -233,6 +242,20 @@ describe("IskurHomeView", () => {
       await screen.findByRole("link", { name: "Mentorluk Ver'e git" }),
     ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
     expect(getPeerMentorProfile).not.toHaveBeenCalled();
+  });
+
+  it("tells an İŞKUR intern without the badge that becoming a mentor is optional", async () => {
+    gate.state = PeerMentorGateState.NoBadge;
+    vi.mocked(getIskurTeamReveal).mockResolvedValue(reveal());
+    renderWithQueryClient(<IskurHomeView />);
+
+    expect(await screen.findByText("Rozet bekleniyor")).toBeInTheDocument();
+    expect(
+      screen.getByText(/İsteğe bağlı: İŞKUR'daki çalışman rozeti beklemez\./),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Mentorluk Ver'e git" }),
+    ).toHaveAttribute("href", "/student/peer-mentoring?as=MENTOR");
   });
 
   it("leaves the shared home alone for everyone else", () => {

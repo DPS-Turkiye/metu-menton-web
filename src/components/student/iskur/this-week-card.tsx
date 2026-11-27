@@ -99,6 +99,7 @@ export function IskurThisWeekCard() {
               caption={t("logged")}
               logged={week.totals.mentoringMinutes}
               target={week.split?.mentoringMinutes ?? null}
+              note={state.badgePending ? t("badgePending") : undefined}
             />
             <IskurProgressCard
               title={t("teamWork")}

@@ -8298,6 +8298,12 @@
       "title": "İŞKUR formum",
       "body": "Koordinatörün seni bir ekibe yerleştirene kadar formunu düzenleyebilirsin.",
       "action": "Formumu görüntüle"
+    },
+    "badgeCard": {
+      "status": "Rozet bekleniyor",
+      "title": "Akran mentoru rozeti",
+      "body": "İŞKUR çalışman rozeti beklemez. İstersen dönem içinde istediğin zaman eğitimi tamamlayıp akran mentoru olabilirsin.",
+      "action": "Mentorluk Ver'e git"
     }
   },
   "iskurWeek": {
@@ -8392,7 +8398,8 @@
       "supportChoose": "Faaliyet seç",
       "supportEmpty": "Koordinatör henüz destek faaliyeti havuzu oluşturmadı.",
       "cancel": "Vazgeç",
-      "loadFailed": "Bu Haftam yüklenemedi."
+      "loadFailed": "Bu Haftam yüklenemedi.",
+      "badgePending": "Rozet bekleniyor"
     },
     "line": {
       "remove": "{title} satırını sil",

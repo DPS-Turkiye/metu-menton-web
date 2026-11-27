@@ -116,6 +116,21 @@ export function peerMentorGateState({
   return PeerMentorGateState.Hidden;
 }
 
+/**
+ * An İŞKUR intern works before the Akran Mentoru badge, which is optional and comes any time: until it does, their
+ * screens say "Rozet bekleniyor". Nothing while the gate is still loading, and not for a badge that was taken back.
+ */
+export function iskurBadgePending(gate: {
+  state: PeerMentorGateState;
+  isLoading: boolean;
+}): boolean {
+  return (
+    !gate.isLoading &&
+    (gate.state === PeerMentorGateState.NoBadge ||
+      gate.state === PeerMentorGateState.Hidden)
+  );
+}
+
 /** Where a student without the badge stands, from their training's state. */
 export function peerBadgeProgress(
   state: TrainingState | undefined,

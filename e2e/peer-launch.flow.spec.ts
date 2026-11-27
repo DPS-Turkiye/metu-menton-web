@@ -9,10 +9,11 @@ import {
   Staff,
 } from "./support/personas";
 
-// The weekend launch, end to end on one İŞKUR peer program: the admin opens it, the coordinator lists two students
-// as İŞKUR interns, one earns the Akran Mentoru badge and is found and booked by a plain student (Akran), then the
-// program gets its İŞKUR structure and the two interns work a week in it (İŞKUR), while the plain student never sees
-// an İŞKUR screen. One program and one database, so the steps run in order.
+// The weekend launch, end to end on one İŞKUR peer program: the admin opens it, every student in it is an İŞKUR
+// intern (nobody is listed; Arya, 27 Nov), one earns the Akran Mentoru badge and is found and booked by another
+// student (Akran), then the program gets its İŞKUR structure and two interns work a week in it (İŞKUR), while the
+// third is asked for her placement form and keeps everything else. One program and one database, so the steps run in
+// order.
 test.describe.configure({ mode: "serial" });
 // ODTÜ's day: a task is due "today" in the browser, and the backend's work days are in Istanbul.
 // The journey needs a fresh stack (e2e/stack.sh down, then up): the personas keep what an earlier run gave them.
@@ -36,7 +37,7 @@ function today() {
   }).format(new Date());
 }
 
-/** The persona login's addresses (metu-menton-backend dev/odtu-personas.json); Ayşe stays off the list. */
+/** The persona login's addresses (metu-menton-backend dev/odtu-personas.json), as the Prism results name them. */
 const INTERN_EMAILS = [
   "mehmet.kaya@odtu-dev.invalid",
   "zeynep.demir@odtu-dev.invalid",
@@ -144,7 +145,7 @@ test.describe("Akran", () => {
     ).toHaveCount(0, { timeout: 15_000 });
   });
 
-  test("three students are in the program; the coordinator lists two as İŞKUR interns, turns a category on and sets the Prism link", async ({
+  test("three students are in the program; the coordinator turns a category on and sets the Prism link", async ({
     page,
   }) => {
     await joinProgram(page, [
@@ -154,18 +155,6 @@ test.describe("Akran", () => {
     ]);
 
     await signInAsStaff(page, Staff.Coordinator);
-    await page.goto(`/coordinator/programs/${programId}/iskur`);
-    await page
-      .getByLabel("Eklenecek e-posta adresleri")
-      .fill(`${INTERN_EMAILS.join("\n")}\n`);
-    await page.getByRole("button", { name: "Listeye ekle" }).click();
-    const listed = page.getByRole("list", { name: "Listedeki adresler" });
-    for (const email of INTERN_EMAILS) {
-      await expect(
-        listed.getByRole("listitem").filter({ hasText: email }),
-      ).toContainText("Kayıtlı");
-    }
-
     await page.goto(`/coordinator/programs/${programId}/settings`);
     await page.getByRole("switch", { name: CATEGORY }).check();
     await page.getByRole("button", { name: "Kategorileri kaydet" }).click();
@@ -751,19 +740,18 @@ test.describe("İŞKUR", () => {
     await expectHistory(page, FULL_HISTORY);
   });
 
-  test("Ayşe, not on the intern list, sees no İŞKUR screen but may become a mentor and keeps the mentor list, Office Hours and Randevularım", async ({
+  test("Ayşe, not placed yet, is asked for her placement form without the training, and keeps the mentor list, Office Hours and Randevularım", async ({
     page,
   }) => {
     await signInAs(page, Persona.AyseYilmaz);
+    // Every student is an İŞKUR intern: the form comes first, no badge or listing needed.
     await page.goto("/student");
+    await expect(page).toHaveURL(/\/iskur\/onboarding$/);
+    await page.getByRole("button", { name: "Sonra hatırlat" }).click();
     await expect(page).toHaveURL(/\/student$/);
+    await expect(page.getByText("Yerleştirme formunu doldur")).toBeVisible();
     await expect(page.getByText(/^Bu Haftam/)).toHaveCount(0);
     await expect(page.getByText(/^Ekibin belli oldu/)).toHaveCount(0);
-
-    await page.goto("/iskur/onboarding");
-    await expect(
-      page.getByText("Yerleştirme formu sana açık değil"),
-    ).toBeVisible();
 
     await peerMentoring(page, "Mentorluk Ver");
     await page.getByRole("link", { name: "Eğitime Git" }).click();
