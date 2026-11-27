@@ -8,7 +8,10 @@ import {
   ISKUR_ASSESSMENT_NOTE_MAX,
   ISKUR_ASSESSMENT_TEXT_MAX,
 } from "@/lib/iskur-assessment-statement";
-import { ISKUR_MINUTES_PER_DAY } from "@/lib/iskur-workspace";
+import {
+  ISKUR_MINUTES_PER_DAY,
+  ISKUR_WEEKLY_DAYS,
+} from "@/lib/iskur-workspace";
 
 export const iskurAssessmentStatementSchema = z.object({
   reason: z.enum(IskurAssessmentReason),
@@ -22,8 +25,14 @@ export const iskurAssessmentDecisionSchema = z.object({
     .number()
     .int()
     .min(0)
-    .max(3 * ISKUR_MINUTES_PER_DAY)
+    .max(Math.max(...ISKUR_WEEKLY_DAYS) * ISKUR_MINUTES_PER_DAY)
     .nullable(),
   openRetake: z.boolean(),
-  note: z.string().trim().max(ISKUR_ASSESSMENT_NOTE_MAX).nullable(),
+  // A blank note is no note.
+  note: z
+    .string()
+    .trim()
+    .max(ISKUR_ASSESSMENT_NOTE_MAX)
+    .nullable()
+    .transform((note) => note || null),
 });

@@ -27,13 +27,12 @@ export async function POST(request: Request, { params }: Context) {
       invalidMessage: "iskurAssessmentInvalid",
     });
     if (!body.ok) return body.response;
-    const { note, ...rest } = body.data;
     return backendResponse(
       await decideIskurAssessmentStatement(
         auth.session.userId,
         program.id,
         statement.id,
-        { ...rest, note: note || null },
+        body.data,
       ),
     );
   } catch (error) {

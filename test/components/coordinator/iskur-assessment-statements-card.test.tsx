@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IskurAssessmentStatementsCard } from "@/components/coordinator/iskur-assessment-statements-card";
+import { iskurWorkspaceQueryKey } from "@/hooks/use-iskur-workspace";
 import {
   IskurAssessmentReason,
   IskurAssessmentStatus,
@@ -57,9 +58,10 @@ describe("IskurAssessmentStatementsCard", () => {
         },
       ],
     });
-    renderWithQueryClient(
+    const { queryClient } = renderWithQueryClient(
       <IskurAssessmentStatementsCard programId={PROGRAM} />,
     );
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
 
     expect(
       await screen.findByRole("heading", {
@@ -111,6 +113,10 @@ describe("IskurAssessmentStatementsCard", () => {
     expect(
       await screen.findByText("Karar bekleyen açıklama yok."),
     ).toBeInTheDocument();
+    // The placement's mentoring time changed, so the workspace reloads it.
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: iskurWorkspaceQueryKey(PROGRAM),
+    });
     await user.click(screen.getByText("Karar verilenler (1)"));
     expect(
       screen.getByText(/Haftalık mentörlük süren: yok/),
@@ -141,13 +147,14 @@ describe("IskurAssessmentStatementsCard", () => {
       screen.getByLabelText("Saat (0,5 saatlik adımlarla)"),
       "1,2",
     );
-    expect(
-      screen.getByText(
-        "Mentorluk süresi 0,5 saatlik adımlarla girilir (ör. 1,5).",
-      ),
-    ).toBeInTheDocument();
-    await user.clear(screen.getByLabelText("Saat (0,5 saatlik adımlarla)"));
-    await user.type(screen.getByLabelText("Saat (0,5 saatlik adımlarla)"), "3");
+    const hours = screen.getByLabelText("Saat (0,5 saatlik adımlarla)");
+    expect(hours).toHaveAttribute("aria-invalid", "true");
+    expect(hours).toHaveAccessibleDescription(
+      "Mentorluk süresi 0,5 saatlik adımlarla girilir (ör. 1,5).",
+    );
+    await user.clear(hours);
+    await user.type(hours, "3");
+    expect(hours).toHaveAttribute("aria-invalid", "false");
     await user.click(screen.getByLabelText("Testi yeniden açabilir"));
     await user.type(
       screen.getByLabelText("Stajyere not (isteğe bağlı)"),

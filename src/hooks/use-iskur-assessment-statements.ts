@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { iskurWorkspaceQueryKey } from "@/hooks/use-iskur-workspace";
 import {
+  IskurDecisionProblem,
   IskurMentoringChoice,
   type IskurAssessmentDecisionForm,
   type IskurAssessmentDecisionInput,
@@ -87,10 +88,16 @@ export function useIskurAssessmentStatements(programId: string) {
     pendingCount: query.data?.pendingCount ?? 0,
     waiting,
     closed,
-    decidingId,
+    // A statement decided by someone else or cancelled by an unplace leaves `waiting`; its form closes with it.
+    decidingId: deciding?.id ?? null,
     form,
     preview: deciding ? decisionPreview(form, deciding) : null,
     problem: checked && !checked.ok ? checked.problem : null,
+    // Every problem but an empty decision is about the typed hours.
+    hoursInvalid:
+      checked !== null &&
+      !checked.ok &&
+      checked.problem !== IskurDecisionProblem.Empty,
     canConfirm: checked?.ok === true && !decide.isPending,
     busy: decide.isPending,
     setChoice: (value: string) => {

@@ -199,6 +199,8 @@ function DecisionForm({
             id={`${id}-hours`}
             inputMode="decimal"
             value={state.form.hours}
+            aria-invalid={state.hoursInvalid}
+            aria-describedby={state.hoursInvalid ? `${id}-problem` : undefined}
             onChange={(event) => state.setHours(event.target.value)}
             className={ISKUR_FIELD_CLASS}
           />
@@ -233,7 +235,11 @@ function DecisionForm({
         className={`${ISKUR_FIELD_CLASS} min-h-[64px]`}
       />
       {state.problem ? (
-        <p className="type-caption text-text-secondary">
+        <p
+          id={`${id}-problem`}
+          aria-live="polite"
+          className="type-caption text-text-secondary"
+        >
           {state.problem === IskurDecisionProblem.Empty
             ? t("emptyDecision")
             : tw(`problems.${state.problem}`)}
