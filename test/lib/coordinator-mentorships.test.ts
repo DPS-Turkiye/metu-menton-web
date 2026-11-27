@@ -26,6 +26,7 @@ import {
   coordinatorMentorship,
   coordinatorMentorshipDetail,
 } from "@test/fixtures/coordinator-mentorships";
+import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 import { translatorIn } from "@test/translators";
 
 function texts(locale: "tr" | "en"): MentorshipTexts {
@@ -106,8 +107,40 @@ describe("coordinator mentorships", () => {
     ).toEqual(["Ayşe Demir", "Ayşe Demir", "Kerem Sarı"]);
   });
 
+  it.each([...BROWSER_TIME_ZONES, "Asia/Dubai"])(
+    "dates the next meeting on Turkey's calendar in a browser in %s",
+    (zone) => {
+      inTimeZone(zone, () => {
+        const next = (
+          nextMeetingAt: string,
+          now: string,
+          locale: "tr" | "en" = "tr",
+        ) =>
+          nextMeetingLabel(
+            coordinatorMentorship({ nextMeetingAt }),
+            texts(locale),
+            new Date(now),
+          );
+        // 23:30 in Turkey: a meeting at 00:30 is tomorrow there, though London is still on the same day.
+        expect(
+          next("2026-09-25T00:30:00+03:00", "2026-09-24T23:30:00+03:00"),
+        ).toBe("Yarın · 00:30");
+        expect(
+          next("2026-09-24T14:00:00+03:00", "2026-09-24T10:00:00+03:00"),
+        ).toBe("Bugün · 14:00");
+        expect(
+          next("2026-09-25T14:00:00+03:00", "2026-09-24T10:00:00+03:00", "en"),
+        ).toBe("Tomorrow · 02:00 PM");
+        // 01:00 on the 24th in Turkey: a meeting late on the 26th is two days on, so it shows the date.
+        expect(
+          next("2026-09-26T23:00:00+03:00", "2026-09-24T01:00:00+03:00"),
+        ).toBe("26 Eyl · 23:00");
+      });
+    },
+  );
+
   it("labels the table cells", () => {
-    const now = new Date(2026, 8, 24, 10, 0);
+    const now = new Date("2026-09-24T10:00:00+03:00");
     expect(lastMeetingLabel(lumen, trTexts)).toBe("18 gün önce");
     expect(lastMeetingLabel(lumen, texts("en"))).toBe("18 days ago");
     expect(lastMeetingLabel(terra, trTexts)).toBe("—");
@@ -115,24 +148,6 @@ describe("coordinator mentorships", () => {
     expect(nextMeetingLabel(terra, trTexts, now)).toBe(
       "Eşleşme onayı bekleniyor",
     );
-    expect(
-      nextMeetingLabel(
-        coordinatorMentorship({
-          nextMeetingAt: new Date(2026, 8, 25, 14, 0).toISOString(),
-        }),
-        trTexts,
-        now,
-      ),
-    ).toBe("Yarın · 14:00");
-    expect(
-      nextMeetingLabel(
-        coordinatorMentorship({
-          nextMeetingAt: new Date(2026, 8, 25, 14, 0).toISOString(),
-        }),
-        texts("en"),
-        now,
-      ),
-    ).toBe("Tomorrow · 02:00 PM");
     expect(actionsLabel(lumen, t)).toBe("2 açık · 1 gecikmiş");
     expect(actionsLabel(lumen, texts("en").t)).toBe("2 open · 1 overdue");
     expect(actionsLabel(coordinatorMentorship({ overdueActions: 0 }), t)).toBe(

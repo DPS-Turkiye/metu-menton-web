@@ -68,6 +68,14 @@ export function toTurkishDate(at: Date | string) {
   return new Date(time + TURKEY_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+/** Whole Turkey calendar days from `from` to `to`: 1 when `to` falls on Turkey's next day, whatever the hours. */
+export function turkishDaysBetween(from: Date | string, to: Date | string) {
+  return Math.round(
+    (Date.parse(toTurkishDate(to)) - Date.parse(toTurkishDate(from))) /
+      86_400_000,
+  );
+}
+
 /** "10:00" of a moment in Turkey time. */
 export function formatTurkishTime(at: Date | string, locale: string) {
   return new Intl.DateTimeFormat(locale, {

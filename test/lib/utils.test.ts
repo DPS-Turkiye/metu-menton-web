@@ -22,21 +22,20 @@ import {
 import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
 describe("dayPart", () => {
-  it("follows the time of day", () => {
-    expect(dayPart(new Date(2026, 8, 14, 9))).toBe("morning");
-    expect(dayPart(new Date(2026, 8, 14, 14))).toBe("afternoon");
-    expect(dayPart(new Date(2026, 8, 14, 21))).toBe("evening");
-    expect(dayPart(new Date(2026, 8, 14, 3))).toBe("evening");
-  });
-
-  it.each(BROWSER_TIME_ZONES)(
-    "reads Turkey's hour in a browser in %s",
+  // Built from moments, never from local fields: new Date(2026, 8, 14, 3) is 05:00 in Turkey for a browser in London.
+  it.each([...BROWSER_TIME_ZONES, "Asia/Dubai"])(
+    "follows Turkey's time of day in a browser in %s",
     (zone) => {
       inTimeZone(zone, () => {
-        // 06:00 UTC is 09:00 in Turkey, 15:00 in Tokyo; 15:30 UTC is 18:30 in Turkey.
-        expect(dayPart(new Date("2026-09-14T06:00:00Z"))).toBe("morning");
-        expect(dayPart(new Date("2026-09-14T10:00:00Z"))).toBe("afternoon");
-        expect(dayPart(new Date("2026-09-14T15:30:00Z"))).toBe("evening");
+        const at = (time: string) => new Date(`2026-09-14T${time}:00+03:00`);
+        expect(dayPart(at("03:00"))).toBe("evening");
+        expect(dayPart(at("04:59"))).toBe("evening");
+        expect(dayPart(at("05:00"))).toBe("morning");
+        expect(dayPart(at("11:59"))).toBe("morning");
+        expect(dayPart(at("12:00"))).toBe("afternoon");
+        expect(dayPart(at("17:59"))).toBe("afternoon");
+        expect(dayPart(at("18:00"))).toBe("evening");
+        expect(dayPart(at("23:30"))).toBe("evening");
       });
     },
   );

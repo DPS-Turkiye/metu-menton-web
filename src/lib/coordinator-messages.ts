@@ -9,7 +9,7 @@ import {
   type CoordinatorMentorship,
 } from "@/interfaces/coordinator-mentorship";
 import { shortWeekday } from "@/lib/calendar";
-import { formatTurkishTime, toTurkishDate } from "@/lib/turkey-time";
+import { formatTurkishTime, turkishDaysBetween } from "@/lib/turkey-time";
 import { formatDayMonth, relativeDayLabel } from "@/lib/utils";
 
 export enum MessageFilter {
@@ -136,14 +136,6 @@ export function messagesSubtitle(
   return parts.join(" · ");
 }
 
-/** Whole Turkey days from `value` to `now`: what "Bugün" and "Dün" mean, wherever the browser is. */
-function daysAgo(value: string, now: Date) {
-  return Math.round(
-    (Date.parse(toTurkishDate(now)) - Date.parse(toTurkishDate(value))) /
-      86_400_000,
-  );
-}
-
 /** "10:24" today, "Dün", "Pzt" within the week, then "12 Eyl". */
 export function conversationTime(
   value: string | null,
@@ -151,7 +143,7 @@ export function conversationTime(
   locale = "tr",
 ) {
   if (!value) return "";
-  const days = daysAgo(value, now);
+  const days = turkishDaysBetween(value, now);
   if (days <= 0) return formatTurkishTime(value, locale);
   if (days === 1) return relativeDayLabel(-1, locale);
   if (days < 7) return shortWeekday(value, locale).replace(".", "");
@@ -164,7 +156,7 @@ export function messageDayLabel(
   now = new Date(),
   locale = "tr",
 ) {
-  const days = daysAgo(value, now);
+  const days = turkishDaysBetween(value, now);
   if (days <= 0) return relativeDayLabel(0, locale);
   if (days === 1) return relativeDayLabel(-1, locale);
   return formatDayMonth(value, locale);

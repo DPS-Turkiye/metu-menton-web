@@ -7,6 +7,7 @@ import {
   toCalendarDate,
   toTurkishDate,
   toTurkishWallClock,
+  turkishDaysBetween,
 } from "@/lib/turkey-time";
 import { BROWSER_TIME_ZONES, inTimeZone } from "@test/time-zone";
 
@@ -71,4 +72,21 @@ describe.each(BROWSER_TIME_ZONES)("Turkey time in a browser in %s", (zone) => {
       );
     });
   });
+});
+
+describe("turkishDaysBetween", () => {
+  it.each([...BROWSER_TIME_ZONES, "Asia/Dubai"])(
+    "counts Turkey's calendar days in a browser in %s",
+    (zone) => {
+      inTimeZone(zone, () => {
+        const late = "2026-09-24T23:30:00+03:00";
+        expect(turkishDaysBetween(late, "2026-09-25T00:30:00+03:00")).toBe(1);
+        expect(turkishDaysBetween(late, "2026-09-24T00:10:00+03:00")).toBe(0);
+        expect(turkishDaysBetween("2026-09-25T00:30:00+03:00", late)).toBe(-1);
+        expect(
+          turkishDaysBetween(new Date(late), "2026-10-01T09:00:00+03:00"),
+        ).toBe(7);
+      });
+    },
+  );
 });
