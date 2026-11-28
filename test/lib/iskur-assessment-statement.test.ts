@@ -16,6 +16,7 @@ import {
   isSendableStatement,
   isWaiting,
   mentoringOutcome,
+  nextWaitingId,
   splitStatements,
   thisWeekAssessmentLine,
 } from "@/lib/iskur-assessment-statement";
@@ -85,6 +86,21 @@ describe("İŞKUR assessment statement helpers", () => {
       waiting: [threeDays],
       closed: [decided],
     });
+  });
+
+  it("hands focus to the statement in the decided one's place, else the one before it", () => {
+    const a = iskurAssessmentStatement({ id: "a" });
+    const b = iskurAssessmentStatement({ id: "b" });
+    const c = iskurAssessmentStatement({ id: "c" });
+    const d = iskurAssessmentStatement({ id: "d" });
+    expect(nextWaitingId([a, b, c], "b", [a, c])).toBe("c");
+    expect(nextWaitingId([a, b, c], "c", [a, b])).toBe("b");
+    // The next one was decided elsewhere meanwhile: the one after it.
+    expect(nextWaitingId([a, b, c, d], "b", [a, d])).toBe("d");
+    expect(nextWaitingId([a], "a", [])).toBeNull();
+    // Only new statements are left: the first of them.
+    expect(nextWaitingId([a], "a", [d])).toBe("d");
+    expect(nextWaitingId([], "a", [b])).toBe("b");
   });
 
   it("offers a retake only while the intern waits for a Prism decision", () => {
