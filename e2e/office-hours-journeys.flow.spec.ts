@@ -247,6 +247,10 @@ test("the student withdraws a request before it is answered", async ({
     .getByRole("dialog")
     .getByRole("button", { name: "Talebi geri çek" })
     .click();
+  // The toast comes once the backend has taken the withdrawal; opening Geçmiş before it reloads the page while the
+  // request is still in flight, and the list loads it as still waiting.
+  await expect(page.getByText("Talebin geri çekildi.")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
     await findStudentAppointment(page, "Geçmiş", topic),
   ).toContainText("Geri Çekildi");
