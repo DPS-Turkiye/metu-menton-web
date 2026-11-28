@@ -4,7 +4,6 @@ import {
   OfficeHoursRequestAction,
   type AcademicianAppointment,
   type AcademicianAvailability,
-  type OfficeHoursProfileSettings,
   type OfficeHoursRequest,
   type OfficeHoursStudent,
 } from "@/interfaces/academician-office-hours";
@@ -16,6 +15,8 @@ import {
   type AppointmentTime,
 } from "@/interfaces/appointment";
 import { Weekday } from "@/interfaces/mentor";
+import type { OfficeHoursProfile } from "@/interfaces/office-hours-me";
+import { officeHoursProfile } from "@test/fixtures/office-hours-me";
 
 // Sample data for the academician workspace until an Office Hours source is connected. Times
 // are relative to today (Turkey time) so "upcoming" stays upcoming; nothing here is real.
@@ -261,8 +262,8 @@ export const ACADEMICIAN_AVAILABILITY_SAMPLE: AcademicianAvailability = {
   oneOffs: [{ id: "sample-one-off-1", ...slot(6, 13, 0, 120), place: "B-110" }],
 };
 
-export const OFFICE_HOURS_PROFILE_SAMPLE: OfficeHoursProfileSettings = {
-  defaultPlace: "A-204",
-  onlineLink: null,
-  contactEmail: null,
-};
+export const OFFICE_HOURS_PROFILE_SAMPLE: OfficeHoursProfile =
+  officeHoursProfile({
+    listed: false,
+    onlineLink: null,
+  });

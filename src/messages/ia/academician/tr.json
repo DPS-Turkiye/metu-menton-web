@@ -328,5 +328,102 @@
     "historyAhead": "Yaklaşan",
     "historyPast": "Geçmiş",
     "historyCount": "{count} randevu"
+  },
+  "profile": {
+    "title": "Profilim",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…",
+    "discard": "Vazgeç",
+    "unsaved": "Kaydedilmemiş değişikliklerin var.",
+    "saved": "Profil bilgilerin kaydedildi.",
+    "saveFailed": "Kaydedilemedi. Tekrar dene.",
+    "fixErrors": "Kaydetmeden önce işaretli alanları düzelt.",
+    "visibility": {
+      "title": "Öğrencilere görünürlük",
+      "toggle": "Ofis saati listesinde görün",
+      "on": "Açık: Menton'daki öğrenciler seni listede görür ve randevu talep edebilir.",
+      "off": "Kapalı: Menton'daki öğrenciler seni listede görmez."
+    },
+    "meeting": {
+      "title": "Görüşme bilgileri",
+      "hint": "Öğrenciler randevu talep ederken bunları görür.",
+      "defaultPlace": "Varsayılan görüşme yeri",
+      "defaultPlacePlaceholder": "Örn. A-204",
+      "onlineLink": "Çevrim içi görüşme bağlantısı (isteğe bağlı)",
+      "onlineLinkPlaceholder": "https://…",
+      "contactEmail": "Öğrencilere gösterilecek e-posta (isteğe bağlı)"
+    },
+    "about": {
+      "title": "Hakkımda",
+      "hint": "Öğrenciler bunları akademisyen sayfanda okur.",
+      "label": "Kısa tanıtım",
+      "placeholder": "Öğrencilere hangi konularda yardımcı olabileceğini anlat.",
+      "count": "{count}/{max}",
+      "responseDays": "Taleplere genellikle ne kadar sürede yanıt verirsin?",
+      "responseDaysNone": "Belirtme",
+      "responseDaysOption": "{count} gün içinde",
+      "tags": "Uzmanlık etiketleri",
+      "tagPlaceholder": "Örn. Makine öğrenmesi",
+      "tagAdd": "Ekle",
+      "tagHint": "En fazla {max} etiket. Öğrenciler aramada seni bunlarla da bulur.",
+      "tagRemove": "{tag} etiketini kaldır",
+      "tagErrors": {
+        "tagEmpty": "Önce etiketi yaz.",
+        "tagDuplicate": "Bu etiket zaten ekli.",
+        "tagFull": "En fazla {max} etiket ekleyebilirsin.",
+        "markup": "Yalnızca düz metin yazabilirsin."
+      },
+      "tagList": "Eklenen etiketler"
+    },
+    "topics": {
+      "title": "Görüşme konuları",
+      "hint": "En fazla {max} konu.",
+      "empty": "Henüz konu eklemedin.",
+      "row": "Konu {number}",
+      "remove": "Konu {number} kaldır",
+      "topicTitle": "Konu başlığı",
+      "topicBody": "Kısa açıklama (isteğe bağlı)",
+      "add": "Konu ekle"
+    },
+    "courses": {
+      "title": "Verdiğin dersler",
+      "hint": "En fazla {max} ders.",
+      "empty": "Henüz ders eklemedin.",
+      "row": "Ders {number}",
+      "remove": "Ders {number} kaldır",
+      "code": "Ders kodu",
+      "codePlaceholder": "Örn. CENG 140",
+      "name": "Ders adı",
+      "add": "Ders ekle"
+    },
+    "emails": {
+      "title": "E-posta bildirimleri",
+      "hint": "Uygulama içi bildirimler her durumda gelir. Randevu hatırlatmaları her zaman gönderilir.",
+      "newRequest": "Yeni randevu talebi gelince e-posta gönder",
+      "cancellation": "Öğrenci randevuyu iptal edince e-posta gönder"
+    },
+    "errors": {
+      "invalidLink": "Bağlantı https:// ile başlayan bir web adresi olmalı.",
+      "invalidEmail": "Geçerli bir e-posta adresi yaz.",
+      "markup": "Yalnızca düz metin yazabilirsin; HTML etiketi kullanılamaz.",
+      "topicTitleMissing": "Konu başlığını yaz ya da satırı kaldır.",
+      "courseIncomplete": "Ders kodunu ve adını birlikte yaz ya da satırı kaldır."
+    },
+    "institution": {
+      "title": "Kurumsal Bilgiler",
+      "source": "ODTÜ'den, salt okunur",
+      "fullName": "Ad soyad",
+      "academicTitle": "Unvan",
+      "department": "Bölüm",
+      "faculty": "Fakülte",
+      "email": "E-posta",
+      "unknown": "Belirtilmemiş",
+      "loading": "Yükleniyor…",
+      "missingTitle": "ODTÜ kaydı bulunamadı",
+      "missingBody": "Bu hesap için ODTÜ kaydı yok.",
+      "loadError": "Kurumsal bilgiler yüklenemedi.",
+      "retry": "Tekrar dene",
+      "note": "Bilgilerin yanlışsa ODTÜ'deki birimine bildir; Menton bu bilgileri değiştiremez."
+    }
   }
 }

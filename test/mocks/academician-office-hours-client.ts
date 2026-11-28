@@ -2,11 +2,13 @@ import type {
   AcademicianAppointment,
   AcademicianAvailability,
   OfficeHoursAnswer,
-  OfficeHoursProfileSettings,
   OfficeHoursRequest,
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
-import type { OfficeHoursAffectedItem } from "@/interfaces/office-hours-me";
+import type {
+  OfficeHoursAffectedItem,
+  OfficeHoursProfile,
+} from "@/interfaces/office-hours-me";
 import { isUnaffected } from "@/lib/availability-impact";
 import { fixtureResponse } from "@/lib/client/fixtures/fixture-response";
 import {
@@ -84,12 +86,12 @@ export function saveAcademicianAvailability(
   });
 }
 
-export function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {
+export function getOfficeHoursProfile(): Promise<OfficeHoursProfile> {
   return sample(() => sampleState().profile);
 }
 
-export function saveOfficeHoursProfileSettings(
-  settings: OfficeHoursProfileSettings,
-): Promise<OfficeHoursProfileSettings> {
+export function saveOfficeHoursProfile(
+  settings: OfficeHoursProfile,
+): Promise<OfficeHoursProfile> {
   return sample(() => saveSampleProfile(settings));
 }

@@ -89,12 +89,57 @@ export type OfficeHoursAcademicianMeeting = {
   onlineLink: string | null;
 };
 
-/** Whether students see the academician (`listed`, off by default) and where and how to meet them. */
+/** The backend's limits for the academician's page (V137); the BFF schema and the editor both follow them. */
+export const OFFICE_HOURS_PROFILE_LIMITS = {
+  about: 1000,
+  topics: 6,
+  topicTitle: 80,
+  topicBody: 300,
+  courses: 10,
+  courseCode: 20,
+  courseName: 120,
+  tags: 5,
+  tag: 40,
+  responseDays: 14,
+} as const;
+
+export type OfficeHoursTopic = { title: string; body: string | null };
+
+export type OfficeHoursCourse = { code: string; name: string };
+
+/** What students read on the academician's page (FR-OH-28); plain text, lists in the academician's order. */
+export type OfficeHoursProfileDetails = {
+  about: string | null;
+  topics: OfficeHoursTopic[];
+  courses: OfficeHoursCourse[];
+  expertise: string[];
+  /** How many days they usually take to answer a request. */
+  responseDays: number | null;
+};
+
+/** The academician's own Office Hours e-mails; reminders always go. */
+export type OfficeHoursProfileEmails = {
+  newRequest: boolean;
+  cancellation: boolean;
+};
+
+/** Whether students see the academician (`listed`, off by default), where and how to meet them, and their page. */
 export type OfficeHoursProfile = {
   listed: boolean;
   defaultPlace: string | null;
   onlineLink: string | null;
   contactEmail: string | null;
+  details: OfficeHoursProfileDetails;
+  emails: OfficeHoursProfileEmails;
+};
+
+/** A profile save; a group left out is kept as saved on the backend, so older callers can't wipe it. */
+export type UpdateOfficeHoursProfilePayload = Omit<
+  OfficeHoursProfile,
+  "details" | "emails"
+> & {
+  details?: OfficeHoursProfileDetails | undefined;
+  emails?: OfficeHoursProfileEmails | undefined;
 };
 
 /**
@@ -112,8 +157,8 @@ export type OfficeHoursListedAcademician = {
   meetingMinutes: number;
   /** What they wrote for students (FR-OH-28); plain text, empty until they fill it in. */
   about: string | null;
-  topics: { title: string; body: string | null }[];
-  courses: { code: string; name: string }[];
+  topics: OfficeHoursTopic[];
+  courses: OfficeHoursCourse[];
   expertise: string[];
   /** How many days they usually take to answer a request. */
   responseDays: number | null;

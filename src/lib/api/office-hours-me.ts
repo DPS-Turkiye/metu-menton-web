@@ -13,6 +13,7 @@ import type {
   OfficeHoursRequestInput,
   OfficeHoursStudentRequest,
   OfficeHoursTimeRange,
+  UpdateOfficeHoursProfilePayload,
 } from "@/interfaces/office-hours-me";
 import type { BackendOfficeHoursAvailability } from "@/lib/api/lti";
 import { HttpMethod } from "@/lib/http-method";
@@ -85,7 +86,7 @@ export function fetchMyOfficeHoursProfile(actorId: string) {
 
 export function saveMyOfficeHoursProfile(
   actorId: string,
-  profile: OfficeHoursProfile,
+  profile: UpdateOfficeHoursProfilePayload,
 ) {
   return backendRequest<OfficeHoursProfile>({
     method: HttpMethod.Put,

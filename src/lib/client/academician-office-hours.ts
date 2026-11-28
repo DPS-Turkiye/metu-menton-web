@@ -2,11 +2,13 @@ import type {
   AcademicianAppointment,
   AcademicianAvailability,
   OfficeHoursAnswer,
-  OfficeHoursProfileSettings,
   OfficeHoursRequest,
   UpdateAcademicianAvailabilityPayload,
 } from "@/interfaces/academician-office-hours";
-import type { OfficeHoursAffectedItem } from "@/interfaces/office-hours-me";
+import type {
+  OfficeHoursAffectedItem,
+  OfficeHoursProfile,
+} from "@/interfaces/office-hours-me";
 import { upcomingOneOffs } from "@/lib/academician-availability";
 import {
   toAcademicianAppointment,
@@ -127,24 +129,13 @@ async function saveConfirmed(
   };
 }
 
-export async function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfileSettings> {
-  const { defaultPlace, onlineLink, contactEmail } =
-    await getMyOfficeHoursProfile();
-  return { defaultPlace, onlineLink, contactEmail };
+export function getOfficeHoursProfileSettings(): Promise<OfficeHoursProfile> {
+  return getMyOfficeHoursProfile();
 }
 
-/**
- * Saves where and how students meet them. Whether students see them at all (`listed`) is not on this screen yet
- * (G6), so the saved value is read first and kept as it is.
- */
-export async function saveOfficeHoursProfileSettings(
-  settings: OfficeHoursProfileSettings,
-): Promise<OfficeHoursProfileSettings> {
-  const { listed } = await getMyOfficeHoursProfile();
-  const saved = await saveMyOfficeHoursProfile({ ...settings, listed });
-  return {
-    defaultPlace: saved.defaultPlace,
-    onlineLink: saved.onlineLink,
-    contactEmail: saved.contactEmail,
-  };
+/** Profilim sets every field, so the whole profile is sent and nothing is read back first. */
+export function saveOfficeHoursProfileSettings(
+  profile: OfficeHoursProfile,
+): Promise<OfficeHoursProfile> {
+  return saveMyOfficeHoursProfile(profile);
 }
