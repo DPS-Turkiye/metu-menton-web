@@ -75,6 +75,45 @@ export function splitStatements(
   };
 }
 
+/** The coordinator card's heading; focus goes there when the last waiting statement is decided. */
+export const ISKUR_ASSESSMENT_HEADING_ID = "iskur-assessment-statements";
+
+/** A waiting statement's "Karar ver" button, so focus can come back to it when its form closes. */
+export const decideButtonId = (statementId: string) =>
+  `iskur-assessment-decide-${statementId}`;
+
+/** The decision form's save button, which takes focus back after a failed save. */
+export const confirmDecisionId = (statementId: string) =>
+  `iskur-assessment-confirm-${statementId}`;
+
+/** Where focus goes when a decision form closes: that statement's "Karar ver" button, or the heading for null. */
+export const returnFocusId = (statementId: string | null) =>
+  statementId === null
+    ? ISKUR_ASSESSMENT_HEADING_ID
+    : decideButtonId(statementId);
+
+/**
+ * The waiting statement that takes focus after one is decided: the one now in its place, or the one before it when it
+ * was last; null when none waits.
+ */
+export function nextWaitingId(
+  before: readonly IskurAssessmentStatement[],
+  decidedId: string,
+  after: readonly IskurAssessmentStatement[],
+): string | null {
+  const left = new Set(after.map((statement) => statement.id));
+  const index = before.findIndex((statement) => statement.id === decidedId);
+  const nearest =
+    index < 0
+      ? []
+      : [...before.slice(index + 1), ...before.slice(0, index).reverse()];
+  return (
+    nearest.find((statement) => left.has(statement.id))?.id ??
+    after[0]?.id ??
+    null
+  );
+}
+
 /** A retake makes sense only while the intern waits for a Prism decision; before that they can take the test anyway. */
 export function canOfferRetake(statement: IskurAssessmentStatement) {
   return statement.trainingState === TrainingState.PrismPending;

@@ -2,6 +2,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect } from "react";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
 import { Card } from "@/components/ia/card";
@@ -18,6 +19,9 @@ import {
 } from "@/interfaces/iskur-assessment-statement";
 import {
   canOfferRetake,
+  confirmDecisionId,
+  decideButtonId,
+  ISKUR_ASSESSMENT_HEADING_ID,
   ISKUR_ASSESSMENT_NOTE_MAX,
   mentoringOutcome,
 } from "@/lib/iskur-assessment-statement";
@@ -38,16 +42,21 @@ export function IskurAssessmentStatementsCard({
 }) {
   const t = useTranslations("iskurAssessment.coordinator");
   const state = useIskurAssessmentStatements(programId);
+  const { focusTargetId } = state;
+  useEffect(() => {
+    if (focusTargetId) document.getElementById(focusTargetId)?.focus();
+  }, [focusTargetId]);
   if (state.loading) return null;
   return (
     <Card
-      labelledBy="iskur-assessment-statements"
+      labelledBy={ISKUR_ASSESSMENT_HEADING_ID}
       className="flex flex-col gap-3"
     >
       <div>
         <h2
-          id="iskur-assessment-statements"
-          className="type-title-card text-text-primary"
+          id={ISKUR_ASSESSMENT_HEADING_ID}
+          tabIndex={-1}
+          className="type-title-card text-text-primary outline-none"
         >
           {t("title", { count: state.pendingCount })}
         </h2>
@@ -128,6 +137,7 @@ function Waiting({
         </div>
         {deciding ? null : (
           <Button
+            id={decideButtonId(statement.id)}
             size={ButtonSize.Small}
             disabled={state.busy}
             aria-label={t("coordinator.decideNamed", {
@@ -170,10 +180,12 @@ function DecisionForm({
         <legend className="type-label text-text-primary">
           {t("mentoringLabel")}
         </legend>
-        {CHOICES.map((choice) => (
+        {CHOICES.map((choice, index) => (
           <label key={choice} className="flex items-center gap-2 type-body-sm">
             <input
               type="radio"
+              // The form opens in place of the button that was focused; take keyboard users into it.
+              autoFocus={index === 0}
               name={`${id}-choice`}
               value={choice}
               checked={state.form.choice === choice}
@@ -247,6 +259,7 @@ function DecisionForm({
       ) : null}
       <div className="flex flex-wrap gap-2">
         <Button
+          id={confirmDecisionId(statement.id)}
           size={ButtonSize.Small}
           disabled={!state.canConfirm}
           onClick={state.confirm}

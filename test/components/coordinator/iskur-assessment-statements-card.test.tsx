@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,6 +14,7 @@ import {
   decideIskurAssessmentStatement,
   getIskurAssessmentStatements,
 } from "@/lib/client/iskur-assessment-statement";
+import { iskurAssessmentStatementsQueryKey } from "@/lib/iskur-assessment-statement";
 import {
   iskurAssessmentStatement,
   STATEMENT_ID,
@@ -121,6 +122,151 @@ describe("IskurAssessmentStatementsCard", () => {
     expect(
       screen.getByText(/Haftalık mentörlük süren: yok/),
     ).toBeInTheDocument();
+  });
+
+  it("takes focus into the form when it opens and back to its button when it is cancelled", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getIskurAssessmentStatements).mockResolvedValue({
+      programId: PROGRAM,
+      pendingCount: 1,
+      statements: [waiting],
+    });
+    renderWithQueryClient(
+      <IskurAssessmentStatementsCard programId={PROGRAM} />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Ece Kaya için karar ver" }),
+    );
+    expect(screen.getByRole("radio", { name: "Değiştirme" })).toHaveFocus();
+
+    await user.click(screen.getByRole("button", { name: "Vazgeç" }));
+    expect(
+      screen.getByRole("button", { name: "Ece Kaya için karar ver" }),
+    ).toHaveFocus();
+  });
+
+  it("hands focus to the next waiting statement after a decision, then to the heading after the last", async () => {
+    const user = userEvent.setup();
+    const second = iskurAssessmentStatement({
+      id: "00000000-0000-4000-8000-0000000000f2",
+      userId: "u-can",
+      fullName: "Can Demir",
+    });
+    const decided = (statement: typeof waiting) => ({
+      ...statement,
+      status: IskurAssessmentStatus.Decided,
+      mentoringDecision: IskurMentoringDecision.Set,
+      mentoringMinutes: 0,
+    });
+    vi.mocked(getIskurAssessmentStatements).mockResolvedValue({
+      programId: PROGRAM,
+      pendingCount: 2,
+      statements: [waiting, second],
+    });
+    vi.mocked(decideIskurAssessmentStatement)
+      .mockResolvedValueOnce({
+        programId: PROGRAM,
+        pendingCount: 1,
+        statements: [second, decided(waiting)],
+      })
+      .mockResolvedValueOnce({
+        programId: PROGRAM,
+        pendingCount: 0,
+        statements: [decided(waiting), decided(second)],
+      });
+    renderWithQueryClient(
+      <IskurAssessmentStatementsCard programId={PROGRAM} />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Ece Kaya için karar ver" }),
+    );
+    await user.click(screen.getByLabelText("0 sa: tüm süre ekip çalışmasına"));
+    await user.click(
+      screen.getByRole("button", { name: "Kararı kaydet ve bildir" }),
+    );
+    expect(
+      await screen.findByRole("heading", {
+        name: "Değerlendirme açıklamaları (1)",
+      }),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Can Demir için karar ver" }),
+      ).toHaveFocus(),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Can Demir için karar ver" }),
+    );
+    await user.click(screen.getByLabelText("0 sa: tüm süre ekip çalışmasına"));
+    await user.click(
+      screen.getByRole("button", { name: "Kararı kaydet ve bildir" }),
+    );
+    expect(
+      await screen.findByText("Karar bekleyen açıklama yok."),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", {
+          name: "Değerlendirme açıklamaları (0)",
+        }),
+      ).toHaveFocus(),
+    );
+  });
+
+  it("keeps focus on the save button after a failed save, and moves it to the heading when the form's statement goes away", async () => {
+    const user = userEvent.setup();
+    vi.mocked(getIskurAssessmentStatements).mockResolvedValue({
+      programId: PROGRAM,
+      pendingCount: 1,
+      statements: [waiting],
+    });
+    vi.mocked(decideIskurAssessmentStatement).mockRejectedValue(
+      new Error("Sunucu yanıt vermedi."),
+    );
+    const { queryClient } = renderWithQueryClient(
+      <IskurAssessmentStatementsCard programId={PROGRAM} />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Ece Kaya için karar ver" }),
+    );
+    await user.click(screen.getByLabelText("0 sa: tüm süre ekip çalışmasına"));
+    const save = screen.getByRole("button", {
+      name: "Kararı kaydet ve bildir",
+    });
+    await user.click(save);
+    expect(
+      await screen.findByText("Sunucu yanıt vermedi."),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(save).toHaveFocus());
+
+    // Another coordinator decided it meanwhile: the form closes under the keyboard user.
+    act(() => {
+      queryClient.setQueryData(iskurAssessmentStatementsQueryKey(PROGRAM), {
+        programId: PROGRAM,
+        pendingCount: 0,
+        statements: [
+          {
+            ...waiting,
+            status: IskurAssessmentStatus.Decided,
+            mentoringDecision: IskurMentoringDecision.Keep,
+          },
+        ],
+      });
+    });
+    expect(
+      await screen.findByText("Karar bekleyen açıklama yok."),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", {
+          name: "Değerlendirme açıklamaları (0)",
+        }),
+      ).toHaveFocus(),
+    );
   });
 
   it("checks typed hours and reopens the test only while Prism waits for a decision", async () => {
