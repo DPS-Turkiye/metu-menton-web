@@ -6,6 +6,7 @@ import {
   IskurMentoringDecision,
   type IskurAssessmentDecisionForm,
   type IskurAssessmentDecisionInput,
+  type IskurAssessmentMine,
   type IskurAssessmentStatement,
 } from "@/interfaces/iskur-assessment-statement";
 import { TrainingState } from "@/interfaces/training";
@@ -14,6 +15,7 @@ import {
   ISKUR_MINUTES_PER_DAY,
   mentoringMinutesOf,
 } from "@/lib/iskur-workspace";
+import { IskurAssessmentLine } from "@/types/iskur-assessment";
 import type { IskurFormProblem } from "@/types/iskur-workspace";
 
 /** The backend's limit for the intern's text. */
@@ -152,4 +154,20 @@ export function decisionPreview(
     mentoringMinutes: mentoring,
     teamMinutes: days * ISKUR_MINUTES_PER_DAY - mentoring,
   };
+}
+
+/**
+ * The line under Bu Haftam's mentoring target: a statement waiting for the coordinator, else an offer to explain while
+ * the intern may send one and still has mentoring time to fill. With no mentoring time (often the coordinator's own
+ * decision) there is nothing to explain, so nothing shows.
+ */
+export function thisWeekAssessmentLine(
+  mine: IskurAssessmentMine | null,
+  mentoringTarget: number | null,
+): IskurAssessmentLine | null {
+  if (!mine) return null;
+  if (mine.latest && isWaiting(mine.latest)) return IskurAssessmentLine.Waiting;
+  if (mine.canSend && mentoringTarget !== null && mentoringTarget > 0)
+    return IskurAssessmentLine.Offer;
+  return null;
 }

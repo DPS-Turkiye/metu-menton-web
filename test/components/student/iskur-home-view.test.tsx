@@ -23,6 +23,11 @@ import { reveal } from "@test/fixtures/iskur-onboarding";
 import { primaryButtons, renderWithQueryClient } from "@test/test-utils";
 
 // The shared home is ODTÜ öğrenci's screen; here it only shows where the İŞKUR blocks land.
+// Bu Haftam asks for the assessment statement too; not an İŞKUR statement case here.
+vi.mock("@/lib/client/iskur-assessment-statement", () => ({
+  getMyIskurAssessmentStatement: () =>
+    Promise.resolve({ programId: "p1", canSend: false, latest: null }),
+}));
 vi.mock("@/lib/client/iskur-onboarding", () => ({
   getIskurTeamReveal: vi.fn(),
 }));

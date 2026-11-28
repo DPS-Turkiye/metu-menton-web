@@ -15,6 +15,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button, ButtonSize, ButtonVariant } from "@/components/ia/button";
+import { IskurAssessmentStatementLine } from "@/components/iskur/assessment-statement-line";
 import { IskurProgressCard } from "@/components/student/iskur/progress-card";
 import { useIskurThisWeek } from "@/hooks/use-iskur-week";
 import { useReportDuration } from "@/hooks/use-report-format";
@@ -100,6 +101,11 @@ export function IskurThisWeekCard() {
               logged={week.totals.mentoringMinutes}
               target={week.split?.mentoringMinutes ?? null}
               note={state.badgePending ? t("badgePending") : undefined}
+              footer={
+                <IskurAssessmentStatementLine
+                  mentoringTarget={week.split?.mentoringMinutes ?? null}
+                />
+              }
             />
             <IskurProgressCard
               title={t("teamWork")}

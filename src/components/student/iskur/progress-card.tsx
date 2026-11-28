@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { StatusBadge, StatusTone } from "@/components/ia/status-badge";
 import { useReportDuration } from "@/hooks/use-report-format";
@@ -13,6 +14,7 @@ export function IskurProgressCard({
   logged,
   target,
   note,
+  footer,
 }: {
   title: string;
   caption: string;
@@ -20,6 +22,8 @@ export function IskurProgressCard({
   target: number | null;
   /** A status shown next to the title, such as "Rozet bekleniyor". */
   note?: string | undefined;
+  /** A line under the bar, such as the assessment statement's state. */
+  footer?: ReactNode;
 }) {
   const t = useTranslations("iskurWeek.progress");
   const duration = useReportDuration();
@@ -63,6 +67,7 @@ export function IskurProgressCard({
           style={{ width: `${percent ?? 0}%` }}
         />
       </div>
+      {footer}
     </div>
   );
 }

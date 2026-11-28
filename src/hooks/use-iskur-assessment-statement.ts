@@ -18,6 +18,7 @@ import { isEnumValue } from "@/lib/enum";
 import {
   isSendableStatement,
   isWaiting,
+  thisWeekAssessmentLine,
 } from "@/lib/iskur-assessment-statement";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/stores/toast-store";
@@ -26,18 +27,9 @@ const NOT_FOUND = 404;
 
 export const iskurAssessmentQueryKey = ["iskur-assessment-statement"] as const;
 
-/**
- * The intern's assessment statement on the training page: whether they may send one (placed, no badge, nothing
- * waiting), the reason and text they are writing, and their latest statement with the coordinator's decision.
- */
-export function useIskurAssessmentStatement() {
-  const t = useTranslations("iskurAssessment");
-  const { showToast } = useToast();
-  const queryClient = useQueryClient();
-  const [writing, setWriting] = useState(false);
-  const [reason, setReason] = useState<IskurAssessmentReason | "">("");
-  const [text, setText] = useState("");
-  const query = useQuery({
+/** The intern's own statement state, shared by the training page and Bu Haftam; null for someone who is not an intern. */
+export function useMyIskurAssessment() {
+  return useQuery({
     queryKey: iskurAssessmentQueryKey,
     queryFn: async (): Promise<IskurAssessmentMine | null> => {
       try {
@@ -51,6 +43,26 @@ export function useIskurAssessmentStatement() {
     },
     retry: false,
   });
+}
+
+/** Bu Haftam's line about the assessment statement, for this week's mentoring target. */
+export function useIskurAssessmentLine(mentoringTarget: number | null) {
+  const query = useMyIskurAssessment();
+  return thisWeekAssessmentLine(query.data ?? null, mentoringTarget);
+}
+
+/**
+ * The intern's assessment statement on the training page: whether they may send one (placed, no badge, nothing
+ * waiting), the reason and text they are writing, and their latest statement with the coordinator's decision.
+ */
+export function useIskurAssessmentStatement() {
+  const t = useTranslations("iskurAssessment");
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const [writing, setWriting] = useState(false);
+  const [reason, setReason] = useState<IskurAssessmentReason | "">("");
+  const [text, setText] = useState("");
+  const query = useMyIskurAssessment();
   const reset = () => {
     setWriting(false);
     setReason("");

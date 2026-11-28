@@ -8807,6 +8807,12 @@
       "retakeOpened": "test yeniden açıldı",
       "decided": "Karar kaydedildi; stajyere bildirildi.",
       "decideFailed": "Karar kaydedilemedi."
+    },
+    "thisWeek": {
+      "waiting": "Değerlendirme açıklaman koordinatöründe; kararı bekleniyor.",
+      "open": "Durumu gör",
+      "offer": "Değerlendirmeyi tamamlayamadın mı?",
+      "explain": "Koordinatörüne açıkla"
     }
   },
   "iskurTeamSupport": {

@@ -8805,6 +8805,12 @@
       "retakeOpened": "test reopened",
       "decided": "Decision saved; the intern was notified.",
       "decideFailed": "The decision could not be saved."
+    },
+    "thisWeek": {
+      "waiting": "Your assessment statement is with your coordinator, waiting for a decision.",
+      "open": "See its status",
+      "offer": "Couldn't complete the assessment?",
+      "explain": "Explain to your coordinator"
     }
   },
   "iskurTeamSupport": {

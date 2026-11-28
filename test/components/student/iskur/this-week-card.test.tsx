@@ -7,6 +7,7 @@ import { IskurTaskStatus } from "@/interfaces/iskur-tasks";
 import { IskurWeekDecision, IskurWeekStatus } from "@/interfaces/iskur-weeks";
 import { PeerMentorGateState } from "@/interfaces/peer-mentoring";
 import { ClientApiError } from "@/lib/client/api";
+import { getMyIskurAssessmentStatement } from "@/lib/client/iskur-assessment-statement";
 import { getIskurOnboarding } from "@/lib/client/iskur-onboarding";
 import { addIskurSupportEntry, getIskurWeek } from "@/lib/client/iskur-weeks";
 import {
@@ -28,6 +29,9 @@ import { renderWithQueryClient } from "@test/test-utils";
 vi.mock("@/lib/client/iskur-weeks", () => ({
   addIskurSupportEntry: vi.fn(),
   getIskurWeek: vi.fn(),
+}));
+vi.mock("@/lib/client/iskur-assessment-statement", () => ({
+  getMyIskurAssessmentStatement: vi.fn(),
 }));
 vi.mock("@/lib/client/iskur-onboarding", () => ({
   getIskurOnboarding: vi.fn(),
@@ -56,6 +60,11 @@ describe("IskurThisWeekCard", () => {
     vi.setSystemTime(new Date("2026-11-18T09:00:00+03:00"));
     gate.state = PeerMentorGateState.Hidden;
     vi.mocked(getIskurOnboarding).mockResolvedValue(onboarding(emptyForm()));
+    vi.mocked(getMyIskurAssessmentStatement).mockResolvedValue({
+      programId: "p1",
+      canSend: false,
+      latest: null,
+    });
   });
 
   afterEach(() => {
@@ -134,6 +143,11 @@ describe("IskurThisWeekCard", () => {
 
   it("keeps the coordinator's mentoring target and says Rozet bekleniyor until the badge", async () => {
     gate.state = PeerMentorGateState.NoBadge;
+    vi.mocked(getMyIskurAssessmentStatement).mockResolvedValue({
+      programId: "p1",
+      canSend: true,
+      latest: null,
+    });
     vi.mocked(getIskurWeek).mockImplementation((weekStart) =>
       weekStart === null
         ? Promise.resolve(createIskurWeek())
@@ -144,6 +158,10 @@ describe("IskurThisWeekCard", () => {
     const week = await screen.findByRole("region", { name: /Bu Haftam/ });
     expect(within(week).getByText("Rozet bekleniyor")).toBeInTheDocument();
     expect(within(week).getByText("2 sa 40 dk / 6 sa")).toBeInTheDocument();
+    // Without the badge the 6 h can't happen yet: the intern may tell the coordinator why.
+    expect(
+      await within(week).findByRole("link", { name: "Koordinatörüne açıkla" }),
+    ).toHaveAttribute("href", "/student/peer-mentoring/training");
     first.unmount();
 
     gate.state = PeerMentorGateState.Earned;
